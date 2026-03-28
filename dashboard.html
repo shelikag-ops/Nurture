@@ -135,10 +135,120 @@
     .today-banner-msg { font-weight:700; font-size:1rem; margin-top:2px; }
     .today-banner-count { font-size:1.8rem; font-weight:900; }
 
+    /* ── MORNING PRAYER CARD ── */
+    .prayer-card { background:linear-gradient(135deg,#1a0a2e 0%,#2d1060 100%); border:1px solid rgba(192,132,252,.35); border-radius:22px; padding:22px; margin-bottom:20px; position:relative; overflow:hidden; }
+    .prayer-card::before { content:'🕉'; position:absolute; right:18px; top:14px; font-size:2.6rem; opacity:.12; }
+    .prayer-card-done { background:linear-gradient(135deg,#0a2e1a 0%,#0d4a2a 100%); border-color:rgba(6,214,160,.35); }
+    .prayer-title { font-size:1rem; font-weight:800; color:#E9D5FF; margin-bottom:3px; }
+    .prayer-subtitle { font-size:.8rem; color:#A78BFA; font-weight:600; margin-bottom:16px; }
+    .prayer-start-btn { background:linear-gradient(135deg,#7C3AED,#C026D3); color:white; border:none; border-radius:14px; padding:13px 24px; font-family:'Nunito',sans-serif; font-size:.95rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:transform .15s,box-shadow .15s; box-shadow:0 4px 20px rgba(124,58,237,.4); }
+    .prayer-start-btn:hover { box-shadow:0 6px 28px rgba(124,58,237,.6); transform:translateY(-1px); }
+    .prayer-start-btn:active { transform:scale(.97); }
+    .prayer-done-badge { display:flex; align-items:center; gap:10px; }
+    .prayer-done-check { width:38px; height:38px; background:linear-gradient(135deg,#06D6A0,#0EA5E9); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.3rem; font-weight:900; }
+
+    /* Prayer modal overlay */
+    .prayer-modal { display:none; position:fixed; inset:0; background:rgba(5,0,20,.85); backdrop-filter:blur(6px); z-index:1000; align-items:center; justify-content:center; padding:16px; }
+    .prayer-modal.open { display:flex; }
+    @keyframes prayer-float-1 { 0%,100%{transform:translate(0,0) scale(1);opacity:.25} 50%{transform:translate(-15px,-25px) scale(1.3);opacity:.08} }
+    @keyframes prayer-float-2 { 0%,100%{transform:translate(0,0) scale(1);opacity:.18} 50%{transform:translate(20px,-18px) scale(.7);opacity:.06} }
+    @keyframes prayer-float-3 { 0%,100%{transform:translate(0,0) scale(1);opacity:.2} 50%{transform:translate(-10px,20px) scale(1.1);opacity:.07} }
+    @keyframes om-breathe { 0%,100%{transform:scale(1);opacity:.18} 50%{transform:scale(1.18);opacity:.28} }
+    @keyframes prayer-in { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    .prayer-modal-box {
+      background:linear-gradient(160deg,#0f0326 0%,#1c0545 45%,#0d1338 100%);
+      border:1px solid rgba(167,139,250,.2);
+      border-radius:28px; padding:32px 26px; max-width:500px; width:100%; color:white;
+      max-height:90vh; overflow-y:auto; position:relative; overflow-x:hidden;
+      box-shadow:0 30px 80px rgba(0,0,0,.6), 0 0 60px rgba(124,58,237,.15);
+      animation:prayer-in .4s ease;
+    }
+    /* Floating ambient orbs */
+    .prayer-orb { position:absolute; border-radius:50%; pointer-events:none; }
+    .prayer-orb-1 { width:180px; height:180px; top:-60px; right:-40px; background:radial-gradient(circle,rgba(167,139,250,.25) 0%,transparent 70%); animation:prayer-float-1 8s ease-in-out infinite; }
+    .prayer-orb-2 { width:120px; height:120px; bottom:-30px; left:-20px; background:radial-gradient(circle,rgba(99,102,241,.2) 0%,transparent 70%); animation:prayer-float-2 11s ease-in-out infinite; }
+    .prayer-orb-3 { width:80px; height:80px; top:40%; right:-10px; background:radial-gradient(circle,rgba(6,214,160,.15) 0%,transparent 70%); animation:prayer-float-3 9s ease-in-out infinite; }
+    /* Om breathe symbol in background */
+    .prayer-bg-om { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:14rem; opacity:.12; pointer-events:none; animation:om-breathe 6s ease-in-out infinite; user-select:none; line-height:1; }
+    .prayer-stage-label { font-size:.7rem; font-weight:800; color:#A78BFA; text-transform:uppercase; letter-spacing:1.8px; margin-bottom:6px; position:relative; z-index:1; }
+    .prayer-stage-title { font-size:1.4rem; font-weight:900; color:#F3E8FF; margin-bottom:12px; line-height:1.3; position:relative; z-index:1; }
+    .prayer-shloka { font-size:1.05rem; font-weight:700; color:#FDE68A; line-height:1.9; margin:16px 0 10px; font-style:italic; text-align:center; position:relative; z-index:1; }
+    .prayer-meaning { font-size:.87rem; color:#C4B5FD; line-height:1.65; margin-bottom:16px; position:relative; z-index:1; border-left:2px solid rgba(167,139,250,.4); padding-left:12px; }
+    .prayer-prompt { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:16px; margin-bottom:14px; font-size:.9rem; color:#EDE9FE; line-height:1.65; position:relative; z-index:1; }
+    .prayer-textarea { width:100%; background:rgba(255,255,255,.09); border:1px solid rgba(167,139,250,.3); border-radius:12px; padding:12px 14px; color:white; font-family:'Nunito',sans-serif; font-size:.9rem; resize:vertical; min-height:64px; margin-bottom:14px; position:relative; z-index:1; box-sizing:border-box; transition:border-color .2s; }
+    .prayer-textarea:focus { outline:none; border-color:rgba(167,139,250,.7); background:rgba(255,255,255,.12); }
+    .prayer-textarea::placeholder { color:rgba(255,255,255,.35); }
+    .prayer-progress { display:flex; gap:6px; margin-bottom:20px; position:relative; z-index:1; }
+    .prayer-pip { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,.12); transition:background .5s; }
+    .prayer-pip.active { background:linear-gradient(90deg,#7C3AED,#C026D3); }
+    .prayer-pip.done   { background:#06D6A0; }
+    .prayer-nav-btn { flex:1; padding:13px; border:none; border-radius:14px; font-family:'Nunito',sans-serif; font-size:.92rem; font-weight:800; cursor:pointer; transition:transform .15s,box-shadow .15s; position:relative; z-index:1; }
+    .prayer-nav-btn:active { transform:scale(.97); }
+    .prayer-next { background:linear-gradient(135deg,#7C3AED,#C026D3); color:white; box-shadow:0 4px 16px rgba(124,58,237,.4); }
+    .prayer-next:hover { box-shadow:0 6px 22px rgba(124,58,237,.6); }
+    .prayer-finish { background:linear-gradient(135deg,#06D6A0,#0EA5E9); color:white; box-shadow:0 4px 16px rgba(6,214,160,.3); }
+    .prayer-skip  { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.5); font-size:.82rem; max-width:90px; flex:0 0 auto; }
+    /* YouTube chant card (thumbnail → opens in YouTube) */
+    .prayer-yt-label { font-size:.68rem; font-weight:700; color:#A78BFA; text-transform:uppercase; letter-spacing:1px; margin-bottom:7px; position:relative; z-index:1; }
+    .prayer-yt-card { position:relative; z-index:1; margin-bottom:16px; border-radius:14px; overflow:hidden; cursor:pointer; box-shadow:0 4px 24px rgba(0,0,0,.5); display:block; text-decoration:none; }
+    .prayer-yt-card img { display:block; width:100%; height:auto; }
+    .prayer-yt-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(0,0,0,.1),rgba(0,0,0,.55)); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+    .prayer-yt-play { width:58px; height:58px; background:rgba(220,38,38,.92); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:white; box-shadow:0 4px 16px rgba(0,0,0,.4); transition:transform .15s; }
+    .prayer-yt-card:hover .prayer-yt-play { transform:scale(1.1); }
+    .prayer-yt-time { font-size:.75rem; font-weight:700; color:rgba(255,255,255,.9); background:rgba(0,0,0,.55); padding:3px 10px; border-radius:20px; }
+    /* Full shloka line-by-line display */
+    .shloka-lines { margin:14px 0 16px; position:relative; z-index:1; }
+    .shloka-line { margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid rgba(255,255,255,.07); }
+    .shloka-line:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+    .shloka-roman { font-size:1.05rem; font-weight:700; color:#FDE68A; font-style:italic; line-height:1.5; margin-bottom:3px; }
+    .shloka-devanagari { font-size:.85rem; color:rgba(253,230,138,.5); line-height:1.4; margin-bottom:5px; }
+    .shloka-translation { font-size:.82rem; color:#C4B5FD; line-height:1.5; }
+    .shloka-full-meaning { font-size:.83rem; color:#A78BFA; line-height:1.6; background:rgba(167,139,250,.08); border-left:2px solid rgba(167,139,250,.4); border-radius:0 8px 8px 0; padding:10px 14px; margin-bottom:16px; position:relative; z-index:1; }
+    /* Mantra MP3 player */
+    .mantra-player { position:relative; z-index:1; margin-bottom:16px; }
+    .mantra-player-label { font-size:.68rem; font-weight:700; color:#A78BFA; text-transform:uppercase; letter-spacing:1px; margin-bottom:7px; }
+    .mantra-player-bar { display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.07); border:1px solid rgba(167,139,250,.25); border-radius:14px; padding:12px 16px; }
+    .mantra-play-btn { width:44px; height:44px; flex-shrink:0; background:linear-gradient(135deg,#7C3AED,#C026D3); border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:white; cursor:pointer; transition:transform .15s,box-shadow .15s; box-shadow:0 3px 12px rgba(124,58,237,.4); }
+    .mantra-play-btn:hover { transform:scale(1.08); box-shadow:0 5px 18px rgba(124,58,237,.6); }
+    .mantra-play-btn.playing { background:linear-gradient(135deg,#06D6A0,#0EA5E9); }
+    .mantra-progress-wrap { flex:1; display:flex; flex-direction:column; gap:5px; }
+    .mantra-progress-track { height:4px; background:rgba(255,255,255,.15); border-radius:2px; cursor:pointer; position:relative; }
+    .mantra-progress-fill { height:100%; background:linear-gradient(90deg,#A78BFA,#C026D3); border-radius:2px; width:0%; transition:width .1s linear; }
+    .mantra-time { font-size:.7rem; color:rgba(255,255,255,.45); font-weight:600; text-align:right; }
+    /* Voice guidance button */
+    .prayer-voice-btn { display:inline-flex; align-items:center; gap:7px; background:rgba(139,92,246,.18); border:1px solid rgba(139,92,246,.4); color:#C4B5FD; border-radius:10px; padding:8px 16px; font-family:'Nunito',sans-serif; font-size:.82rem; font-weight:700; cursor:pointer; margin-bottom:14px; transition:background .2s; position:relative; z-index:1; }
+    .prayer-voice-btn:hover { background:rgba(139,92,246,.3); }
+    .prayer-voice-btn.loading { opacity:.6; pointer-events:none; }
+    /* Completion screen */
+    .prayer-complete-om { font-size:3rem; text-align:center; display:block; animation:om-breathe 4s ease-in-out infinite; margin-bottom:8px; }
+
     /* ── SUBJECT BLOCKS ── */
     .subject-block { margin-bottom:22px; }
     .subject-header { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:12px; font-weight:800; font-size:1rem; color:white; margin-bottom:10px; }
     .subject-detail { font-size:.8rem; background:#F0F9FF; color:#0369A1; border-radius:8px; padding:8px 12px; margin-bottom:10px; font-weight:600; line-height:1.4; }
+
+    /* ── DEBATE PREP ── */
+    .debate-prep-card { background:#FDF4FF; border:2px solid #E9D5FF; border-radius:14px; padding:16px; margin-top:10px; }
+    .debate-prep-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+    .debate-prep-title { font-size:.9rem; font-weight:800; color:#7C3AED; }
+    .debate-prep-topic { font-size:.85rem; color:#6B21A8; font-style:italic; margin-top:2px; }
+    .debate-gen-btn { background:#7C3AED; color:white; border:none; border-radius:10px; padding:8px 14px; font-size:.8rem; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:5px; transition:background .2s; }
+    .debate-gen-btn:hover { background:#6D28D9; }
+    .debate-gen-btn:disabled { background:#C4B5FD; cursor:not-allowed; }
+    .debate-regen-btn { background:none; color:#9CA3AF; border:1px solid #E5E7EB; border-radius:8px; padding:5px 10px; font-size:.75rem; cursor:pointer; font-family:inherit; }
+    .debate-doc-section { margin-bottom:10px; border-radius:10px; overflow:hidden; border:1px solid #E9D5FF; }
+    .debate-doc-toggle { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#F3E8FF; cursor:pointer; font-size:.85rem; font-weight:700; color:#6D28D9; user-select:none; }
+    .debate-doc-toggle:hover { background:#EDE9FE; }
+    .debate-doc-body { padding:14px; background:white; font-size:.85rem; line-height:1.65; color:#111; display:none; }
+    .debate-doc-body.open { display:block; }
+    .debate-doc-body h3 { font-size:.85rem; font-weight:800; color:#7C3AED; margin:12px 0 5px; }
+    .debate-doc-body h3:first-child { margin-top:0; }
+    .debate-doc-body ol, .debate-doc-body ul { padding-left:18px; margin:6px 0; }
+    .debate-doc-body li { margin-bottom:5px; }
+    .debate-status { font-size:.75rem; color:#9CA3AF; margin-top:8px; text-align:right; }
+    .debate-loading { text-align:center; padding:16px; color:#7C3AED; font-size:.85rem; font-weight:600; }
+    .debate-loading-spinner { display:inline-block; width:18px; height:18px; border:3px solid #E9D5FF; border-top-color:#7C3AED; border-radius:50%; animation:spin .8s linear infinite; vertical-align:middle; margin-right:6px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
     .task-item { display:flex; align-items:flex-start; gap:12px; padding:13px 14px; background:#F8F9FA; border-radius:11px; margin-bottom:8px; cursor:pointer; transition:background .15s,transform .15s; -webkit-tap-highlight-color:transparent; user-select:none; }
     .task-item:active { transform:scale(.98); }
     .task-item:hover { background:#F0F2F5; }
@@ -455,6 +565,29 @@
         <button class="voice-timer-stop" onclick="voiceStopTimer()">Stop ■</button>
       </div>
       <div class="nsf-pill" id="nsf-pill">🎯 NSF in <span id="nsf-days">–</span> days</div>
+    </div>
+  </div>
+
+  <!-- MORNING PRAYER + GRATITUDE -->
+  <div id="prayer-card-container"></div>
+
+  <!-- Prayer modal -->
+  <div class="prayer-modal" id="prayerModal">
+    <div class="prayer-modal-box">
+      <!-- Ambient background elements -->
+      <div class="prayer-bg-om">🕉</div>
+      <div class="prayer-orb prayer-orb-1"></div>
+      <div class="prayer-orb prayer-orb-2"></div>
+      <div class="prayer-orb prayer-orb-3"></div>
+      <!-- Content -->
+      <div class="prayer-progress" id="prayerProgress"></div>
+      <div class="prayer-stage-label" id="prayerStageLabel"></div>
+      <div class="prayer-stage-title" id="prayerStageTitle"></div>
+      <div id="prayerStageBody"></div>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:6px;position:relative;z-index:1;">
+        <button class="prayer-nav-btn prayer-skip" id="prayerSkipBtn" onclick="prayerNext(false)">Skip</button>
+        <button class="prayer-nav-btn prayer-next" id="prayerNextBtn" onclick="prayerNext(true)">Continue →</button>
+      </div>
     </div>
   </div>
 
@@ -782,6 +915,21 @@
     </div>
   </div>
 
+  <!-- Notion Sync -->
+  <div class="pv-card" style="margin-top:16px;">
+    <div class="pv-title">📤 Sync to Notion</div>
+    <div style="font-size:.83rem;color:#6B7280;margin-bottom:14px;line-height:1.5;">
+      Pushes today's completed tasks to the Activity Log, Vocab Sprint Tracker, and Science Chapter Roadmap in Notion.<br>
+      Requires GitHub PAT in ⚙️ Settings and <code style="background:#F3F4F6;padding:1px 5px;border-radius:4px;">NOTION_TOKEN</code> secret in the GitHub repo.
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <button id="notion-sync-btn" onclick="syncToNotion()" style="background:#000;color:white;border:none;border-radius:12px;padding:11px 20px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:7px;">
+        <span>📤</span> Sync Today to Notion
+      </button>
+      <div id="notion-sync-status" style="font-size:.82rem;font-weight:700;color:#9CA3AF;"></div>
+    </div>
+  </div>
+
   <!-- Parent settings shortcut -->
   <div style="margin-top:16px;text-align:center;">
     <button onclick="openPanel()" style="background:#1e1b4b;color:white;border:none;border-radius:14px;padding:12px 28px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;">⚙️ Edit This Week's Plan</button>
@@ -896,8 +1044,19 @@
       <label class="panel-label">Notion API Token — for Activity Log sync (optional)</label>
       <input class="panel-input" id="p-notion-key" type="password" placeholder="secret_…" autocomplete="off">
     </div>
+    <div class="panel-field">
+      <label class="panel-label">GitHub PAT — relay for Notion sync (needs <code style="background:#F3F4F6;padding:1px 4px;border-radius:4px;">contents:write</code> on the Nurture repo)</label>
+      <input class="panel-input" id="p-github-pat" type="password" placeholder="ghp_…" autocomplete="off">
+    </div>
+    <div class="panel-field">
+      <label class="panel-label">ElevenLabs API Key — voice guidance in morning prayer (optional · free tier: 10k chars/month)</label>
+      <input class="panel-input" id="p-elevenlabs-key" type="password" placeholder="sk_…" autocomplete="off">
+    </div>
     <div style="font-size:.76rem;color:#9CA3AF;font-weight:600;margin:-4px 0 10px;">
-      Anthropic key: <strong>console.anthropic.com</strong> → API Keys &nbsp;·&nbsp; Notion token: <strong>notion.so/my-integrations</strong>
+      Anthropic: <strong>console.anthropic.com → API Keys</strong> &nbsp;·&nbsp;
+      Notion: <strong>notion.so/my-integrations</strong> &nbsp;·&nbsp;
+      GitHub: <strong>github.com → Settings → Developer settings → Fine-grained tokens</strong> &nbsp;·&nbsp;
+      ElevenLabs: <strong>elevenlabs.io → Profile → API Keys</strong>
     </div>
 
     <div class="panel-section">🗓️ Today's Schedule</div>
@@ -1018,8 +1177,10 @@ function openPanel() {
   document.getElementById('p-book').value           = w.book             || '';
   document.getElementById('p-book-note').value      = w.bookNote         || '';
   document.getElementById('p-debate').value         = w.debateTheme      || '';
-  document.getElementById('p-api-key').value        = localStorage.getItem('hs-api-key')    || '';
-  document.getElementById('p-notion-key').value     = localStorage.getItem('hs-notion-key') || '';
+  document.getElementById('p-api-key').value          = localStorage.getItem('hs-api-key')        || '';
+  document.getElementById('p-notion-key').value       = localStorage.getItem('hs-notion-key')     || '';
+  document.getElementById('p-github-pat').value       = localStorage.getItem('hs-github-pat')     || '';
+  document.getElementById('p-elevenlabs-key').value   = localStorage.getItem('hs-elevenlabs-key') || '';
   document.getElementById('p-cal-url').value        = ac.calendarUrl     || '';
   document.getElementById('p-classes').value        = w.classes          || '';
   // Wire up all tool links relative to current URL
@@ -1041,12 +1202,18 @@ function saveConfig() {
   const v = id => document.getElementById(id).value;
   const n = id => parseFloat(document.getElementById(id).value) || undefined;
   // API keys stored separately in localStorage — never inside CFG_KEY
-  const apiKey    = v('p-api-key').trim();
-  const notionKey = v('p-notion-key').trim();
-  if (apiKey)    localStorage.setItem('hs-api-key',    apiKey);
-  else           localStorage.removeItem('hs-api-key');
-  if (notionKey) localStorage.setItem('hs-notion-key', notionKey);
-  else           localStorage.removeItem('hs-notion-key');
+  const apiKey       = v('p-api-key').trim();
+  const notionKey    = v('p-notion-key').trim();
+  const githubPat    = v('p-github-pat').trim();
+  const elevenlabsKey = v('p-elevenlabs-key').trim();
+  if (apiKey)         localStorage.setItem('hs-api-key',        apiKey);
+  else                localStorage.removeItem('hs-api-key');
+  if (notionKey)      localStorage.setItem('hs-notion-key',     notionKey);
+  else                localStorage.removeItem('hs-notion-key');
+  if (elevenlabsKey)  localStorage.setItem('hs-elevenlabs-key', elevenlabsKey);
+  else                localStorage.removeItem('hs-elevenlabs-key');
+  if (githubPat) localStorage.setItem('hs-github-pat', githubPat);
+  else           localStorage.removeItem('hs-github-pat');
 
   const ov = {
     vocabDone:         n('p-vocab-done'),
@@ -1430,6 +1597,9 @@ function render() {
           <div class="task-cam-btn" title="Submit your work" onclick="event.stopPropagation();openSubmitModal('${id}','${task}','${s}')">📷</div>
         </div>`;
       });
+      if (s === "Debate") {
+        planHTML += renderDebatePrepHTML(detail || ACFG.week.debateTheme || "");
+      }
       planHTML+=`</div>`;
     });
   }
@@ -2481,10 +2651,749 @@ function openNewsApp() {
   window.open(base + 'News_App.html', '_blank');
 }
 
+// ═══════════════════════════════════════════════════════════
+//  MORNING PRAYER + GRATITUDE PRACTICE
+// ═══════════════════════════════════════════════════════════
+
+// ── YouTube chant video for prayer modal ─────────────────────────────────
+// cpQ-pr9axfA starts at 1:55 = 115s — meditation chanting
+const PRAYER_YT_VIDEO   = 'cpQ-pr9axfA';
+const PRAYER_YT_START   = 115; // 1:55
+
+// ── Daily audio picker for stages 3–5 ────────────────────────────────────
+// Cycles through 30 pre-generated OpenAI TTS files based on day-of-year.
+// Files live in prayer-audio/ folder: stage-3-day-01.mp3 … stage-5-day-30.mp3
+function getDailyAudio(stageNum) {
+  const now      = new Date();
+  const start    = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+  const day      = ((dayOfYear - 1) % 30) + 1;
+  const dayStr   = String(day).padStart(2, '0');
+  return `prayer-audio/stage-${stageNum}-day-${dayStr}.mp3`;
+}
+
+const PRAYER_STAGES = [
+  {
+    label: 'Stage 1 of 5 — Morning Blessing',
+    title: 'Karagre Vasate Lakshmi',
+    isShloka: true,
+    lines: [
+      { roman: 'Karagre vasate Lakṣhmīḥ',  dev: 'कराग्रे वसते लक्ष्मीः',  tr: 'At the tip of the hands lives Lakshmi — goddess of abundance and beauty' },
+      { roman: 'Karamadhye Sarasvatī',      dev: 'करमध्ये सरस्वती',         tr: 'In the middle of the hands lives Saraswati — goddess of knowledge and learning' },
+      { roman: 'Karamūle tu Govindaḥ',      dev: 'करमूले तु गोविन्दः',      tr: 'At the base of the hands lives Govinda — Lord Krishna, the protector' },
+      { roman: 'Prabhāte kara-darśhanam',   dev: 'प्रभाते करदर्शनम्',        tr: 'In the morning, we look at our hands — and remember the divine within us' },
+    ],
+    meaning: 'This morning blessing teaches us that our hands are sacred. The goddesses of wealth, knowledge, and protection all live within them. By looking at our hands first thing in the morning, we remind ourselves that we have everything we need — the power to create, to learn, and to care.',
+    audioSrc: 'mantra-karagre.mp3',
+    guidance: 'Look at your hands... Saara. In the front of your palm... lives Lakshmi. The goddess of abundance and beauty. In the middle lives Saraswati. The goddess of knowledge and learning. At the base lives Govinda. Lord Krishna... the protector. Every morning when you look at your hands... remember. They hold the power to create. To learn. And to care.',
+    hasInput: false,
+  },
+  {
+    label: 'Stage 2 of 5 — Prayer for Learning',
+    title: 'Saraswati Vandana',
+    isShloka: true,
+    lines: [
+      { roman: 'Yā Kundendu tuṣāra-hāra dhavalā',              dev: 'या कुन्देन्दु तुषारहार धवला',          tr: 'She who is as white as the jasmine flower, the moon, and garlands of snow' },
+      { roman: 'Yā śhubhra-vastrāvṛtā',                         dev: 'या शुभ्रवस्त्रावृता',                   tr: 'She who is always dressed in pure white garments' },
+      { roman: 'Yā vīṇā-vara-daṇḍa-maṇḍita-karā',              dev: 'या वीणावरदण्डमण्डितकरा',               tr: 'She whose graceful hands are adorned with the finest veena' },
+      { roman: 'Yā śhveta-padmāsanā',                           dev: 'या श्वेतपद्मासना',                      tr: 'She who sits upon a pure white lotus throne' },
+      { roman: 'Yā Brahmā-Achyuta-Śhaṅkara-prabhṛtibhir devaiḥ sadā vanditā', dev: 'या ब्रह्माच्युतशंकरप्रभृतिभिर्देवैः सदा वन्दिता', tr: 'She who is forever praised by Brahma, Vishnu, Shiva, and all the gods' },
+      { roman: 'Sā mām pātu Sarasvatī Bhagavatī niḥśheṣa-jāḍyāpahā', dev: 'सा माम् पातु सरस्वती भगवती निःशेषजाड्यापहा', tr: 'May that divine Saraswati protect me and remove every trace of dullness from my mind' },
+    ],
+    meaning: 'This prayer asks Saraswati — the goddess of all knowledge, music, speech, and wisdom — to guide us as we learn. We describe her beauty and purity, and then humbly ask her to remove our laziness and confusion so our minds can be clear and sharp today.',
+    audioSrc: 'mantra-saraswati.mp3',
+    guidance: 'This prayer is for Saraswati. Goddess of all knowledge... music... and the arts. She is pure as jasmine. White as the moon. Dressed in white. Holding a veena in her graceful hands. As you begin your studies today... ask her to be with you. Let her protect your mind and fill it with clarity. Let her remove all dullness... so you can learn with deep joy and full attention.',
+    hasInput: false,
+  },
+  {
+    label: 'Stage 3 of 5 — Gratitude for People',
+    title: 'Thank the people around you',
+    body: `prompt|🙏 Think of one person who helped you, made you smile, or taught you something recently.\n\nWho are they? What did they do? Take 30 seconds to really picture their face.`,
+    placeholder: 'I am grateful for… because they…',
+    audioSrc: getDailyAudio(3),
+    saveKey: 'gratitudePerson',
+    hasInput: true,
+  },
+  {
+    label: 'Stage 4 of 5 — Gratitude for Life',
+    title: 'Three things you\'re grateful for today',
+    body: `prompt|🌱 "Santosha" — contentment — is one of the niyamas in yoga philosophy. It means finding joy in what already exists.\n\nWrite three things you are grateful for this morning — they can be tiny things!`,
+    placeholder: '1.\n2.\n3.',
+    audioSrc: getDailyAudio(4),
+    saveKey: 'gratitude3Things',
+    hasInput: true,
+  },
+  {
+    label: 'Stage 5 of 5 — Today\'s Sankalpa',
+    title: 'Set your intention for the day',
+    body: `prompt|🌟 A "Sankalpa" is a heartfelt intention — not a task, but a way of being.\n\nExamples: "Today I will be curious." · "Today I will be patient with myself." · "Today I will give my full effort."\n\nWhat is your sankalpa for today?`,
+    placeholder: 'Today I will…',
+    audioSrc: getDailyAudio(5),
+    saveKey: 'sankalpa',
+    hasInput: true,
+    isLast: true,
+  },
+];
+
+let _prayerStage = 0;
+let _prayerAudio = null; // currently playing ElevenLabs audio
+
+// ── ElevenLabs voice guidance ─────────────────────────────────────────────
+// Voice: Rachel (21m00Tcm4TlvDq8ikWAM) — calm, warm, meditative
+const EL_VOICE_ID = '21m00Tcm4TlvDq8ikWAM';
+
+async function prayerVoiceGuide(stageIndex) {
+  const stage = PRAYER_STAGES[stageIndex];
+  if (!stage || !stage.guidance) return;
+
+  const btn = document.getElementById(`prayer-voice-btn-${stageIndex}`);
+
+  // ── Toggle: if already playing, stop ─────────────────────────────────
+  if (btn && btn.dataset.playing === '1') {
+    stopPrayerAudio();
+    btn.dataset.playing = '0';
+    btn.textContent = '🎙 Hear guidance';
+    return;
+  }
+
+  // Stop anything currently playing from a different stage
+  stopPrayerAudio();
+
+  const elKey = localStorage.getItem('hs-elevenlabs-key');
+
+  // Helpers to update button state with engine label
+  const setPlaying = (engine) => {
+    if (!btn) return;
+    btn.dataset.playing = '1';
+    btn.classList.remove('loading');
+    btn.textContent = `⏹ ${engine} · tap to stop`;
+  };
+  const setIdle = () => {
+    if (!btn) return;
+    btn.dataset.playing = '0';
+    btn.textContent = '🎙 Hear guidance';
+  };
+
+  // ── Try ElevenLabs first ──────────────────────────────────────────────
+  if (elKey) {
+    if (btn) { btn.classList.add('loading'); btn.textContent = '🎙 Loading…'; }
+    try {
+      const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${EL_VOICE_ID}`, {
+        method: 'POST',
+        headers: {
+          'xi-api-key': elKey,
+          'Content-Type': 'application/json',
+          'Accept': 'audio/mpeg',
+        },
+        body: JSON.stringify({
+          text: stage.guidance,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: { stability: 0.55, similarity_boost: 0.75, style: 0.2, use_speaker_boost: true },
+        }),
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text().catch(() => `HTTP ${resp.status}`);
+        throw new Error(`ElevenLabs ${resp.status}: ${errText.slice(0, 160)}`);
+      }
+
+      const blob = await resp.blob();
+      const url  = URL.createObjectURL(blob);
+      _prayerAudio = new Audio(url);
+      await _prayerAudio.play();
+      setPlaying('ElevenLabs');
+      _prayerAudio.onended = () => { URL.revokeObjectURL(url); _prayerAudio = null; setIdle(); };
+      return; // ✅ success
+
+    } catch(e) {
+      console.warn('ElevenLabs failed →', e.message, '— falling back to browser voice');
+      if (btn) btn.classList.remove('loading');
+      // Fall through to Web Speech
+    }
+  }
+
+  // ── Fallback: Web Speech API ──────────────────────────────────────────
+  if (!('speechSynthesis' in window)) {
+    setIdle();
+    alert('Voice not available in this browser. Try Chrome or Safari.');
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(stage.guidance);
+  utt.rate   = 0.70;
+  utt.pitch  = 0.92;
+  utt.volume = 0.9;
+  utt.lang   = 'en-GB';
+
+  const useVoice = () => {
+    const voices = window.speechSynthesis.getVoices();
+    const pick = voices.find(v => /samantha|karen|moira|tessa|victoria|fiona/i.test(v.name) && /en/i.test(v.lang))
+              || voices.find(v => v.lang === 'en-GB' && v.localService)
+              || voices.find(v => v.lang.startsWith('en') && v.localService)
+              || voices.find(v => v.lang.startsWith('en'));
+    if (pick) utt.voice = pick;
+    window.speechSynthesis.speak(utt);
+  };
+
+  setPlaying('Browser voice');
+  utt.onend  = () => setIdle();
+  utt.onerror = () => setIdle();
+
+  if (window.speechSynthesis.getVoices().length) useVoice();
+  else { window.speechSynthesis.onvoiceschanged = useVoice; useVoice(); }
+
+  if (!elKey && btn) btn.title = 'Add ElevenLabs key in ⚙️ Settings for a much better voice';
+}
+
+function stopPrayerAudio() {
+  if (_prayerAudio) { try { _prayerAudio.pause(); } catch{} _prayerAudio = null; }
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  _stopMantraAudio();
+}
+
+// ── Mantra MP3 player ─────────────────────────────────────────────────────
+let _mantraAudio = null;
+
+function _initMantraAudio(src) {
+  _stopMantraAudio();
+  _mantraAudio = new Audio(src);
+  _mantraAudio.volume = 0.85;
+
+  // Wire progress bar
+  _mantraAudio.addEventListener('timeupdate', _updateMantraProgress);
+  _mantraAudio.addEventListener('ended', () => {
+    const btn = document.getElementById('mantra-play-btn');
+    if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
+  });
+  _mantraAudio.addEventListener('loadedmetadata', _updateMantraProgress);
+
+  // Auto-play
+  _mantraAudio.play().then(() => {
+    const btn = document.getElementById('mantra-play-btn');
+    if (btn) { btn.textContent = '⏸'; btn.classList.add('playing'); }
+  }).catch(() => {
+    // Autoplay blocked — user must tap play
+  });
+}
+
+function _updateMantraProgress() {
+  if (!_mantraAudio) return;
+  const fill = document.getElementById('mantra-fill');
+  const time = document.getElementById('mantra-time');
+  const cur  = _mantraAudio.currentTime;
+  const dur  = _mantraAudio.duration || 0;
+  if (fill && dur) fill.style.width = (cur / dur * 100) + '%';
+  if (time) {
+    const fmt = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+    time.textContent = `${fmt(cur)} / ${fmt(dur)}`;
+  }
+}
+
+function toggleMantraAudio() {
+  if (!_mantraAudio) return;
+  const btn = document.getElementById('mantra-play-btn');
+  if (_mantraAudio.paused) {
+    _mantraAudio.play();
+    if (btn) { btn.textContent = '⏸'; btn.classList.add('playing'); }
+  } else {
+    _mantraAudio.pause();
+    if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
+  }
+}
+
+function seekMantraAudio(e) {
+  if (!_mantraAudio || !_mantraAudio.duration) return;
+  const track = document.getElementById('mantra-track');
+  if (!track) return;
+  const rect = track.getBoundingClientRect();
+  _mantraAudio.currentTime = ((e.clientX - rect.left) / rect.width) * _mantraAudio.duration;
+}
+
+function _stopMantraAudio() {
+  if (_mantraAudio) {
+    try { _mantraAudio.pause(); } catch{}
+    _mantraAudio.removeEventListener('timeupdate', _updateMantraProgress);
+    _mantraAudio = null;
+  }
+}
+
+function renderPrayerCard() {
+  const container = document.getElementById('prayer-card-container');
+  if (!container) return;
+  const now = new Date();
+  const prayerKey = `hs-prayer-${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+  const done = load(prayerKey);
+
+  if (done) {
+    const sankalpa = done.sankalpa || '';
+    container.innerHTML = `
+      <div class="prayer-card prayer-card-done">
+        <div class="prayer-done-badge">
+          <div class="prayer-done-check">🕉</div>
+          <div>
+            <div style="font-weight:800;font-size:.95rem;color:#A7F3D0;">Morning practice complete ✓</div>
+            ${sankalpa ? `<div style="font-size:.82rem;color:#6EE7B7;margin-top:2px;font-style:italic;">"${sankalpa}"</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+  } else {
+    container.innerHTML = `
+      <div class="prayer-card">
+        <div class="prayer-title">🕉 Morning Prayer & Gratitude</div>
+        <div class="prayer-subtitle">~7 minutes · Hindu values · voice guided · meditation chant</div>
+        <button class="prayer-start-btn" onclick="startPrayer()">
+          🙏 Begin Morning Practice
+        </button>
+      </div>`;
+  }
+}
+
+function startPrayer() {
+  _prayerStage = 0;
+  document.getElementById('prayerModal').classList.add('open');
+  renderPrayerStage();
+}
+
+function renderPrayerStage() {
+  const stage = PRAYER_STAGES[_prayerStage];
+  if (!stage) { finishPrayer(); return; }
+
+  // Progress pips
+  const pips = PRAYER_STAGES.map((_,i) =>
+    `<div class="prayer-pip ${i < _prayerStage ? 'done' : i === _prayerStage ? 'active' : ''}"></div>`
+  ).join('');
+  document.getElementById('prayerProgress').innerHTML = pips;
+  document.getElementById('prayerStageLabel').textContent = stage.label;
+  document.getElementById('prayerStageTitle').textContent = stage.title;
+
+  // Body
+  const bodyEl = document.getElementById('prayerStageBody');
+  const prayerKey = `hs-prayer-${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`;
+  const saved = load(prayerKey) || {};
+
+  let html = '';
+
+  // Voice guidance button (all stages)
+  if (stage.guidance) {
+    html += `<button class="prayer-voice-btn" id="prayer-voice-btn-${_prayerStage}" onclick="prayerVoiceGuide(${_prayerStage})">🎙 Hear guidance</button>`;
+  }
+
+  if (stage.isShloka && stage.lines) {
+    // Full line-by-line shloka: transliteration + Devanagari + translation per line
+    html += `<div class="shloka-lines">`;
+    stage.lines.forEach(l => {
+      html += `<div class="shloka-line">
+        <div class="shloka-roman">${l.roman}</div>
+        <div class="shloka-devanagari">${l.dev}</div>
+        <div class="shloka-translation">${l.tr}</div>
+      </div>`;
+    });
+    html += `</div>`;
+    html += `<div class="shloka-full-meaning">${stage.meaning}</div>`;
+  } else if (stage.body && stage.body.startsWith('prompt|')) {
+    const promptText = stage.body.replace('prompt|','');
+    html += `<div class="prayer-prompt">${promptText.replace(/\n/g,'<br>')}</div>`;
+    if (stage.meaning) html += `<div class="prayer-meaning">${stage.meaning}</div>`;
+  }
+
+  if (stage.hasInput) {
+    const val = saved[stage.saveKey] || '';
+    html += `<textarea class="prayer-textarea" id="prayerInput" placeholder="${stage.placeholder || ''}">${val}</textarea>`;
+  }
+
+  // Mantra audio — MP3 player if audioSrc is set, else YouTube card/link
+  if (stage.audioSrc) {
+    html += `<div class="mantra-player">
+      <div class="mantra-player-label">🎵 Authentic chant — plays automatically</div>
+      <div class="mantra-player-bar">
+        <button class="mantra-play-btn" id="mantra-play-btn" onclick="toggleMantraAudio()">▶</button>
+        <div class="mantra-progress-wrap">
+          <div class="mantra-progress-track" id="mantra-track" onclick="seekMantraAudio(event)">
+            <div class="mantra-progress-fill" id="mantra-fill"></div>
+          </div>
+          <div class="mantra-time" id="mantra-time">0:00 / 0:00</div>
+        </div>
+      </div>
+    </div>`;
+  } else if (stage.showYT) {
+    const ytLink = `https://www.youtube.com/watch?v=${PRAYER_YT_VIDEO}&t=${PRAYER_YT_START}s`;
+    const ytThumb = `https://img.youtube.com/vi/${PRAYER_YT_VIDEO}/mqdefault.jpg`;
+    html += `<div class="prayer-yt-label">🎵 Meditation chant — tap to play in YouTube</div>
+    <a class="prayer-yt-card" href="${ytLink}" target="_blank" rel="noopener">
+      <img src="${ytThumb}" alt="Meditation chant">
+      <div class="prayer-yt-overlay">
+        <div class="prayer-yt-play">▶</div>
+        <div class="prayer-yt-time">▶ Starts at 1:55</div>
+      </div>
+    </a>`;
+  } else {
+    const ytLink = `https://www.youtube.com/watch?v=${PRAYER_YT_VIDEO}&t=${PRAYER_YT_START}s`;
+    html += `<div style="position:relative;z-index:1;margin-bottom:10px;">
+      <a href="${ytLink}" target="_blank" rel="noopener" style="font-size:.75rem;color:rgba(167,139,250,.6);text-decoration:none;">🎵 Play ambient chant in YouTube</a>
+    </div>`;
+  }
+
+  bodyEl.innerHTML = html;
+
+  // Auto-play MP3 if this stage has one
+  if (stage.audioSrc) {
+    _initMantraAudio(stage.audioSrc);
+  }
+
+  // Next button label
+  const nextBtn = document.getElementById('prayerNextBtn');
+  if (nextBtn) {
+    nextBtn.className = `prayer-nav-btn ${stage.isLast ? 'prayer-finish' : 'prayer-next'}`;
+    nextBtn.textContent = stage.isLast ? '✨ Complete Practice' : 'Continue →';
+  }
+}
+
+function prayerNext(save) {
+  const stage = PRAYER_STAGES[_prayerStage];
+  stopPrayerAudio();
+
+  if (save && stage.hasInput) {
+    const input = document.getElementById('prayerInput');
+    if (input && input.value.trim()) {
+      const now = new Date();
+      const prayerKey = `hs-prayer-${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+      const saved = load(prayerKey) || {};
+      saved[stage.saveKey] = input.value.trim();
+      save_prayer(prayerKey, saved);
+    }
+  }
+
+  _prayerStage++;
+  if (_prayerStage >= PRAYER_STAGES.length) { finishPrayer(); return; }
+  renderPrayerStage();
+}
+
+function save_prayer(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); } catch {}
+}
+
+function finishPrayer() {
+  const now = new Date();
+  const prayerKey = `hs-prayer-${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+  const saved = load(prayerKey) || {};
+  saved._completed = true;
+  save_prayer(prayerKey, saved);
+
+  // Show a brief completion screen before closing
+  const box = document.querySelector('.prayer-modal-box');
+  if (box) {
+    const sankalpa = saved.sankalpa || 'be your best self today';
+    document.getElementById('prayerProgress').innerHTML =
+      PRAYER_STAGES.map(() => `<div class="prayer-pip done"></div>`).join('');
+    document.getElementById('prayerStageLabel').textContent = 'Practice complete ✓';
+    document.getElementById('prayerStageTitle').textContent = 'ॐ शान्ति — Om Shanti';
+    document.getElementById('prayerStageBody').innerHTML = `
+      <span class="prayer-complete-om">🕉</span>
+      <div class="prayer-meaning" style="text-align:center;color:#C4B5FD;margin-bottom:8px;">Your morning practice is complete.</div>
+      <div class="prayer-prompt" style="text-align:center;font-style:italic;">"${sankalpa}"</div>`;
+    const nextBtn = document.getElementById('prayerNextBtn');
+    if (nextBtn) { nextBtn.className = 'prayer-nav-btn prayer-finish'; nextBtn.textContent = 'Begin your day ✨'; nextBtn.onclick = closePrayerModal; }
+    const skipBtn = document.getElementById('prayerSkipBtn');
+    if (skipBtn) skipBtn.style.display = 'none';
+  }
+
+  stopPrayerAudio();
+  renderPrayerCard();
+}
+
+function closePrayerModal() {
+  stopPrayerAudio();
+  document.getElementById('prayerModal').classList.remove('open');
+  const skipBtn = document.getElementById('prayerSkipBtn');
+  if (skipBtn) { skipBtn.style.display = ''; }
+  const nextBtn = document.getElementById('prayerNextBtn');
+  if (nextBtn) { nextBtn.onclick = () => prayerNext(true); }
+}
+
+// Close prayer modal on backdrop click
+document.addEventListener('click', e => {
+  if (e.target.id === 'prayerModal') {
+    closePrayerModal();
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+//  NOTION SYNC  (GitHub API relay → GitHub Actions → Notion)
+// ═══════════════════════════════════════════════════════════
+
+function isoWeekStr(d) {
+  const jan1 = new Date(d.getFullYear(), 0, 1);
+  const wk = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return `${d.getFullYear()}-W${String(wk).padStart(2,'0')}`;
+}
+
+// Map dashboard subject names → Notion Activity Log select options
+const NOTION_SUBJECT_MAP = {
+  'Math': 'Math', 'Science': 'Science', 'English': 'Language Arts',
+  'History': 'History', 'Chess': 'Chess', 'Debate': 'Debate',
+  'Vocabulary': 'Vocabulary', 'Current Affairs': 'Current Affairs',
+  'Reading': 'Reading', 'FLL': 'FLL',
+};
+
+function parseDurationFromTask(taskText) {
+  const m = (taskText || '').match(/(\d+)\s*min/i);
+  return m ? parseInt(m[1]) : 30; // default 30 min
+}
+
+async function syncToNotion() {
+  const btn    = document.getElementById('notion-sync-btn');
+  const status = document.getElementById('notion-sync-status');
+  const ghPat  = localStorage.getItem('hs-github-pat');
+
+  if (!ghPat) {
+    status.innerHTML = '⚠️ Add GitHub PAT in ⚙️ Settings first.';
+    status.style.color = '#EF4444';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="debate-loading-spinner"></span> Syncing…';
+  status.innerHTML = '';
+
+  try {
+    const now    = new Date();
+    const today  = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    const todayK = `hs-${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+    const weekStr = isoWeekStr(now);
+    const cfg    = getActiveCFG();
+    const PLAN   = buildPlan(cfg);
+    const dow    = now.getDay();
+    const dayPlan = PLAN[dow] || [];
+    const state  = load(todayK) || {};
+
+    // ── Build activity entries from completed tasks ──
+    const activities = [];
+    dayPlan.forEach(({s, t}) => {
+      const notionSubject = NOTION_SUBJECT_MAP[s] || s;
+      t.forEach((taskText, i) => {
+        if (state[`${s}-${i}`]) {
+          activities.push({
+            activity: taskText.replace(/ — \d+ min.*/i, '').trim(),
+            subject:  notionSubject,
+            type:     'Planned',
+            date:     today,
+            duration: parseDurationFromTask(taskText),
+            week:     weekStr,
+          });
+        }
+      });
+    });
+
+    // ── Vocab entry ──
+    const vocabDone = cfg.vocabDone || 0;
+    const vocabTaskDone = !!(state['Vocabulary-0'] || state['Vocabulary-1']);
+    const vocab = {
+      date:         today,
+      newWordsToday: vocabTaskDone ? (cfg.week?.vocabTarget ? Math.min(60, cfg.week.vocabTarget) : 50) : 0,
+      runningTotal:  vocabDone,
+      wordsRemaining: Math.max(0, 2000 - vocabDone),
+      vocabComSession: !!state['Vocabulary-1'],
+      revisionDone:    !!state['Vocabulary-0'],
+    };
+
+    // ── Science session increment ──
+    const sciDone = !!state['Science-0'];
+    const scienceSession = sciDone ? {
+      chapterInProgress: cfg.scienceInProgress || 'Ch 7 — C-1 Energy',
+      increment: 1,
+    } : null;
+
+    const payload = { syncDate: today, activities, vocab, scienceSession, weekStr };
+
+    // ── Write queue file to GitHub ──
+    const REPO = 'shelikag-ops/Nurture';
+    const FILE = 'notion-sync-queue.json';
+
+    // First try to get existing SHA (needed for update)
+    let sha = null;
+    try {
+      const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`, {
+        headers: { 'Authorization': `token ${ghPat}`, 'Accept': 'application/vnd.github.v3+json' }
+      });
+      if (r.ok) { const d = await r.json(); sha = d.sha; }
+    } catch {}
+
+    const body = { message: `Notion sync: ${today}`, content: btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2)))), ...(sha ? {sha} : {}) };
+
+    const resp = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`, {
+      method:  'PUT',
+      headers: { 'Authorization': `token ${ghPat}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body:    JSON.stringify(body),
+    });
+
+    if (resp.ok) {
+      status.innerHTML = `✅ Queued! GitHub Actions will push to Notion within ~30 sec. (${activities.length} activities)`;
+      status.style.color = '#06D6A0';
+    } else {
+      const err = await resp.json();
+      throw new Error(err.message || resp.statusText);
+    }
+  } catch (e) {
+    status.innerHTML = `⚠️ Error: ${e.message}`;
+    status.style.color = '#EF4444';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>📤</span> Sync Today to Notion';
+  }
+}
+
 // ── INIT ──
 render();
+renderPrayerCard();
 updateReviewBadge();
 renderNotifications();
+
+// ═══════════════════════════════════════════════════════════
+//  DEBATE PREP DOCS
+// ═══════════════════════════════════════════════════════════
+
+function debateSlug(topic) {
+  return (topic || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+}
+
+function renderDebatePrepHTML(topic) {
+  if (!topic) return '';
+  const slug = debateSlug(topic);
+  const cached = load('hs-debate-prep-' + slug);
+
+  let html = `<div class="debate-prep-card">
+    <div class="debate-prep-header">
+      <div>
+        <div class="debate-prep-title">📋 Debate Prep</div>
+        <div class="debate-prep-topic">"${topic}"</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">`;
+
+  if (cached && (cached.brief || cached.questions)) {
+    html += `<button class="debate-regen-btn" onclick="clearDebateDocs('${slug}')">🔄 Regenerate</button>`;
+  } else {
+    html += `<button class="debate-gen-btn" id="debate-gen-btn-${slug}" onclick="generateDebateDocs('${slug}','${topic.replace(/'/g,"\\'")}')">✨ Generate Research Docs</button>`;
+  }
+
+  html += `</div></div>`;
+  html += `<div id="debate-prep-body-${slug}">`;
+
+  if (cached && (cached.brief || cached.questions)) {
+    // Research Brief section
+    html += `<div class="debate-doc-section">
+      <div class="debate-doc-toggle" onclick="toggleDebateDoc('brief-${slug}')">
+        <span>📄 Research Brief</span><span id="debate-brief-arrow-${slug}">▼</span>
+      </div>
+      <div class="debate-doc-body open" id="debate-brief-body-${slug}">${cached.brief || ''}</div>
+    </div>`;
+    // Thinking Questions section
+    html += `<div class="debate-doc-section" style="margin-top:8px;">
+      <div class="debate-doc-toggle" onclick="toggleDebateDoc('questions-${slug}')">
+        <span>💭 Thinking Questions</span><span id="debate-questions-arrow-${slug}">▼</span>
+      </div>
+      <div class="debate-doc-body open" id="debate-questions-body-${slug}">${cached.questions || ''}</div>
+    </div>`;
+    if (cached.generatedAt) {
+      const d = new Date(cached.generatedAt);
+      html += `<div class="debate-status">Generated ${d.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div>`;
+    }
+  } else {
+    html += `<div id="debate-gen-status-${slug}" style="font-size:.8rem;color:#9CA3AF;margin-top:4px;">
+      Click "Generate Research Docs" to create a balanced research brief and guided thinking questions for this topic.
+    </div>`;
+  }
+
+  html += `</div></div>`;
+  return html;
+}
+
+function toggleDebateDoc(sectionKey) {
+  const body = document.getElementById('debate-' + sectionKey + '-body');
+  const arrow = document.getElementById('debate-' + sectionKey + '-arrow');
+  if (!body) return;
+  const isOpen = body.classList.toggle('open');
+  if (arrow) arrow.textContent = isOpen ? '▼' : '▶';
+}
+
+function clearDebateDocs(slug) {
+  localStorage.removeItem('hs-debate-prep-' + slug);
+  render();
+}
+
+async function generateDebateDocs(slug, topic) {
+  const key = getApiKey();
+  if (!key) {
+    const statusEl = document.getElementById('debate-gen-status-' + slug);
+    if (statusEl) statusEl.innerHTML = `<span style="color:#DC2626;">⚠️ No API key found. Add it in ⚙️ Settings → API Key.</span>`;
+    return;
+  }
+
+  // Show loading state
+  const btn = document.getElementById('debate-gen-btn-' + slug);
+  const bodyEl = document.getElementById('debate-prep-body-' + slug);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="debate-loading-spinner"></span> Generating…'; }
+  if (bodyEl) bodyEl.innerHTML = `<div class="debate-loading"><span class="debate-loading-spinner"></span> Asking Claude to research "${topic}"…<br><small style="color:#9CA3AF;font-weight:400;">This takes about 15 seconds</small></div>`;
+
+  try {
+    const briefPrompt = `You are creating a neutral research brief for a 10-year-old participating in a homeschool debate group. The debate topic is: "${topic}".
+
+Write a clear, balanced, age-appropriate research brief. Use this structure with HTML headings only (no markdown):
+<h3>📖 Background</h3>
+<p>What is this topic? 2-3 sentences of context.</p>
+<h3>✅ Arguments For</h3>
+<ul><li>...</li></ul>
+<h3>❌ Arguments Against</h3>
+<ul><li>...</li></ul>
+<h3>📊 Key Facts</h3>
+<ul><li>...</li></ul>
+<h3>🌍 Real-World Examples</h3>
+<p>One or two concrete examples.</p>
+
+Keep it objective, factual, and accessible for a bright 10-year-old. Use only HTML tags (h3, p, ul, li, strong). No markdown.`;
+
+    const questionsPrompt = `Create 10 guided thinking questions to help a 10-year-old prepare for a debate on: "${topic}".
+
+Questions should explore both sides, ethical dimensions, real-world impact, and personal reflection. Format as HTML only:
+<ol>
+<li><strong>Question?</strong> <em>Hint: what to think about</em></li>
+</ol>
+
+Use only HTML tags (ol, li, strong, em). No markdown.`;
+
+    // Call for Brief
+    const [briefRes, questionsRes] = await Promise.all([
+      fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{ 'x-api-key':key, 'anthropic-version':'2023-06-01', 'content-type':'application/json', 'anthropic-dangerous-direct-browser-calls':'true' },
+        body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:800,
+          messages:[{ role:'user', content: briefPrompt }] })
+      }),
+      fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{ 'x-api-key':key, 'anthropic-version':'2023-06-01', 'content-type':'application/json', 'anthropic-dangerous-direct-browser-calls':'true' },
+        body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:600,
+          messages:[{ role:'user', content: questionsPrompt }] })
+      })
+    ]);
+
+    const briefData = await briefRes.json();
+    const questionsData = await questionsRes.json();
+
+    const brief     = briefData.content?.[0]?.text || 'Could not generate brief.';
+    const questions = questionsData.content?.[0]?.text || 'Could not generate questions.';
+
+    save('hs-debate-prep-' + slug, { brief, questions, topic, generatedAt: Date.now() });
+    render(); // re-render to show the docs
+
+  } catch(err) {
+    if (bodyEl) bodyEl.innerHTML = `<div style="color:#DC2626;font-size:.85rem;padding:10px;">
+      ⚠️ Could not connect to Claude API. This may be a network block on your connection.<br>
+      <small>Try again on a different network, or set up the Cloudflare proxy first.</small>
+    </div>`;
+    if (btn) { btn.disabled = false; btn.innerHTML = '✨ Generate Research Docs'; }
+  }
+}
 </script>
 
 <!-- ══════════════════════════════════════════════════════════

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sync Test — Sarah's Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .test-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 540px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .sub { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 32px; }
+
+    .status-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    .status-row .label { font-size: 14px; color: rgba(255,255,255,0.6); }
+    .status-row .value { font-weight: 700; }
+    .status-row .value.ok { color: #51cf66; }
+    .status-row .value.err { color: #ff6b6b; }
+    .status-row .value.warn { color: #ffd43b; }
+
+    textarea {
+      width: 100%;
+      height: 80px;
+      background: rgba(0,0,0,0.3);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      color: #fff;
+      padding: 16px;
+      font-size: 16px;
+      font-family: inherit;
+      resize: none;
+      margin: 24px 0 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: #6c63ff; }
+
+    .hint { color: rgba(255,255,255,0.35); font-size: 13px; }
+
+    .received-box {
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(108,99,255,0.08);
+      border: 1px solid rgba(108,99,255,0.2);
+      border-radius: 12px;
+      min-height: 60px;
+      text-align: left;
+    }
+    .received-box .label { font-size: 12px; color: #a5a0ff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .received-box .content { font-size: 15px; color: rgba(255,255,255,0.8); white-space: pre-wrap; }
+
+    .device-id { color: rgba(255,255,255,0.25); font-size: 11px; margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <div class="test-card">
+    <h1>Real-Time Sync Test</h1>
+    <p class="sub">Open this page on two devices. Type on one — it appears on the other.</p>
+
+    <div class="status-row">
+      <span class="label">Firebase</span>
+      <span class="value" id="fb-status">Checking...</span>
+    </div>
+    <div class="status-row">
+      <span class="label">Realtime Database</span>
+      <span class="value" id="db-status">Checking...</span>
+    </div>
+    <div class="status-row">
+      <span class="label">Latency</span>
+      <span class="value" id="latency-status">—</span>
+    </div>
+
+    <textarea id="input" placeholder="Type something here..."></textarea>
+    <p class="hint">This text syncs to Firebase in real time</p>
+
+    <div class="received-box">
+      <div class="label">Received from other device</div>
+      <div class="content" id="received">Waiting for data...</div>
+    </div>
+
+    <p class="device-id">Device ID: <span id="device-id"></span></p>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+
+  <script>
+    // Generate a unique device ID for this browser tab
+    const deviceId = 'device-' + Math.random().toString(36).slice(2, 8);
+    document.getElementById('device-id').textContent = deviceId;
+
+    // Check Firebase status
+    const fbStatus = document.getElementById('fb-status');
+    const dbStatus = document.getElementById('db-status');
+    const latencyStatus = document.getElementById('latency-status');
+
+    if (isFirebaseConfigured()) {
+      fbStatus.textContent = 'Connected';
+      fbStatus.className = 'value ok';
+
+      // Test database write/read
+      const testRef = db.ref('homeschool/_sync_test');
+      const inputEl = document.getElementById('input');
+      const receivedEl = document.getElementById('received');
+
+      // Write test
+      testRef.child('ping').set({ ts: firebase.database.ServerValue.TIMESTAMP, from: deviceId })
+        .then(() => {
+          dbStatus.textContent = 'Read/Write OK';
+          dbStatus.className = 'value ok';
+        })
+        .catch((err) => {
+          dbStatus.textContent = 'Error: ' + err.code;
+          dbStatus.className = 'value err';
+        });
+
+      // Measure latency
+      const connRef = db.ref('.info/serverTimeOffset');
+      connRef.on('value', (snap) => {
+        const offset = snap.val() || 0;
+        latencyStatus.textContent = Math.abs(offset) + 'ms';
+        latencyStatus.className = 'value ' + (Math.abs(offset) < 500 ? 'ok' : 'warn');
+      });
+
+      // Sync text input
+      let ignoreNext = false;
+      inputEl.addEventListener('input', () => {
+        ignoreNext = true;
+        testRef.child('message').set({
+          text: inputEl.value,
+          from: deviceId,
+          ts: firebase.database.ServerValue.TIMESTAMP
+        });
+      });
+
+      // Listen for changes from other devices
+      testRef.child('message').on('value', (snap) => {
+        if (!snap.exists()) return;
+        const data = snap.val();
+        if (data.from === deviceId && ignoreNext) {
+          ignoreNext = false;
+          return;
+        }
+        receivedEl.textContent = data.text || '(empty)';
+      });
+
+    } else {
+      fbStatus.textContent = 'Not configured';
+      fbStatus.className = 'value err';
+      dbStatus.textContent = 'N/A';
+      dbStatus.className = 'value err';
+      latencyStatus.textContent = 'N/A';
+    }
+  </script>
+</body>
+</html>

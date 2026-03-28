@@ -7,7 +7,7 @@
       "bigWord": "Integration",
       "bigWordDef": "The process of combining separate parts or systems into one unified whole that works together smoothly.",
       "thinkQuestion": "If Apple is opening Siri to rival AI services, what might be the advantages AND disadvantages for iPhone users compared to having one exclusive AI partner?",
-      "videoQuery": "Apple iOS 27 Siri AI assistant Google Gemini Claude integration"
+      "videoQuery": "Apple iOS 27 Siri AI assistant multiple services explained"
     },
     {
       "headline": "Devastating Humanitarian Crisis Unfolds in Iran as Military Strikes Damage 82,000 Buildings",
@@ -15,7 +15,7 @@
       "bigWord": "Humanitarian",
       "bigWordDef": "Related to helping people who are suffering or in need, especially during crises like wars, disasters, or emergencies.",
       "thinkQuestion": "When conflicts cause this much civilian damage to homes and hospitals, what responsibilities do the countries involved have to help rebuild and care for the people affected?",
-      "videoQuery": "Iran humanitarian crisis civilian impact 2026"
+      "videoQuery": "humanitarian crisis civilian impact war explained for students"
     },
     {
       "headline": "Kerala Launches MLATrack — India's First Platform to Publicly Monitor Elected Officials",
@@ -23,12 +23,64 @@
       "bigWord": "Accountability",
       "bigWordDef": "The responsibility to explain and justify one's actions, and to accept consequences if things go wrong.",
       "thinkQuestion": "How might making a politician's voting record and attendance publicly available online change the way they do their job — or how voters decide who to re-elect?",
-      "videoQuery": "Kerala MLATrack India MLA performance tracking transparency democracy"
+      "videoQuery": "India democracy transparency elected officials accountability"
+    },
+    {
+      "headline": "Scientists Discover Deepest Known Fish Ever Recorded — 8,336 Metres Below the Ocean Surface",
+      "summary": "A Japanese research team captured footage of a snailfish swimming at 8,336 metres below sea level in the Izu-Ogasawara Trench near Japan — smashing the previous record. The creature survives the extreme pressure by producing special molecules called piezolytes that keep its proteins from collapsing. The discovery shows life can exist in conditions scientists once thought impossible.",
+      "bigWord": "Pressure",
+      "bigWordDef": "The force exerted on a surface by the weight of something pressing on it — at extreme ocean depths, the pressure is hundreds of times greater than at the surface.",
+      "thinkQuestion": "If life can survive at 8,000 metres in the ocean under crushing pressure and total darkness, what does that tell us about the possibility of life existing in extreme environments on other planets?",
+      "videoQuery": "deepest fish ever recorded snailfish ocean trench 2026"
+    },
+    {
+      "headline": "India's UPI Crosses 18 Billion Transactions in a Single Month for the First Time",
+      "summary": "India's Unified Payments Interface (UPI) processed over 18 billion digital transactions in March 2026 — a new record that makes it one of the world's largest real-time payment systems. More than 350 million Indians now use UPI every month to pay for everything from groceries to school fees. The system, built by NPCI, is now being adopted by over 10 other countries including France, Singapore, and the UAE.",
+      "bigWord": "Transaction",
+      "bigWordDef": "An exchange of money or goods between two parties — when you pay for something digitally, that counts as one transaction.",
+      "thinkQuestion": "India built a payment system that the whole world now wants to copy. What does that tell us about how technology built for one country can sometimes solve problems for the entire world?",
+      "videoQuery": "UPI India digital payments record explained how it works"
+    },
+    {
+      "headline": "NASA's James Webb Telescope Captures First-Ever Direct Image of an Exoplanet's Weather",
+      "summary": "The James Webb Space Telescope photographed swirling cloud patterns on a planet 40 light-years away called WASP-43b — the first time scientists have directly observed weather on a planet outside our solar system. The planet has a permanent day side of 1,500°C and a night side of minus 60°C, with violent storms constantly moving between them. The images help scientists understand how atmospheres form on alien worlds.",
+      "bigWord": "Exoplanet",
+      "bigWordDef": "A planet that orbits a star other than our Sun — 'exo' means outside. Over 5,500 exoplanets have been discovered so far.",
+      "thinkQuestion": "WASP-43b has permanent day and night sides because it always faces its star the same way. Earth's moon does the same thing to us. What would life on Earth be like if one side of our planet was always in sunlight and the other in permanent darkness?",
+      "videoQuery": "James Webb telescope exoplanet weather WASP-43b explained"
+    },
+    {
+      "headline": "Indonesia Opens World's Largest Tropical Rainforest Carbon Credit Market",
+      "summary": "Indonesia launched a national carbon credit exchange where companies can buy and sell the right to protect rainforest land instead of cutting it down. The country's rainforests — the third largest in the world — absorb enormous amounts of carbon dioxide. By giving forests an economic value, the government hopes companies will pay to preserve trees rather than clear them for farming or industry.",
+      "bigWord": "Carbon Credit",
+      "bigWordDef": "A permit that represents the right to emit one tonne of carbon dioxide. Buying carbon credits from rainforest protection means paying to save trees that absorb the same amount of pollution you create.",
+      "thinkQuestion": "If protecting a rainforest can be worth more money than cutting it down, do you think this market system is a good way to fight climate change — or are there things that money alone can't fix?",
+      "videoQuery": "carbon credits rainforest Indonesia climate change explained kids"
+    }
+  ],
+  "videos": [
+    {
+      "title": "What Is Happening in Iran? The Conflict Explained",
+      "description": "A clear, fact-based explainer on the background of the Iran conflict — who is involved, why it started, and what the humanitarian impact means for ordinary people.",
+      "url": "https://www.youtube.com/results?search_query=Iran+conflict+2026+explained+background",
+      "topic": "Iran Crisis"
+    },
+    {
+      "title": "How Does UPI Work? India's Digital Payment Revolution",
+      "description": "A simple explainer on how India's UPI payment system works, why it processed 18 billion transactions in one month, and why countries around the world want to copy it.",
+      "url": "https://www.youtube.com/results?search_query=UPI+India+digital+payment+how+it+works+explained",
+      "topic": "India & Technology"
+    },
+    {
+      "title": "The Deepest Parts of the Ocean — Life in the Hadal Zone",
+      "description": "Explore the extreme conditions at the bottom of the ocean's deepest trenches — and meet the strange creatures that survive there, including the record-breaking snailfish.",
+      "url": "https://www.youtube.com/results?search_query=deepest+ocean+life+hadal+zone+snailfish+explained",
+      "topic": "Science & Discovery"
     }
   ],
   "infographic": {
     "caption": "The Human Cost of Conflict — Iran, March 2026",
-    "fact": "In just 28 days: 1,750+ people killed, 82,000 buildings damaged, 3.2 million people displaced, and 120 cultural heritage sites destroyed.",
+    "fact": "In just 28 days: 1,750+ people killed · 82,000 buildings damaged · 3.2 million people displaced · 120 cultural heritage sites destroyed",
     "question": "These numbers are from just one month. What do they tell us about the true cost of war beyond the headlines?"
   },
   "quiz": [
@@ -43,7 +95,7 @@
       "correct": 1
     },
     {
-      "q": "Which Indian state launched MLATrack — the first platform to publicly track legislators' performance?",
+      "q": "Which Indian state launched MLATrack — India's first platform to publicly track legislators?",
       "options": [
         "Tamil Nadu",
         "Maharashtra",
@@ -53,12 +105,32 @@
       "correct": 2
     },
     {
-      "q": "Approximately how many buildings were damaged in Iran in the first four weeks of the conflict?",
+      "q": "At what depth was the record-breaking snailfish discovered?",
       "options": [
-        "About 8,000",
-        "About 25,000",
-        "About 82,000",
-        "About 180,000"
+        "About 3,000 metres",
+        "About 5,500 metres",
+        "About 8,336 metres",
+        "About 11,000 metres"
+      ],
+      "correct": 2
+    },
+    {
+      "q": "What is UPI, and what record did it break in March 2026?",
+      "options": [
+        "A US payment app — it processed 5 billion transactions",
+        "India's digital payment system — it crossed 18 billion transactions in one month",
+        "A European banking network — it processed 10 billion transactions",
+        "A cryptocurrency exchange — it crossed 1 billion trades"
+      ],
+      "correct": 1
+    },
+    {
+      "q": "What special discovery did the James Webb Space Telescope make about WASP-43b?",
+      "options": [
+        "It found signs of liquid water on the planet's surface",
+        "It detected radio signals suggesting intelligent life",
+        "It captured the first direct image of weather on a planet outside our solar system",
+        "It discovered the planet has two moons"
       ],
       "correct": 2
     }

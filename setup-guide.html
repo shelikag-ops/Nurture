@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Guide — Sarah's Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      line-height: 1.7;
+      padding: 40px 20px;
+    }
+    .guide {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 32px;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: rgba(255,255,255,0.5);
+      font-size: 16px;
+      margin-bottom: 40px;
+    }
+    h2 {
+      color: #a5a0ff;
+      font-size: 22px;
+      margin: 40px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    h3 {
+      color: #fff;
+      font-size: 17px;
+      margin: 24px 0 8px;
+    }
+    p, li { color: rgba(255,255,255,0.75); font-size: 15px; }
+    ol, ul { padding-left: 24px; }
+    li { margin-bottom: 12px; }
+
+    .step-number {
+      display: inline-block;
+      width: 28px; height: 28px;
+      background: #6c63ff;
+      color: #fff;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 28px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    code {
+      background: rgba(108,99,255,0.12);
+      color: #c5c0ff;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+    }
+
+    pre {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 12px 0 20px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      color: #e0e0e0;
+    }
+
+    .callout {
+      background: rgba(108,99,255,0.08);
+      border-left: 3px solid #6c63ff;
+      padding: 16px 20px;
+      border-radius: 0 10px 10px 0;
+      margin: 16px 0;
+    }
+    .callout.warning {
+      background: rgba(255,212,59,0.08);
+      border-left-color: #ffd43b;
+    }
+    .callout.success {
+      background: rgba(81,207,102,0.08);
+      border-left-color: #51cf66;
+    }
+
+    .time-badge {
+      display: inline-block;
+      background: rgba(81,207,102,0.15);
+      color: #51cf66;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    a { color: #a5a0ff; }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+    .checklist li::before {
+      content: "[ ] ";
+      font-family: monospace;
+      color: rgba(255,255,255,0.3);
+    }
+    .checklist li.done::before {
+      content: "[x] ";
+      color: #51cf66;
+    }
+
+    .config-input {
+      width: 100%;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #fff;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      margin: 8px 0;
+    }
+    .config-input:focus {
+      outline: none;
+      border-color: #6c63ff;
+    }
+
+    .btn {
+      background: #6c63ff;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #5a52e0; }
+
+    .progress-bar {
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      height: 8px;
+      margin: 24px 0;
+      overflow: hidden;
+    }
+    .progress-bar .fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6c63ff, #51cf66);
+      border-radius: 8px;
+      transition: width 0.5s;
+    }
+  </style>
+</head>
+<body>
+  <div class="guide">
+    <h1>Setup Guide</h1>
+    <p class="subtitle">Get Sarah's Dashboard live in ~15 minutes. Two parts: Firebase (database) + GitHub Pages (hosting).</p>
+
+    <div class="progress-bar"><div class="fill" style="width: 0%" id="progress"></div></div>
+
+    <!-- ═══════════════════ PART 1: FIREBASE ═══════════════════ -->
+
+    <h2>Part 1: Firebase Setup <span class="time-badge">~8 min</span></h2>
+
+    <p>Firebase gives us a free real-time database. When Sarah checks off a task on her iPad, you'll see it update on your laptop instantly.</p>
+
+    <h3><span class="step-number">1</span> Create a Firebase project</h3>
+    <ol>
+      <li>Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></li>
+      <li>Click <strong>"Add project"</strong> (or "Create a project")</li>
+      <li>Name it something like <code>sarah-homeschool</code></li>
+      <li>You can disable Google Analytics (not needed) — click <strong>Continue</strong></li>
+      <li>Wait for the project to be created, then click <strong>Continue</strong></li>
+    </ol>
+
+    <h3><span class="step-number">2</span> Add a Web App</h3>
+    <ol>
+      <li>On the project home page, click the <strong>web icon</strong> (<code>&lt;/&gt;</code>) to add a web app</li>
+      <li>Give it a nickname like <code>sarah-dashboard</code></li>
+      <li>Do NOT check "Firebase Hosting" (we're using GitHub Pages instead)</li>
+      <li>Click <strong>Register app</strong></li>
+      <li>You'll see a config block like this — <strong>copy it</strong>:</li>
+    </ol>
+
+    <pre><code>const firebaseConfig = {
+  apiKey: "AIzaSy.....................",
+  authDomain: "sarah-homeschool.firebaseapp.com",
+  databaseURL: "https://sarah-homeschool-default-rtdb.firebaseio.com",
+  projectId: "sarah-homeschool",
+  storageBucket: "sarah-homeschool.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef123456"
+};</code></pre>
+
+    <div class="callout">
+      <strong>Paste your config here</strong> and I'll generate the updated file for you:
+      <textarea class="config-input" id="firebase-config-input" rows="8" placeholder="Paste your Firebase config object here..."></textarea>
+      <button class="btn" onclick="generateConfig()" style="margin-top: 8px;">Generate firebase-config.js</button>
+      <pre id="generated-config" style="display:none; margin-top: 12px;"></pre>
+    </div>
+
+    <h3><span class="step-number">3</span> Enable the Realtime Database</h3>
+    <ol>
+      <li>In the Firebase Console sidebar, click <strong>Build → Realtime Database</strong></li>
+      <li>Click <strong>"Create Database"</strong></li>
+      <li>Choose the location closest to you (e.g., <code>us-central1</code> if in US, <code>asia-southeast1</code> if in India)</li>
+      <li>Select <strong>"Start in test mode"</strong> (we'll secure it properly in a moment)</li>
+      <li>Click <strong>Enable</strong></li>
+    </ol>
+
+    <div class="callout warning">
+      <strong>Important:</strong> "Test mode" allows anyone to read/write for 30 days. We'll add proper security rules in the next step so only your app can access the data.
+    </div>
+
+    <h3><span class="step-number">4</span> Set Security Rules</h3>
+    <ol>
+      <li>In the Realtime Database section, click the <strong>Rules</strong> tab</li>
+      <li>Replace the default rules with this:</li>
+    </ol>
+
+    <pre><code>{
+  "rules": {
+    "homeschool": {
+      ".read": true,
+      ".write": true,
+      "shared": {
+        ".read": true,
+        ".write": true
+      },
+      "sarah": {
+        ".read": true,
+        ".write": true
+      },
+      "parent": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}</code></pre>
+
+    <div class="callout">
+      <strong>Why these rules?</strong> Since we're using PIN-based auth (not Firebase Auth), we keep the rules open but scoped to just the <code>/homeschool</code> path. The data isn't sensitive (it's homework scores, not financial data), and the app URL isn't publicly listed. For extra security later, we can add Firebase Auth and lock rules to authenticated users only.
+    </div>
+
+    <p>Click <strong>Publish</strong>.</p>
+
+    <h3><span class="step-number">5</span> Update your config file</h3>
+    <ol>
+      <li>Open <code>js/firebase-config.js</code> in any text editor</li>
+      <li>Replace the <code>FIREBASE_CONFIG</code> block with your actual values from Step 2</li>
+      <li>Save the file</li>
+    </ol>
+
+    <div class="callout success">
+      <strong>Firebase is done!</strong> The app will now sync data across all devices. Open <code>index.html</code> in your browser — you should see "Firebase Sync: Connected" on the dashboard.
+    </div>
+
+    <!-- ═══════════════════ PART 2: GITHUB PAGES ═══════════════════ -->
+
+    <h2>Part 2: GitHub Pages <span class="time-badge">~7 min</span></h2>
+
+    <p>This puts your app on a URL that Sarah can bookmark on her iPad.</p>
+
+    <h3><span class="step-number">1</span> Create a GitHub repository</h3>
+    <ol>
+      <li>Go to <a href="https://github.com/new" target="_blank">github.com/new</a></li>
+      <li>Name it whatever you chose (e.g., <code>sarah-learning</code> or <code>homeschool-app</code>)</li>
+      <li>Set it to <strong>Private</strong> (your daughter's data doesn't need to be public)</li>
+      <li>Click <strong>Create repository</strong></li>
+    </ol>
+
+    <div class="callout warning">
+      <strong>Note:</strong> GitHub Pages works with private repos on the Free plan as of 2024. The site will still be accessible via URL, but the code stays private.
+    </div>
+
+    <h3><span class="step-number">2</span> Push your files</h3>
+    <p>Open Terminal on your Mac, navigate to the project folder, and run:</p>
+
+    <pre><code>cd "path/to/Sarah Homeschooling"
+
+git init
+git add index.html dashboard.html setup-guide.html js/ Corrections/
+git commit -m "Initial deploy: dashboard with Firebase sync"
+
+git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+git branch -M main
+git push -u origin main</code></pre>
+
+    <div class="callout">
+      Replace <code>YOUR_USERNAME</code> and <code>YOUR_REPO</code> with your actual GitHub username and the repo name you chose.
+    </div>
+
+    <h3><span class="step-number">3</span> Enable GitHub Pages</h3>
+    <ol>
+      <li>Go to your repo on GitHub → <strong>Settings</strong> tab</li>
+      <li>In the left sidebar, click <strong>Pages</strong></li>
+      <li>Under "Source", select <strong>Deploy from a branch</strong></li>
+      <li>Choose <strong>main</strong> branch and <strong>/ (root)</strong> folder</li>
+      <li>Click <strong>Save</strong></li>
+    </ol>
+
+    <p>After 1-2 minutes, your site will be live at:</p>
+    <pre><code>https://YOUR_USERNAME.github.io/YOUR_REPO/</code></pre>
+
+    <h3><span class="step-number">4</span> Bookmark on Sarah's iPad</h3>
+    <ol>
+      <li>Open Safari on the iPad and go to the URL above</li>
+      <li>Tap the <strong>Share</strong> button → <strong>Add to Home Screen</strong></li>
+      <li>Name it "My Dashboard" or whatever Sarah likes</li>
+      <li>It now appears as an app icon on her home screen</li>
+    </ol>
+
+    <div class="callout success">
+      <strong>You're live!</strong> Sarah opens the app on her iPad, enters her PIN (default: 1234), and everything she does syncs to your laptop in real time.
+    </div>
+
+    <!-- ═══════════════════ PART 3: TEST ═══════════════════ -->
+
+    <h2>Part 3: Quick Test <span class="time-badge">~2 min</span></h2>
+
+    <p>Open the app on two different devices (or two browser tabs). Then:</p>
+
+    <ol>
+      <li>On device A, log in with Sarah's PIN (1234)</li>
+      <li>On device B, log in with Parent PIN (9876)</li>
+      <li>Open <a href="sync-test.html">sync-test.html</a> on both devices</li>
+      <li>Type something on one device — it should appear on the other within 1 second</li>
+    </ol>
+
+    <!-- ═══════════════════ CHECKLIST ═══════════════════ -->
+
+    <h2>Checklist</h2>
+    <ul class="checklist">
+      <li>Firebase project created</li>
+      <li>Web app registered and config copied</li>
+      <li>Realtime Database enabled</li>
+      <li>Security rules published</li>
+      <li><code>js/firebase-config.js</code> updated with real config</li>
+      <li>GitHub repo created (Private)</li>
+      <li>Files pushed to main branch</li>
+      <li>GitHub Pages enabled</li>
+      <li>Site loads at <code>https://username.github.io/repo/</code></li>
+      <li>Bookmarked on Sarah's iPad</li>
+      <li>Sync tested between two devices</li>
+    </ul>
+
+    <!-- ═══════════════════ UPDATING THE APP ═══════════════════ -->
+
+    <h2>How to Update the App</h2>
+    <p>Whenever you (or the other chat window) update <code>dashboard.html</code> or any file, push it to GitHub and the live site updates automatically:</p>
+
+    <pre><code>cd "path/to/Sarah Homeschooling"
+git add -A
+git commit -m "Update dashboard"
+git push</code></pre>
+
+    <p>Changes go live within 1-2 minutes.</p>
+
+    <!-- ═══════════════════ CHANGING PINS ═══════════════════ -->
+
+    <h2>Changing PINs</h2>
+    <p>Default PINs are <code>1234</code> (Sarah) and <code>9876</code> (Parent). To change them:</p>
+    <ol>
+      <li>Log in as Parent</li>
+      <li>Go to Settings → Change PINs</li>
+      <li>New PINs sync via Firebase — they'll work on all devices immediately</li>
+    </ol>
+
+  </div>
+
+  <script>
+    function generateConfig() {
+      const raw = document.getElementById('firebase-config-input').value;
+      if (!raw.trim()) { alert('Please paste your Firebase config first.'); return; }
+
+      // Extract values from the pasted config
+      const extract = (key) => {
+        const m = raw.match(new RegExp(key + '\\s*:\\s*["\']([^"\']+)["\']'));
+        return m ? m[1] : 'NOT_FOUND';
+      };
+
+      const config = {
+        apiKey: extract('apiKey'),
+        authDomain: extract('authDomain'),
+        databaseURL: extract('databaseURL'),
+        projectId: extract('projectId'),
+        storageBucket: extract('storageBucket'),
+        messagingSenderId: extract('messagingSenderId'),
+        appId: extract('appId')
+      };
+
+      const output = `// ══ REPLACE THIS IN js/firebase-config.js ══
+const FIREBASE_CONFIG = ${JSON.stringify(config, null, 2)};`;
+
+      const el = document.getElementById('generated-config');
+      el.style.display = 'block';
+      el.querySelector('code').textContent = output;
+    }
+
+    // Make generated config pre have a code child
+    document.getElementById('generated-config').innerHTML = '<code></code>';
+  </script>
+</body>
+</html>
