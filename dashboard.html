@@ -7,6 +7,71 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
+    /* ── VIEW SWITCHER ── */
+    .view-switcher {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      display: flex;
+      background: #1e1b4b;
+      border-radius: 0 0 20px 20px;
+      padding: 8px 12px;
+      gap: 8px;
+      margin: -16px -16px 16px -16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.18);
+    }
+    .view-tab {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: .95rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .2s;
+      background: transparent;
+      color: rgba(255,255,255,.5);
+    }
+    .view-tab.active {
+      background: rgba(255,255,255,.15);
+      color: white;
+    }
+    /* ── PARENT VIEW ── */
+    #parent-view { display: none; }
+    #parent-view.visible { display: block; }
+    #sarah-view { display: block; }
+    #sarah-view.hidden { display: none; }
+    /* Parent view cards */
+    .pv-card { background:white; border-radius:20px; padding:22px; margin-bottom:16px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+    .pv-title { font-size:1rem; font-weight:800; color:#1e1b4b; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+    .pv-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media(max-width:700px){ .pv-grid{grid-template-columns:1fr;} }
+    .pv-stat { background:#F8F6F0; border-radius:12px; padding:14px; }
+    .pv-stat-val { font-size:1.6rem; font-weight:900; color:#1e1b4b; }
+    .pv-stat-label { font-size:.78rem; font-weight:700; color:#6B7280; margin-top:2px; }
+    .pv-bar-wrap { margin-bottom:10px; }
+    .pv-bar-label { font-size:.82rem; font-weight:700; color:#374151; margin-bottom:4px; display:flex; justify-content:space-between; }
+    .pv-bar-track { background:#e5e7eb; border-radius:99px; height:10px; overflow:hidden; }
+    .pv-bar-fill { height:100%; border-radius:99px; background:#06D6A0; transition:width .4s; }
+    .pv-bar-fill.amber { background:#F59E0B; }
+    .pv-bar-fill.red   { background:#EF4444; }
+    .pv-tag { display:inline-block; padding:3px 10px; border-radius:99px; font-size:.75rem; font-weight:800; margin:2px; }
+    .pv-tag.green { background:#D1FAE5; color:#065F46; }
+    .pv-tag.amber { background:#FEF3C7; color:#92400E; }
+    .pv-tag.red   { background:#FEE2E2; color:#991B1B; }
+    .pv-win { background:linear-gradient(135deg,#FEF3C7,#FDE68A); border-radius:14px; padding:12px 16px; margin-bottom:8px; display:flex; gap:12px; align-items:flex-start; }
+    .pv-win-emoji { font-size:1.5rem; flex-shrink:0; }
+    .pv-win-text { font-size:.88rem; font-weight:700; color:#1e1b4b; line-height:1.4; }
+    .pv-flag { background:#FEE2E2; border-radius:12px; padding:10px 14px; margin-bottom:8px; font-size:.85rem; font-weight:700; color:#991B1B; }
+    .pv-suggestion { background:#EDE9FE; border-radius:12px; padding:10px 14px; margin-bottom:8px; font-size:.85rem; font-weight:700; color:#4C1D95; }
+    .pv-link-btn { display:inline-block; padding:8px 18px; border-radius:10px; font-size:.85rem; font-weight:800; text-decoration:none; margin:4px; }
+    /* News task auto-check style */
+    .news-task-card { background:linear-gradient(135deg,#667eea15,#764ba215); border:2px solid #667eea40; border-radius:16px; padding:14px 18px; margin-bottom:12px; display:flex; align-items:center; gap:14px; cursor:pointer; transition:all .2s; }
+    .news-task-card:hover { border-color:#667eea80; }
+    .news-task-card.done { opacity:.7; }
+    .news-task-check { width:28px; height:28px; border-radius:50%; border:3px solid #667eea; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1rem; transition:all .2s; }
+    .news-task-check.checked { background:#667eea; border-color:#667eea; color:white; }
     body { font-family:'Nunito',system-ui,sans-serif; background:#F8F6F0; color:#2D3047; min-height:100vh; padding:16px; }
 
     /* ── HEADER ── */
@@ -366,6 +431,15 @@
 <body>
 <div id="app">
 
+  <!-- ── VIEW SWITCHER ── -->
+  <div class="view-switcher">
+    <button class="view-tab active" id="tab-sarah" onclick="switchView('sarah')">🌟 Sarah's Day</button>
+    <button class="view-tab" id="tab-parent" onclick="switchView('parent')">👩 Parent View</button>
+  </div>
+
+  <!-- ── SARAH'S VIEW (default) ── -->
+  <div id="sarah-view">
+
   <!-- HEADER -->
   <div class="header">
     <div>
@@ -397,6 +471,9 @@
     <div class="card-title">🗓️ Today's Schedule</div>
     <div id="schedule-content"></div>
   </div>
+
+  <!-- NEWS TASK — auto-checks when Sarah completes news activities -->
+  <div id="news-task-container"></div>
 
   <!-- MORNING RITUAL -->
   <div class="card morning-card">
@@ -631,6 +708,88 @@
   <span class="voice-fab-icon" id="voice-fab-icon">🎙️</span>
 </button>
 
+</div><!-- end sarah-view -->
+
+<!-- ── PARENT VIEW ── -->
+<div id="parent-view">
+
+  <!-- Date range controls -->
+  <div class="pv-card" style="padding:14px 18px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <!-- Daily / Weekly toggle -->
+      <div style="display:flex;background:#F3F4F6;border-radius:10px;padding:3px;gap:2px;">
+        <button id="pv-mode-daily"  onclick="pvSetMode('daily')"  style="padding:6px 16px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;background:#1e1b4b;color:white;">Daily</button>
+        <button id="pv-mode-weekly" onclick="pvSetMode('weekly')" style="padding:6px 16px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;background:transparent;color:#6B7280;">Weekly</button>
+      </div>
+      <!-- Nav arrows -->
+      <button onclick="pvNavigate(-1)" style="background:#F3F4F6;border:none;border-radius:8px;padding:7px 13px;font-size:1rem;cursor:pointer;font-weight:800;">◀</button>
+      <span id="pv-range-label" style="font-weight:800;font-size:.92rem;color:#1e1b4b;flex:1;text-align:center;min-width:160px;">Loading…</span>
+      <button onclick="pvNavigate(1)"  style="background:#F3F4F6;border:none;border-radius:8px;padding:7px 13px;font-size:1rem;cursor:pointer;font-weight:800;">▶</button>
+      <!-- Jump to today -->
+      <button onclick="pvGoToday()" style="background:#EDE9FE;color:#7C3AED;border:none;border-radius:8px;padding:7px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;">Today</button>
+    </div>
+  </div>
+
+  <!-- Top Wins -->
+  <div class="pv-card" id="pv-wins-card">
+    <div class="pv-title" id="pv-wins-title">🏆 Top Wins</div>
+    <div id="pv-wins-list"><div style="color:#9CA3AF;font-size:.9rem;">No activity logged yet — wins appear as Sarah completes work.</div></div>
+  </div>
+
+  <!-- Quick stats row -->
+  <div class="pv-grid" style="margin-bottom:16px;">
+    <div class="pv-card" style="margin:0">
+      <div class="pv-title" id="pv-time-title">⏱️ Time</div>
+      <div id="pv-time-today"><div style="color:#9CA3AF;font-size:.85rem;">No time logged.</div></div>
+    </div>
+    <div class="pv-card" style="margin:0">
+      <div class="pv-title">📊 Tasks Today</div>
+      <div id="pv-tasks-today"><div style="color:#9CA3AF;font-size:.85rem;">No completions yet.</div></div>
+    </div>
+  </div>
+
+  <!-- Curriculum Progress -->
+  <div class="pv-card">
+    <div class="pv-title">📚 Curriculum Progress</div>
+    <div id="pv-curriculum"></div>
+  </div>
+
+  <!-- Plan suggestions -->
+  <div class="pv-card">
+    <div class="pv-title">💡 Suggested Adjustments</div>
+    <div id="pv-suggestions"></div>
+  </div>
+
+  <!-- Corrections summary -->
+  <div class="pv-card">
+    <div class="pv-title">📝 Recent Submissions</div>
+    <div id="pv-submissions"></div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <a id="pv-corrections-link" href="" target="_blank" class="pv-link-btn" style="background:#E0F7FA;color:#1B9AAA;">📊 Full Corrections Dashboard</a>
+      <a id="pv-report-link" href="" target="_blank" class="pv-link-btn" style="background:#EDE9FE;color:#7C3AED;">📋 Weekly Report</a>
+    </div>
+  </div>
+
+  <!-- NSF + vocab quick status -->
+  <div class="pv-grid">
+    <div class="pv-card" style="margin:0">
+      <div class="pv-title">🎯 NSF Countdown</div>
+      <div id="pv-nsf"></div>
+    </div>
+    <div class="pv-card" style="margin:0">
+      <div class="pv-title">📖 Vocab Sprint</div>
+      <div id="pv-vocab"></div>
+    </div>
+  </div>
+
+  <!-- Parent settings shortcut -->
+  <div style="margin-top:16px;text-align:center;">
+    <button onclick="openPanel()" style="background:#1e1b4b;color:white;border:none;border-radius:14px;padding:12px 28px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;">⚙️ Edit This Week's Plan</button>
+  </div>
+  <div style="height:80px;"></div>
+
+</div><!-- end parent-view -->
+
 <!-- PARENT EDIT PANEL -->
 <div id="panel-overlay" class="panel-overlay" onclick="if(event.target===this)closePanel()">
   <div class="panel-box">
@@ -646,12 +805,22 @@
 
     <!-- REVIEWS PANEL -->
     <div id="panel-reviews" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;">
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
         <div style="font-size:.8rem;color:#6B7280;font-weight:600;line-height:1.4;">Graded submissions appear in the full corrections dashboard with per-question breakdowns &amp; error patterns.</div>
-        <a id="corrections-dash-link" href="" target="_blank"
-           style="flex-shrink:0;font-size:.8rem;font-weight:800;color:#1B9AAA;text-decoration:none;background:#E0F7FA;padding:6px 14px;border-radius:8px;white-space:nowrap;">
-          📊 Corrections Dashboard
-        </a>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a id="corrections-dash-link" href="" target="_blank"
+             style="font-size:.8rem;font-weight:800;color:#1B9AAA;text-decoration:none;background:#E0F7FA;padding:6px 14px;border-radius:8px;white-space:nowrap;">
+            📊 Corrections Dashboard
+          </a>
+          <a id="parent-report-link" href="" target="_blank"
+             style="font-size:.8rem;font-weight:800;color:#7C3AED;text-decoration:none;background:#EDE9FE;padding:6px 14px;border-radius:8px;white-space:nowrap;">
+            📋 Weekly Parent Report
+          </a>
+          <a id="news-app-link" href="" target="_blank"
+             style="font-size:.8rem;font-weight:800;color:#D97706;text-decoration:none;background:#FEF3C7;padding:6px 14px;border-radius:8px;white-space:nowrap;">
+            🗞️ News App
+          </a>
+        </div>
       </div>
       <div id="review-list"><div class="review-empty">No submissions yet — Sarah will submit her work from each task card.</div></div>
     </div>
@@ -718,13 +887,17 @@
     <div class="panel-section">💬 Debate</div>
     <div class="panel-field"><label class="panel-label">Theme / topic this week</label><input class="panel-input" id="p-debate"></div>
 
-    <div class="panel-section">🔑 Claude API (for real-time photo assessment)</div>
+    <div class="panel-section">🔑 API Keys (stored in this browser only)</div>
     <div class="panel-field">
-      <label class="panel-label">Anthropic API Key — stored only in this browser, never sent anywhere except api.anthropic.com</label>
+      <label class="panel-label">Anthropic API Key — for voice assistant, clarity checks &amp; grading</label>
       <input class="panel-input" id="p-api-key" type="password" placeholder="sk-ant-…" autocomplete="off">
     </div>
+    <div class="panel-field">
+      <label class="panel-label">Notion API Token — for Activity Log sync (optional)</label>
+      <input class="panel-input" id="p-notion-key" type="password" placeholder="secret_…" autocomplete="off">
+    </div>
     <div style="font-size:.76rem;color:#9CA3AF;font-weight:600;margin:-4px 0 10px;">
-      Get your key at <strong>console.anthropic.com</strong> → API Keys. Leave blank to skip real-time checks (photos assessed at 8 PM instead).
+      Anthropic key: <strong>console.anthropic.com</strong> → API Keys &nbsp;·&nbsp; Notion token: <strong>notion.so/my-integrations</strong>
     </div>
 
     <div class="panel-section">🗓️ Today's Schedule</div>
@@ -845,15 +1018,18 @@ function openPanel() {
   document.getElementById('p-book').value           = w.book             || '';
   document.getElementById('p-book-note').value      = w.bookNote         || '';
   document.getElementById('p-debate').value         = w.debateTheme      || '';
-  document.getElementById('p-api-key').value        = localStorage.getItem('hs-api-key') || '';
+  document.getElementById('p-api-key').value        = localStorage.getItem('hs-api-key')    || '';
+  document.getElementById('p-notion-key').value     = localStorage.getItem('hs-notion-key') || '';
   document.getElementById('p-cal-url').value        = ac.calendarUrl     || '';
   document.getElementById('p-classes').value        = w.classes          || '';
-  // Wire up Corrections Dashboard link (same folder, file:// relative path)
+  // Wire up all tool links relative to current URL
+  const base = window.location.href.split('?')[0].split('#')[0].replace(/dashboard\.html$/, '');
   const dashLink = document.getElementById('corrections-dash-link');
-  if (dashLink) {
-    const here = window.location.href; // file:///…/dashboard.html
-    dashLink.href = here.replace('dashboard.html', 'Corrections/Corrections_Dashboard.html');
-  }
+  if (dashLink) dashLink.href = base + 'Corrections/Corrections_Dashboard.html';
+  const reportLink = document.getElementById('parent-report-link');
+  if (reportLink) reportLink.href = base + 'Parent_Weekly_Report.html';
+  const newsLink = document.getElementById('news-app-link');
+  if (newsLink) newsLink.href = base + 'News_App.html';
   document.getElementById('panel-overlay').classList.add('open');
 }
 
@@ -864,10 +1040,13 @@ function closePanel() {
 function saveConfig() {
   const v = id => document.getElementById(id).value;
   const n = id => parseFloat(document.getElementById(id).value) || undefined;
-  // API key is stored separately in localStorage — never inside CFG_KEY
-  const apiKey = v('p-api-key').trim();
-  if (apiKey) localStorage.setItem('hs-api-key', apiKey);
-  else        localStorage.removeItem('hs-api-key');
+  // API keys stored separately in localStorage — never inside CFG_KEY
+  const apiKey    = v('p-api-key').trim();
+  const notionKey = v('p-notion-key').trim();
+  if (apiKey)    localStorage.setItem('hs-api-key',    apiKey);
+  else           localStorage.removeItem('hs-api-key');
+  if (notionKey) localStorage.setItem('hs-notion-key', notionKey);
+  else           localStorage.removeItem('hs-notion-key');
 
   const ov = {
     vocabDone:         n('p-vocab-done'),
@@ -1264,6 +1443,9 @@ function render() {
 
   // Schedule
   renderSchedule(ACFG);
+
+  // News task
+  renderNewsTask(now);
 
   // Homework
   renderHomework();
@@ -1982,6 +2164,323 @@ function openLightbox(subId) {
   document.getElementById('lightbox').classList.add('open');
 }
 
+// ── AUTO-LOAD KEYS FROM URL HASH ──
+// Supports: dashboard.html#key=sk-ant-...  and/or  &notion=secret_...
+// This lets Shell save a bookmark that auto-fills localStorage on any new browser.
+// The hash is never sent to GitHub's servers, so it stays private.
+(function() {
+  try {
+    const hash = window.location.hash.slice(1); // strip leading #
+    if (!hash) return;
+    const params = {};
+    hash.split('&').forEach(part => {
+      const [k, ...rest] = part.split('=');
+      if (k && rest.length) params[k.trim()] = decodeURIComponent(rest.join('=').trim());
+    });
+    if (params.key && params.key.startsWith('sk-ant-')) {
+      localStorage.setItem('hs-api-key', params.key);
+    }
+    if (params.notion && params.notion.startsWith('secret_')) {
+      localStorage.setItem('hs-notion-key', params.notion);
+    }
+    // Clean hash from URL bar so the key isn't visible after load
+    if (params.key || params.notion) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  } catch(e) {}
+})();
+
+// ── VIEW SWITCHER + DATE STATE ──
+const _pv = { mode: 'daily', offset: 0 }; // offset = days (daily) or weeks (weekly) from today
+
+function switchView(v) {
+  const isSarah = v === 'sarah';
+  document.getElementById('sarah-view').classList.toggle('hidden', !isSarah);
+  document.getElementById('parent-view').classList.toggle('visible', !isSarah);
+  document.getElementById('tab-sarah').classList.toggle('active', isSarah);
+  document.getElementById('tab-parent').classList.toggle('active', !isSarah);
+  if (!isSarah) renderParentView();
+}
+
+function pvSetMode(m) {
+  _pv.mode = m; _pv.offset = 0;
+  document.getElementById('pv-mode-daily').style.cssText  = 'padding:6px 16px;border:none;border-radius:8px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;' + (m==='daily'  ? 'background:#1e1b4b;color:white;' : 'background:transparent;color:#6B7280;');
+  document.getElementById('pv-mode-weekly').style.cssText = 'padding:6px 16px;border:none;border-radius:8px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;' + (m==='weekly' ? 'background:#1e1b4b;color:white;' : 'background:transparent;color:#6B7280;');
+  renderParentView();
+}
+function pvNavigate(dir) { _pv.offset += dir; renderParentView(); }
+function pvGoToday()     { _pv.offset = 0;    renderParentView(); }
+
+// Returns { anchorDate, days[], label } for the current pv state
+function pvGetRange() {
+  const base = new Date();
+  if (_pv.mode === 'daily') {
+    const d = new Date(base); d.setDate(base.getDate() + _pv.offset);
+    const label = _pv.offset === 0 ? 'Today — ' + d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'})
+                : d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short',year:'numeric'});
+    return { days: [d], label, isDaily: true };
+  } else {
+    const dow   = base.getDay();
+    const monOff = dow === 0 ? -6 : 1 - dow;
+    const mon   = new Date(base); mon.setDate(base.getDate() + monOff + _pv.offset * 7);
+    const sun   = new Date(mon);  sun.setDate(mon.getDate() + 6);
+    const days  = Array.from({length:7}, (_,i) => { const d=new Date(mon); d.setDate(mon.getDate()+i); return d; });
+    const fmt   = d => d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    const label = `Week of ${fmt(mon)} – ${fmt(sun)}`;
+    return { days, label, isDaily: false };
+  }
+}
+
+function renderParentView() {
+  const now  = new Date();
+  const cfg  = getActiveCFG();
+  const w    = cfg.week || {};
+
+  // ── Resolve selected date range from pv state ──
+  const range   = pvGetRange();
+  const rangeDays = range.days;
+  const dayKey  = d => `hs-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  const isDaily = range.isDaily;
+
+  // Update range label and card titles
+  const rl = document.getElementById('pv-range-label');
+  if (rl) rl.textContent = range.label;
+  const wt = document.getElementById('pv-wins-title');
+  if (wt) wt.textContent = '🏆 ' + (isDaily ? 'Today\'s Wins' : 'Top Wins This Week');
+  const tt = document.getElementById('pv-time-title');
+  if (tt) tt.textContent = '⏱️ ' + (isDaily ? 'Time Today' : 'Time This Week');
+
+  // ── Activity log for range ──
+  const actLog = JSON.parse(localStorage.getItem('hs-activity-log') || '[]');
+  const rangeStart = rangeDays[0];
+  const rangeEnd   = new Date(rangeDays[rangeDays.length-1]); rangeEnd.setHours(23,59,59,999);
+  const rangeAct   = actLog.filter(e => {
+    const ed = new Date(e.date || e.startTime || 0);
+    return ed >= rangeStart && ed <= rangeEnd;
+  });
+
+  // ── Task completions across range ──
+  let totalDone = 0, totalTasks = 0;
+  rangeDays.forEach(d => {
+    const st = JSON.parse(localStorage.getItem(dayKey(d)) || 'null') || {};
+    const keys = Object.keys(st);
+    totalTasks += keys.length;
+    totalDone  += keys.filter(k => st[k]).length;
+  });
+  // For daily single-day reference
+  const todayState = JSON.parse(localStorage.getItem(dayKey(rangeDays[0])) || 'null') || {};
+  const todayDone  = Object.keys(todayState).filter(k => todayState[k]).length;
+  const todayTotal = Object.keys(todayState).length;
+  const shownDone  = isDaily ? todayDone  : totalDone;
+  const shownTotal = isDaily ? todayTotal : totalTasks;
+
+  // ── Submissions in range ──
+  const subs = JSON.parse(localStorage.getItem('hs-submissions') || '[]');
+  const weekSubs = subs.filter(s => {
+    const sd = new Date(s.date || 0);
+    return sd >= rangeStart && sd <= rangeEnd;
+  });
+
+  // ── NSF countdown (always from real today) ──
+  const realNow  = new Date();
+  const nsf      = new Date('2026-04-25');
+  const daysLeft = Math.max(0, Math.ceil((nsf - realNow) / 86400000));
+
+  // ── Vocab ──
+  const vocabDone   = cfg.vocabDone || 800;
+  const vocabTarget = 2000;
+  const vocabLeft   = vocabTarget - vocabDone;
+  const daysToNSF   = Math.max(1, daysLeft);
+  const vocabPerDay = Math.ceil(vocabLeft / daysToNSF);
+
+  // ════════ WINS (range-aware) ════════
+  const wins = [];
+  if (shownDone > 0) wins.push({ e:'✅', t:`${shownDone} task${shownDone>1?'s':''} completed ${isDaily?'today':'this period'}` });
+  const assessed = weekSubs.filter(s => s.score >= 80);
+  if (assessed.length) wins.push({ e:'🌟', t:`Top score: ${Math.max(...assessed.map(s=>s.score))}% on a submission` });
+  if (vocabDone >= 900) wins.push({ e:'📖', t:`${vocabDone} vocabulary words — keeping pace for NSF!` });
+  const newsDone = rangeDays.filter(d => localStorage.getItem(`hs-news-complete-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`)).length;
+  if (newsDone > 0) wins.push({ e:'📰', t:`Completed news activities ${newsDone} day${newsDone>1?'s':''} ${isDaily?'':'this week'}` });
+  if (rangeAct.length > 0) {
+    const totalMin = rangeAct.reduce((a,e) => a+(e.duration||0), 0);
+    wins.push({ e:'⏱️', t:`${totalMin} minutes of learning logged` });
+  }
+  const el = document.getElementById('pv-wins-list');
+  if (el) el.innerHTML = wins.length
+    ? wins.map(w => `<div class="pv-win"><div class="pv-win-emoji">${w.e}</div><div class="pv-win-text">${w.t}</div></div>`).join('')
+    : '<div style="color:#9CA3AF;font-size:.9rem;">No activity logged yet — wins appear as Sarah completes work.</div>';
+
+  // ════════ TIME (range-aware) ════════
+  const bySubject = {};
+  rangeAct.forEach(e => { bySubject[e.subject] = (bySubject[e.subject]||0) + (e.duration||0); });
+  const timeEl = document.getElementById('pv-time-today');
+  if (timeEl) {
+    if (rangeAct.length === 0) {
+      timeEl.innerHTML = '<div style="color:#9CA3AF;font-size:.85rem;">No time logged yet.</div>';
+    } else {
+      const totalMin = Object.values(bySubject).reduce((a,b) => a+b, 0);
+      const planned  = {Math:120,Science:45,English:60,Vocabulary:30,Chess:30,Reading:30,'Current Affairs':20};
+      timeEl.innerHTML = `<div style="font-size:1.4rem;font-weight:900;color:#1e1b4b;">${totalMin}m total</div>` +
+        Object.entries(bySubject).map(([s,m]) => {
+          const pl = (planned[s]||0) * (isDaily ? 1 : rangeDays.length);
+          const pct = pl ? Math.min(100,Math.round(m/pl*100)) : 100;
+          const col = pct>=80?'#06D6A0':pct>=50?'#F59E0B':'#EF4444';
+          return `<div style="margin-top:6px;"><div style="display:flex;justify-content:space-between;font-size:.78rem;font-weight:700;color:#374151;"><span>${s}</span><span>${m}m${pl?' / '+pl+'m':''}</span></div><div class="pv-bar-track" style="margin-top:3px;"><div class="pv-bar-fill" style="width:${pct}%;background:${col};"></div></div></div>`;
+        }).join('');
+    }
+  }
+
+  // ════════ TASKS (range-aware) ════════
+  const taskEl = document.getElementById('pv-tasks-today');
+  if (taskEl) {
+    if (shownTotal === 0) {
+      taskEl.innerHTML = '<div style="color:#9CA3AF;font-size:.85rem;">No tasks yet.</div>';
+    } else {
+      const pct = Math.round(shownDone/shownTotal*100);
+      const col = pct >= 80 ? '#06D6A0' : pct >= 50 ? '#F59E0B' : '#EF4444';
+      // Weekly: also show per-day breakdown
+      const dayBreakdown = isDaily ? '' : rangeDays.map(d => {
+        const st = JSON.parse(localStorage.getItem(dayKey(d)) || 'null') || {};
+        const keys = Object.keys(st);
+        if (keys.length === 0) return '';
+        const done = keys.filter(k => st[k]).length;
+        const dp = Math.round(done/keys.length*100);
+        const dc = dp>=80?'#06D6A0':dp>=50?'#F59E0B':'#EF4444';
+        return `<div style="font-size:.75rem;color:#6B7280;font-weight:700;">${d.toLocaleDateString('en-IN',{weekday:'short'})}: ${done}/${keys.length} <span style="color:${dc}">(${dp}%)</span></div>`;
+      }).join('');
+      taskEl.innerHTML = `
+        <div style="font-size:1.4rem;font-weight:900;color:${col};">${pct}%</div>
+        <div style="font-size:.8rem;color:#6B7280;font-weight:700;">${shownDone} of ${shownTotal} tasks done</div>
+        <div class="pv-bar-track" style="margin:6px 0;"><div class="pv-bar-fill" style="width:${pct}%;background:${col};"></div></div>
+        ${dayBreakdown}
+      `;
+    }
+  }
+
+  // ════════ CURRICULUM ════════
+  const currEl = document.getElementById('pv-curriculum');
+  if (currEl) {
+    const ba = w.ba || {}; const sm = w.sm || {}; const eng = w.english || {};
+    const sciDone = cfg.scienceComplete || 4; const sciTotal = 53;
+    const sciPct = Math.round(sciDone/sciTotal*100);
+    currEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <div style="font-size:.8rem;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">🔢 Math</div>
+          ${ba.book ? `<div class="pv-bar-wrap"><div class="pv-bar-label"><span>Beast Academy ${ba.book}</span><span>${ba.chapter||'—'}</span></div></div>` : ''}
+          ${sm.chapter ? `<div class="pv-bar-wrap"><div class="pv-bar-label"><span>Singapore Math Ch ${sm.chapter}</span><span>of 17</span></div><div class="pv-bar-track"><div class="pv-bar-fill" style="width:${Math.min(100,Math.round((parseInt(sm.chapter)||0)/17*100))}%"></div></div></div>` : ''}
+          ${w.ixl?.skill ? `<div style="font-size:.8rem;color:#6B7280;margin-top:4px;">IXL: ${w.ixl.skill}</div>` : ''}
+        </div>
+        <div>
+          <div style="font-size:.8rem;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">📝 English</div>
+          ${eng.program ? `<div style="font-size:.85rem;font-weight:700;color:#374151;">${eng.program}</div>` : ''}
+          ${eng.task    ? `<div style="font-size:.8rem;color:#6B7280;margin-top:2px;">${eng.task}</div>` : ''}
+          ${!eng.program ? '<div style="font-size:.85rem;color:#9CA3AF;">Set via ⚙️ plan config</div>' : ''}
+        </div>
+        <div>
+          <div style="font-size:.8rem;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">🔬 Science</div>
+          <div class="pv-bar-wrap">
+            <div class="pv-bar-label"><span>${cfg.scienceInProgress||'Ch 7 in progress'}</span><span>${sciDone}/53</span></div>
+            <div class="pv-bar-track"><div class="pv-bar-fill ${sciPct<30?'amber':''}" style="width:${sciPct}%"></div></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.8rem;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">📖 Reading</div>
+          <div style="font-size:.85rem;font-weight:700;color:#374151;">${w.book||'Not set'}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ════════ SUGGESTIONS ════════
+  const sugEl = document.getElementById('pv-suggestions');
+  if (sugEl) {
+    const sugs = [];
+    if (daysLeft <= 30) sugs.push(`🎯 NSF is ${daysLeft} days away — prioritise SM3 chapters 13–17 and at least 2 mock papers this week.`);
+    if (vocabPerDay > 120) sugs.push(`📖 Vocab is behind pace — need ${vocabPerDay} words/day to hit 2,000 by April 25. Consider a double session this week.`);
+    if (todayTotal > 0 && todayDone/todayTotal < 0.5) sugs.push(`📋 Less than half of today's tasks completed. Consider checking if the task count is too high.`);
+    const avgScore = weekSubs.filter(s=>s.score).reduce((a,b,_,arr)=>a+b.score/arr.length,0);
+    if (weekSubs.filter(s=>s.score).length > 0 && avgScore < 70) sugs.push(`⚠️ Average submission score this week is ${Math.round(avgScore)}% — review corrections together before the next session.`);
+    if (sugs.length === 0) sugs.push(`✨ Everything looks on track! Consider introducing a challenge problem or bonus topic this week.`);
+    sugEl.innerHTML = sugs.map(s => `<div class="pv-suggestion">${s}</div>`).join('');
+  }
+
+  // ════════ SUBMISSIONS ════════
+  const subEl = document.getElementById('pv-submissions');
+  if (subEl) {
+    if (weekSubs.length === 0) {
+      subEl.innerHTML = '<div style="color:#9CA3AF;font-size:.85rem;">No submissions this week yet.</div>';
+    } else {
+      const assessed2 = weekSubs.filter(s => s.score != null);
+      const avgSc = assessed2.length ? Math.round(assessed2.reduce((a,b)=>a+b.score,0)/assessed2.length) : null;
+      subEl.innerHTML = `
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+          <div class="pv-stat"><div class="pv-stat-val">${weekSubs.length}</div><div class="pv-stat-label">Submitted</div></div>
+          <div class="pv-stat"><div class="pv-stat-val">${assessed2.length}</div><div class="pv-stat-label">Assessed</div></div>
+          ${avgSc != null ? `<div class="pv-stat"><div class="pv-stat-val" style="color:${avgSc>=80?'#06D6A0':avgSc>=60?'#F59E0B':'#EF4444'}">${avgSc}%</div><div class="pv-stat-label">Avg Score</div></div>` : ''}
+        </div>
+        ${weekSubs.slice(0,3).map(s => `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f3f4f6;">
+            <div style="font-size:.85rem;font-weight:700;color:#374151;flex:1;">${s.subject||'Work'} — ${new Date(s.date||0).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</div>
+            ${s.score!=null ? `<span class="pv-tag ${s.score>=80?'green':s.score>=60?'amber':'red'}">${s.score}%</span>` : `<span class="pv-tag amber">${s.status||'pending'}</span>`}
+          </div>`).join('')}
+      `;
+    }
+  }
+
+  // ════════ NSF + VOCAB pills ════════
+  const nsfEl = document.getElementById('pv-nsf');
+  if (nsfEl) {
+    const col = daysLeft <= 7 ? '#EF4444' : daysLeft <= 14 ? '#F59E0B' : '#06D6A0';
+    nsfEl.innerHTML = `<div style="font-size:2.2rem;font-weight:900;color:${col};">${daysLeft}</div><div style="font-size:.82rem;font-weight:700;color:#6B7280;">days until April 25</div>`;
+  }
+  const vocEl = document.getElementById('pv-vocab');
+  if (vocEl) {
+    const pct = Math.min(100, Math.round(vocabDone/vocabTarget*100));
+    vocEl.innerHTML = `
+      <div style="font-size:1.4rem;font-weight:900;color:#1e1b4b;">${vocabDone}<span style="font-size:.9rem;color:#9CA3AF;">/${vocabTarget}</span></div>
+      <div class="pv-bar-track" style="margin:6px 0;"><div class="pv-bar-fill ${pct<50?'amber':''}" style="width:${pct}%"></div></div>
+      <div style="font-size:.78rem;font-weight:700;color:#6B7280;">${vocabLeft} left · need ${vocabPerDay}/day</div>
+    `;
+  }
+
+  // ════════ Wire links ════════
+  const base = window.location.href.split('?')[0].split('#')[0].replace(/dashboard\.html$/,'');
+  const cl2 = document.getElementById('pv-corrections-link'); if(cl2) cl2.href = base+'Corrections/Corrections_Dashboard.html';
+  const rl2 = document.getElementById('pv-report-link');      if(rl2) rl2.href = base+'Parent_Weekly_Report.html';
+}
+
+function renderNewsTask(now) {
+  const d = now || new Date();
+  const k = `hs-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  const newsDoneKey = `hs-news-complete-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  const isDone = !!localStorage.getItem(newsDoneKey);
+
+  // Find or create the news task container
+  let el = document.getElementById('news-task-container');
+  if (!el) return; // container not in DOM yet — skip
+
+  el.innerHTML = `
+    <div class="news-task-card ${isDone ? 'done' : ''}" onclick="openNewsApp()">
+      <div class="news-task-check ${isDone ? 'checked' : ''}">
+        ${isDone ? '✓' : '📰'}
+      </div>
+      <div>
+        <div style="font-weight:800;font-size:.95rem;color:#2D3047;">Today's News</div>
+        <div style="font-size:.8rem;color:#6B7280;margin-top:2px;">
+          ${isDone ? '✅ Completed — stories read, quiz done!' : 'Read today\'s stories · answer questions · record your report'}
+        </div>
+      </div>
+      <div style="margin-left:auto;font-size:1.3rem;">→</div>
+    </div>
+  `;
+}
+
+function openNewsApp() {
+  const base = window.location.href.split('?')[0].split('#')[0].replace(/dashboard\.html$/, '');
+  window.open(base + 'News_App.html', '_blank');
+}
+
 // ── INIT ──
 render();
 updateReviewBadge();
@@ -2392,35 +2891,7 @@ function vaSpeakText(text, onDone) {
   } catch { localStorage.removeItem(TIMER_KEY); }
 })();
 
-// ── Add Notion key field to parent panel ─────────────────────
-// (Appended dynamically so we don't have to find exact insert point)
-document.addEventListener('DOMContentLoaded', () => {
-  const apiSection = document.querySelector('#p-api-key')?.closest('.panel-section')?.nextElementSibling;
-  const keyField   = document.getElementById('p-api-key')?.closest('.panel-field');
-  if (keyField) {
-    const notionField = document.createElement('div');
-    notionField.className = 'panel-field';
-    notionField.innerHTML = `
-      <label class="panel-label">Notion API Token — for Activity Log sync (optional)</label>
-      <input class="panel-input" id="p-notion-key" type="password" placeholder="secret_…" autocomplete="off">`;
-    keyField.after(notionField);
-    // Pre-fill on open
-    const orig = window.openPanel;
-    window.openPanel = function() {
-      orig();
-      const el = document.getElementById('p-notion-key');
-      if (el) el.value = localStorage.getItem('hs-notion-key') || '';
-    };
-    // Save on config save
-    const origSave = window.saveConfig;
-    window.saveConfig = function() {
-      const nk = document.getElementById('p-notion-key')?.value.trim();
-      if (nk) localStorage.setItem('hs-notion-key', nk);
-      else    localStorage.removeItem('hs-notion-key');
-      origSave();
-    };
-  }
-});
+// Notion key field is now directly in the HTML — no dynamic injection needed.
 </script>
 </body>
 </html>

@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📰 Sarah's News App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-date {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 14px;
+            text-align: right;
+        }
+
+        .lock-icon {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .lock-icon:active {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0.95);
+        }
+
+        .lock-icon.unlocked {
+            background: #FFD700;
+            color: #764ba2;
+            border-color: #FFD700;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .back-link:active {
+            opacity: 0.7;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-btn {
+            flex: 0 0 auto;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            touch-action: manipulation;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #764ba2;
+        }
+
+        .tab-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Content Sections */
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Story Section */
+        .story-container {
+            position: relative;
+        }
+
+        .edit-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .edit-btn:active {
+            transform: scale(0.9);
+        }
+
+        .edit-btn.visible {
+            display: flex;
+        }
+
+        .story-headline {
+            font-size: 28px;
+            font-weight: 800;
+            color: #764ba2;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .story-summary {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .big-word-section {
+            background: #FFF3E0;
+            border-left: 4px solid #FF9800;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .big-word-label {
+            font-weight: 700;
+            color: #FF6F00;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .big-word {
+            font-size: 20px;
+            color: #FF6F00;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .big-word-def {
+            font-size: 14px;
+            color: #333;
+            font-style: italic;
+        }
+
+        .question-section {
+            background: #E3F2FD;
+            border-left: 4px solid #2196F3;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .question-label {
+            font-weight: 700;
+            color: #1976D2;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+        }
+
+        /* Video Section */
+        .video-container {
+            margin-bottom: 20px;
+        }
+
+        .video-placeholder {
+            background: #f0f0f0;
+            aspect-ratio: 16 / 9;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        iframe {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .video-link-btn {
+            display: inline-block;
+            background: #FF6B6B;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            font-size: 14px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            touch-action: manipulation;
+        }
+
+        .video-link-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Infographic Section */
+        .infographic-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            background: #f0f0f0;
+        }
+
+        .infographic-caption {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* Quiz Section */
+        .quiz-question {
+            margin-bottom: 20px;
+        }
+
+        .quiz-question-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quiz-option {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            font-family: 'Nunito', sans-serif;
+            touch-action: manipulation;
+        }
+
+        .quiz-option:active {
+            transform: scale(0.98);
+        }
+
+        .quiz-option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .quiz-option.correct {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .quiz-option.incorrect {
+            background: #F44336;
+            color: white;
+            border-color: #F44336;
+        }
+
+        .quiz-feedback {
+            font-size: 14px;
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #C8E6C9;
+            color: #2E7D32;
+        }
+
+        .quiz-feedback.incorrect {
+            background: #FFCDD2;
+            color: #C62828;
+        }
+
+        .quiz-results {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: #E8F5E9;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .quiz-results.show {
+            display: block;
+        }
+
+        .quiz-score {
+            font-size: 48px;
+            font-weight: 800;
+            color: #4CAF50;
+            margin-bottom: 8px;
+        }
+
+        .quiz-score-text {
+            font-size: 18px;
+            color: #2E7D32;
+            font-weight: 600;
+        }
+
+        /* Recording Section */
+        .recorder-container {
+            text-align: center;
+        }
+
+        .prompt-text {
+            background: #FFF8E1;
+            border-left: 4px solid #FBC02D;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #333;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .rec-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #F44336;
+            color: white;
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+            touch-action: manipulation;
+        }
+
+        .rec-button:active {
+            transform: scale(0.95);
+        }
+
+        .rec-button.recording {
+            animation: pulse 1s infinite;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.6);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .recording-timer {
+            font-size: 24px;
+            font-weight: 800;
+            color: #F44336;
+            margin-bottom: 16px;
+        }
+
+        .rec-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .stop-btn {
+            background: #757575;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            min-height: 44px;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .stop-btn:active {
+            transform: scale(0.95);
+        }
+
+        .transcript-box {
+            background: #F5F5F5;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 16px;
+            min-height: 60px;
+            border: 2px solid #E0E0E0;
+        }
+
+        .playback-section {
+            margin-top: 20px;
+        }
+
+        .playback-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            min-height: 44px;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .playback-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Modal for Editing */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px 16px 0 0;
+            padding: 24px;
+            max-width: 100%;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Nunito', sans-serif;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .save-btn, .cancel-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            min-height: 44px;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .save-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .save-btn:active {
+            transform: scale(0.95);
+        }
+
+        .cancel-btn {
+            background: #E0E0E0;
+            color: #333;
+        }
+
+        .cancel-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* No Data States */
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .no-data-emoji {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .no-data-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .on-air {
+            display: inline-block;
+            background: #F44336;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49%, 100% { opacity: 1; }
+            50%, 99% { opacity: 0.3; }
+        }
+
+        /* Accessibility */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .story-headline {
+                font-size: 22px;
+            }
+
+            .modal-content {
+                border-radius: 12px 12px 0 0;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            }
+
+            .tab-content, .modal-content {
+                background: #2d2d44;
+                color: #fff;
+            }
+
+            .story-headline, .question-text, .quiz-question-text, .modal-header {
+                color: #fff;
+            }
+
+            .story-summary, .big-word-def, .transcript-box {
+                color: #ddd;
+            }
+
+            textarea, input, select {
+                background: #1a1a2e;
+                color: #fff;
+                border-color: #444;
+            }
+
+            .quiz-option {
+                background: #3a3a50;
+                border-color: #444;
+                color: #ddd;
+            }
+
+            .transcript-box {
+                background: #3a3a50;
+                border-color: #444;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>📰 Sarah's News</h1>
+                <div class="header-date" id="headerDate"></div>
+            </div>
+            <button class="lock-icon" id="lockToggle" title="Parent Mode">🔒</button>
+        </div>
+
+        <a href="./dashboard.html" style="color:rgba(255,255,255,.8);font-size:.85rem;font-weight:700;text-decoration:none;display:inline-block;margin-bottom:8px;">← Dashboard</a>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="story">🗞️ Today's Story</button>
+            <button class="tab-btn" data-tab="video">📺 Watch & Learn</button>
+            <button class="tab-btn" data-tab="infographic">📊 Infographic</button>
+            <button class="tab-btn" data-tab="quiz">🎯 Daily Quiz</button>
+            <button class="tab-btn" data-tab="correspondent">🎙️ Correspondent</button>
+        </div>
+
+        <!-- Content Sections -->
+
+        <!-- 1. Today's Story -->
+        <div id="story" class="tab-content active">
+            <div class="story-container">
+                <button class="edit-btn" id="editStoryBtn" title="Edit Story">✏️</button>
+                <h2 class="story-headline" id="storyHeadline">No story yet. Check back tomorrow!</h2>
+                <p class="story-summary" id="storySummary"></p>
+
+                <div class="big-word-section" id="bigWordSection" style="display: none;">
+                    <div class="big-word-label">Big Word of the Day</div>
+                    <div class="big-word" id="bigWord"></div>
+                    <div class="big-word-def" id="bigWordDef"></div>
+                </div>
+
+                <div class="question-section">
+                    <div class="question-label">Think About It</div>
+                    <div class="question-text" id="thinkQuestion">What was your favorite part?</div>
+                    <textarea id="thinkAnswer" placeholder="Type your answer here..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Watch & Learn -->
+        <div id="video" class="tab-content">
+            <div class="story-container">
+                <button class="edit-btn" id="editVideoBtn" title="Edit Video">✏️</button>
+                <div class="video-container" id="videoContainer">
+                    <div class="video-placeholder">📺</div>
+                    <a href="#" class="video-link-btn" id="videoLink" target="_blank">🎬 Watch on YouTube</a>
+                </div>
+
+                <div class="question-section">
+                    <div class="question-label">Reflection</div>
+                    <div class="question-text">What was the most interesting thing you saw?</div>
+                    <textarea id="videoAnswer" placeholder="Type your answer here..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Infographic of the Week -->
+        <div id="infographic" class="tab-content">
+            <div class="story-container">
+                <button class="edit-btn" id="editInfographicBtn" title="Edit Infographic">✏️</button>
+                <div id="infographicContent">
+                    <div class="no-data">
+                        <div class="no-data-emoji">📊</div>
+                        <div class="no-data-text">No infographic this week yet!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Daily Quiz -->
+        <div id="quiz" class="tab-content">
+            <div id="quizContent"></div>
+            <button class="save-btn" id="submitQuizBtn" style="width: 100%; margin-top: 20px; display: none;">Check My Answers! 🎉</button>
+        </div>
+
+        <!-- 5. Correspondent Corner -->
+        <div id="correspondent" class="tab-content">
+            <div class="recorder-container">
+                <div class="prompt-text">
+                    📢 "Good morning, this is <strong>Sarah</strong> reporting live from <strong>Bangalore</strong>. Today's big story is..."
+                    <br><br>
+                    Record a 60-second news report about today's story!
+                </div>
+
+                <div id="recordingUI">
+                    <button class="rec-button" id="recButton" title="Start Recording">🎤</button>
+                    <div class="recording-timer" id="recordingTimer" style="display: none;">0:00</div>
+                </div>
+
+                <div class="rec-controls" id="recControls" style="display: none;">
+                    <button class="stop-btn" id="stopBtn">⏹ Stop</button>
+                </div>
+
+                <div class="transcript-box" id="transcriptBox" style="display: none;">
+                    <strong>Transcript:</strong><br>
+                    <div id="transcriptText"></div>
+                </div>
+
+                <div class="playback-section" id="playbackSection" style="display: none;">
+                    <button class="playback-btn" id="playbackBtn">▶ Play Again</button>
+                </div>
+
+                <div id="browserWarning" style="display: none; background: #FFF3CD; padding: 16px; border-radius: 8px; margin-top: 20px; color: #333; font-size: 14px;">
+                    🔊 Your browser doesn't support recording. Try Chrome, Firefox, or Safari!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modals -->
+
+    <!-- Edit Story Modal -->
+    <div class="modal" id="editStoryModal">
+        <div class="modal-content">
+            <div class="modal-header">✏️ Edit Today's Story</div>
+            <div class="form-group">
+                <label class="form-label">Headline</label>
+                <input type="text" id="editHeadline" placeholder="Enter headline...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Summary (2-3 sentences)</label>
+                <textarea id="editSummary" placeholder="Enter summary..." style="min-height: 100px;"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Big Word</label>
+                <input type="text" id="editBigWord" placeholder="Enter word...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Word Definition (kid-friendly)</label>
+                <textarea id="editBigWordDef" placeholder="Enter definition..." style="min-height: 60px;"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Think About It Question</label>
+                <input type="text" id="editThinkQuestion" placeholder="Enter question...">
+            </div>
+            <div class="form-buttons">
+                <button class="save-btn" id="saveStoryBtn">Save Story</button>
+                <button class="cancel-btn" id="cancelStoryBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Video Modal -->
+    <div class="modal" id="editVideoModal">
+        <div class="modal-content">
+            <div class="modal-header">✏️ Edit Video</div>
+            <div class="form-group">
+                <label class="form-label">YouTube Video URL</label>
+                <input type="url" id="editVideoUrl" placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+            <div class="form-buttons">
+                <button class="save-btn" id="saveVideoBtn">Save Video</button>
+                <button class="cancel-btn" id="cancelVideoBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Infographic Modal -->
+    <div class="modal" id="editInfographicModal">
+        <div class="modal-content">
+            <div class="modal-header">✏️ Edit Infographic</div>
+            <div class="form-group">
+                <label class="form-label">Image URL</label>
+                <input type="url" id="editInfographicUrl" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Caption</label>
+                <input type="text" id="editInfographicCaption" placeholder="Enter caption...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Quiz Question</label>
+                <input type="text" id="editInfographicQuestion" placeholder="Enter question...">
+            </div>
+            <div class="form-buttons">
+                <button class="save-btn" id="saveInfographicBtn">Save Infographic</button>
+                <button class="cancel-btn" id="cancelInfographicBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Quiz Modal -->
+    <div class="modal" id="editQuizModal">
+        <div class="modal-content">
+            <div class="modal-header">✏️ Edit Daily Quiz</div>
+            <div id="quizEditForm"></div>
+            <div class="form-buttons">
+                <button class="save-btn" id="saveQuizBtn">Save Quiz</button>
+                <button class="cancel-btn" id="cancelQuizBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =====================
+        // Global State & Setup
+        // =====================
+
+        let parentMode = false;
+        let mediaRecorder = null;
+        let recordingStartTime = null;
+        let recordingInterval = null;
+        let audioChunks = [];
+        let audioBlob = null;
+        const today = new Date();
+        const dateKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+        const weekKey = `W${Math.ceil(today.getDate() / 7)}-${today.getFullYear()}`;
+
+        // =====================
+        // Initialize on Load
+        // =====================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDateDisplay();
+            setupTabs();
+            setupLockToggle();
+            setupRecorder();
+            setupEditButtons();
+            // Auto-fetch news-content.json first; fall back to localStorage if offline or file missing
+            fetchDailyNews().then(() => {
+                loadStory();
+                loadVideo();
+                loadInfographic();
+                loadQuiz();
+            });
+        });
+
+        // ── AUTO-FETCH FROM news-content.json ──
+        // GitHub Actions commits this file daily at 6 AM IST.
+        async function fetchDailyNews() {
+            try {
+                const res = await fetch('./news-content.json?t=' + Date.now(), { cache: 'no-cache' });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data || !data.stories) return;
+                // Load content regardless of exact date match — GitHub Actions keeps the file current.
+                // Only skip if the file is genuinely stale (more than 3 days old).
+                if (data.date) {
+                    const ageDays = Math.floor((today - new Date(data.date)) / 86400000);
+                    if (ageDays > 3) return;
+                }
+
+                // getLocalStorage/setLocalStorage both add 'news-' prefix internally.
+                // So seedIfEmpty('news-' + dateKey, ...) writes to localStorage key 'news-news-' + dateKey
+                // and getLocalStorage('news-' + dateKey) reads from 'news-news-' + dateKey  ✓
+                if (data.stories.length) {
+                    const s = data.stories[0];
+                    seedIfEmpty('news-' + dateKey, {
+                        headline: s.headline, summary: s.summary,
+                        bigWord: s.bigWord, bigWordDef: s.bigWordDef,
+                        question: s.thinkQuestion
+                    });
+                    // All-stories stored with direct key (no prefix wrapper) — read back the same way
+                    if (!localStorage.getItem('news-all-stories-' + dateKey)) {
+                        localStorage.setItem('news-all-stories-' + dateKey, JSON.stringify(data.stories));
+                    }
+                }
+                if (data.infographic) {
+                    seedIfEmpty('news-infographic-' + weekKey, {
+                        imageUrl: '', caption: data.infographic.caption,
+                        fact: data.infographic.fact, question: data.infographic.question
+                    });
+                }
+                if (data.quiz && data.quiz.length) {
+                    seedIfEmpty('news-quiz-q-' + dateKey, data.quiz);
+                }
+            } catch(e) {
+                // Offline or not yet deployed — fall back to localStorage / parent edit mode
+            }
+        }
+
+        // Uses setLocalStorage so the 'news-' prefix is applied consistently
+        function seedIfEmpty(key, value) {
+            if (!localStorage.getItem('news-' + key)) {
+                setLocalStorage(key, value);
+            }
+        }
+
+        function updateDateDisplay() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = today.toLocaleDateString('en-IN', options);
+            document.getElementById('headerDate').textContent = dateStr;
+        }
+
+        // =====================
+        // Tab Navigation
+        // =====================
+
+        function setupTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabName = btn.dataset.tab;
+                    showTab(tabName);
+                });
+            });
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Save answers when leaving tabs
+            if (tabName === 'story') {
+                saveThinkAnswer();
+            } else if (tabName === 'video') {
+                saveVideoAnswer();
+            }
+        }
+
+        // =====================
+        // Parent Mode Toggle
+        // =====================
+
+        function setupLockToggle() {
+            document.getElementById('lockToggle').addEventListener('click', () => {
+                parentMode = !parentMode;
+                const lockBtn = document.getElementById('lockToggle');
+                lockBtn.classList.toggle('unlocked', parentMode);
+
+                // Show/hide edit buttons
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.classList.toggle('visible', parentMode);
+                });
+            });
+        }
+
+        // =====================
+        // 1. TODAY'S STORY
+        // =====================
+
+        let _storyIndex = 0; // which story is showing (0, 1, or 2)
+
+        function loadStory() {
+            // Try all-stories array first (from auto-fetch), fall back to single legacy entry
+            const allStories = (() => {
+                try { return JSON.parse(localStorage.getItem('news-all-stories-' + dateKey)) || null; } catch { return null; }
+            })();
+            const single = getLocalStorage(`news-${dateKey}`);
+
+            if (allStories && allStories.length > 1) {
+                renderStoryCarousel(allStories);
+            } else if (single) {
+                renderSingleStory(single);
+            }
+        }
+
+        function renderSingleStory(story) {
+            document.getElementById('storyHeadline').textContent = story.headline || '';
+            document.getElementById('storySummary').textContent = story.summary || '';
+            document.getElementById('thinkQuestion').textContent = story.question || story.thinkQuestion || 'What was your favorite part?';
+            if (story.bigWord) {
+                document.getElementById('bigWord').textContent = story.bigWord;
+                document.getElementById('bigWordDef').textContent = story.bigWordDef;
+                document.getElementById('bigWordSection').style.display = 'block';
+            }
+            document.getElementById('thinkAnswer').value = story.thinkAnswer || '';
+        }
+
+        function renderStoryCarousel(stories) {
+            // Add nav dots + prev/next if not already present
+            const wrap = document.getElementById('storyHeadline').closest('.tab-content, [id]') || document.getElementById('storyHeadline').parentElement;
+            if (!document.getElementById('story-nav')) {
+                const nav = document.createElement('div');
+                nav.id = 'story-nav';
+                nav.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;';
+                nav.innerHTML = `
+                  <button onclick="changeStory(-1)" style="background:rgba(255,255,255,.2);border:none;border-radius:8px;padding:4px 12px;color:white;font-size:1rem;cursor:pointer;font-family:Nunito,sans-serif;font-weight:700;">◀</button>
+                  <span id="story-counter" style="color:rgba(255,255,255,.9);font-size:.85rem;font-weight:700;"></span>
+                  <button onclick="changeStory(1)" style="background:rgba(255,255,255,.2);border:none;border-radius:8px;padding:4px 12px;color:white;font-size:1rem;cursor:pointer;font-family:Nunito,sans-serif;font-weight:700;">▶</button>
+                `;
+                const hl = document.getElementById('storyHeadline');
+                if (hl && hl.parentElement) hl.parentElement.insertBefore(nav, hl);
+            }
+            _storyIndex = Math.max(0, Math.min(_storyIndex, stories.length - 1));
+            const s = stories[_storyIndex];
+            document.getElementById('story-counter').textContent = `Story ${_storyIndex + 1} of ${stories.length}`;
+            document.getElementById('storyHeadline').textContent = s.headline || '';
+            document.getElementById('storySummary').textContent = s.summary || '';
+            document.getElementById('thinkQuestion').textContent = s.thinkQuestion || s.question || 'What was your favorite part?';
+            if (s.bigWord) {
+                document.getElementById('bigWord').textContent = s.bigWord;
+                document.getElementById('bigWordDef').textContent = s.bigWordDef || '';
+                document.getElementById('bigWordSection').style.display = 'block';
+            }
+            const saved = getLocalStorage(`news-answer-${dateKey}-${_storyIndex}`);
+            document.getElementById('thinkAnswer').value = saved || '';
+        }
+
+        function changeStory(dir) {
+            const allStories = (() => {
+                try { return JSON.parse(localStorage.getItem('news-all-stories-' + dateKey)) || null; } catch { return null; }
+            })();
+            if (!allStories) return;
+            _storyIndex = (_storyIndex + dir + allStories.length) % allStories.length;
+            renderStoryCarousel(allStories);
+        }
+
+        function saveThinkAnswer() {
+            const answer = document.getElementById('thinkAnswer').value;
+            // Save per-story answer
+            localStorage.setItem('news-answer-' + dateKey + '-' + _storyIndex, JSON.stringify(answer));
+            // Also update legacy key
+            const story = getLocalStorage(`news-${dateKey}`) || {};
+            story.thinkAnswer = answer;
+            setLocalStorage(`news-${dateKey}`, story);
+        }
+
+        // (saveThinkAnswer defined above in carousel section)
+
+        function setupEditButtons() {
+            // Story
+            document.getElementById('editStoryBtn').addEventListener('click', openEditStoryModal);
+            document.getElementById('saveStoryBtn').addEventListener('click', saveStory);
+            document.getElementById('cancelStoryBtn').addEventListener('click', closeModal);
+
+            // Video
+            document.getElementById('editVideoBtn').addEventListener('click', openEditVideoModal);
+            document.getElementById('saveVideoBtn').addEventListener('click', saveVideo);
+            document.getElementById('cancelVideoBtn').addEventListener('click', closeModal);
+
+            // Infographic
+            document.getElementById('editInfographicBtn').addEventListener('click', openEditInfographicModal);
+            document.getElementById('saveInfographicBtn').addEventListener('click', saveInfographic);
+            document.getElementById('cancelInfographicBtn').addEventListener('click', closeModal);
+
+            // Quiz
+            document.getElementById('editQuizModal').addEventListener('click', (e) => {
+                if (e.target.id === 'editQuizModal') closeModal();
+            });
+            document.getElementById('cancelQuizBtn').addEventListener('click', closeModal);
+            document.getElementById('saveQuizBtn').addEventListener('click', saveQuiz);
+        }
+
+        function openEditStoryModal() {
+            const story = getLocalStorage(`news-${dateKey}`) || {};
+            document.getElementById('editHeadline').value = story.headline || '';
+            document.getElementById('editSummary').value = story.summary || '';
+            document.getElementById('editBigWord').value = story.bigWord || '';
+            document.getElementById('editBigWordDef').value = story.bigWordDef || '';
+            document.getElementById('editThinkQuestion').value = story.thinkQuestion || 'What was your favorite part?';
+            openModal('editStoryModal');
+        }
+
+        function saveStory() {
+            const story = {
+                headline: document.getElementById('editHeadline').value || 'Untitled Story',
+                summary: document.getElementById('editSummary').value || '',
+                bigWord: document.getElementById('editBigWord').value || '',
+                bigWordDef: document.getElementById('editBigWordDef').value || '',
+                thinkQuestion: document.getElementById('editThinkQuestion').value || 'What was your favorite part?',
+                thinkAnswer: getLocalStorage(`news-${dateKey}`)?.thinkAnswer || ''
+            };
+            setLocalStorage(`news-${dateKey}`, story);
+            loadStory();
+            closeModal();
+        }
+
+        // =====================
+        // 2. WATCH & LEARN
+        // =====================
+
+        function loadVideo() {
+            const video = getLocalStorage(`news-video-${dateKey}`);
+            if (video && video.url) {
+                const videoContainer = document.getElementById('videoContainer');
+                videoContainer.innerHTML = '';
+
+                // Try to embed YouTube
+                const embedUrl = convertYouTubeUrl(video.url);
+                if (embedUrl) {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = embedUrl;
+                    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                    iframe.allowFullscreen = true;
+                    videoContainer.appendChild(iframe);
+                } else {
+                    const link = document.createElement('a');
+                    link.href = video.url;
+                    link.target = '_blank';
+                    link.className = 'video-link-btn';
+                    link.textContent = '🎬 Watch on YouTube';
+                    videoContainer.appendChild(link);
+                }
+
+                document.getElementById('videoAnswer').value = video.answer || '';
+            }
+        }
+
+        function convertYouTubeUrl(url) {
+            let videoId = null;
+            if (url.includes('youtube.com/watch?v=')) {
+                videoId = url.split('v=')[1]?.split('&')[0];
+            } else if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1]?.split('?')[0];
+            }
+            return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+        }
+
+        function saveVideoAnswer() {
+            const answer = document.getElementById('videoAnswer').value;
+            const video = getLocalStorage(`news-video-${dateKey}`) || {};
+            video.answer = answer;
+            setLocalStorage(`news-video-${dateKey}`, video);
+        }
+
+        function openEditVideoModal() {
+            const video = getLocalStorage(`news-video-${dateKey}`) || {};
+            document.getElementById('editVideoUrl').value = video.url || '';
+            openModal('editVideoModal');
+        }
+
+        function saveVideo() {
+            const url = document.getElementById('editVideoUrl').value;
+            const video = {
+                url: url,
+                answer: getLocalStorage(`news-video-${dateKey}`)?.answer || ''
+            };
+            setLocalStorage(`news-video-${dateKey}`, video);
+            loadVideo();
+            closeModal();
+        }
+
+        // =====================
+        // 3. INFOGRAPHIC OF THE WEEK
+        // =====================
+
+        function loadInfographic() {
+            const infographic = getLocalStorage(`news-infographic-${weekKey}`);
+            const container = document.getElementById('infographicContent');
+
+            if (infographic && infographic.imageUrl) {
+                container.innerHTML = `
+                    <img src="${infographic.imageUrl}" alt="Weekly Infographic" class="infographic-image" onerror="this.parentElement.innerHTML='<div class=\"no-data\"><div class=\"no-data-emoji\">❌</div><div class=\"no-data-text\">Image failed to load</div></div>'">
+                    <p class="infographic-caption">${infographic.caption || ''}</p>
+                    <div class="question-section">
+                        <div class="question-label">Weekly Challenge</div>
+                        <div class="question-text">${infographic.question || 'What do you see?'}</div>
+                        <textarea id="infographicAnswer" placeholder="Type your answer here...">${infographic.answer || ''}</textarea>
+                    </div>
+                `;
+
+                document.getElementById('infographicAnswer')?.addEventListener('change', saveInfographicAnswer);
+            }
+        }
+
+        function saveInfographicAnswer() {
+            const answer = document.getElementById('infographicAnswer')?.value || '';
+            const infographic = getLocalStorage(`news-infographic-${weekKey}`) || {};
+            infographic.answer = answer;
+            setLocalStorage(`news-infographic-${weekKey}`, infographic);
+        }
+
+        function openEditInfographicModal() {
+            const infographic = getLocalStorage(`news-infographic-${weekKey}`) || {};
+            document.getElementById('editInfographicUrl').value = infographic.imageUrl || '';
+            document.getElementById('editInfographicCaption').value = infographic.caption || '';
+            document.getElementById('editInfographicQuestion').value = infographic.question || '';
+            openModal('editInfographicModal');
+        }
+
+        function saveInfographic() {
+            const infographic = {
+                imageUrl: document.getElementById('editInfographicUrl').value,
+                caption: document.getElementById('editInfographicCaption').value,
+                question: document.getElementById('editInfographicQuestion').value,
+                answer: getLocalStorage(`news-infographic-${weekKey}`)?.answer || ''
+            };
+            setLocalStorage(`news-infographic-${weekKey}`, infographic);
+            loadInfographic();
+            closeModal();
+        }
+
+        // =====================
+        // 4. DAILY QUIZ
+        // =====================
+
+        function loadQuiz() {
+            const quizQuestions = getLocalStorage(`news-quiz-q-${dateKey}`) || [];
+            const quizAnswers = getLocalStorage(`news-quiz-${dateKey}`) || {};
+            const container = document.getElementById('quizContent');
+
+            if (quizQuestions.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-emoji">🎯</div>
+                        <div class="no-data-text">No quiz today yet!</div>
+                    </div>
+                `;
+                document.getElementById('submitQuizBtn').style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = '';
+            quizQuestions.forEach((q, idx) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-question';
+                div.innerHTML = `
+                    <div class="quiz-question-text">Question ${idx + 1}: ${q.question}</div>
+                    <div class="quiz-options">
+                        ${q.options.map((opt, oIdx) => `
+                            <button class="quiz-option" data-q="${idx}" data-opt="${oIdx}" style="cursor: pointer;">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="quiz-feedback" id="feedback-${idx}"></div>
+                `;
+                container.appendChild(div);
+
+                // Add click handlers
+                div.querySelectorAll('.quiz-option').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        selectQuizOption(idx, parseInt(btn.dataset.opt), quizQuestions);
+                    });
+
+                    // Pre-select if already answered
+                    if (quizAnswers[idx] !== undefined && parseInt(btn.dataset.opt) === quizAnswers[idx]) {
+                        btn.classList.add('selected');
+                    }
+                });
+            });
+
+            document.getElementById('submitQuizBtn').style.display = 'block';
+            document.getElementById('submitQuizBtn').addEventListener('click', submitQuiz);
+        }
+
+        function selectQuizOption(questionIdx, optionIdx, questions) {
+            const answers = getLocalStorage(`news-quiz-${dateKey}`) || {};
+            answers[questionIdx] = optionIdx;
+            setLocalStorage(`news-quiz-${dateKey}`, answers);
+
+            // Update UI
+            document.querySelectorAll(`[data-q="${questionIdx}"]`).forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector(`[data-q="${questionIdx}"][data-opt="${optionIdx}"]`).classList.add('selected');
+        }
+
+        function submitQuiz() {
+            const quizQuestions = getLocalStorage(`news-quiz-q-${dateKey}`) || [];
+            const quizAnswers = getLocalStorage(`news-quiz-${dateKey}`) || {};
+
+            let correct = 0;
+            quizQuestions.forEach((q, idx) => {
+                if (quizAnswers[idx] === q.correctAnswer) {
+                    correct++;
+                    document.querySelector(`[data-q="${idx}"][data-opt="${q.correctAnswer}"]`).classList.add('correct');
+                    document.getElementById(`feedback-${idx}`).classList.add('show', 'correct');
+                    document.getElementById(`feedback-${idx}`).textContent = '✅ Correct!';
+                } else if (quizAnswers[idx] !== undefined) {
+                    document.querySelector(`[data-q="${idx}"][data-opt="${quizAnswers[idx]}"]`).classList.add('incorrect');
+                    document.getElementById(`feedback-${idx}`).classList.add('show', 'incorrect');
+                    document.getElementById(`feedback-${idx}`).textContent = `❌ Not quite. The answer is: ${quizQuestions[idx].options[q.correctAnswer]}`;
+                }
+
+                // Disable further selection
+                document.querySelectorAll(`[data-q="${idx}"]`).forEach(btn => {
+                    btn.style.pointerEvents = 'none';
+                });
+            });
+
+            // Show results
+            const resultsDiv = document.createElement('div');
+            resultsDiv.className = 'quiz-results show';
+            resultsDiv.innerHTML = `
+                <div class="quiz-score">${correct}/3</div>
+                <div class="quiz-score-text">Awesome job, Sarah! 🎉</div>
+            `;
+            document.getElementById('quizContent').appendChild(resultsDiv);
+            document.getElementById('submitQuizBtn').style.display = 'none';
+
+            // Write completion flag to localStorage
+            localStorage.setItem('hs-news-complete-' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(), 'true');
+        }
+
+        // Edit Quiz Modal
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'editQuizModal') {
+                // Find edit button within quiz section or create one
+                const quizTab = document.getElementById('quiz');
+                if (!quizTab.querySelector('.edit-btn')) {
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'edit-btn';
+                    editBtn.id = 'editQuizBtn';
+                    editBtn.title = 'Edit Quiz';
+                    editBtn.textContent = '✏️';
+                    editBtn.addEventListener('click', openEditQuizModal);
+                    quizTab.querySelector('.story-container')?.appendChild(editBtn);
+                }
+            }
+        });
+
+        // Add edit button to quiz dynamically
+        setTimeout(() => {
+            if (!document.getElementById('editQuizBtn')) {
+                const quizContainer = document.getElementById('quiz');
+                if (quizContainer) {
+                    // Wrap content if needed
+                    let wrapper = quizContainer.querySelector('.story-container');
+                    if (!wrapper) {
+                        wrapper = document.createElement('div');
+                        wrapper.className = 'story-container';
+                        quizContainer.innerHTML = '';
+                        quizContainer.appendChild(wrapper);
+                    }
+
+                    const quizContent = document.getElementById('quizContent');
+                    if (quizContent.parentElement !== wrapper) {
+                        wrapper.appendChild(quizContent);
+                    }
+
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'edit-btn';
+                    editBtn.id = 'editQuizBtn';
+                    editBtn.title = 'Edit Quiz';
+                    editBtn.textContent = '✏️';
+                    editBtn.addEventListener('click', openEditQuizModal);
+                    if (!wrapper.querySelector('#editQuizBtn')) {
+                        wrapper.appendChild(editBtn);
+                    }
+                }
+            }
+        }, 100);
+
+        function openEditQuizModal() {
+            const questions = getLocalStorage(`news-quiz-q-${dateKey}`) || [];
+            const form = document.getElementById('quizEditForm');
+            form.innerHTML = '';
+
+            if (questions.length === 0) {
+                questions.push(...[
+                    { question: 'Question 1', options: ['Option A', 'Option B', 'Option C', 'Option D'], correctAnswer: 0 },
+                    { question: 'Question 2', options: ['Option A', 'Option B', 'Option C', 'Option D'], correctAnswer: 1 },
+                    { question: 'Question 3', options: ['Option A', 'Option B', 'Option C', 'Option D'], correctAnswer: 2 }
+                ]);
+            }
+
+            questions.forEach((q, idx) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <h3 style="margin-top: 16px; margin-bottom: 8px; color: #333;">Question ${idx + 1}</h3>
+                    <div class="form-group">
+                        <label class="form-label">Question Text</label>
+                        <input type="text" class="q-text-${idx}" value="${q.question}" placeholder="Enter question...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Option A</label>
+                        <input type="text" class="q-opt-${idx}-0" value="${q.options[0]}" placeholder="Option A...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Option B</label>
+                        <input type="text" class="q-opt-${idx}-1" value="${q.options[1]}" placeholder="Option B...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Option C</label>
+                        <input type="text" class="q-opt-${idx}-2" value="${q.options[2]}" placeholder="Option C...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Option D</label>
+                        <input type="text" class="q-opt-${idx}-3" value="${q.options[3]}" placeholder="Option D...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Correct Answer</label>
+                        <select class="q-answer-${idx}">
+                            <option value="0" ${q.correctAnswer === 0 ? 'selected' : ''}>Option A</option>
+                            <option value="1" ${q.correctAnswer === 1 ? 'selected' : ''}>Option B</option>
+                            <option value="2" ${q.correctAnswer === 2 ? 'selected' : ''}>Option C</option>
+                            <option value="3" ${q.correctAnswer === 3 ? 'selected' : ''}>Option D</option>
+                        </select>
+                    </div>
+                `;
+                form.appendChild(div);
+            });
+
+            openModal('editQuizModal');
+        }
+
+        function saveQuiz() {
+            const questions = [];
+            for (let i = 0; i < 3; i++) {
+                questions.push({
+                    question: document.querySelector(`.q-text-${i}`).value || `Question ${i + 1}`,
+                    options: [
+                        document.querySelector(`.q-opt-${i}-0`).value || 'Option A',
+                        document.querySelector(`.q-opt-${i}-1`).value || 'Option B',
+                        document.querySelector(`.q-opt-${i}-2`).value || 'Option C',
+                        document.querySelector(`.q-opt-${i}-3`).value || 'Option D'
+                    ],
+                    correctAnswer: parseInt(document.querySelector(`.q-answer-${i}`).value) || 0
+                });
+            }
+            setLocalStorage(`news-quiz-q-${dateKey}`, questions);
+            loadQuiz();
+            closeModal();
+        }
+
+        // =====================
+        // 5. CORRESPONDENT CORNER (Recording)
+        // =====================
+
+        function setupRecorder() {
+            const recButton = document.getElementById('recButton');
+            const stopBtn = document.getElementById('stopBtn');
+            const playbackBtn = document.getElementById('playbackBtn');
+
+            // Check browser support
+            const constraints = { audio: true };
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                document.getElementById('browserWarning').style.display = 'block';
+                recButton.disabled = true;
+                return;
+            }
+
+            recButton.addEventListener('click', startRecording);
+            stopBtn.addEventListener('click', stopRecording);
+            if (playbackBtn) {
+                playbackBtn.addEventListener('click', playRecording);
+            }
+
+            // Load saved transcript
+            const saved = getLocalStorage(`news-correspondent-${dateKey}`);
+            if (saved && saved.transcript) {
+                showTranscript(saved.transcript);
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (e) => {
+                    audioChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+
+                    // Try to transcribe (we'll use Web Speech API for transcription)
+                    transcribeAudio();
+
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                recordingStartTime = Date.now();
+                audioChunks = [];
+
+                // Update UI
+                document.getElementById('recordingUI').style.display = 'none';
+                document.getElementById('recControls').style.display = 'flex';
+                document.getElementById('recordingTimer').style.display = 'block';
+
+                // Show "On Air" indicator
+                const onAir = document.createElement('div');
+                onAir.className = 'on-air';
+                onAir.id = 'onAir';
+                onAir.textContent = '🔴 ON AIR';
+                document.querySelector('.recorder-container').insertBefore(onAir, document.querySelector('.prompt-text').nextSibling);
+
+                // Timer
+                recordingInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('recordingTimer').textContent =
+                        `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                    // Auto-stop at 60 seconds
+                    if (elapsed >= 60) {
+                        stopRecording();
+                    }
+                }, 100);
+            } catch (err) {
+                alert('Could not access microphone. Please check permissions.');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+
+            clearInterval(recordingInterval);
+
+            document.getElementById('recordingUI').style.display = 'block';
+            document.getElementById('recControls').style.display = 'none';
+            document.getElementById('recordingTimer').style.display = 'none';
+            document.getElementById('recordingTimer').textContent = '0:00';
+
+            const onAir = document.getElementById('onAir');
+            if (onAir) onAir.remove();
+        }
+
+        function transcribeAudio() {
+            // Use Web Speech API if available
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-IN';
+
+                let transcript = '';
+                recognition.onresult = (event) => {
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            transcript += event.results[i][0].transcript + ' ';
+                        }
+                    }
+
+                    const saved = getLocalStorage(`news-correspondent-${dateKey}`) || {};
+                    saved.transcript = transcript.trim();
+                    setLocalStorage(`news-correspondent-${dateKey}`, saved);
+
+                    // Write completion flag to localStorage
+                    localStorage.setItem('hs-news-complete-' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(), 'true');
+
+                    showTranscript(saved.transcript);
+                    document.getElementById('playbackSection').style.display = 'block';
+                };
+
+                recognition.onerror = () => {
+                    // Fallback: ask user to type
+                    const transcript = prompt('Could not transcribe audio. Please type what you said:');
+                    if (transcript) {
+                        const saved = getLocalStorage(`news-correspondent-${dateKey}`) || {};
+                        saved.transcript = transcript;
+                        setLocalStorage(`news-correspondent-${dateKey}`, saved);
+                        // Write completion flag to localStorage
+                        localStorage.setItem('hs-news-complete-' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(), 'true');
+                        showTranscript(transcript);
+                    }
+                };
+
+                recognition.start();
+            } else {
+                // Fallback: ask user to type
+                const transcript = prompt('Please type your news report:');
+                if (transcript) {
+                    const saved = getLocalStorage(`news-correspondent-${dateKey}`) || {};
+                    saved.transcript = transcript;
+                    setLocalStorage(`news-correspondent-${dateKey}`, saved);
+                    // Write completion flag to localStorage
+                    localStorage.setItem('hs-news-complete-' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(), 'true');
+                    showTranscript(transcript);
+                    document.getElementById('playbackSection').style.display = 'block';
+                }
+            }
+        }
+
+        function showTranscript(transcript) {
+            document.getElementById('transcriptBox').style.display = 'block';
+            document.getElementById('transcriptText').textContent = transcript;
+            document.getElementById('playbackSection').style.display = 'block';
+        }
+
+        function playRecording() {
+            if (audioBlob) {
+                const url = URL.createObjectURL(audioBlob);
+                const audio = new Audio(url);
+                audio.play();
+            }
+        }
+
+        // =====================
+        // Modal Helpers
+        // =====================
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(m => {
+                m.classList.remove('active');
+            });
+        }
+
+        // =====================
+        // LocalStorage Helpers
+        // =====================
+
+        function getLocalStorage(key) {
+            try {
+                const data = localStorage.getItem(`news-${key}`);
+                return data ? JSON.parse(data) : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function setLocalStorage(key, value) {
+            try {
+                localStorage.setItem(`news-${key}`, JSON.stringify(value));
+            } catch {
+                console.warn('localStorage quota exceeded or disabled');
+            }
+        }
+
+        // Close modals on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+</body>
+</html>

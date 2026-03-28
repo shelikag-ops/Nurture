@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parent Weekly Report — Sarah's Progress</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f8f9fa;
+      color: #2c3e50;
+      line-height: 1.6;
+    }
+
+    /* Header & Navigation */
+    header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .header-nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .header-nav a:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .nsf-pill {
+      background: #d97706;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    /* View Toggle */
+    .view-controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .toggle-group {
+      display: inline-flex;
+      background: rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 0.25rem;
+    }
+
+    .toggle-group button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      background: transparent;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+    }
+
+    .toggle-group button.active {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .date-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .date-controls button {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .date-controls button:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .date-display {
+      background: rgba(255,255,255,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      min-width: 200px;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    section {
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    section h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #1e3a5f;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .placeholder {
+      padding: 2rem;
+      text-align: center;
+      color: #95a5a6;
+      font-style: italic;
+      background: #ecf0f1;
+      border-radius: 8px;
+      border-left: 4px solid #95a5a6;
+    }
+
+    /* TOP WINS */
+    .wins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .win-card {
+      background: linear-gradient(135deg, #f0fdf4 0%, #e8f5e9 100%);
+      border-left: 4px solid #10b981;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+
+    .win-card.milestone {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-left-color: #f59e0b;
+    }
+
+    .win-emoji {
+      font-size: 1.8rem;
+      margin-right: 0.5rem;
+    }
+
+    .win-statement {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #1e3a5f;
+      margin-bottom: 0.5rem;
+    }
+
+    .win-context {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    /* TIME TRACKER */
+    .time-tracker-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .time-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .time-stat {
+      background: #f0f4f8;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .time-stat-label {
+      font-size: 0.85rem;
+      color: #666;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .time-stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1e3a5f;
+    }
+
+    .time-stat-unit {
+      font-size: 0.9rem;
+      color: #999;
+    }
+
+    .chart-container {
+      background: #f8f9fa;
+      padding: 2rem;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    .chart-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+    }
+
+    .chart-item {
+      margin-bottom: 2rem;
+    }
+
+    .chart-subject {
+      font-weight: 600;
+      color: #1e3a5f;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .chart-bars {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-end;
+      height: 40px;
+    }
+
+    .bar-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 60px;
+    }
+
+    .bar {
+      width: 100%;
+      background: #ccc;
+      border-radius: 4px 4px 0 0;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .bar.planned {
+      background: #d4d4d8;
+      opacity: 0.6;
+    }
+
+    .bar.actual {
+      background: #06b6d4;
+    }
+
+    .bar.math { background: #3b82f6; }
+    .bar.science { background: #ec4899; }
+    .bar.english { background: #8b5cf6; }
+    .bar.vocab { background: #f59e0b; }
+    .bar.chess { background: #10b981; }
+    .bar.reading { background: #f43f5e; }
+    .bar.affairs { background: #14b8a6; }
+
+    .bar-label {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 0.5rem;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .bar-value {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #1e3a5f;
+    }
+
+    /* CURRICULUM PROGRESS */
+    .progress-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .progress-subject {
+      border: 1px solid #e0e0e0;
+      padding: 1.5rem;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+
+    .progress-subject h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-bottom: 1rem;
+    }
+
+    .progress-item {
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .progress-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .progress-current {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1e3a5f;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background: #e0e0e0;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #10b981;
+      border-radius: 6px;
+      transition: width 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 4px;
+    }
+
+    .progress-fill.warning {
+      background: #f59e0b;
+    }
+
+    .progress-fill.alert {
+      background: #ef4444;
+    }
+
+    .progress-percent {
+      font-size: 0.7rem;
+      color: white;
+      font-weight: 700;
+    }
+
+    .status-note {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .status-note.green {
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .status-note.amber {
+      color: #f59e0b;
+      font-weight: 600;
+    }
+
+    /* TASK COMPLETION */
+    .task-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .task-subject {
+      background: #fafafa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid #3b82f6;
+    }
+
+    .task-subject h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-bottom: 1rem;
+    }
+
+    .task-completion {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-bottom: 0.5rem;
+    }
+
+    .task-completion.good { color: #10b981; }
+    .task-completion.warning { color: #f59e0b; }
+    .task-completion.alert { color: #ef4444; }
+
+    .task-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .task-fill {
+      height: 100%;
+      background: #10b981;
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+
+    .task-fill.warning { background: #f59e0b; }
+    .task-fill.alert { background: #ef4444; }
+
+    /* ADJUSTMENTS */
+    .adjustments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .adjustment-item {
+      background: #f0f4f8;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid #f59e0b;
+    }
+
+    .adjustment-icon {
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+    }
+
+    .adjustment-title {
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-bottom: 0.5rem;
+    }
+
+    .adjustment-detail {
+      font-size: 0.9rem;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    /* SUBMISSIONS */
+    .submissions-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .submission-stat {
+      background: #f0f4f8;
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .submission-stat-label {
+      font-size: 0.8rem;
+      color: #666;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .submission-stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1e3a5f;
+    }
+
+    .submission-stat-unit {
+      font-size: 0.85rem;
+      color: #999;
+    }
+
+    .error-pattern {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+    }
+
+    .error-pattern-label {
+      font-size: 0.8rem;
+      color: #666;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .error-pattern-text {
+      font-weight: 700;
+      color: #1e3a5f;
+    }
+
+    .corrections-link {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.7rem 1.5rem;
+      background: #3b82f6;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .corrections-link:hover {
+      background: #2563eb;
+    }
+
+    /* JOURNAL */
+    .journal-entries {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .journal-entry {
+      background: linear-gradient(135deg, #f3e8ff 0%, #f0e5ff 100%);
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid #8b5cf6;
+    }
+
+    .journal-date {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .journal-excerpt {
+      font-size: 0.9rem;
+      color: #555;
+      line-height: 1.5;
+      font-style: italic;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        padding: 1rem;
+      }
+
+      header h1 {
+        font-size: 1.4rem;
+      }
+
+      .header-top {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .header-nav {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .view-controls {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .toggle-group {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .toggle-group button {
+        flex: 1;
+      }
+
+      .date-controls {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .date-display {
+        width: 100%;
+      }
+
+      main {
+        margin: 1rem auto;
+      }
+
+      section {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .wins-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-section {
+        grid-template-columns: 1fr;
+      }
+
+      .task-list {
+        grid-template-columns: 1fr;
+      }
+
+      .time-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .submissions-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .journal-entries {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-bars {
+        min-height: 30px;
+      }
+    }
+
+    /* Print */
+    @media print {
+      .header-nav,
+      .view-controls,
+      .toggle-group,
+      .date-controls {
+        display: none !important;
+      }
+
+      body {
+        background: white;
+      }
+
+      section {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+        margin-bottom: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>📊 Sarah's Weekly Report</h1>
+      </div>
+      <div class="nsf-pill" id="nsfPill">NSF in XX days</div>
+    </div>
+    <div class="view-controls">
+      <div class="toggle-group">
+        <button class="active" id="dailyToggle">Daily View</button>
+        <button id="weeklyToggle">Weekly View</button>
+      </div>
+      <div class="date-controls">
+        <button id="prevBtn">←</button>
+        <div class="date-display" id="dateDisplay">Today</div>
+        <button id="nextBtn">→</button>
+      </div>
+      <div class="header-nav">
+        <a href="./dashboard.html">← Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- TOP WINS -->
+    <section id="winsSection">
+      <h2>🏆 Top Wins</h2>
+      <div class="wins-grid" id="winsContainer">
+        <div class="placeholder">No activity logged yet — wins will appear here as Sarah completes work.</div>
+      </div>
+    </section>
+
+    <!-- TIME TRACKER -->
+    <section id="timeSection">
+      <h2>⏱️ Time Tracker</h2>
+      <div class="time-summary">
+        <div class="time-stat">
+          <div class="time-stat-label">Planned</div>
+          <div class="time-stat-value" id="plannedTotal">0</div>
+          <div class="time-stat-unit">minutes</div>
+        </div>
+        <div class="time-stat">
+          <div class="time-stat-label">Logged</div>
+          <div class="time-stat-value" id="loggedTotal">0</div>
+          <div class="time-stat-unit">minutes</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-label">Time per subject</div>
+        <div id="timeChart"></div>
+      </div>
+    </section>
+
+    <!-- CURRICULUM PROGRESS -->
+    <section id="curriculumSection">
+      <h2>📚 Curriculum Progress</h2>
+      <div class="progress-section">
+        <div>
+          <h3>Math</h3>
+          <div class="progress-item">
+            <div class="progress-label">Beast Academy</div>
+            <div class="progress-current" id="baProgress">BA3</div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="baFill" style="width: 0%">
+                <span class="progress-percent" id="baPercent"></span>
+              </div>
+            </div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Singapore Math 3</div>
+            <div class="progress-current" id="smProgress">Ch 13 / 17</div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="smFill" style="width: 0%">
+                <span class="progress-percent" id="smPercent"></span>
+              </div>
+            </div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">IXL</div>
+            <div class="progress-current" id="ixlProgress">Grade 3</div>
+          </div>
+        </div>
+        <div>
+          <h3>English</h3>
+          <div class="progress-item">
+            <div class="progress-label">Mosdos Opal</div>
+            <div class="progress-current" id="mosdosProgress">—</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Editor-in-Chief</div>
+            <div class="progress-current" id="eicProgress">Book 1</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Current Reading</div>
+            <div class="progress-current" id="readingProgress">—</div>
+          </div>
+        </div>
+        <div>
+          <h3>Science & Vocabulary</h3>
+          <div class="progress-item">
+            <div class="progress-label">Science Chapters</div>
+            <div class="progress-current" id="scienceProgress">Ch 7</div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="scienceFill" style="width: 0%">
+                <span class="progress-percent" id="sciencePercent"></span>
+              </div>
+            </div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Vocabulary (NSF Target: 2000)</div>
+            <div class="progress-current" id="vocabProgress">800 words</div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="vocabFill" style="width: 0%">
+                <span class="progress-percent" id="vocabPercent"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TASK COMPLETION -->
+    <section id="tasksSection">
+      <h2>📊 Planned vs Actual (Task Completion)</h2>
+      <div class="task-list" id="tasksContainer">
+        <div class="placeholder">No tasks data available yet.</div>
+      </div>
+    </section>
+
+    <!-- ADJUSTMENTS -->
+    <section id="adjustmentsSection">
+      <h2>💡 Suggested Adjustments</h2>
+      <div class="adjustments-list" id="adjustmentsContainer">
+        <div class="placeholder">Suggestions will appear here once we have more data.</div>
+      </div>
+    </section>
+
+    <!-- SUBMISSIONS -->
+    <section id="submissionsSection">
+      <h2>📝 Submissions & Corrections</h2>
+      <div class="submissions-summary" id="submissionsSummary">
+        <div class="submission-stat">
+          <div class="submission-stat-label">Pending</div>
+          <div class="submission-stat-value" id="pendingCount">0</div>
+        </div>
+        <div class="submission-stat">
+          <div class="submission-stat-label">Assessed</div>
+          <div class="submission-stat-value" id="assessedCount">0</div>
+        </div>
+        <div class="submission-stat">
+          <div class="submission-stat-label">Avg Score</div>
+          <div class="submission-stat-value" id="avgScore">—</div>
+          <div class="submission-stat-unit">%</div>
+        </div>
+      </div>
+      <div id="errorPatternContainer"></div>
+    </section>
+
+    <!-- JOURNAL -->
+    <section id="journalSection">
+      <h2>📖 Journal Highlights</h2>
+      <div class="journal-entries" id="journalContainer">
+        <div class="placeholder">No journal entries yet.</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ============================================
+    // CONSTANTS & CONFIG
+    // ============================================
+    const PLANNED_DURATIONS = {
+      Math: 120,
+      Science: 45,
+      English: 60,
+      Vocabulary: 30,
+      Chess: 30,
+      Reading: 30,
+      'Current Affairs': 20
+    };
+
+    const TOTAL_SM3_CHAPTERS = 17;
+    const TOTAL_SCIENCE_CHAPTERS = 53;
+    const NSF_VOCAB_TARGET = 2000;
+    const NSF_DATE = new Date(2026, 3, 25); // April 25, 2026
+
+    // ============================================
+    // UTILITIES
+    // ============================================
+    function load(k) {
+      try {
+        const v = JSON.parse(localStorage.getItem(k));
+        return v !== null && v !== undefined ? v : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function dateKey(d) {
+      return `hs-${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    }
+
+    function journalKey(d) {
+      return `j-${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    }
+
+    function newsQuizKey(d) {
+      return `news-quiz-${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    }
+
+    function getMonday(d) {
+      const date = new Date(d);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(date.setDate(diff));
+    }
+
+    function getDayName(d) {
+      return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    function formatDate(d) {
+      return d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function getWeekRange(d) {
+      const monday = getMonday(d);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      return { monday, sunday };
+    }
+
+    function daysUntil(target) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const copy = new Date(target);
+      copy.setHours(0, 0, 0, 0);
+      return Math.ceil((copy - today) / (1000 * 60 * 60 * 24));
+    }
+
+    // ============================================
+    // STATE
+    // ============================================
+    let currentView = 'daily'; // 'daily' or 'weekly'
+    let selectedDate = new Date();
+
+    // ============================================
+    // UI UPDATES
+    // ============================================
+    function updateDateDisplay() {
+      const el = document.getElementById('dateDisplay');
+      if (currentView === 'daily') {
+        el.textContent = formatDate(selectedDate);
+      } else {
+        const { monday, sunday } = getWeekRange(selectedDate);
+        el.textContent = `Week of ${getDayName(monday)} – ${getDayName(sunday)}`;
+      }
+    }
+
+    function updateNSFPill() {
+      const days = daysUntil(NSF_DATE);
+      const pill = document.getElementById('nsfPill');
+      if (days > 0) {
+        pill.textContent = `NSF in ${days} day${days !== 1 ? 's' : ''}`;
+        if (days <= 7) {
+          pill.style.background = '#ef4444';
+        } else if (days <= 30) {
+          pill.style.background = '#f59e0b';
+        }
+      } else if (days === 0) {
+        pill.textContent = 'NSF is TODAY!';
+        pill.style.background = '#ef4444';
+      } else {
+        pill.textContent = 'NSF exam completed ✓';
+        pill.style.background = '#10b981';
+      }
+    }
+
+    // ============================================
+    // DATA GETTERS
+    // ============================================
+    function getDateRange() {
+      if (currentView === 'daily') {
+        return [selectedDate];
+      } else {
+        const { monday, sunday } = getWeekRange(selectedDate);
+        const dates = [];
+        const d = new Date(monday);
+        while (d <= sunday) {
+          dates.push(new Date(d));
+          d.setDate(d.getDate() + 1);
+        }
+        return dates;
+      }
+    }
+
+    function getActivityForDates(dates) {
+      const log = load('hs-activity-log') || [];
+      const result = {};
+      dates.forEach(d => {
+        result[dateKey(d)] = [];
+      });
+      log.forEach(entry => {
+        if (result[entry.date]) {
+          result[entry.date].push(entry);
+        }
+      });
+      return result;
+    }
+
+    function getTasksForDates(dates) {
+      const result = {};
+      dates.forEach(d => {
+        const key = dateKey(d);
+        const tasks = load(key) || {};
+        result[key] = tasks;
+      });
+      return result;
+    }
+
+    function getSubmissionsForDates(dates) {
+      const subs = load('hs-submissions') || [];
+      const dateSet = new Set(dates.map(d => dateKey(d)));
+      return subs.filter(s => dateSet.has(s.date));
+    }
+
+    function getJournalForDates(dates) {
+      const result = {};
+      dates.forEach(d => {
+        const key = journalKey(d);
+        const entry = load(key);
+        if (entry) result[key] = entry;
+      });
+      return result;
+    }
+
+    // ============================================
+    // TOP WINS
+    // ============================================
+    function computeWins() {
+      const dates = getDateRange();
+      const activities = getActivityForDates(dates);
+      const tasks = getTasksForDates(dates);
+      const submissions = getSubmissionsForDates(dates);
+      const cfg = load('hs-cfg-override') || {};
+      const wins = [];
+
+      // Longest activity streak
+      let maxStreak = 0;
+      let maxStreakSubject = null;
+      const subjectLog = {};
+      Object.values(activities).forEach(dayLog => {
+        dayLog.forEach(entry => {
+          if (!subjectLog[entry.subject]) subjectLog[entry.subject] = 0;
+          subjectLog[entry.subject]++;
+        });
+      });
+      for (const [subject, count] of Object.entries(subjectLog)) {
+        if (count > maxStreak) {
+          maxStreak = count;
+          maxStreakSubject = subject;
+        }
+      }
+      if (maxStreak > 0) {
+        wins.push({
+          emoji: '🔥',
+          statement: `${maxStreakSubject} logged ${maxStreak} day${maxStreak > 1 ? 's' : ''}`,
+          context: 'Consistent effort across the week'
+        });
+      }
+
+      // High quiz score
+      dates.forEach(d => {
+        const quizKey = newsQuizKey(d);
+        const answers = load(quizKey);
+        const questionsKey = quizKey + '-q';
+        const questions = load(questionsKey);
+        if (answers && questions) {
+          let correct = 0;
+          for (const [k, v] of Object.entries(answers)) {
+            if (questions[parseInt(k)] && questions[parseInt(k)].correct === v) correct++;
+          }
+          const score = Math.round((correct / Object.keys(questions).length) * 100);
+          if (score >= 80) {
+            wins.push({
+              emoji: '🎯',
+              statement: `News quiz scored ${score}%`,
+              context: `${getDayName(d)} — Great understanding of current affairs`,
+              milestone: true
+            });
+          }
+        }
+      });
+
+      // Task completion milestone
+      let totalTasks = 0;
+      let completedTasks = 0;
+      Object.values(tasks).forEach(dayTasks => {
+        for (const [k, v] of Object.entries(dayTasks)) {
+          totalTasks++;
+          if (v === true) completedTasks++;
+        }
+      });
+      const taskPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      if (taskPercent >= 80 && totalTasks > 0) {
+        wins.push({
+          emoji: '✅',
+          statement: `${taskPercent}% of tasks completed`,
+          context: `${completedTasks} of ${totalTasks} tasks done`
+        });
+      }
+
+      // Vocab milestone
+      if (cfg.vocabDone && cfg.vocabDone % 100 === 0) {
+        wins.push({
+          emoji: '📚',
+          statement: `Vocabulary milestone: ${cfg.vocabDone} words`,
+          context: `On track for NSF target of ${NSF_VOCAB_TARGET}`,
+          milestone: true
+        });
+      }
+
+      // Science chapter completed
+      if (cfg.scienceComplete && cfg.scienceComplete > 0) {
+        if (currentView === 'daily' && cfg.scienceComplete >= (cfg.scienceComplete || 0)) {
+          wins.push({
+            emoji: '🔬',
+            statement: `Science Chapter ${cfg.scienceComplete} completed`,
+            context: `${cfg.scienceComplete} of ${TOTAL_SCIENCE_CHAPTERS} chapters done`
+          });
+        }
+      }
+
+      // Submission score >= 80%
+      submissions.forEach(sub => {
+        if (sub.score >= 80) {
+          wins.push({
+            emoji: '⭐',
+            statement: `${sub.subject} submission scored ${sub.score}%`,
+            context: `${sub.correctCount} of ${sub.totalQuestions} correct`
+          });
+        }
+      });
+
+      return wins.slice(0, 5);
+    }
+
+    function renderWins() {
+      const wins = computeWins();
+      const container = document.getElementById('winsContainer');
+      if (wins.length === 0) {
+        container.innerHTML = '<div class="placeholder">No activity logged yet — wins will appear here as Sarah completes work.</div>';
+        return;
+      }
+      container.innerHTML = wins.map(w => `
+        <div class="win-card ${w.milestone ? 'milestone' : ''}">
+          <div class="win-statement">
+            <span class="win-emoji">${w.emoji}</span>${w.statement}
+          </div>
+          <div class="win-context">${w.context}</div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================
+    // TIME TRACKER
+    // ============================================
+    function computeTimeData() {
+      const dates = getDateRange();
+      const activities = getActivityForDates(dates);
+      const subjectTotals = {};
+      const subjectPlanned = {};
+
+      Object.keys(PLANNED_DURATIONS).forEach(subj => {
+        subjectPlanned[subj] = PLANNED_DURATIONS[subj] * dates.length;
+        subjectTotals[subj] = 0;
+      });
+
+      Object.values(activities).forEach(dayLog => {
+        dayLog.forEach(entry => {
+          if (!subjectTotals[entry.subject]) subjectTotals[entry.subject] = 0;
+          subjectTotals[entry.subject] += entry.duration || 0;
+        });
+      });
+
+      return { subjectTotals, subjectPlanned };
+    }
+
+    function renderTimeTracker() {
+      const { subjectTotals, subjectPlanned } = computeTimeData();
+      const plannedTotal = Object.values(subjectPlanned).reduce((a, b) => a + b, 0);
+      const loggedTotal = Object.values(subjectTotals).reduce((a, b) => a + b, 0);
+
+      document.getElementById('plannedTotal').textContent = plannedTotal;
+      document.getElementById('loggedTotal').textContent = loggedTotal;
+
+      const colors = {
+        Math: '#3b82f6',
+        Science: '#ec4899',
+        English: '#8b5cf6',
+        Vocabulary: '#f59e0b',
+        Chess: '#10b981',
+        Reading: '#f43f5e',
+        'Current Affairs': '#14b8a6'
+      };
+
+      let chartHTML = '';
+      Object.keys(PLANNED_DURATIONS).forEach(subj => {
+        const planned = subjectPlanned[subj];
+        const logged = subjectTotals[subj] || 0;
+        const maxHeight = Math.max(planned, logged) || 100;
+        const plannedHeight = (planned / maxHeight) * 100;
+        const loggedHeight = (logged / maxHeight) * 100;
+
+        chartHTML += `
+          <div class="chart-item">
+            <div class="chart-subject">
+              <span>${subj}</span>
+              <span>${logged}m</span>
+            </div>
+            <div class="chart-bars">
+              <div class="bar-wrapper">
+                <div class="bar planned" style="height: ${plannedHeight}%;">
+                  ${planned > 0 ? `<div class="bar-value">${planned}m</div>` : ''}
+                </div>
+                <div class="bar-label">Planned</div>
+              </div>
+              <div class="bar-wrapper">
+                <div class="bar" style="background: ${colors[subj]}; height: ${loggedHeight}%;">
+                  ${logged > 0 ? `<div class="bar-value">${logged}m</div>` : ''}
+                </div>
+                <div class="bar-label">Logged</div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('timeChart').innerHTML = chartHTML;
+    }
+
+    // ============================================
+    // CURRICULUM PROGRESS
+    // ============================================
+    function renderCurriculumProgress() {
+      const cfg = load('hs-cfg-override') || {};
+      const week = cfg.week || {};
+
+      // Beast Academy
+      const baChapter = week.ba?.chapter || 1;
+      const baBook = week.ba?.book || 'BA3';
+      const baProgress = Math.round((baChapter / 12) * 100);
+      document.getElementById('baProgress').textContent = `${baBook} Ch${baChapter}`;
+      document.getElementById('baFill').style.width = baProgress + '%';
+      document.getElementById('baPercent').textContent = baProgress + '%';
+
+      // Singapore Math
+      const smChapter = week.sm?.chapter || 13;
+      const smProgress = Math.round((smChapter / TOTAL_SM3_CHAPTERS) * 100);
+      document.getElementById('smProgress').textContent = `Ch ${smChapter} / ${TOTAL_SM3_CHAPTERS}`;
+      document.getElementById('smFill').style.width = smProgress + '%';
+      document.getElementById('smPercent').textContent = smProgress + '%';
+
+      // IXL
+      const ixlGrade = 3;
+      document.getElementById('ixlProgress').textContent = week.ixl?.skill || `Grade ${ixlGrade}`;
+
+      // English
+      document.getElementById('mosdosProgress').textContent = week.english?.program || 'Mosdos Opal';
+      document.getElementById('eicProgress').textContent = 'Book 1';
+      document.getElementById('readingProgress').textContent = week.book || 'TBD';
+
+      // Science
+      const scienceChapter = cfg.scienceInProgress ? parseInt(cfg.scienceInProgress.split(' ')[1]) : cfg.scienceComplete || 1;
+      const scienceProgress = Math.round((scienceChapter / TOTAL_SCIENCE_CHAPTERS) * 100);
+      document.getElementById('scienceProgress').textContent = `Ch ${scienceChapter} (${cfg.scienceInProgress || ''})`;
+      document.getElementById('scienceFill').style.width = scienceProgress + '%';
+      document.getElementById('sciencePercent').textContent = scienceProgress + '%';
+
+      // Vocabulary
+      const vocabDone = cfg.vocabDone || 800;
+      const vocabPercent = Math.round((vocabDone / NSF_VOCAB_TARGET) * 100);
+      document.getElementById('vocabProgress').textContent = `${vocabDone} / ${NSF_VOCAB_TARGET} words`;
+      document.getElementById('vocabFill').style.width = Math.min(vocabPercent, 100) + '%';
+      document.getElementById('vocabPercent').textContent = vocabPercent + '%';
+    }
+
+    // ============================================
+    // TASK COMPLETION
+    // ============================================
+    function renderTaskCompletion() {
+      const dates = getDateRange();
+      const tasks = getTasksForDates(dates);
+      const subjectTasks = {};
+
+      Object.values(tasks).forEach(dayTasks => {
+        for (const [k, v] of Object.entries(dayTasks)) {
+          const subject = k.split('-')[0];
+          if (!subjectTasks[subject]) subjectTasks[subject] = { total: 0, completed: 0 };
+          subjectTasks[subject].total++;
+          if (v === true) subjectTasks[subject].completed++;
+        }
+      });
+
+      const container = document.getElementById('tasksContainer');
+      if (Object.keys(subjectTasks).length === 0) {
+        container.innerHTML = '<div class="placeholder">No tasks data available yet.</div>';
+        return;
+      }
+
+      let html = '';
+      for (const [subject, data] of Object.entries(subjectTasks)) {
+        const percent = Math.round((data.completed / data.total) * 100);
+        let statusClass = 'good';
+        if (percent < 80 && percent >= 50) statusClass = 'warning';
+        if (percent < 50) statusClass = 'alert';
+
+        html += `
+          <div class="task-subject">
+            <h3>${subject}</h3>
+            <div class="task-completion ${statusClass}">
+              ${data.completed} / ${data.total}
+            </div>
+            <div class="task-bar">
+              <div class="task-fill ${statusClass}" style="width: ${percent}%"></div>
+            </div>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    // ============================================
+    // ADJUSTMENTS
+    // ============================================
+    function generateAdjustments() {
+      const dates = getDateRange();
+      const tasks = getTasksForDates(dates);
+      const cfg = load('hs-cfg-override') || {};
+      const adjustments = [];
+      const daysUntilNSF = daysUntil(NSF_DATE);
+
+      // Check for low task completion
+      let lowDays = 0;
+      let lowestSubject = null;
+      let lowestPercent = 100;
+      Object.values(tasks).forEach(dayTasks => {
+        let total = 0, completed = 0;
+        for (const [, v] of Object.entries(dayTasks)) {
+          total++;
+          if (v === true) completed++;
+        }
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+        if (percent < 50 && total > 0) lowDays++;
+        if (percent < lowestPercent && total > 0) {
+          lowestPercent = percent;
+          lowestSubject = 'a subject area';
+        }
+      });
+
+      if (lowDays >= 3) {
+        adjustments.push({
+          icon: '⚠️',
+          title: 'Consider reducing daily task load',
+          detail: `${lowestSubject} is averaging ${lowestPercent}% completion. Tasks may be too difficult or numerous.`
+        });
+      }
+
+      // Vocab behind target
+      if (daysUntilNSF > 0) {
+        const vocabDone = cfg.vocabDone || 800;
+        const wordsNeeded = NSF_VOCAB_TARGET - vocabDone;
+        const daysRemaining = Math.max(daysUntilNSF, 1);
+        const perDay = Math.ceil(wordsNeeded / daysRemaining);
+        if (vocabDone < NSF_VOCAB_TARGET) {
+          adjustments.push({
+            icon: '📚',
+            title: 'Vocabulary catch-up needed',
+            detail: `Need ${wordsNeeded} more words by NSF. At current pace: ${perDay} words/day.`
+          });
+        }
+      }
+
+      // Science stalled
+      if (cfg.scienceComplete && currentView === 'weekly') {
+        adjustments.push({
+          icon: '🔬',
+          title: 'Schedule dedicated science session',
+          detail: `Ch ${cfg.scienceComplete} – consider blocking 1–2 extended sessions weekly.`
+        });
+      }
+
+      // NSF urgency
+      if (daysUntilNSF <= 30 && daysUntilNSF > 0) {
+        adjustments.push({
+          icon: '⏳',
+          title: `NSF is ${daysUntilNSF} days away`,
+          detail: 'Prioritise Singapore Math 3 chapters and mock papers this week.'
+        });
+      } else if (daysUntilNSF > 30) {
+        adjustments.push({
+          icon: '✨',
+          title: 'Sarah had a strong week',
+          detail: 'All subjects tracking well. Consider introducing a challenge topic.'
+        });
+      }
+
+      return adjustments.slice(0, 4);
+    }
+
+    function renderAdjustments() {
+      const adjustments = generateAdjustments();
+      const container = document.getElementById('adjustmentsContainer');
+      if (adjustments.length === 0) {
+        container.innerHTML = '<div class="placeholder">Suggestions will appear here once we have more data.</div>';
+        return;
+      }
+      container.innerHTML = adjustments.map(a => `
+        <div class="adjustment-item">
+          <div class="adjustment-title">${a.icon} ${a.title}</div>
+          <div class="adjustment-detail">${a.detail}</div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================
+    // SUBMISSIONS
+    // ============================================
+    function renderSubmissions() {
+      const dates = getDateRange();
+      const submissions = getSubmissionsForDates(dates);
+      let pending = 0, assessed = 0, totalScore = 0, scoreCount = 0;
+      const errorPatterns = {};
+
+      submissions.forEach(s => {
+        if (s.status === 'pending' || s.status === 'clarity_ok') pending++;
+        if (s.status === 'assessed' || s.status === 'redo') assessed++;
+        if (s.score !== undefined) {
+          totalScore += s.score;
+          scoreCount++;
+        }
+        if (s.corrections) {
+          s.corrections.forEach(c => {
+            if (c.errorType) {
+              errorPatterns[c.errorType] = (errorPatterns[c.errorType] || 0) + 1;
+            }
+          });
+        }
+      });
+
+      document.getElementById('pendingCount').textContent = pending;
+      document.getElementById('assessedCount').textContent = assessed;
+      document.getElementById('avgScore').textContent = scoreCount > 0 ? Math.round(totalScore / scoreCount) : '—';
+
+      const container = document.getElementById('errorPatternContainer');
+      if (Object.keys(errorPatterns).length > 0) {
+        const topError = Object.entries(errorPatterns).sort((a, b) => b[1] - a[1])[0];
+        container.innerHTML = `
+          <div class="error-pattern">
+            <div class="error-pattern-label">Top Error Pattern</div>
+            <div class="error-pattern-text">${topError[0]} (${topError[1]} instances)</div>
+            <a href="./Corrections/Corrections_Dashboard.html" class="corrections-link">View Full Dashboard →</a>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="error-pattern">
+            <div class="error-pattern-label">Submissions</div>
+            <div class="error-pattern-text">No error patterns detected yet.</div>
+            <a href="./Corrections/Corrections_Dashboard.html" class="corrections-link">View Full Dashboard →</a>
+          </div>
+        `;
+      }
+    }
+
+    // ============================================
+    // JOURNAL
+    // ============================================
+    function renderJournal() {
+      const dates = getDateRange();
+      const journal = getJournalForDates(dates);
+      const container = document.getElementById('journalContainer');
+
+      if (Object.keys(journal).length === 0) {
+        container.innerHTML = '<div class="placeholder">No journal entries yet.</div>';
+        return;
+      }
+
+      let html = '';
+      for (const [key, entry] of Object.entries(journal)) {
+        const dateStr = key.replace('j-', '').split('-');
+        const d = new Date(dateStr[0], dateStr[1] - 1, dateStr[2]);
+        const excerpt = entry.reflection ? entry.reflection.substring(0, 80) : entry.morning?.substring(0, 80) || '';
+        html += `
+          <div class="journal-entry">
+            <div class="journal-date">${getDayName(d)}</div>
+            <div class="journal-excerpt">"${excerpt}${excerpt.length < 80 ? '' : '...'}"</div>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    // ============================================
+    // RENDER ALL
+    // ============================================
+    function renderAll() {
+      updateDateDisplay();
+      updateNSFPill();
+      renderWins();
+      renderTimeTracker();
+      renderCurriculumProgress();
+      renderTaskCompletion();
+      renderAdjustments();
+      renderSubmissions();
+      renderJournal();
+    }
+
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
+    document.getElementById('dailyToggle').addEventListener('click', () => {
+      currentView = 'daily';
+      selectedDate = new Date();
+      document.getElementById('dailyToggle').classList.add('active');
+      document.getElementById('weeklyToggle').classList.remove('active');
+      renderAll();
+    });
+
+    document.getElementById('weeklyToggle').addEventListener('click', () => {
+      currentView = 'weekly';
+      selectedDate = new Date();
+      document.getElementById('weeklyToggle').classList.add('active');
+      document.getElementById('dailyToggle').classList.remove('active');
+      renderAll();
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if (currentView === 'daily') {
+        selectedDate.setDate(selectedDate.getDate() - 1);
+      } else {
+        selectedDate.setDate(selectedDate.getDate() - 7);
+      }
+      renderAll();
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (currentView === 'daily') {
+        selectedDate.setDate(selectedDate.getDate() + 1);
+      } else {
+        selectedDate.setDate(selectedDate.getDate() + 7);
+      }
+      renderAll();
+    });
+
+    // ============================================
+    // INIT
+    // ============================================
+    renderAll();
+  </script>
+</body>
+</html>

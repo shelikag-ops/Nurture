@@ -1,0 +1,66 @@
+{
+  "date": "2026-03-28",
+  "stories": [
+    {
+      "headline": "Apple Opens Siri to Rival AI Assistants in iOS 27, Ending ChatGPT's Exclusive Role",
+      "summary": "Apple announced plans to let users access any AI service through Siri in iOS 27, allowing Google Gemini, Anthropic's Claude, and other competitors to work alongside Apple Intelligence. Users will select their preferred AI services through Extensions in Settings, fundamentally changing how iPhone users access AI assistance and giving app developers new opportunities to reach users through Apple's voice assistant.",
+      "bigWord": "Integration",
+      "bigWordDef": "The process of combining separate parts or systems into one unified whole that works together smoothly.",
+      "thinkQuestion": "If Apple is opening Siri to rival AI services, what might be the advantages AND disadvantages for iPhone users compared to having one exclusive AI partner?",
+      "videoQuery": "Apple iOS 27 Siri AI assistant Google Gemini Claude integration"
+    },
+    {
+      "headline": "Devastating Humanitarian Crisis Unfolds in Iran as Military Strikes Damage 82,000 Buildings",
+      "summary": "Nearly four weeks into military strikes, the conflict in Iran has killed more than 1,750 people — over 1,400 of them civilians — and damaged 82,000 buildings including hospitals and homes across 20 provinces. The crisis has displaced an estimated 3.2 million people and destroyed cultural heritage sites, raising urgent concerns about long-term civilian suffering and regional stability.",
+      "bigWord": "Humanitarian",
+      "bigWordDef": "Related to helping people who are suffering or in need, especially during crises like wars, disasters, or emergencies.",
+      "thinkQuestion": "When conflicts cause this much civilian damage to homes and hospitals, what responsibilities do the countries involved have to help rebuild and care for the people affected?",
+      "videoQuery": "Iran humanitarian crisis civilian impact 2026"
+    },
+    {
+      "headline": "Kerala Launches MLATrack — India's First Platform to Publicly Monitor Elected Officials",
+      "summary": "Kerala became the first Indian state to build MLATrack, a public digital platform that tracks the performance of all Members of the Legislative Assembly. The site shows each MLA's attendance record, voting participation, and official responses — giving ordinary citizens a way to see exactly how their elected representatives are doing their jobs.",
+      "bigWord": "Accountability",
+      "bigWordDef": "The responsibility to explain and justify one's actions, and to accept consequences if things go wrong.",
+      "thinkQuestion": "How might making a politician's voting record and attendance publicly available online change the way they do their job — or how voters decide who to re-elect?",
+      "videoQuery": "Kerala MLATrack India MLA performance tracking transparency democracy"
+    }
+  ],
+  "infographic": {
+    "caption": "The Human Cost of Conflict — Iran, March 2026",
+    "fact": "In just 28 days: 1,750+ people killed, 82,000 buildings damaged, 3.2 million people displaced, and 120 cultural heritage sites destroyed.",
+    "question": "These numbers are from just one month. What do they tell us about the true cost of war beyond the headlines?"
+  },
+  "quiz": [
+    {
+      "q": "What major change is Apple planning for Siri in iOS 27?",
+      "options": [
+        "Siri will be discontinued and replaced with ChatGPT only",
+        "Users will be able to choose from multiple AI services like Google Gemini and Claude",
+        "Siri will only work with Apple-made AI tools",
+        "Apple will remove the voice assistant feature entirely"
+      ],
+      "correct": 1
+    },
+    {
+      "q": "Which Indian state launched MLATrack — the first platform to publicly track legislators' performance?",
+      "options": [
+        "Tamil Nadu",
+        "Maharashtra",
+        "Kerala",
+        "Karnataka"
+      ],
+      "correct": 2
+    },
+    {
+      "q": "Approximately how many buildings were damaged in Iran in the first four weeks of the conflict?",
+      "options": [
+        "About 8,000",
+        "About 25,000",
+        "About 82,000",
+        "About 180,000"
+      ],
+      "correct": 2
+    }
+  ]
+}
