@@ -2662,113 +2662,15 @@ const PRAYER_YT_START   = 115; // 1:55
 
 // ── Daily audio picker for stages 3–5 ────────────────────────────────────
 // Cycles through 30 pre-generated OpenAI TTS files based on day-of-year.
-// Audio hosted on Google Drive (shared folder).
-const PRAYER_AUDIO_IDS = {
-  'stage-3-day-01': '1Bmm_SgUMmmq83oPWpFh4zQans6Hc1KwH',
-  'stage-3-day-02': '1XojWi2yrGa4Lv4rwmdM3SE065fxvrMym',
-  'stage-3-day-03': '1yF5StQsRr2KjSWZ6WbxCWWgTJxqP17su',
-  'stage-3-day-04': '1u2At8UNTs8rFBMqydKEAoYW8a74V2LpQ',
-  'stage-3-day-05': '1pE3LxomQuH-bsXl_Xo9lq2qjicwHVYdX',
-  'stage-3-day-06': '1ZaVflIfJ4U77Lm-iaS2MVzuseGnD8RFU',
-  'stage-3-day-07': '1HmHrx0Q2yD47WP9tB9qMH5eYdOM02SSx',
-  'stage-3-day-08': '1J6R-a2_zVXtoa5UGeM1gGUeFufnv7o50',
-  'stage-3-day-09': '1czDn1CAWN-Nm1UpD6zbUtB-X-Wvi99Q_',
-  'stage-3-day-10': '1lGRzoM0SarF76BagYAzDCRZ6E7GNz397',
-  'stage-3-day-11': '17EedInNJVFLzeyzrPDDO2Lpji_QjFbz8',
-  'stage-3-day-12': '1LCJyt_fZo7t3bo8omuTYxVCxuWima8RO',
-  'stage-3-day-13': '1HNiZJGKIuebavXXmp8LBfGcaN2vmldI3',
-  'stage-3-day-14': '1YpaYBEiYxTk9ewMA6qzhQizjglgLe70l',
-  'stage-3-day-15': '1NSYYgwZxY8aBtQT9yt4AZJQeR882Bzfl',
-  'stage-3-day-16': '1s8JytHu7bsI6J1_omXIZsJ97SQPatkM_',
-  'stage-3-day-17': '1g6TnL97q4KiAZgobfblkwhJD7u-SmK-q',
-  'stage-3-day-18': '1_ar9JHKykCFiV7CgspbPRjnOKoMGgbHs',
-  'stage-3-day-19': '1CFTVVor0X5X4aX-srykjltPBfDDLLx85',
-  'stage-3-day-20': '1FFx-J2ltN_p26wj9wrvSZVB1SSXWnBWz',
-  'stage-3-day-21': '1mvwl6UegMHWqJZzCBlLwuYW3J3YW8PV0',
-  'stage-3-day-22': '1ayydHCmpWBG3N72zmVYCjLFUggqGnilG',
-  'stage-3-day-23': '1tyUvmEsroBGl6bsQbIfOq1y_lMfuSDfP',
-  'stage-3-day-24': '1JT-qKw1PUUmzc9Fe6QV_8YNcNTaJcT2t',
-  'stage-3-day-25': '1Mi1lsGRHVX-bYWt_H50IKAzHCDjq0rYt',
-  'stage-3-day-26': '1oS826kG2EbdBGZXQ6-wBPIOugE7ZWL9H',
-  'stage-3-day-27': '1TiSqkNvCYIzpxQgghlKghk5CnJu98K9n',
-  'stage-3-day-28': '1_7ISjpTkYa3N9ljaXVDcd7PTMMacR0kD',
-  'stage-3-day-29': '1MYNsN0fI6YB_OzKgLj2YYAAOsDKypQgO',
-  'stage-3-day-30': '1hxCdBTHIavESuskaePR-zbJ2deWkwhsT',
-  'stage-4-day-01': '1Om0ZGM2lzhKGrTbZoRWaG0bYse1zj_YE',
-  'stage-4-day-02': '12At6_hgQscwZ8iGDWCpcISmodUh09JGa',
-  'stage-4-day-03': '1nUbVnTZaf-zDjdN3fjeOdBvP9AqttKT0',
-  'stage-4-day-04': '18nACTMWyqI2fcYrrbERnGYnl3KtrtEDc',
-  'stage-4-day-05': '1FLW0TD_XdnbFhvd479E8lfRLAmwX_YSP',
-  'stage-4-day-06': '1QsEsZAwDGJy3flwyQpOdoeFMOx2c5bKZ',
-  'stage-4-day-07': '1knK7znvPNb9v95y602O2_okeJQhLgxtE',
-  'stage-4-day-08': '1tUHF82YojYnIdaovGeZknph27i0zG7LQ',
-  'stage-4-day-09': '17GkPE-rkVmajCsRfLN3jOHJ3hTxGZ9bK',
-  'stage-4-day-10': '1E_shJlbJz9Vj4suWctNVFf8jxKkV-r3s',
-  'stage-4-day-11': '113G_Isrl0MNtvwdL5lCeTajyD8jCMcu2',
-  'stage-4-day-12': '1oYRBlAo5UuKFW-Slmo8ciHvVZz53CGAt',
-  'stage-4-day-13': '1Mw0lWaTvFOYX5L2lz72yaFEXFbVYNCBi',
-  'stage-4-day-14': '1oYIi-8dwe671F1N0NkAmDw6aJtOCupTv',
-  'stage-4-day-15': '1r2lKslCdkuSBNYVUE6PlJafeXel47Cr9',
-  'stage-4-day-16': '194V0QQ38xaivKYb8pbrifFq2mI0d8vHN',
-  'stage-4-day-17': '1krLz4NMgP9SVCt_-mtfneedw9BD-oKlJ',
-  'stage-4-day-18': '1wERMv1Rj3QmCHxEgkCNitAT0mhvjaiF5',
-  'stage-4-day-19': '1tNpxuQBa1QpdeYitv88pMR6ZK-31sBOd',
-  'stage-4-day-20': '1OK7A20hSHQkRRKNOQO3vlJw8Ld98DxsM',
-  'stage-4-day-21': '1pSjWp8TYMD7a1M_KVQVrPdFISO9wcq4a',
-  'stage-4-day-22': '1jhobUq0mN3MSm36umdyMEeTFECl4W4Mh',
-  'stage-4-day-23': '1Tdl2IOM2ll6gx6kDK3sHgTYKYHakfd8x',
-  'stage-4-day-24': '17EvTrS-q5xD9gn6v5iLuIVrdbIRRoUKA',
-  'stage-4-day-25': '1a9yD-IbVGFh_7JkE3aVFsHrCVqjifSJc',
-  'stage-4-day-26': '18a1ziNvO1ReXYP4YKZUFxb6sikNahlDh',
-  'stage-4-day-27': '1Snn73Ix0US0ArCXlrZxs3cTmeF382GtX',
-  'stage-4-day-28': '1J80WRdqmgfQ678S4mxhoJKkHa6gn0YoG',
-  'stage-4-day-29': '1MNA072v5sZV4DxySuGOrQl9FdKKXYAHL',
-  'stage-4-day-30': '1pEr9kcoBlK_BynUXFQMKkSQ5Cx8Qoksk',
-  'stage-5-day-01': '1HR4gycaxPp5Ii3LqQHZ6vBUhcU5p7j-p',
-  'stage-5-day-02': '1v4dBYfEjbYYNh3QMNEsckcXn6GnF3uL1',
-  'stage-5-day-03': '1vMJZsSex0wx8ByClVKC_HKCef2SuOwQL',
-  'stage-5-day-04': '1JpHN7_W7GWPaFRyR2XBpBY6mZ1xF12pQ',
-  'stage-5-day-05': '12XnITTENnteL2sfHUcRwng4PIPG3jYu-',
-  'stage-5-day-06': '1_DzlhGlSGB7Wqi6S9mVrfB31u8IxBHMZ',
-  'stage-5-day-07': '1uxIhpbsEzZhtaSdzzKuxF5F7k730QHLs',
-  'stage-5-day-08': '17zf40Ycfy8X7MI07Dtlmn8ft0_SDInnV',
-  'stage-5-day-09': '1kt17QoKvxcqqY_lxb0tSiJ9wDSCOFI5S',
-  'stage-5-day-10': '1oRdpXHY_5TXDYmrE5moTiDeSa0GExZzt',
-  'stage-5-day-11': '1858VFOCl26MXoNsNbyBsp95CgnM3mhDC',
-  'stage-5-day-12': '1o6wpa9Tsh-r0nqVmWG-SEg1yN0NIZFQG',
-  'stage-5-day-13': '1LXwqPjeIjFELjZ0PhtMSEPj13FX5ayei',
-  'stage-5-day-14': '1ia-2M2qXsxNb5h3mVTDS4UCsXKPOvsOt',
-  'stage-5-day-15': '1GFAWdsSKbz5PLoVFZc3UkNa-rKLLjJVi',
-  'stage-5-day-16': '1c21BOIAqfVy0KYoF_SVzbWdW_8-ZcgCN',
-  'stage-5-day-17': '128xZfRCEpVe7PhCII6VoLZhndZ_BDapH',
-  'stage-5-day-18': '1dYoOAzJ2DlgF7lNEjrpLXYCpYQOvA3U4',
-  'stage-5-day-19': '1ctUahjdycb-ccYnM_B75KYmygmLckliD',
-  'stage-5-day-20': '1crPYiN0GquNd5aAApWhmmSlFJPaSSyNi',
-  'stage-5-day-21': '1Gq1bO0KXGo4PldDfBxIn4ynXOB0Sap2m',
-  'stage-5-day-22': '1sN6UKPMNAVdaTe1ki9bPacFJlQYN4tfw',
-  'stage-5-day-23': '1eX_MSVE__jC3I9rQMyc1VAal3lRT6WHq',
-  'stage-5-day-24': '1ZijYS2Z050-Jn-V2E5BP_Rk3Xz8GCY_8',
-  'stage-5-day-25': '1-AA_0OA490tE5fUR14jaQxQb1dnzl9u7',
-  'stage-5-day-26': '1ctP7LMhhIH6ji-sm9P_NQC98QoRyEdMG',
-  'stage-5-day-27': '1XOqp3tOf6v5BwRakAFyI55UCN0ff0LJf',
-  'stage-5-day-28': '1MsbWX9IyTr1B7Iz5VLxHd0C0VGCvBwI1',
-  'stage-5-day-29': '1ZWV8XnBfzg3OhIZBJjfENRFWQM7T__hV',
-  'stage-5-day-30': '1TeJlqa6dk1-fKFVriKGRLAWtmciY96ra',
-};
-
+// Served via jsDelivr CDN (free) from the GitHub repo.
 function getDailyAudio(stageNum) {
-  const now      = new Date();
-  const start    = new Date(now.getFullYear(), 0, 0);
+  const now       = new Date();
+  const start     = new Date(now.getFullYear(), 0, 0);
   const dayOfYear = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-  const day      = ((dayOfYear - 1) % 30) + 1;
-  const dayStr   = String(day).padStart(2, '0');
-  const key      = `stage-${stageNum}-day-${dayStr}`;
-  const fileId   = PRAYER_AUDIO_IDS[key];
-  if (fileId) {
-    return `https://drive.google.com/uc?export=download&id=${fileId}`;
-  }
-  // Fallback to local path if ID not found
-  return `prayer-audio/${key}.mp3`;
+  const day       = ((dayOfYear - 1) % 30) + 1;
+  const dayStr    = String(day).padStart(2, '0');
+  const filename  = `stage-${stageNum}-day-${dayStr}.mp3`;
+  return `https://cdn.jsdelivr.net/gh/shelikag-ops/Nurture@main/prayer-audio/${filename}`;
 }
 
 const PRAYER_STAGES = [
@@ -2983,6 +2885,10 @@ function _playMantraTrack(idx) {
   _mantraAudio.addEventListener('timeupdate', _updateMantraProgress);
   _mantraAudio.addEventListener('ended', () => {
     // When current track ends, play the next one in the playlist
+    _playMantraTrack(_mantraTrackIdx + 1);
+  });
+  _mantraAudio.addEventListener('error', () => {
+    // If a track fails to load (e.g. file not found), skip to the next one
     _playMantraTrack(_mantraTrackIdx + 1);
   });
   _mantraAudio.addEventListener('loadedmetadata', _updateMantraProgress);
