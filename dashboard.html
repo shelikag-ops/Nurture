@@ -536,6 +536,34 @@
       padding:3px 10px; font-family:'Nunito',sans-serif; font-size:.75rem; font-weight:800;
       color:white; cursor:pointer; margin-left:4px; }
     .voice-timer-stop:hover { background:rgba(255,255,255,.5); }
+
+    /* ── Vocab Word Tracker ──────────────────────────────── */
+    .vocab-tracker-card { background:white; border-radius:20px; padding:20px 24px; margin-bottom:16px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+    .vocab-word-input-row { display:flex; gap:8px; margin-bottom:14px; }
+    .vocab-word-field { flex:1; background:#F8F6F0; border:2px solid transparent; border-radius:10px; padding:10px 14px; font-family:'Nunito',sans-serif; font-size:.95rem; font-weight:600; color:#2D3047; outline:none; }
+    .vocab-word-field:focus { border-color:#7C3AED; background:white; }
+    .vocab-word-btn { background:#7C3AED; color:white; border:none; border-radius:10px; padding:10px 18px; font-family:'Nunito',sans-serif; font-size:.9rem; font-weight:800; cursor:pointer; white-space:nowrap; }
+    .vocab-word-btn:hover { background:#6D28D9; }
+    .vocab-word-list { display:flex; flex-direction:column; gap:6px; }
+    .vocab-word-entry { display:flex; align-items:center; gap:10px; padding:8px 12px; background:#F5F3FF; border-radius:10px; }
+    .vocab-word-pill { font-size:.95rem; font-weight:800; color:#5B21B6; }
+    .vocab-word-date { font-size:.72rem; color:#9CA3AF; font-weight:700; margin-left:auto; }
+    .vocab-word-del { font-size:.75rem; color:#D1D5DB; cursor:pointer; border:none; background:none; padding:0 2px; }
+    .vocab-word-del:hover { color:#EF4444; }
+
+    /* ── Social Challenge Card ───────────────────────────── */
+    .challenge-card { background:linear-gradient(135deg,#F0FDF4 0%,#ECFDF5 100%); border:2px solid #BBF7D0; border-radius:20px; padding:22px 24px; margin-bottom:16px; }
+    .challenge-badge { display:inline-flex; align-items:center; gap:5px; background:#16A34A; color:white; border-radius:20px; padding:4px 12px; font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; margin-bottom:12px; }
+    .challenge-week-label { font-size:.72rem; font-weight:800; color:#6B7280; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+    .challenge-text { font-size:1.05rem; font-weight:800; color:#14532D; line-height:1.45; margin-bottom:14px; }
+    .challenge-ext-box { background:rgba(22,163,74,.1); border-left:3px solid #22C55E; padding:10px 14px; border-radius:8px; margin-bottom:14px; }
+    .challenge-ext-label { font-size:.68rem; font-weight:800; color:#16A34A; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+    .challenge-ext-text { font-size:.88rem; font-weight:700; color:#15803D; line-height:1.4; }
+    .challenge-refl-label { font-size:.78rem; font-weight:800; color:#6B7280; margin-bottom:6px; }
+    .challenge-refl-input { width:100%; background:rgba(255,255,255,.75); border:2px solid rgba(187,247,208,.8); border-radius:10px; padding:10px 14px; font-family:'Nunito',sans-serif; font-size:.93rem; font-weight:600; color:#14532D; resize:none; outline:none; transition:border-color .2s; }
+    .challenge-refl-input:focus { border-color:#22C55E; background:white; }
+    .challenge-refl-input::placeholder { color:#9CA3AF; font-weight:600; }
+    .challenge-empty { font-size:.88rem; color:#9CA3AF; font-weight:600; padding:14px 0; text-align:center; }
   </style>
 </head>
 <body>
@@ -671,6 +699,21 @@
     <div class="prog-track"><div class="prog-fill" id="vocab-bar" style="width:0%;background:linear-gradient(90deg,#06D6A0,#1B9AAA);"></div></div>
     <div class="prog-note" id="vocab-note-txt"></div>
   </div>
+
+  <!-- VOCABULARY STARS WORD LOG -->
+  <div class="vocab-tracker-card">
+    <div class="card-title">⭐ VocabularyStars — Word Log</div>
+    <div class="vocab-word-input-row">
+      <input class="vocab-word-field" id="vocab-word-input"
+        placeholder="Type the last word you just did on VocabularyStars…"
+        onkeydown="if(event.key==='Enter')logVocabWord()">
+      <button class="vocab-word-btn" onclick="logVocabWord()">+ Log it</button>
+    </div>
+    <div id="vocab-word-log"></div>
+  </div>
+
+  <!-- WEEKLY SOCIAL CHALLENGE -->
+  <div id="challenge-card-container"></div>
 
   <!-- TWO-COL -->
   <div class="grid-2">
@@ -1059,6 +1102,45 @@
       ElevenLabs: <strong>elevenlabs.io → Profile → API Keys</strong>
     </div>
 
+    <div class="panel-section">💫 This Week's Social Challenge</div>
+    <div class="panel-field">
+      <label class="panel-label">Pick a challenge (or choose "Custom" and write your own below)</label>
+      <select class="panel-input" id="p-challenge-pick" onchange="onChallengePickChange()">
+        <option value="">— No challenge this week —</option>
+        <optgroup label="Conversation &amp; Listening">
+          <option value="Ask someone a question you genuinely don't know the answer to, then really listen" data-ext="Write down 3 things you learned from what the person said">Listen &amp; Learn — ask a real question</option>
+          <option value="Start a conversation with someone you don't usually talk to (a neighbour, shopkeeper, or relative)" data-ext="Ask them about something they love doing — then really listen">Talk to someone new</option>
+          <option value="Tell a family member one specific thing you noticed and appreciated about them" data-ext="Say it out loud with eye contact — no texting!">Specific compliment to family</option>
+        </optgroup>
+        <optgroup label="Empathy &amp; Kindness">
+          <option value="Watch someone struggling with something and offer to help without being asked" data-ext="Ask them how it felt to receive help — notice your own feeling too">Help without being asked</option>
+          <option value="Write a thank-you note (physical or message) to someone who helped you recently" data-ext="Hand-deliver it and say the words out loud too">Write a thank-you note</option>
+          <option value="Ask a grandparent or elder to tell you a story from when they were young" data-ext="Write 3 things you discovered about their life that surprised you">Elder story time</option>
+        </optgroup>
+        <optgroup label="Disagreement &amp; Fairness">
+          <option value="When you disagree with someone, try saying 'I see it differently because…' instead of 'You're wrong'" data-ext="Notice how the other person responds when you phrase it this way">Disagree gracefully</option>
+          <option value="Let someone else choose what to do, watch, or eat — without arguing. Notice how it feels" data-ext="At the end, tell them one thing you genuinely enjoyed about their choice">Let someone else choose</option>
+        </optgroup>
+        <optgroup label="Inclusion">
+          <option value="Invite someone who often plays alone to join your activity" data-ext="Make sure they feel included the whole time — check in with them">Include the left-out person</option>
+          <option value="In a group conversation, make sure everyone gets a turn to speak" data-ext="If someone is quiet, ask them: 'What do you think?'">Make room for everyone</option>
+        </optgroup>
+        <optgroup label="Community &amp; Gratitude">
+          <option value="Introduce yourself to someone new using your full name, and ask one question about them" data-ext="Remember their name — use it the next time you see them">Introduce yourself properly</option>
+          <option value="Say thank you (with eye contact) to everyone who serves you today — waiter, driver, cashier" data-ext="Use their name if you can see it, and add one specific thing you appreciated">Thank everyone who serves you</option>
+        </optgroup>
+        <option value="custom">✏️ Custom (type below)…</option>
+      </select>
+    </div>
+    <div class="panel-field" id="p-challenge-custom-row" style="display:none;">
+      <label class="panel-label">Custom challenge (what Sarah should do)</label>
+      <input class="panel-input" id="p-challenge-custom" placeholder="Describe the challenge…">
+    </div>
+    <div class="panel-field">
+      <label class="panel-label">Extra challenge (the harder extension — auto-filled, but you can edit)</label>
+      <input class="panel-input" id="p-challenge-ext" placeholder="Optional harder version…">
+    </div>
+
     <div class="panel-section">🗓️ Today's Schedule</div>
     <div class="panel-field">
       <label class="panel-label">Google Calendar embed URL (optional — overrides manual classes)</label>
@@ -1183,6 +1265,19 @@ function openPanel() {
   document.getElementById('p-elevenlabs-key').value   = localStorage.getItem('hs-elevenlabs-key') || '';
   document.getElementById('p-cal-url').value        = ac.calendarUrl     || '';
   document.getElementById('p-classes').value        = w.classes          || '';
+  // Social challenge
+  const sc = load('hs-social-challenge') || {};
+  const pickEl = document.getElementById('p-challenge-pick');
+  const customText = sc.customText || '';
+  let matched = false;
+  for (const opt of pickEl.options) {
+    if (opt.value === sc.text && opt.value !== 'custom' && opt.value !== '') { opt.selected = true; matched = true; break; }
+  }
+  if (!matched && sc.text) { pickEl.value = 'custom'; }
+  else if (!sc.text)        { pickEl.value = ''; }
+  document.getElementById('p-challenge-custom').value = customText;
+  document.getElementById('p-challenge-ext').value    = sc.extension || '';
+  document.getElementById('p-challenge-custom-row').style.display = (pickEl.value === 'custom') ? 'block' : 'none';
   // Wire up all tool links relative to current URL
   const base = window.location.href.split('?')[0].split('#')[0].replace(/dashboard\.html$/, '');
   const dashLink = document.getElementById('corrections-dash-link');
@@ -1238,6 +1333,18 @@ function saveConfig() {
     }
   };
   save(CFG_KEY, ov);
+  // Social challenge saved separately
+  const pickVal = document.getElementById('p-challenge-pick').value;
+  const extVal  = document.getElementById('p-challenge-ext').value.trim();
+  if (pickVal === 'custom') {
+    const customVal = document.getElementById('p-challenge-custom').value.trim();
+    if (customVal) save('hs-social-challenge', { text: customVal, customText: customVal, extension: extVal });
+    else           localStorage.removeItem('hs-social-challenge');
+  } else if (pickVal) {
+    save('hs-social-challenge', { text: pickVal, extension: extVal });
+  } else {
+    localStorage.removeItem('hs-social-challenge');
+  }
   closePanel();
   location.reload();
 }
@@ -1628,6 +1735,12 @@ function render() {
   document.getElementById('values-label').textContent = `${vp.em} ${vp.label}`;
   document.getElementById('values-q').innerHTML       = (vp.qs || [vp.q]).map(q => `<li>${q}</li>`).join('');
   document.getElementById('values-input').value       = jEntry.values || '';
+
+  // VocabularyStars word log
+  renderVocabWordLog();
+
+  // Social challenge card
+  renderSocialChallenge();
 }
 
 function refreshBanner(done,total) {
@@ -1991,6 +2104,103 @@ function renderWeeklyHomework() {
     html += '</div>';
   });
   el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  VOCABULARY STARS WORD LOG
+// ═══════════════════════════════════════════════════════════
+const VOCAB_WORDS_KEY = 'hs-vocab-words';
+
+function logVocabWord() {
+  const input = document.getElementById('vocab-word-input');
+  const word = (input.value || '').trim();
+  if (!word) return;
+  const words = load(VOCAB_WORDS_KEY) || [];
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+  words.unshift({ word, date: dateStr, ts: Date.now() });
+  if (words.length > 20) words.pop();
+  save(VOCAB_WORDS_KEY, words);
+  input.value = '';
+  renderVocabWordLog();
+}
+
+function deleteVocabWord(ts) {
+  const words = (load(VOCAB_WORDS_KEY) || []).filter(w => w.ts !== ts);
+  save(VOCAB_WORDS_KEY, words);
+  renderVocabWordLog();
+}
+
+function renderVocabWordLog() {
+  const el = document.getElementById('vocab-word-log');
+  if (!el) return;
+  const words = load(VOCAB_WORDS_KEY) || [];
+  if (!words.length) {
+    el.innerHTML = '<div style="font-size:.85rem;color:#9CA3AF;font-weight:600;text-align:center;padding:6px 0;">No words logged yet — type one above!</div>';
+    return;
+  }
+  el.innerHTML = '<div class="vocab-word-list">' +
+    words.slice(0,15).map(w =>
+      `<div class="vocab-word-entry">
+        <span class="vocab-word-pill">⭐ ${w.word}</span>
+        <span class="vocab-word-date">${w.date}</span>
+        <button class="vocab-word-del" onclick="deleteVocabWord(${w.ts})" title="Remove">✕</button>
+      </div>`
+    ).join('') + '</div>';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WEEKLY SOCIAL CHALLENGE
+// ═══════════════════════════════════════════════════════════
+
+function onChallengePickChange() {
+  const pick = document.getElementById('p-challenge-pick');
+  const customRow = document.getElementById('p-challenge-custom-row');
+  const extInput  = document.getElementById('p-challenge-ext');
+  const isCustom  = pick.value === 'custom';
+  customRow.style.display = isCustom ? 'block' : 'none';
+  // Auto-fill extension from data-ext attribute
+  if (!isCustom && pick.value) {
+    const selected = pick.options[pick.selectedIndex];
+    extInput.value = selected.getAttribute('data-ext') || '';
+  } else if (!isCustom) {
+    extInput.value = '';
+  }
+}
+
+function renderSocialChallenge() {
+  const el = document.getElementById('challenge-card-container');
+  if (!el) return;
+  const sc = load('hs-social-challenge') || {};
+  if (!sc.text) {
+    el.innerHTML = ''; // hide entirely if no challenge set
+    return;
+  }
+  const weekLabel = (() => {
+    const d = new Date(); const start = new Date(d.getFullYear(), 0, 0);
+    const week = Math.ceil(((d - start) / 86400000 + start.getDay() + 1) / 7);
+    return `Week ${week} · ${d.toLocaleDateString('en-IN', {month:'short', year:'numeric'})}`;
+  })();
+  const savedRefl = load('hs-challenge-refl-' + new Date().toISOString().slice(0,10)) || '';
+  el.innerHTML = `
+    <div class="challenge-card">
+      <div class="challenge-badge">💫 Social Challenge</div>
+      <div class="challenge-week-label">${weekLabel}</div>
+      <div class="challenge-text">${sc.text}</div>
+      ${sc.extension ? `
+      <div class="challenge-ext-box">
+        <div class="challenge-ext-label">⚡ Extra Challenge</div>
+        <div class="challenge-ext-text">${sc.extension}</div>
+      </div>` : ''}
+      <div class="challenge-refl-label">How did it go? What did you notice?</div>
+      <textarea class="challenge-refl-input" id="challenge-refl" rows="3"
+        placeholder="Write what happened, how it felt, or what surprised you…"
+        oninput="saveChallengeReflection(this.value)">${savedRefl}</textarea>
+    </div>`;
+}
+
+function saveChallengeReflection(val) {
+  save('hs-challenge-refl-' + new Date().toISOString().slice(0,10), val);
 }
 
 // ═══════════════════════════════════════════════════════════
