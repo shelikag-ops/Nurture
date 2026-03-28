@@ -19,7 +19,7 @@
 // 🔧  REPLACE THIS BLOCK with your Firebase project config
 // ══════════════════════════════════════════════════════════════
 const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyCTMR7Liv6JOW0oVMhmrJ6DCoX2M3jETdc",
+  apiKey:            "AIzaSyC9iJMtAjbs8Wc96rB6Rgqx7H5DxrOaTCU",
   authDomain:        "gbhomeschool-d68a8.firebaseapp.com",
   databaseURL:       "https://gbhomeschool-d68a8-default-rtdb.firebaseio.com",
   projectId:         "gbhomeschool-d68a8",
