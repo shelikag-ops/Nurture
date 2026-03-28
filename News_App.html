@@ -902,6 +902,107 @@
             font-size: 14px;
         }
 
+        /* ── Floating Ask Button ─────────────────────────── */
+        #askFloatBtn {
+            position: fixed;
+            bottom: 24px;
+            right: 20px;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 26px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 18px rgba(102, 126, 234, 0.55);
+            z-index: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            touch-action: manipulation;
+        }
+        #askFloatBtn:active { transform: scale(0.92); }
+        #askFloatBtn.open   { background: linear-gradient(135deg, #764ba2, #667eea); }
+
+        /* ── Question Drawer ─────────────────────────────── */
+        #questionDrawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-height: 80vh;
+            background: white;
+            border-radius: 22px 22px 0 0;
+            padding: 20px 20px 28px;
+            box-shadow: 0 -6px 40px rgba(0, 0, 0, 0.18);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            transform: translateY(100%);
+            transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+            z-index: 950;
+        }
+        #questionDrawer.open { transform: translateY(0); }
+        .drawer-handle {
+            width: 38px;
+            height: 4px;
+            background: #ccc;
+            border-radius: 2px;
+            margin: 0 auto 18px;
+        }
+        .drawer-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #111;
+            margin-bottom: 5px;
+        }
+        .drawer-subtitle {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+        .drawer-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            margin-bottom: 18px;
+        }
+        .drawer-input-row textarea {
+            flex: 1;
+            min-height: 54px;
+            padding: 10px 12px;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            font-family: Nunito, sans-serif;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .drawer-ask-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 14px;
+            font-family: Nunito, sans-serif;
+            cursor: pointer;
+            min-height: 54px;
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
+        /* Overlay behind drawer */
+        #drawerOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 940;
+        }
+        #drawerOverlay.visible { display: block; }
+
         /* Dark mode support */
         @media (prefers-color-scheme: dark) {
             body {
@@ -913,13 +1014,51 @@
                 color: #fff;
             }
 
-            .story-headline, .question-text, .quiz-question-text, .modal-header {
+            .story-headline, .modal-header {
                 color: #fff;
             }
 
-            .story-summary, .big-word-def, .transcript-box {
+            .story-summary {
                 color: #ddd;
             }
+
+            /* Big Word box — dark tinted background so text is readable */
+            .big-word-section {
+                background: rgba(255, 152, 0, 0.18);
+                border-left-color: #FFB74D;
+            }
+            .big-word-label, .big-word, .big-word-def {
+                color: #fff !important;
+            }
+
+            /* Think About It / Reflection / question sections — dark tinted */
+            .question-section {
+                background: rgba(33, 150, 243, 0.18);
+                border-left-color: #64B5F6;
+            }
+            .question-label, .question-text, .quiz-question-text {
+                color: #fff !important;
+            }
+
+            /* Prompt text box (Correspondent tab) */
+            .prompt-text {
+                background: rgba(251, 192, 45, 0.15);
+                color: #f0f0f0 !important;
+            }
+
+            /* Video cards */
+            .video-card {
+                background: #2a2a44;
+                border-color: #3a3a5a;
+            }
+            .video-card-title { color: #f0f0f0; }
+            .video-card-desc  { color: #bbb; }
+
+            /* Infographic caption */
+            .infographic-caption { color: #ddd; }
+
+            /* No-data placeholders */
+            .no-data-text { color: #bbb; }
 
             textarea, input, select {
                 background: #1a1a2e;
@@ -936,7 +1075,33 @@
             .transcript-box {
                 background: #3a3a50;
                 border-color: #444;
+                color: #ddd;
             }
+
+            /* Floating assistant drawer in dark mode */
+            #questionDrawer {
+                background: #2d2d44;
+                color: #fff;
+            }
+            #questionDrawer textarea,
+            #questionDrawer input {
+                background: #1a1a2e;
+                color: #fff;
+                border-color: #444;
+            }
+            .question-entry {
+                background: rgba(255,224,130,0.1);
+                border-color: rgba(255,224,130,0.3);
+            }
+            .question-entry-text { color: #f0f0f0; }
+            .question-entry-meta { color: #aaa; }
+            .question-entry-story { color: #999; }
+            .question-entry-answer {
+                background: rgba(255,255,255,0.07);
+                border-color: rgba(255,224,130,0.2);
+                color: #ddd;
+            }
+            .questions-empty { color: #888; }
         }
     </style>
 </head>
@@ -960,7 +1125,6 @@
             <button class="tab-btn" data-tab="infographic">📊 Infographic</button>
             <button class="tab-btn" data-tab="quiz">🎯 Daily Quiz</button>
             <button class="tab-btn" data-tab="correspondent">🎙️ Correspondent</button>
-            <button class="tab-btn" data-tab="myquestions">💭 My Questions</button>
         </div>
 
         <!-- Content Sections -->
@@ -1057,18 +1221,24 @@
                 </div>
             </div>
         </div>
-        <!-- 6. My Questions -->
-        <div id="myquestions" class="tab-content">
-            <div style="margin-bottom:18px;">
-                <div style="font-size:17px;font-weight:800;color:#111;margin-bottom:6px;">💭 My Questions</div>
-                <div style="font-size:13px;color:#444;margin-bottom:14px;">Anything that popped into your head while reading — curious questions, confusing words, things you want to look up. No question is too small!</div>
-                <div style="display:flex;gap:8px;align-items:flex-start;">
-                    <textarea id="newQuestionInput" placeholder="What's on your mind? Ask anything…" style="flex:1;min-height:60px;padding:12px;border:2px solid #667eea;border-radius:10px;font-family:Nunito,sans-serif;font-size:14px;resize:vertical;"></textarea>
-                    <button onclick="saveNewQuestion()" style="background:#667eea;color:white;border:none;border-radius:10px;padding:12px 16px;font-weight:700;font-size:14px;font-family:Nunito,sans-serif;cursor:pointer;min-height:60px;white-space:nowrap;">+ Save</button>
-                </div>
-            </div>
-            <div id="questionsList"></div>
+    </div>
+
+    <!-- ── Floating "Ask a Question" Button ─────────────── -->
+    <button id="askFloatBtn" title="Ask a question" aria-label="Ask a question">💭</button>
+
+    <!-- ── Drawer Overlay ───────────────────────────────── -->
+    <div id="drawerOverlay" onclick="closeQuestionDrawer()"></div>
+
+    <!-- ── Question Drawer ──────────────────────────────── -->
+    <div id="questionDrawer" role="dialog" aria-label="My Questions">
+        <div class="drawer-handle"></div>
+        <div class="drawer-title">💭 My Questions</div>
+        <div class="drawer-subtitle">Anything that popped into your head while reading — curious questions, confusing words, things you want to look up. No question is too small!</div>
+        <div class="drawer-input-row">
+            <textarea id="newQuestionInput" placeholder="What's on your mind? Ask anything…"></textarea>
+            <button class="drawer-ask-btn" onclick="saveNewQuestion()">+ Ask</button>
         </div>
+        <div id="questionsList"></div>
     </div>
 
     <!-- Edit Modals -->
@@ -1231,7 +1401,8 @@
                     });
                 }
                 if (data.quiz && data.quiz.length) {
-                    seedIfEmpty('news-quiz-q-' + dateKey, data.quiz);
+                    // Always refresh quiz from the latest JSON (answers stored separately, so safe to overwrite questions)
+                    setLocalStorage('news-quiz-q-' + dateKey, data.quiz);
                 }
             } catch(e) {
                 // Offline or not yet deployed — fall back to localStorage / parent edit mode
@@ -2142,9 +2313,29 @@
             }
         }
 
-        // Initialize My Questions when tab is clicked
-        document.querySelector('[data-tab="myquestions"]').addEventListener('click', () => {
-            setTimeout(renderQuestionsList, 50);
+        // ── Floating Ask Button ──────────────────────────────
+        function openQuestionDrawer() {
+            document.getElementById('questionDrawer').classList.add('open');
+            document.getElementById('drawerOverlay').classList.add('visible');
+            document.getElementById('askFloatBtn').classList.add('open');
+            renderQuestionsList();
+            setTimeout(() => document.getElementById('newQuestionInput').focus(), 350);
+        }
+
+        function closeQuestionDrawer() {
+            document.getElementById('questionDrawer').classList.remove('open');
+            document.getElementById('drawerOverlay').classList.remove('visible');
+            document.getElementById('askFloatBtn').classList.remove('open');
+        }
+
+        document.getElementById('askFloatBtn').addEventListener('click', () => {
+            const isOpen = document.getElementById('questionDrawer').classList.contains('open');
+            isOpen ? closeQuestionDrawer() : openQuestionDrawer();
+        });
+
+        // Close drawer on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeQuestionDrawer();
         });
     </script>
 </body>
