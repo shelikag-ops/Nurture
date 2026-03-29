@@ -3954,36 +3954,58 @@ function renderProgressCard() {
   const sciPct    = Math.round((cfg.scienceComplete / cfg.scienceTotal) * 100);
   const vocPct    = Math.round((cfg.vocabDone / cfg.vocabTotal) * 100);
 
-  // Chess — Lichess public API (ChessKid has no public API)
-  const li      = plat.lichess   || {};
-  const ixl     = plat.ixl       || {};
+  // Platform stats from sync
+  const li      = plat.lichess        || {};
+  const ixl     = plat.ixl            || {};
+  const ba      = plat.beastAcademy   || {};
+  const vs      = plat.vocabularyStars|| {};
+  const vc      = plat.vocabCom       || {};
+
+  // Chess (Lichess live API)
   const chessRating = li.rating || null;
   const chessParts = [];
-  if (li.classical) chessParts.push(`Classical ${li.classical}`);
+  if (li.classical)    chessParts.push(`Classical ${li.classical}`);
   if (li.puzzleRating) chessParts.push(`Puzzles ${li.puzzleRating} (${(li.puzzlesSolved||0).toLocaleString()} solved)`);
-  if (li.gamesWon) chessParts.push(`${li.gamesWon}W / ${(li.gamesPlayed||0) - (li.gamesWon||0)}L`);
-  const chessDetail = chessParts.length ? chessParts.join(' · ') : 'Fetching Lichess stats…';
+  if (li.gamesWon != null && li.gamesPlayed) chessParts.push(`${li.gamesWon}W · ${li.gamesPlayed - li.gamesWon}L`);
+  const chessDetail = chessParts.length ? chessParts.join(' · ') : 'Fetching from Lichess…';
   const chessBadge  = chessRating ? `⭐ ${chessRating}` : null;
 
+  // Beast Academy — prefer sync data over parent config
+  const baPct    = ba.chaptersComplete && ba.totalChapters ? Math.round(ba.chaptersComplete / ba.totalChapters * 100) : null;
+  const baDetail = ba.chaptersComplete != null
+    ? `${ba.currentBook || w.ba?.book || ''} · ${ba.chaptersComplete}/${ba.totalChapters || '?'} chapters · ${ba.currentChapter || w.ba?.chapter || ''}`
+    : (w.ba?.book ? `${w.ba.book} · ${w.ba.chapter || ''}` : '—');
+  const baBadge  = baPct != null ? baPct + '%' : null;
+
   // IXL
-  const ixlDetail = ixl.lastSkill
-    ? `${ixl.lastSkill}${ixl.smartScore ? ' · SmartScore ' + ixl.smartScore : ''}`
-    : (w.ixl && w.ixl.skill ? w.ixl.skill : 'No session today');
+  const ixlParts = [];
+  if (ixl.skillsMastered)  ixlParts.push(`${ixl.skillsMastered} skills mastered`);
+  if (ixl.lastSkill)       ixlParts.push(ixl.lastSkill + (ixl.smartScore ? ' · SS ' + ixl.smartScore : ''));
+  const ixlDetail = ixlParts.length ? ixlParts.join(' · ') : (w.ixl?.skill || 'No data yet — runs at 8pm sync');
+
+  // Vocabulary — merge platform data with parent config
+  const vocTotal   = vs.totalWords || cfg.vocabDone;
+  const vocTarget  = cfg.vocabTotal;
+  const vocPctFull = Math.round(vocTotal / vocTarget * 100);
+  const vocParts   = [`${vocTotal.toLocaleString()} / ${vocTarget.toLocaleString()} words`];
+  if (vs.level)          vocParts.push(vs.level);
+  if (vc.wordsMastered)  vocParts.push(`vocab.com: ${vc.wordsMastered} mastered`);
+  const vocDetail = vocParts.join(' · ');
 
   // Reading
   const currentBook = (w.book || '').replace(/\(.*\)/, '').trim() || 'No book set this week';
 
-  // Science in-progress label (trim to fit)
-  const sciDetail = `${cfg.scienceComplete}/${cfg.scienceTotal} chapters · ${(cfg.scienceInProgress || '').replace(/— .* \(today\)/i, '').trim() || 'Ch ' + (cfg.scienceComplete + 1)}`;
+  // Science in-progress label
+  const sciDetail = `${cfg.scienceComplete}/${cfg.scienceTotal} chapters · ${(cfg.scienceInProgress || '').replace(/—.*\(today\)/i, '').trim() || 'Ch ' + (cfg.scienceComplete + 1)}`;
 
   const rows = [
-    { icon:'🔬', name:'Science',          detail: sciDetail,                     pct: sciPct,  color:'#10B981', badge: sciPct + '%' },
-    { icon:'🐉', name:'Beast Academy',    detail: w.ba && w.ba.book ? `${w.ba.book} · ${w.ba.chapter || '—'}` : '—', pct: null, color:'#F59E0B', badge: null },
-    { icon:'📘', name:'Singapore Math',   detail: w.sm && w.sm.chapter ? `${w.sm.chapter}` + (w.sm.topic ? ' · ' + w.sm.topic : '') : '—', pct: null, color:'#3B82F6', badge: null },
-    { icon:'📊', name:'IXL',             detail: ixlDetail,                      pct: null,    color:'#6366F1', badge: ixl.smartScore ? ixl.smartScore : null },
-    { icon:'📝', name:'Vocabulary',       detail: `${cfg.vocabDone.toLocaleString()} / ${cfg.vocabTotal.toLocaleString()} words`, pct: vocPct, color:'#8B5CF6', badge: vocPct + '%' },
-    { icon:'♟️', name:'Chess',            detail: chessDetail,                   pct: null,    color:'#374151', badge: chessBadge },
-    { icon:'📖', name:'Reading',          detail: currentBook,                   pct: null,    color:'#EC4899', badge: null },
+    { icon:'🔬', name:'Science',        detail: sciDetail,   pct: sciPct,     color:'#10B981', badge: sciPct + '%' },
+    { icon:'🐉', name:'Beast Academy',  detail: baDetail,    pct: baPct,      color:'#F59E0B', badge: baBadge },
+    { icon:'📘', name:'Singapore Math', detail: w.sm?.chapter ? w.sm.chapter + (w.sm.topic ? ' · ' + w.sm.topic : '') : '—', pct: null, color:'#3B82F6', badge: null },
+    { icon:'📊', name:'IXL',           detail: ixlDetail,   pct: null,       color:'#6366F1', badge: ixl.skillsMastered ? ixl.skillsMastered + ' ✓' : null },
+    { icon:'📝', name:'Vocabulary',    detail: vocDetail,   pct: vocPctFull, color:'#8B5CF6', badge: vocPctFull + '%' },
+    { icon:'♟️', name:'Chess (Lichess)',detail: chessDetail, pct: null,       color:'#374151', badge: chessBadge },
+    { icon:'📖', name:'Reading',        detail: currentBook, pct: null,       color:'#EC4899', badge: null },
   ];
 
   const rowsHTML = rows.map((r, i) => `
