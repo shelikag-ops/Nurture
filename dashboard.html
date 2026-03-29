@@ -3793,11 +3793,15 @@ function vaStartListening() {
   };
   r.onerror = (e) => {
     VA.listening = false;
-    const msg = e.error === 'no-speech' ? 'I didn\'t hear anything — tap again! 🎙️'
-               : e.error === 'not-allowed' ? 'Microphone access was blocked. Check your browser settings.'
-               : 'Something went wrong. Try again!';
+    const msg = e.error === 'no-speech'
+               ? 'Couldn\'t hear anything. If Wispr Flow is running, pause it first — it can block the mic. Then tap again! 🎙️'
+               : e.error === 'not-allowed' || e.error === 'audio-capture'
+               ? 'Microphone is blocked — another app (like Wispr Flow) may be holding it. Pause it and try again.'
+               : e.error === 'network'
+               ? 'Network error with speech recognition. Try again!'
+               : 'Something went wrong. Tap again!';
     vaShowReply(msg);
-    vaSetState('done', 'Try again');
+    vaSetState('done', 'Tap to retry');
     vaSpeakText(msg);
   };
   r.onend = () => { VA.listening = false; };
