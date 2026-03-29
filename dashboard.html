@@ -793,7 +793,7 @@
     <div class="card-title">📝 NSF Vocabulary Sprint</div>
     <div class="prog-label">
       <span id="vocab-lbl">800 words done</span>
-      <span>2,000 total · <strong id="vocab-pct">40%</strong></span>
+      <span>1,900 total · <strong id="vocab-pct">40%</strong></span>
     </div>
     <div class="prog-track"><div class="prog-fill" id="vocab-bar" style="width:0%;background:linear-gradient(90deg,#06D6A0,#1B9AAA);"></div></div>
     <div class="prog-note" id="vocab-note-txt"></div>
@@ -1253,19 +1253,19 @@
 
     <div class="panel-section">💰 Rewards &amp; Savings Account</div>
     <div style="font-size:.76rem;color:#9CA3AF;font-weight:600;margin:-4px 0 10px;line-height:1.5;">
-      Sarah earns real savings for completing tasks and badges. Set the rates below — she sees her running balance on her dashboard.
+      Sarah earns points for completing tasks and badges. Set the point values below — she sees her running points total on her dashboard.
     </div>
     <div class="panel-row">
-      <div class="panel-field"><label class="panel-label">₹ per task completed</label><input class="panel-input" id="p-rew-task" type="number" min="0" step="0.5" placeholder="2"></div>
-      <div class="panel-field"><label class="panel-label">₹ per 30-min timer session</label><input class="panel-input" id="p-rew-timer" type="number" min="0" step="0.5" placeholder="1"></div>
+      <div class="panel-field"><label class="panel-label">Points per task completed</label><input class="panel-input" id="p-rew-task" type="number" min="0" step="0.5" placeholder="2"></div>
+      <div class="panel-field"><label class="panel-label">Points per 30-min timer session</label><input class="panel-input" id="p-rew-timer" type="number" min="0" step="0.5" placeholder="1"></div>
     </div>
     <div class="panel-row">
-      <div class="panel-field"><label class="panel-label">₹ per 🌱 Seed badge</label><input class="panel-input" id="p-rew-seed" type="number" min="0" step="1" placeholder="5"></div>
-      <div class="panel-field"><label class="panel-label">₹ per 🌿 Sprout badge</label><input class="panel-input" id="p-rew-sprout" type="number" min="0" step="1" placeholder="10"></div>
+      <div class="panel-field"><label class="panel-label">Points per 🌱 Seed badge</label><input class="panel-input" id="p-rew-seed" type="number" min="0" step="1" placeholder="5"></div>
+      <div class="panel-field"><label class="panel-label">Points per 🌿 Sprout badge</label><input class="panel-input" id="p-rew-sprout" type="number" min="0" step="1" placeholder="10"></div>
     </div>
     <div class="panel-row">
-      <div class="panel-field"><label class="panel-label">₹ per 🌳 Tree badge</label><input class="panel-input" id="p-rew-tree" type="number" min="0" step="1" placeholder="20"></div>
-      <div class="panel-field"><label class="panel-label">₹ per 🌟 Banyan badge</label><input class="panel-input" id="p-rew-banyan" type="number" min="0" step="5" placeholder="50"></div>
+      <div class="panel-field"><label class="panel-label">Points per 🌳 Tree badge</label><input class="panel-input" id="p-rew-tree" type="number" min="0" step="1" placeholder="20"></div>
+      <div class="panel-field"><label class="panel-label">Points per 🌟 Banyan badge</label><input class="panel-input" id="p-rew-banyan" type="number" min="0" step="5" placeholder="50"></div>
     </div>
 
     <div class="panel-section">💫 This Week's Social Challenge</div>
@@ -1334,7 +1334,8 @@
 const CFG = {
   childName:   "Sarah",
   vocabDone:   800,
-  vocabTotal:  2000,
+  vocabTotal:  1900,
+  vocabDeadline: new Date("2026-04-19T00:00:00"),
   nsfDate:     new Date("2026-04-25T00:00:00"),
   scienceComplete:   1,
   scienceInProgress: "Ch 1: Baloney Detection Kit — Part 2 (today)",
@@ -3025,10 +3026,13 @@ function renderParentView() {
 
   // ── Vocab ──
   const vocabDone   = cfg.vocabDone || 800;
-  const vocabTarget = 2000;
-  const vocabLeft   = vocabTarget - vocabDone;
+  const vocabTarget = cfg.vocabTotal || 1900;
+  const vocabDeadline = cfg.vocabDeadline || new Date("2026-04-19T00:00:00");
+  const vocabLeft   = Math.max(0, vocabTarget - vocabDone);
+  const now2 = new Date(); now2.setHours(0,0,0,0);
+  const daysToVocabDeadline = Math.max(1, Math.round((vocabDeadline - now2) / 86400000));
   const daysToNSF   = Math.max(1, daysLeft);
-  const vocabPerDay = Math.ceil(vocabLeft / daysToNSF);
+  const vocabPerDay = Math.ceil(vocabLeft / daysToVocabDeadline);
 
   // ════════ WINS (range-aware) ════════
   const wins = [];
@@ -3146,7 +3150,7 @@ function renderParentView() {
   if (sugEl) {
     const sugs = [];
     if (daysLeft <= 30) sugs.push(`🎯 NSF is ${daysLeft} days away — prioritise SM3 chapters 13–17 and at least 2 mock papers this week.`);
-    if (vocabPerDay > 120) sugs.push(`📖 Vocab is behind pace — need ${vocabPerDay} words/day to hit 2,000 by April 25. Consider a double session this week.`);
+    if (vocabPerDay > 120) sugs.push(`📖 Vocab is behind pace — need ${vocabPerDay} words/day to hit 1,900 by April 19. Consider a double session this week.`);
     if (todayTotal > 0 && todayDone/todayTotal < 0.5) sugs.push(`📋 Less than half of today's tasks completed. Consider checking if the task count is too high.`);
     const avgScore = weekSubs.filter(s=>s.score).reduce((a,b,_,arr)=>a+b.score/arr.length,0);
     if (weekSubs.filter(s=>s.score).length > 0 && avgScore < 70) sugs.push(`⚠️ Average submission score this week is ${Math.round(avgScore)}% — review corrections together before the next session.`);
@@ -3189,7 +3193,7 @@ function renderParentView() {
     vocEl.innerHTML = `
       <div style="font-size:1.4rem;font-weight:900;color:#1e1b4b;">${vocabDone}<span style="font-size:.9rem;color:#9CA3AF;">/${vocabTarget}</span></div>
       <div class="pv-bar-track" style="margin:6px 0;"><div class="pv-bar-fill ${pct<50?'amber':''}" style="width:${pct}%"></div></div>
-      <div style="font-size:.78rem;font-weight:700;color:#6B7280;">${vocabLeft} left · need ${vocabPerDay}/day</div>
+      <div style="font-size:.78rem;font-weight:700;color:#6B7280;">${vocabLeft} left · need ${vocabPerDay}/day by Apr 19</div>
     `;
   }
 
@@ -3293,8 +3297,8 @@ function renderParentView() {
       });
       allSubjs.forEach(s => { if (!doneSubjs.has(s)) flags.push({ level:'warn', msg:`${s} — no tasks completed this week` }); });
     }
-    if (vocabPerDay > 150) flags.push({ level:'danger', msg:`Vocab critically behind — need ${vocabPerDay} words/day to reach 2,000 by NSF` });
-    else if (vocabPerDay > 100) flags.push({ level:'warn', msg:`Vocab behind pace — need ${vocabPerDay} words/day for NSF` });
+    if (vocabPerDay > 150) flags.push({ level:'danger', msg:`Vocab critically behind — need ${vocabPerDay} words/day to reach 1,900 by April 19` });
+    else if (vocabPerDay > 100) flags.push({ level:'warn', msg:`Vocab behind pace — need ${vocabPerDay} words/day by April 19` });
     if (!isDaily && totalTasks > 0 && totalDone/totalTasks < 0.4)
       flags.push({ level:'warn', msg:`Only ${Math.round(totalDone/totalTasks*100)}% of tasks completed this period — consider reducing daily task count` });
     const hw2 = JSON.parse(localStorage.getItem('hs-homework') || '[]');
@@ -3939,7 +3943,7 @@ async function syncToNotion() {
       date:         today,
       newWordsToday: vocabTaskDone ? (cfg.week?.vocabTarget ? Math.min(60, cfg.week.vocabTarget) : 50) : 0,
       runningTotal:  vocabDone,
-      wordsRemaining: Math.max(0, 2000 - vocabDone),
+      wordsRemaining: Math.max(0, (cfg.vocabTotal || 1900) - vocabDone),
       vocabComSession: !!state['Vocabulary-1'],
       revisionDone:    !!state['Vocabulary-0'],
     };
@@ -4238,19 +4242,19 @@ function renderRewardsCard() {
   const todayAmt = log.filter(e => e.date === today).reduce((s, e) => s + (parseFloat(e.rupees)||0), 0);
   const recent  = [...log].reverse().slice(0, 8);
 
-  const fmt = n => '₹' + n.toFixed(2).replace(/\.00$/, '');
+  const fmt = n => Math.round(n).toLocaleString() + ' pts';
   const typeIcon = t => t === 'task' ? '✅' : t === 'timer' ? '⏱️' : t === 'badge' ? '🏅' : '⭐';
 
   el.innerHTML = `<div class="rewards-card">
-    <div class="rewards-balance-label">My Savings Account</div>
-    <div class="rewards-balance">${fmt(total)}</div>
-    ${todayAmt > 0 ? `<div class="rewards-today">✨ +${fmt(todayAmt)} earned today</div>` : ''}
+    <div class="rewards-balance-label">My Points</div>
+    <div class="rewards-balance">${Math.round(total).toLocaleString()}<span style="font-size:1.2rem;font-weight:700;opacity:.7;margin-left:6px;">pts</span></div>
+    ${todayAmt > 0 ? `<div class="rewards-today">✨ +${Math.round(todayAmt)} pts today</div>` : ''}
     ${recent.length > 0 ? `
       <div class="rewards-feed">
         ${recent.map(e => `<div class="rewards-feed-item">
           <span>${typeIcon(e.type)}</span>
           <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.description}</span>
-          <span class="rewards-feed-amount">+${fmt(e.rupees)}</span>
+          <span class="rewards-feed-amount">+${Math.round(e.rupees)} pts</span>
         </div>`).join('')}
       </div>` : `<div class="rewards-empty">Complete tasks to start earning! 🌟</div>`}
   </div>`;
@@ -4261,11 +4265,11 @@ function renderParentRewards() {
   if (!el) return;
   const log = JSON.parse(localStorage.getItem(REWARDS_LOG_KEY) || '[]');
   const total = log.reduce((s, e) => s + (parseFloat(e.rupees)||0), 0);
-  const fmt = n => '₹' + n.toFixed(2).replace(/\.00$/, '');
+  const fmt = n => Math.round(n).toLocaleString() + ' pts';
   const typeIcon = t => t === 'task' ? '✅' : t === 'timer' ? '⏱️' : t === 'badge' ? '🏅' : '⭐';
 
   if (log.length === 0) {
-    el.innerHTML = '<div style="color:#9CA3AF;font-size:.85rem;">No earnings yet — Sarah earns when she completes tasks and badges.</div>';
+    el.innerHTML = '<div style="color:#9CA3AF;font-size:.85rem;">No points yet — Sarah earns when she completes tasks and badges.</div>';
     return;
   }
 
@@ -4276,19 +4280,19 @@ function renderParentRewards() {
 
   el.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <div style="font-size:1.5rem;font-weight:900;color:#059669;">${fmt(total)}</div>
-      <div style="font-size:.78rem;color:#6B7280;font-weight:700;">total balance</div>
+      <div style="font-size:1.5rem;font-weight:900;color:#059669;">${Math.round(total).toLocaleString()} pts</div>
+      <div style="font-size:.78rem;color:#6B7280;font-weight:700;">total points</div>
     </div>
     ${entries.map(([date, items]) => {
       const dayTotal = items.reduce((s, e) => s + (parseFloat(e.rupees)||0), 0);
       return `<div style="margin-bottom:10px;">
         <div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">
-          ${new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})} · ${fmt(dayTotal)}
+          ${new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})} · ${Math.round(dayTotal)} pts
         </div>
         ${items.map(e => `<div class="pv-rewards-row">
           <span>${typeIcon(e.type)}</span>
           <span style="flex:1;font-weight:600;color:#374151;">${e.description}</span>
-          <span class="pv-rewards-amount">+${fmt(e.rupees)}</span>
+          <span class="pv-rewards-amount">+${Math.round(e.rupees)} pts</span>
         </div>`).join('')}
       </div>`;
     }).join('')}`;
