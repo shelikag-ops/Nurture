@@ -361,9 +361,9 @@
     .values-q li::before { content:'→ '; opacity:.6; }
 
     /* ── WORK SUBMISSION ── */
-    .task-cam-btn { font-size:.85rem; padding:3px 7px; border-radius:7px; cursor:pointer; opacity:.35; transition:opacity .15s; flex-shrink:0; line-height:1; }
+    .task-cam-btn { font-size:1.25rem; padding:5px 9px; border-radius:10px; cursor:pointer; opacity:.55; transition:opacity .15s,background .15s; flex-shrink:0; line-height:1; min-width:38px; min-height:38px; display:flex; align-items:center; justify-content:center; }
     .task-cam-btn:hover { opacity:1; background:#F3F4F6; }
-    .task-item.done .task-cam-btn { opacity:.2; }
+    .task-item.done .task-cam-btn { opacity:.25; }
 
     /* submission modal */
     .sub-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:2000; overflow-y:auto; padding:20px; }
@@ -713,18 +713,6 @@
     <div class="prog-note" id="vocab-note-txt"></div>
   </div>
 
-  <!-- VOCABULARY STARS WORD LOG -->
-  <div class="vocab-tracker-card">
-    <div class="card-title">⭐ VocabularyStars — Word Log</div>
-    <div class="vocab-word-input-row">
-      <input class="vocab-word-field" id="vocab-word-input"
-        placeholder="Type the last word you just did on VocabularyStars…"
-        onkeydown="if(event.key==='Enter')logVocabWord()">
-      <button class="vocab-word-btn" onclick="logVocabWord()">+ Log it</button>
-    </div>
-    <div id="vocab-word-log"></div>
-  </div>
-
   <!-- WEEKLY SOCIAL CHALLENGE -->
   <div id="challenge-card-container"></div>
 
@@ -743,6 +731,17 @@
       </div>
       <div id="hw-due-today-inject"></div>
       <div id="plan-content"></div>
+      <!-- Vocab word log — right after tasks -->
+      <div class="vocab-tracker-card" style="margin-top:14px;margin-bottom:0;">
+        <div class="card-title" style="font-size:.9rem;margin-bottom:10px;">⭐ VocabularyStars — last word logged</div>
+        <div class="vocab-word-input-row">
+          <input class="vocab-word-field" id="vocab-word-input"
+            placeholder="Type the last word you did on VocabularyStars…"
+            onkeydown="if(event.key==='Enter')logVocabWord()">
+          <button class="vocab-word-btn" onclick="logVocabWord()">+ Log</button>
+        </div>
+        <div id="vocab-word-log"></div>
+      </div>
     </div>
 
     <!-- WINS -->
@@ -1711,9 +1710,17 @@ function render() {
       t.forEach((task,i)=>{
         const id=`${s}-${i}`, isDone=!!state[id];
         if(isDone)done++; total++;
+        // For VocabularyStars task, show the last logged word inline
+        let taskExtra = '';
+        if (s === 'Vocabulary' && task.toLowerCase().includes('vocabularystars')) {
+          const vwords = (load(VOCAB_WORDS_KEY) || []);
+          if (vwords.length) {
+            taskExtra = `<span style="font-size:.72rem;font-weight:800;color:#7C3AED;background:#F5F3FF;border-radius:6px;padding:2px 7px;margin-left:6px;white-space:nowrap;">last: ${vwords[0].word}</span>`;
+          }
+        }
         planHTML+=`<div class="task-item${isDone?" done":""}" id="t-${id}" onclick="toggle('${id}','${todayK}')">
           <div class="task-checkbox">${isDone?"✓":""}</div>
-          <div class="task-text">${task}</div>
+          <div class="task-text">${task}${taskExtra}</div>
           <div class="task-cam-btn" title="Submit your work" onclick="event.stopPropagation();openSubmitModal('${id}','${task}','${s}')">📷</div>
         </div>`;
       });
@@ -2136,12 +2143,14 @@ function logVocabWord() {
   save(VOCAB_WORDS_KEY, words);
   input.value = '';
   renderVocabWordLog();
+  render(); // refresh task list so inline "last: word" badge updates
 }
 
 function deleteVocabWord(ts) {
   const words = (load(VOCAB_WORDS_KEY) || []).filter(w => w.ts !== ts);
   save(VOCAB_WORDS_KEY, words);
   renderVocabWordLog();
+  render();
 }
 
 function renderVocabWordLog() {
@@ -3194,10 +3203,11 @@ function renderPrayerCard() {
       <div class="prayer-card prayer-card-done">
         <div class="prayer-done-badge">
           <div class="prayer-done-check">🕉</div>
-          <div>
+          <div style="flex:1;">
             <div style="font-weight:800;font-size:.95rem;color:#A7F3D0;">Morning practice complete ✓</div>
             ${sankalpa ? `<div style="font-size:.82rem;color:#6EE7B7;margin-top:2px;font-style:italic;">"${sankalpa}"</div>` : ''}
           </div>
+          <button onclick="resetPrayerDay()" title="Revisit morning practice" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);border-radius:10px;padding:7px 13px;font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;flex-shrink:0;line-height:1.2;">↩ Revisit</button>
         </div>
       </div>`;
   } else {
@@ -3362,6 +3372,13 @@ function finishPrayer() {
   }
 
   stopPrayerAudio();
+  renderPrayerCard();
+}
+
+function resetPrayerDay() {
+  const now = new Date();
+  const prayerKey = `hs-prayer-${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+  localStorage.removeItem(prayerKey);
   renderPrayerCard();
 }
 

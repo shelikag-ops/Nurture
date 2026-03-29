@@ -50,13 +50,13 @@
         }
 
         .lock-icon {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            color: white;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1.5px solid rgba(255,255,255,0.35);
+            color: rgba(255,255,255,0.7);
             border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            font-size: 24px;
+            width: 30px;
+            height: 30px;
+            font-size: 15px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -989,13 +989,14 @@
             color: white;
             border: none;
             border-radius: 12px;
-            padding: 10px 14px;
+            padding: 10px 16px;
             font-weight: 700;
             font-size: 14px;
             font-family: Nunito, sans-serif;
             cursor: pointer;
             min-height: 54px;
             white-space: nowrap;
+            flex-shrink: 0;
             touch-action: manipulation;
         }
         /* Overlay behind drawer */
@@ -1088,12 +1089,17 @@
                 background: #2d2d44;
                 color: #fff;
             }
+            .drawer-title  { color: #fff !important; }
+            .drawer-subtitle { color: #c8c8e0 !important; }
             #questionDrawer textarea,
             #questionDrawer input {
                 background: #1a1a2e;
                 color: #fff;
-                border-color: #444;
+                border-color: #555;
             }
+            #questionDrawer textarea::placeholder,
+            #questionDrawer input::placeholder { color: #888; }
+            .drawer-ask-btn { background: #667eea; color: #fff; }
             .question-entry {
                 background: rgba(255,224,130,0.1);
                 border-color: rgba(255,224,130,0.3);
@@ -1118,7 +1124,7 @@
                 <h1>📰 Sarah's News</h1>
                 <div class="header-date" id="headerDate"></div>
             </div>
-            <button class="lock-icon" id="lockToggle" title="Parent Mode">🔒</button>
+            <button class="lock-icon" id="lockToggle" title="Parent Mode — tap to unlock edit controls">🔒</button>
         </div>
 
         <a href="./dashboard.html" style="color:rgba(255,255,255,.8);font-size:.85rem;font-weight:700;text-decoration:none;display:inline-block;margin-bottom:8px;">← Dashboard</a>
