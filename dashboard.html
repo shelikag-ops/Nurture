@@ -4051,6 +4051,45 @@ function _updateNotionSyncBadge(count) {
   }
 }
 
+// ═══════════════════════════════════════════════════════════
+//  LIVE CHESS STATS (public APIs — no auth needed)
+// ═══════════════════════════════════════════════════════════
+async function fetchChessStats() {
+  const today = todayISO();
+  const plat  = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
+
+  // Only re-fetch if not already fetched today
+  if (plat.chessKid?.lastUpdated === today && plat.lichess?.lastUpdated === today) return;
+
+  try {
+    // Chess.com public API (no key needed)
+    const [ckRes, liRes] = await Promise.allSettled([
+      fetch('https://api.chess.com/pub/player/newsorenight/stats', { cache: 'no-cache' }),
+      fetch('https://lichess.org/api/user/Sarahbh', { headers: { Accept: 'application/json' }, cache: 'no-cache' })
+    ]);
+
+    if (ckRes.status === 'fulfilled' && ckRes.value.ok) {
+      const ck = await ckRes.value.json();
+      const rapid  = ck.chess_rapid?.last?.rating  || ck.chess_blitz?.last?.rating || null;
+      const games  = (ck.chess_rapid?.record?.win  || 0) + (ck.chess_rapid?.record?.loss || 0) + (ck.chess_rapid?.record?.draw || 0);
+      const wins   = ck.chess_rapid?.record?.win   || 0;
+      plat.chessKid = { rating: rapid, gamesPlayed: games, gamesWon: wins, lastUpdated: today };
+    }
+
+    if (liRes.status === 'fulfilled' && liRes.value.ok) {
+      const li = await liRes.value.json();
+      const blitz  = li.perfs?.blitz?.rating  || null;
+      const rapid  = li.perfs?.rapid?.rating  || null;
+      const rating = rapid || blitz;
+      const games  = li.count?.all || 0;
+      plat.lichess = { rating, gamesPlayed: games, lastUpdated: today };
+    }
+
+    localStorage.setItem('hs-platform-stats', JSON.stringify(plat));
+    renderProgressCard(); // refresh card with live ratings
+  } catch(e) { /* offline — use cached */ }
+}
+
 // ── INIT ──
 render();
 renderPrayerCard();
@@ -4060,6 +4099,7 @@ updateHoursPill();
 renderEndOfDayCard();
 renderProgressCard();
 _updateNotionSyncBadge(notionQueueRead().length);
+fetchChessStats(); // async — updates progress card when done
 
 // ═══════════════════════════════════════════════════════════
 //  DEBATE PREP DOCS
