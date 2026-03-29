@@ -79,6 +79,8 @@
     .header h1 { font-size:2rem; font-weight:900; margin-bottom:4px; }
     .header .sub { font-size:1rem; opacity:.9; font-weight:600; }
     .nsf-pill { background:rgba(255,255,255,.25); border:2px solid rgba(255,255,255,.4); border-radius:50px; padding:10px 22px; font-weight:800; font-size:1rem; white-space:nowrap; }
+    .hours-pill { background:rgba(255,255,255,.18); border:2px solid rgba(255,255,255,.35); border-radius:50px; padding:8px 18px; font-weight:800; font-size:.92rem; white-space:nowrap; display:none; align-items:center; gap:6px; }
+    .hours-pill.has-time { display:flex; }
 
     /* ── CARDS ── */
     .card { background:white; border-radius:20px; padding:24px; margin-bottom:16px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
@@ -650,6 +652,7 @@
         <span id="voice-timer-clock">0m</span>
         <button class="voice-timer-stop" onclick="voiceStopTimer()">Stop ■</button>
       </div>
+      <div class="hours-pill" id="hours-pill">⏱️ <span id="hours-pill-txt">0m today</span></div>
       <div class="nsf-pill" id="nsf-pill">🎯 NSF in <span id="nsf-days">–</span> days</div>
     </div>
   </div>
@@ -3661,6 +3664,7 @@ function confirmLogTime() {
   log[taskId] = (log[taskId] || 0) + mins;
   log[`${taskId}__text`] = (_taskMeta[taskId] || {}).text || taskId;
   save(timeKey, log);
+  updateHoursPill();
   // Reset timer
   delete _timers[taskId];
   _timerConfId = null;
@@ -3681,6 +3685,24 @@ function confirmLogTime() {
 function closeTimerConfirm() {
   if (_timerConfId) { delete _timers[_timerConfId]; _timerConfId = null; }
   document.getElementById('timerConfOverlay').classList.remove('open');
+}
+
+// ── Hours banner ─────────────────────────────────────────────
+function updateHoursPill() {
+  const now = new Date();
+  const timeKey = `hs-time-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const log = load(timeKey) || {};
+  // Sum only numeric (non-text) keys
+  const totalMins = Object.entries(log)
+    .filter(([k]) => !k.endsWith('__text'))
+    .reduce((sum, [, v]) => sum + (parseInt(v) || 0), 0);
+  const pill = document.getElementById('hours-pill');
+  const txt  = document.getElementById('hours-pill-txt');
+  if (!pill || !txt) return;
+  if (totalMins === 0) { pill.classList.remove('has-time'); return; }
+  pill.classList.add('has-time');
+  const h = Math.floor(totalMins / 60), m = totalMins % 60;
+  txt.textContent = h > 0 ? `${h}h ${m}m today` : `${m}m today`;
 }
 
 function _timerTick(taskId) {
@@ -3765,6 +3787,7 @@ render();
 renderPrayerCard();
 updateReviewBadge();
 renderNotifications();
+updateHoursPill();
 
 // ═══════════════════════════════════════════════════════════
 //  DEBATE PREP DOCS
