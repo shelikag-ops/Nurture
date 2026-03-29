@@ -87,6 +87,18 @@
     .card-title { font-size:1.05rem; font-weight:800; color:#2D3047; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
 
     /* ── END-OF-DAY CARD ── */
+    /* ── Rewards / Savings Dashboard ── */
+    .rewards-card { background:linear-gradient(135deg,#1e1b4b 0%,#3730a3 100%); border-radius:20px; padding:22px; margin-bottom:16px; color:white; }
+    .rewards-balance { font-size:2.8rem; font-weight:900; letter-spacing:-.02em; line-height:1; }
+    .rewards-balance-label { font-size:.8rem; font-weight:800; opacity:.7; text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
+    .rewards-today { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,.15); border-radius:20px; padding:5px 12px; font-size:.78rem; font-weight:800; margin-top:10px; }
+    .rewards-feed { margin-top:14px; display:flex; flex-direction:column; gap:5px; max-height:160px; overflow-y:auto; }
+    .rewards-feed-item { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.1); border-radius:10px; padding:7px 11px; font-size:.78rem; font-weight:700; }
+    .rewards-feed-amount { margin-left:auto; font-weight:900; color:#FCD34D; white-space:nowrap; }
+    .rewards-empty { font-size:.83rem; opacity:.6; text-align:center; padding:14px; }
+    /* Parent rewards view */
+    .pv-rewards-row { display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid #F3F4F6; font-size:.82rem; }
+    .pv-rewards-amount { margin-left:auto; font-weight:800; color:#059669; white-space:nowrap; }
     /* ── Curriculum Progress Card ── */
     .progress-card { margin-bottom:16px; }
     .progress-grid { display:flex; flex-direction:column; gap:11px; }
@@ -790,6 +802,9 @@
   <!-- CURRICULUM PROGRESS -->
   <div id="progress-card-container"></div>
 
+  <!-- REWARDS / SAVINGS ACCOUNT -->
+  <div id="rewards-card-container"></div>
+
   <!-- WEEKLY SOCIAL CHALLENGE -->
   <div id="challenge-card-container"></div>
 
@@ -1064,6 +1079,30 @@
     </div>
   </div>
 
+  <!-- Chess & Platform Stats -->
+  <div class="pv-card" style="margin-bottom:12px;">
+    <div class="pv-title">♟️ Chess &amp; Platform Stats</div>
+    <div id="pv-chess"></div>
+  </div>
+
+  <!-- Activity Heatmap (weekly only) -->
+  <div class="pv-card" id="pv-heatmap-card" style="margin-bottom:12px;display:none;">
+    <div class="pv-title">📅 This Week at a Glance</div>
+    <div id="pv-heatmap"></div>
+  </div>
+
+  <!-- Red Flags -->
+  <div class="pv-card" id="pv-redflags-card" style="margin-bottom:12px;display:none;">
+    <div class="pv-title">🚨 Red Flags</div>
+    <div id="pv-redflags"></div>
+  </div>
+
+  <!-- Rewards Ledger (parent view) -->
+  <div class="pv-card" style="margin-bottom:12px;">
+    <div class="pv-title">💰 Rewards Ledger</div>
+    <div id="pv-rewards"></div>
+  </div>
+
   <!-- Notion Sync -->
   <div class="pv-card" style="margin-top:16px;">
     <div class="pv-title">📤 Sync to Notion</div>
@@ -1206,6 +1245,23 @@
       Notion: <strong>notion.so/my-integrations</strong> &nbsp;·&nbsp;
       GitHub: <strong>github.com → Settings → Developer settings → Fine-grained tokens</strong> &nbsp;·&nbsp;
       ElevenLabs: <strong>elevenlabs.io → Profile → API Keys</strong>
+    </div>
+
+    <div class="panel-section">💰 Rewards &amp; Savings Account</div>
+    <div style="font-size:.76rem;color:#9CA3AF;font-weight:600;margin:-4px 0 10px;line-height:1.5;">
+      Sarah earns real savings for completing tasks and badges. Set the rates below — she sees her running balance on her dashboard.
+    </div>
+    <div class="panel-row">
+      <div class="panel-field"><label class="panel-label">₹ per task completed</label><input class="panel-input" id="p-rew-task" type="number" min="0" step="0.5" placeholder="2"></div>
+      <div class="panel-field"><label class="panel-label">₹ per 30-min timer session</label><input class="panel-input" id="p-rew-timer" type="number" min="0" step="0.5" placeholder="1"></div>
+    </div>
+    <div class="panel-row">
+      <div class="panel-field"><label class="panel-label">₹ per 🌱 Seed badge</label><input class="panel-input" id="p-rew-seed" type="number" min="0" step="1" placeholder="5"></div>
+      <div class="panel-field"><label class="panel-label">₹ per 🌿 Sprout badge</label><input class="panel-input" id="p-rew-sprout" type="number" min="0" step="1" placeholder="10"></div>
+    </div>
+    <div class="panel-row">
+      <div class="panel-field"><label class="panel-label">₹ per 🌳 Tree badge</label><input class="panel-input" id="p-rew-tree" type="number" min="0" step="1" placeholder="20"></div>
+      <div class="panel-field"><label class="panel-label">₹ per 🌟 Banyan badge</label><input class="panel-input" id="p-rew-banyan" type="number" min="0" step="5" placeholder="50"></div>
     </div>
 
     <div class="panel-section">💫 This Week's Social Challenge</div>
@@ -1384,6 +1440,16 @@ function openPanel() {
   document.getElementById('p-challenge-custom').value = customText;
   document.getElementById('p-challenge-ext').value    = sc.extension || '';
   document.getElementById('p-challenge-custom-row').style.display = (pickEl.value === 'custom') ? 'block' : 'none';
+  // Load rewards config
+  {
+    const _rcfg = getRewardsCfg();
+    document.getElementById('p-rew-task').value   = _rcfg.rupeesPerTask   ?? '';
+    document.getElementById('p-rew-timer').value  = _rcfg.rupeesPerTimer  ?? '';
+    document.getElementById('p-rew-seed').value   = _rcfg.badgeRupees?.Seed   ?? '';
+    document.getElementById('p-rew-sprout').value = _rcfg.badgeRupees?.Sprout ?? '';
+    document.getElementById('p-rew-tree').value   = _rcfg.badgeRupees?.Tree   ?? '';
+    document.getElementById('p-rew-banyan').value = _rcfg.badgeRupees?.Banyan ?? '';
+  }
   // Wire up all tool links relative to current URL
   const base = window.location.href.split('?')[0].split('#')[0].replace(/dashboard\.html$/, '');
   const dashLink = document.getElementById('corrections-dash-link');
@@ -1439,6 +1505,24 @@ function saveConfig() {
     }
   };
   save(CFG_KEY, ov);
+  // Rewards config saved separately
+  {
+    const _rn = id => { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? undefined : v; };
+    const existingRcfg = JSON.parse(localStorage.getItem(REWARDS_CFG_KEY) || '{}');
+    const newRcfg = {
+      ...existingRcfg,
+      rupeesPerTask:  _rn('p-rew-task')   ?? existingRcfg.rupeesPerTask,
+      rupeesPerTimer: _rn('p-rew-timer')  ?? existingRcfg.rupeesPerTimer,
+      badgeRupees: {
+        ...(existingRcfg.badgeRupees || {}),
+        ...(_rn('p-rew-seed')   !== undefined ? { Seed:   _rn('p-rew-seed')   } : {}),
+        ...(_rn('p-rew-sprout') !== undefined ? { Sprout: _rn('p-rew-sprout') } : {}),
+        ...(_rn('p-rew-tree')   !== undefined ? { Tree:   _rn('p-rew-tree')   } : {}),
+        ...(_rn('p-rew-banyan') !== undefined ? { Banyan: _rn('p-rew-banyan') } : {}),
+      }
+    };
+    localStorage.setItem(REWARDS_CFG_KEY, JSON.stringify(newRcfg));
+  }
   // Social challenge saved separately
   const pickVal = document.getElementById('p-challenge-pick').value;
   const extVal  = document.getElementById('p-challenge-ext').value.trim();
@@ -1889,6 +1973,9 @@ function render() {
 
   // Social challenge card
   renderSocialChallenge();
+
+  // Rewards / savings account card
+  renderRewardsCard();
 }
 
 function renderEndOfDayCard() {
@@ -2022,6 +2109,10 @@ function toggle(id, dateKey) {
       duration: parseDurationFromTask(meta.text) || null,
       source:   'task-complete'
     });
+    // ── Earn rupees for task completion ──
+    const cfg = getRewardsCfg();
+    const label = (meta.text || id).replace(/\s*—\s*\d+\s*min.*/i, '').trim();
+    rewardLog('task', label, cfg.rupeesPerTask);
   }
 }
 
@@ -2951,6 +3042,18 @@ function renderParentView() {
   // ════════ TIME (range-aware) ════════
   const bySubject = {};
   rangeAct.forEach(e => { bySubject[e.subject] = (bySubject[e.subject]||0) + (e.duration||0); });
+  // Also pull timer-based sessions from hs-time-* keys (written by confirmLogTime)
+  rangeDays.forEach(d => {
+    const tk   = `hs-time-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    const tlog = JSON.parse(localStorage.getItem(tk) || '{}');
+    Object.entries(tlog).forEach(([k, v]) => {
+      if (k.endsWith('__text')) return;
+      const mins = parseInt(v) || 0;
+      if (!mins) return;
+      const subj = NOTION_SUBJECT_MAP[k.split('-')[0]] || k.split('-')[0] || 'General';
+      bySubject[subj] = (bySubject[subj] || 0) + mins;
+    });
+  });
   const timeEl = document.getElementById('pv-time-today');
   if (timeEl) {
     if (rangeAct.length === 0) {
@@ -3081,6 +3184,120 @@ function renderParentView() {
       <div style="font-size:.78rem;font-weight:700;color:#6B7280;">${vocabLeft} left · need ${vocabPerDay}/day</div>
     `;
   }
+
+  // ════════ CHESS / PLATFORM STATS ════════
+  const chessEl = document.getElementById('pv-chess');
+  if (chessEl) {
+    const plat = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
+    const li   = plat.lichess || {};
+    const ixl  = plat.ixl    || {};
+    const ba   = plat.beastAcademy || {};
+    const vs   = plat.vocabularyStars || {};
+    let html = '';
+    if (li.rating || li.gamesPlayed) {
+      const wr = li.gamesPlayed ? Math.round((li.gamesWon||0)/li.gamesPlayed*100) : null;
+      html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Lichess (Sarahbh)</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${li.classical?`<span class="pv-tag" style="background:#1e1b4b22;color:#1e1b4b;">Classical ${li.classical}</span>`:''}
+        ${li.puzzleRating?`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">Puzzles ${li.puzzleRating}</span>`:''}
+        ${li.puzzlesSolved?`<span class="pv-tag" style="background:#06D6A022;color:#059669;">${(li.puzzlesSolved||0).toLocaleString()} puzzles</span>`:''}
+        ${li.gamesPlayed?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">${li.gamesPlayed} games${wr?' · '+wr+'% wins':''}</span>`:''}
+      </div></div>`;
+    }
+    if (ixl.skillsMastered || ixl.lastSkill) {
+      html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">IXL</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${ixl.skillsMastered?`<span class="pv-tag" style="background:#06D6A022;color:#059669;">${ixl.skillsMastered} skills mastered</span>`:''}
+        ${ixl.lastSkill?`<span class="pv-tag" style="background:#6366F122;color:#4F46E5;">Last: ${ixl.lastSkill}${ixl.smartScore?' · SS '+ixl.smartScore:''}</span>`:''}
+      </div></div>`;
+    }
+    if (ba.currentBook || ba.chaptersComplete != null) {
+      const baPct = ba.chaptersComplete && ba.totalChapters ? Math.round(ba.chaptersComplete/ba.totalChapters*100) : null;
+      html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Beast Academy</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${ba.currentBook?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">Book ${ba.currentBook}</span>`:''}
+        ${ba.chaptersComplete!=null?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">${ba.chaptersComplete}/${ba.totalChapters||'?'} chapters${baPct?' ('+baPct+'%)':''}</span>`:''}
+        ${ba.currentChapter?`<span style="font-size:.76rem;color:#6B7280;align-self:center;">${ba.currentChapter}</span>`:''}
+      </div></div>`;
+    }
+    if (vs.totalWords || vs.level) {
+      html += `<div><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">VocabularyStars</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${vs.totalWords?`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">${vs.totalWords.toLocaleString()} words</span>`:''}
+        ${vs.level?`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">${vs.level}</span>`:''}
+      </div></div>`;
+    }
+    if (!html) html = '<div style="color:#9CA3AF;font-size:.82rem;">Platform stats appear after the 8pm sync. Chess ratings load live when Sarah opens the dashboard.</div>';
+    chessEl.innerHTML = html;
+  }
+
+  // ════════ ACTIVITY HEATMAP (weekly only) ════════
+  const hmCard = document.getElementById('pv-heatmap-card');
+  const hmEl   = document.getElementById('pv-heatmap');
+  if (hmCard && hmEl) {
+    if (!isDaily) {
+      hmCard.style.display = 'block';
+      const dayLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      const cells = rangeDays.map((d, i) => {
+        const st    = JSON.parse(localStorage.getItem(dayKey(d)) || 'null') || {};
+        const keys  = Object.keys(st);
+        const done  = keys.filter(k => st[k]).length;
+        const total = keys.length;
+        const tk    = `hs-time-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        const tlog  = JSON.parse(localStorage.getItem(tk) || '{}');
+        const mins  = Object.entries(tlog).filter(([k])=>!k.endsWith('__text')).reduce((s,[,v])=>s+(parseInt(v)||0),0);
+        const pct   = total > 0 ? Math.round(done/total*100) : 0;
+        const bg    = !done && !mins ? '#F3F4F6' : pct>=80 ? '#DCFCE7' : pct>=50 ? '#FEF9C3' : '#FEE2E2';
+        const tc    = !done && !mins ? '#9CA3AF' : pct>=80 ? '#166534' : pct>=50 ? '#854D0E' : '#991B1B';
+        const isT   = d.toDateString() === now.toDateString();
+        return `<div style="text-align:center;flex:1;min-width:36px;">
+          <div style="font-size:.65rem;font-weight:800;color:${isT?'#7C3AED':'#9CA3AF'};margin-bottom:4px;">${dayLabels[i]}</div>
+          <div style="background:${bg};border-radius:10px;padding:10px 2px;border:${isT?'2px solid #7C3AED':'2px solid transparent'};">
+            <div style="font-size:.95rem;font-weight:900;color:${tc};">${done||( mins?'⏱':'—')}</div>
+            <div style="font-size:.58rem;color:${tc};font-weight:700;">${total?'tasks':mins?mins+'m':''}</div>
+          </div>
+        </div>`;
+      });
+      hmEl.innerHTML = `<div style="display:flex;gap:5px;">${cells.join('')}</div>
+        <div style="display:flex;gap:10px;margin-top:8px;font-size:.68rem;color:#9CA3AF;font-weight:700;flex-wrap:wrap;">
+          <span>🟢 ≥80% done</span><span>🟡 50–79%</span><span>🔴 &lt;50%</span><span>⬜ No data</span>
+        </div>`;
+    } else {
+      hmCard.style.display = 'none';
+    }
+  }
+
+  // ════════ RED FLAGS ════════
+  const rfCard = document.getElementById('pv-redflags-card');
+  const rfEl   = document.getElementById('pv-redflags');
+  if (rfCard && rfEl) {
+    const flags = [];
+    if (!isDaily) {
+      const PLAN2 = buildPlan(cfg);
+      const allSubjs = new Set(), doneSubjs = new Set();
+      rangeDays.forEach(d => {
+        const dp2 = PLAN2[d.getDay()] || [];
+        dp2.forEach(({s}) => allSubjs.add(s));
+        const st2 = JSON.parse(localStorage.getItem(dayKey(d)) || 'null') || {};
+        dp2.forEach(({s,t}) => t.forEach((_,i) => { if (st2[`${s}-${i}`]) doneSubjs.add(s); }));
+      });
+      allSubjs.forEach(s => { if (!doneSubjs.has(s)) flags.push({ level:'warn', msg:`${s} — no tasks completed this week` }); });
+    }
+    if (vocabPerDay > 150) flags.push({ level:'danger', msg:`Vocab critically behind — need ${vocabPerDay} words/day to reach 2,000 by NSF` });
+    else if (vocabPerDay > 100) flags.push({ level:'warn', msg:`Vocab behind pace — need ${vocabPerDay} words/day for NSF` });
+    if (!isDaily && totalTasks > 0 && totalDone/totalTasks < 0.4)
+      flags.push({ level:'warn', msg:`Only ${Math.round(totalDone/totalTasks*100)}% of tasks completed this period — consider reducing daily task count` });
+    const hw2 = JSON.parse(localStorage.getItem('hs-homework') || '[]');
+    const overdue = hw2.filter(h => !h.done && h.dueDate && new Date(h.dueDate) < new Date());
+    if (overdue.length) flags.push({ level:'danger', msg:`${overdue.length} overdue homework item${overdue.length>1?'s':''}: ${overdue.map(h=>h.text||h.subject).slice(0,2).join(', ')}` });
+    if (flags.length === 0) { rfCard.style.display = 'none'; }
+    else {
+      rfCard.style.display = 'block';
+      rfEl.innerHTML = flags.map(f => {
+        const bg = f.level==='danger'?'#FEE2E2':'#FEF9C3', col = f.level==='danger'?'#991B1B':'#854D0E';
+        return `<div style="background:${bg};border-radius:10px;padding:9px 13px;margin-bottom:7px;font-size:.82rem;font-weight:700;color:${col};">${f.level==='danger'?'🔴':'⚠️'} ${f.msg}</div>`;
+      }).join('');
+    }
+  }
+
+  // ════════ Rewards ledger ════════
+  renderParentRewards();
 
   // ════════ Wire links ════════
   const base = window.location.href.split('?')[0].split('#')[0].replace(/dashboard\.html$/,'');
@@ -3824,6 +4041,15 @@ function confirmLogTime() {
     duration: mins,
     source:   'timer'
   });
+  // ── Earn rupees for timed session (₹1 per 30 min, pro-rated) ──
+  {
+    const _rcfg = getRewardsCfg();
+    const _timerRupees = parseFloat((_rcfg.rupeesPerTimer * (mins / 30)).toFixed(2));
+    if (_timerRupees > 0) {
+      const _tlabel = (_tmeta.text || taskId).replace(/\s*—\s*\d+\s*min.*/i, '').trim();
+      rewardLog('timer', `${_tlabel} (${mins} min)`, _timerRupees);
+    }
+  }
   // Reset timer
   delete _timers[taskId];
   _timerConfId = null;
@@ -3939,6 +4165,119 @@ function addCustomTask() {
 function deleteCustomTask(id) {
   saveCustomTasks(loadCustomTasks().filter(t => t.id !== id));
   render();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  REWARDS / SAVINGS ACCOUNT
+// ═══════════════════════════════════════════════════════════
+const REWARDS_LOG_KEY = 'hs-rewards-log';
+const REWARDS_CFG_KEY = 'hs-rewards-cfg';
+
+function getRewardsCfg() {
+  const saved = JSON.parse(localStorage.getItem(REWARDS_CFG_KEY) || '{}');
+  return {
+    rupeesPerTask:   saved.rupeesPerTask   ?? 2,
+    rupeesPerTimer:  saved.rupeesPerTimer  ?? 1,   // per 30 min
+    badgeRupees: {
+      Seed:    saved.badgeRupees?.Seed    ?? 5,
+      Sprout:  saved.badgeRupees?.Sprout  ?? 10,
+      Tree:    saved.badgeRupees?.Tree    ?? 20,
+      Banyan:  saved.badgeRupees?.Banyan  ?? 50,
+      Bronze:  saved.badgeRupees?.Bronze  ?? 5,
+      Silver:  saved.badgeRupees?.Silver  ?? 10,
+      Gold:    saved.badgeRupees?.Gold    ?? 20,
+      Special: saved.badgeRupees?.Special ?? 50,
+    }
+  };
+}
+
+function rewardLog(type, description, rupees, meta) {
+  if (!rupees || rupees <= 0) return;
+  try {
+    const log = JSON.parse(localStorage.getItem(REWARDS_LOG_KEY) || '[]');
+    log.push({ id: Date.now().toString(), type, description, rupees, date: todayISO(), ...( meta||{}) });
+    localStorage.setItem(REWARDS_LOG_KEY, JSON.stringify(log));
+    renderRewardsCard();
+    if (typeof renderParentView === 'function' && !document.getElementById('sarah-view').classList.contains('hidden') === false) {
+      // parent view is active — refresh it
+    }
+  } catch(e) {}
+}
+
+function rewardsTotal() {
+  const log = JSON.parse(localStorage.getItem(REWARDS_LOG_KEY) || '[]');
+  return log.reduce((s, e) => s + (parseFloat(e.rupees) || 0), 0);
+}
+
+function rewardsTodayTotal() {
+  const today = todayISO();
+  const log = JSON.parse(localStorage.getItem(REWARDS_LOG_KEY) || '[]');
+  return log.filter(e => e.date === today).reduce((s, e) => s + (parseFloat(e.rupees) || 0), 0);
+}
+
+function renderRewardsCard() {
+  const el = document.getElementById('rewards-card-container');
+  if (!el) return;
+  const log     = JSON.parse(localStorage.getItem(REWARDS_LOG_KEY) || '[]');
+  const total   = log.reduce((s, e) => s + (parseFloat(e.rupees)||0), 0);
+  const today   = todayISO();
+  const todayAmt = log.filter(e => e.date === today).reduce((s, e) => s + (parseFloat(e.rupees)||0), 0);
+  const recent  = [...log].reverse().slice(0, 8);
+
+  const fmt = n => '₹' + n.toFixed(2).replace(/\.00$/, '');
+  const typeIcon = t => t === 'task' ? '✅' : t === 'timer' ? '⏱️' : t === 'badge' ? '🏅' : '⭐';
+
+  el.innerHTML = `<div class="rewards-card">
+    <div class="rewards-balance-label">My Savings Account</div>
+    <div class="rewards-balance">${fmt(total)}</div>
+    ${todayAmt > 0 ? `<div class="rewards-today">✨ +${fmt(todayAmt)} earned today</div>` : ''}
+    ${recent.length > 0 ? `
+      <div class="rewards-feed">
+        ${recent.map(e => `<div class="rewards-feed-item">
+          <span>${typeIcon(e.type)}</span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.description}</span>
+          <span class="rewards-feed-amount">+${fmt(e.rupees)}</span>
+        </div>`).join('')}
+      </div>` : `<div class="rewards-empty">Complete tasks to start earning! 🌟</div>`}
+  </div>`;
+}
+
+function renderParentRewards() {
+  const el = document.getElementById('pv-rewards');
+  if (!el) return;
+  const log = JSON.parse(localStorage.getItem(REWARDS_LOG_KEY) || '[]');
+  const total = log.reduce((s, e) => s + (parseFloat(e.rupees)||0), 0);
+  const fmt = n => '₹' + n.toFixed(2).replace(/\.00$/, '');
+  const typeIcon = t => t === 'task' ? '✅' : t === 'timer' ? '⏱️' : t === 'badge' ? '🏅' : '⭐';
+
+  if (log.length === 0) {
+    el.innerHTML = '<div style="color:#9CA3AF;font-size:.85rem;">No earnings yet — Sarah earns when she completes tasks and badges.</div>';
+    return;
+  }
+
+  // Group by date (last 7 days)
+  const byDate = {};
+  [...log].reverse().forEach(e => { (byDate[e.date] = byDate[e.date]||[]).push(e); });
+  const entries = Object.entries(byDate).slice(0, 7);
+
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="font-size:1.5rem;font-weight:900;color:#059669;">${fmt(total)}</div>
+      <div style="font-size:.78rem;color:#6B7280;font-weight:700;">total balance</div>
+    </div>
+    ${entries.map(([date, items]) => {
+      const dayTotal = items.reduce((s, e) => s + (parseFloat(e.rupees)||0), 0);
+      return `<div style="margin-bottom:10px;">
+        <div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">
+          ${new Date(date).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})} · ${fmt(dayTotal)}
+        </div>
+        ${items.map(e => `<div class="pv-rewards-row">
+          <span>${typeIcon(e.type)}</span>
+          <span style="flex:1;font-weight:600;color:#374151;">${e.description}</span>
+          <span class="pv-rewards-amount">+${fmt(e.rupees)}</span>
+        </div>`).join('')}
+      </div>`;
+    }).join('')}`;
 }
 
 // ═══════════════════════════════════════════════════════════
