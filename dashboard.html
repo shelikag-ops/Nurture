@@ -87,6 +87,21 @@
     .card-title { font-size:1.05rem; font-weight:800; color:#2D3047; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
 
     /* ── END-OF-DAY CARD ── */
+    /* ── Curriculum Progress Card ── */
+    .progress-card { margin-bottom:16px; }
+    .progress-grid { display:flex; flex-direction:column; gap:11px; }
+    .prog-subject-row { display:flex; align-items:center; gap:10px; }
+    .prog-subject-icon { font-size:1.25rem; flex-shrink:0; width:28px; text-align:center; }
+    .prog-subject-info { flex:1; min-width:0; }
+    .prog-subject-name { font-size:.72rem; font-weight:800; color:#9CA3AF; text-transform:uppercase; letter-spacing:.06em; line-height:1.2; }
+    .prog-subject-detail { font-size:.82rem; color:#374151; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.4; }
+    .prog-mini-bar { height:4px; background:#F3F4F6; border-radius:10px; margin-top:4px; overflow:hidden; }
+    .prog-mini-fill { height:100%; border-radius:10px; transition:width .7s cubic-bezier(.4,0,.2,1); }
+    .prog-subject-badge { font-size:.7rem; font-weight:800; padding:3px 9px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
+    .prog-divider { height:1px; background:#F3F4F6; margin:2px 0; }
+    /* Notion sync badge */
+    .notion-sync-badge { display:none; align-items:center; gap:4px; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); border-radius:20px; padding:4px 10px; font-size:.72rem; font-weight:800; color:rgba(255,255,255,.9); cursor:default; }
+    .notion-sync-dot { width:7px; height:7px; border-radius:50%; background:#FCD34D; animation:pulse 2s infinite; }
     .eod-card { background:white; border-radius:20px; padding:22px; margin-bottom:16px; box-shadow:0 2px 12px rgba(0,0,0,.06); display:none; }
     .eod-card.visible { display:block; }
     .eod-card .card-title { margin-bottom:14px; }
@@ -663,6 +678,7 @@
         <button class="voice-timer-stop" onclick="voiceStopTimer()">Stop ■</button>
       </div>
       <div class="hours-pill" id="hours-pill">⏱️ <span id="hours-pill-txt">0m today</span></div>
+      <div class="notion-sync-badge" id="notion-sync-badge"><div class="notion-sync-dot"></div><span id="notion-sync-txt">0 pending</span></div>
       <div class="nsf-pill" id="nsf-pill">🎯 NSF in <span id="nsf-days">–</span> days</div>
     </div>
   </div>
@@ -770,6 +786,9 @@
     <div class="prog-track"><div class="prog-fill" id="vocab-bar" style="width:0%;background:linear-gradient(90deg,#06D6A0,#1B9AAA);"></div></div>
     <div class="prog-note" id="vocab-note-txt"></div>
   </div>
+
+  <!-- CURRICULUM PROGRESS -->
+  <div id="progress-card-container"></div>
 
   <!-- WEEKLY SOCIAL CHALLENGE -->
   <div id="challenge-card-container"></div>
@@ -1842,6 +1861,7 @@ function render() {
   refreshBanner(done, total);
   restoreTimerDisplays();
   renderEndOfDayCard();
+  renderProgressCard();
 
   // Wins
   renderWins(dayKey(-1), (dow+6)%7, PLAN, ACFG);
@@ -1989,6 +2009,20 @@ function toggle(id, dateKey) {
   const done=document.querySelectorAll(".task-item.done").length;
   refreshBanner(done,all);
   if(isDone&&done===all&&all>0) celebrate();
+
+  // ── Queue to Notion Activity Log when task is completed ──
+  if (isDone) {
+    const meta = _taskMeta[id] || { text: id, subject: 'General' };
+    notionQueueAdd({
+      activity: meta.text.replace(/\s*—\s*\d+\s*min.*/i, '').trim(),
+      subject:  NOTION_SUBJECT_MAP[meta.subject] || meta.subject || 'General',
+      type:     'Planned',
+      date:     todayISO(),
+      week:     isoWeekStr(new Date()),
+      duration: parseDurationFromTask(meta.text) || null,
+      source:   'task-complete'
+    });
+  }
 }
 
 function celebrate() {
@@ -3778,6 +3812,18 @@ function confirmLogTime() {
   log[`${taskId}__text`] = (_taskMeta[taskId] || {}).text || taskId;
   save(timeKey, log);
   updateHoursPill();
+
+  // ── Queue timed session to Notion Activity Log ──
+  const _tmeta = _taskMeta[taskId] || { text: taskId, subject: 'General' };
+  notionQueueAdd({
+    activity: _tmeta.text.replace(/\s*—\s*\d+\s*min.*/i, '').trim(),
+    subject:  NOTION_SUBJECT_MAP[_tmeta.subject] || _tmeta.subject || 'General',
+    type:     'Planned',
+    date:     todayISO(),
+    week:     isoWeekStr(new Date()),
+    duration: mins,
+    source:   'timer'
+  });
   // Reset timer
   delete _timers[taskId];
   _timerConfId = null;
@@ -3895,6 +3941,116 @@ function deleteCustomTask(id) {
   render();
 }
 
+// ═══════════════════════════════════════════════════════════
+//  CURRICULUM PROGRESS CARD
+// ═══════════════════════════════════════════════════════════
+function renderProgressCard() {
+  const el = document.getElementById('progress-card-container');
+  if (!el) return;
+  const cfg  = getActiveCFG();
+  const w    = cfg.week;
+  const plat = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
+
+  const sciPct    = Math.round((cfg.scienceComplete / cfg.scienceTotal) * 100);
+  const vocPct    = Math.round((cfg.vocabDone / cfg.vocabTotal) * 100);
+
+  // Chess — prefer ChessKid (primary platform)
+  const ck      = plat.chessKid  || {};
+  const li      = plat.lichess   || {};
+  const ixl     = plat.ixl       || {};
+  const chessRating = ck.rating || li.rating || null;
+  const chessDetail = chessRating
+    ? `ChessKid ${ck.rating ? ck.rating : ''}${li.rating ? ' · Lichess ' + li.rating : ''}`
+    : 'No rating synced yet';
+  const chessBadge  = chessRating ? `⭐ ${chessRating}` : null;
+
+  // IXL
+  const ixlDetail = ixl.lastSkill
+    ? `${ixl.lastSkill}${ixl.smartScore ? ' · SmartScore ' + ixl.smartScore : ''}`
+    : (w.ixl && w.ixl.skill ? w.ixl.skill : 'No session today');
+
+  // Reading
+  const currentBook = (w.book || '').replace(/\(.*\)/, '').trim() || 'No book set this week';
+
+  // Science in-progress label (trim to fit)
+  const sciDetail = `${cfg.scienceComplete}/${cfg.scienceTotal} chapters · ${(cfg.scienceInProgress || '').replace(/— .* \(today\)/i, '').trim() || 'Ch ' + (cfg.scienceComplete + 1)}`;
+
+  const rows = [
+    { icon:'🔬', name:'Science',          detail: sciDetail,                     pct: sciPct,  color:'#10B981', badge: sciPct + '%' },
+    { icon:'🐉', name:'Beast Academy',    detail: w.ba && w.ba.book ? `${w.ba.book} · ${w.ba.chapter || '—'}` : '—', pct: null, color:'#F59E0B', badge: null },
+    { icon:'📘', name:'Singapore Math',   detail: w.sm && w.sm.chapter ? `${w.sm.chapter}` + (w.sm.topic ? ' · ' + w.sm.topic : '') : '—', pct: null, color:'#3B82F6', badge: null },
+    { icon:'📊', name:'IXL',             detail: ixlDetail,                      pct: null,    color:'#6366F1', badge: ixl.smartScore ? ixl.smartScore : null },
+    { icon:'📝', name:'Vocabulary',       detail: `${cfg.vocabDone.toLocaleString()} / ${cfg.vocabTotal.toLocaleString()} words`, pct: vocPct, color:'#8B5CF6', badge: vocPct + '%' },
+    { icon:'♟️', name:'Chess',            detail: chessDetail,                   pct: null,    color:'#374151', badge: chessBadge },
+    { icon:'📖', name:'Reading',          detail: currentBook,                   pct: null,    color:'#EC4899', badge: null },
+  ];
+
+  const rowsHTML = rows.map((r, i) => `
+    ${i > 0 ? '<div class="prog-divider"></div>' : ''}
+    <div class="prog-subject-row">
+      <div class="prog-subject-icon">${r.icon}</div>
+      <div class="prog-subject-info">
+        <div class="prog-subject-name">${r.name}</div>
+        <div class="prog-subject-detail" title="${r.detail}">${r.detail}</div>
+        ${r.pct !== null ? `<div class="prog-mini-bar"><div class="prog-mini-fill" data-pct="${r.pct}" style="width:0%;background:${r.color};"></div></div>` : ''}
+      </div>
+      ${r.badge ? `<div class="prog-subject-badge" style="background:${r.color}22;color:${r.color};">${r.badge}</div>` : ''}
+    </div>`).join('');
+
+  el.innerHTML = `<div class="card progress-card">
+    <div class="card-title">📊 Curriculum Progress</div>
+    <div class="progress-grid">${rowsHTML}</div>
+  </div>`;
+
+  // Animate bars after paint
+  setTimeout(() => {
+    el.querySelectorAll('.prog-mini-fill').forEach(b => {
+      const pct = b.dataset.pct;
+      requestAnimationFrame(() => { b.style.width = pct + '%'; });
+    });
+  }, 120);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  NOTION SYNC QUEUE
+//  Dashboard → Notion bridge: queues activity entries locally.
+//  The nightly sync task drains this queue into Notion Activity Log.
+// ═══════════════════════════════════════════════════════════
+const NOTION_QUEUE_KEY = 'hs-notion-queue';
+
+function notionQueueAdd(entry) {
+  try {
+    const queue = JSON.parse(localStorage.getItem(NOTION_QUEUE_KEY) || '[]');
+    // Deduplicate: don't add same activity+date+source twice (e.g. task toggled twice)
+    const key = `${entry.activity}|${entry.date}|${entry.source}`;
+    if (queue.some(q => `${q.activity}|${q.date}|${q.source}` === key)) return;
+    queue.push({ ...entry, queuedAt: new Date().toISOString() });
+    localStorage.setItem(NOTION_QUEUE_KEY, JSON.stringify(queue));
+    _updateNotionSyncBadge(queue.length);
+  } catch(e) { /* localStorage full */ }
+}
+
+function notionQueueRead() {
+  try { return JSON.parse(localStorage.getItem(NOTION_QUEUE_KEY) || '[]'); } catch { return []; }
+}
+
+function notionQueueClear() {
+  localStorage.removeItem(NOTION_QUEUE_KEY);
+  _updateNotionSyncBadge(0);
+}
+
+function _updateNotionSyncBadge(count) {
+  const badge = document.getElementById('notion-sync-badge');
+  const txt   = document.getElementById('notion-sync-txt');
+  if (!badge || !txt) return;
+  if (count > 0) {
+    txt.textContent = `${count} pending sync`;
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
 // ── INIT ──
 render();
 renderPrayerCard();
@@ -3902,6 +4058,8 @@ updateReviewBadge();
 renderNotifications();
 updateHoursPill();
 renderEndOfDayCard();
+renderProgressCard();
+_updateNotionSyncBadge(notionQueueRead().length);
 
 // ═══════════════════════════════════════════════════════════
 //  DEBATE PREP DOCS
