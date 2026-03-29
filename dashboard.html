@@ -365,6 +365,44 @@
     .task-cam-btn:hover { opacity:1; background:#F3F4F6; }
     .task-item.done .task-cam-btn { opacity:.25; }
 
+    /* ── TASK TIMER ── */
+    .task-timer-btn { flex-shrink:0; display:flex; align-items:center; gap:3px; border-radius:10px; padding:5px 7px; font-size:.78rem; font-weight:800; cursor:pointer; min-height:38px; transition:background .15s,color .15s,border-color .15s; opacity:.38; background:none; border:1.5px solid transparent; font-family:'Nunito',sans-serif; color:#6B7280; white-space:nowrap; }
+    .task-timer-btn:hover { opacity:1; background:#F3F4F6; }
+    .task-timer-btn.running { opacity:1; background:#EFF6FF; color:#2563EB; border-color:#BFDBFE; }
+    .task-timer-btn.paused  { opacity:1; background:#FFF7ED; color:#C2410C; border-color:#FDBA74; }
+    .task-timer-btn.logged  { opacity:.7; background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
+    .t-icon { font-size:.95rem; }
+    .t-disp { font-size:.76rem; font-weight:900; min-width:26px; }
+    .task-timer-stop { flex-shrink:0; background:none; border:none; font-size:1rem; cursor:pointer; opacity:0; pointer-events:none; min-width:28px; min-height:38px; display:flex; align-items:center; justify-content:center; padding:2px; transition:opacity .2s; }
+    .task-timer-stop.visible { opacity:.55; pointer-events:auto; }
+    .task-timer-stop.visible:hover { opacity:1; }
+
+    /* ── CUSTOM TASKS ── */
+    .task-item.custom-task { background:#FFFBEB; border:1.5px dashed #FCD34D; }
+    .task-item.custom-task:hover { background:#FEF3C7; }
+    .custom-task-del { flex-shrink:0; background:none; border:none; font-size:.9rem; color:#D1D5DB; cursor:pointer; padding:4px 5px; min-height:38px; display:flex; align-items:center; }
+    .custom-task-del:hover { color:#EF4444; }
+    .add-custom-trigger { display:flex; align-items:center; gap:8px; color:#7C3AED; background:rgba(124,58,237,.05); border:2px dashed rgba(124,58,237,.25); border-radius:11px; padding:10px 14px; font-family:'Nunito',sans-serif; font-size:.88rem; font-weight:700; cursor:pointer; width:100%; margin-top:10px; transition:background .15s; box-sizing:border-box; }
+    .add-custom-trigger:hover { background:rgba(124,58,237,.1); }
+    .add-custom-row { display:none; gap:8px; margin-top:8px; }
+    .add-custom-row.open { display:flex; }
+    .add-custom-input { flex:1; background:#F9FAFB; border:2px solid #E5E7EB; border-radius:10px; padding:10px 13px; font-family:'Nunito',sans-serif; font-size:.92rem; font-weight:600; outline:none; color:#2D3047; }
+    .add-custom-input:focus { border-color:#7C3AED; background:white; }
+    .add-custom-btn { background:#7C3AED; color:white; border:none; border-radius:10px; padding:10px 18px; font-family:'Nunito',sans-serif; font-weight:800; font-size:.88rem; cursor:pointer; white-space:nowrap; }
+
+    /* ── TIMER CONFIRM MODAL ── */
+    .timer-conf-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:3000; align-items:center; justify-content:center; padding:20px; }
+    .timer-conf-overlay.open { display:flex; }
+    .timer-conf-box  { background:white; border-radius:24px; padding:28px 24px; width:100%; max-width:360px; }
+    .timer-conf-head { font-size:1.05rem; font-weight:900; color:#2D3047; margin-bottom:5px; }
+    .timer-conf-task { font-size:.85rem; color:#6B7280; font-weight:600; line-height:1.45; margin-bottom:22px; }
+    .timer-conf-row  { display:flex; align-items:center; gap:12px; margin-bottom:24px; }
+    .timer-conf-inp  { width:76px; background:#F5F3FF; border:2.5px solid #7C3AED; border-radius:10px; padding:10px; font-family:'Nunito',sans-serif; font-size:1.4rem; font-weight:900; color:#5B21B6; text-align:center; outline:none; }
+    .timer-conf-lbl  { font-size:.9rem; font-weight:700; color:#6B7280; line-height:1.4; }
+    .timer-conf-btns { display:flex; gap:10px; }
+    .timer-conf-log  { flex:1; background:linear-gradient(135deg,#7C3AED,#C026D3); color:white; border:none; border-radius:12px; padding:13px; font-family:'Nunito',sans-serif; font-size:.95rem; font-weight:800; cursor:pointer; }
+    .timer-conf-skip { background:#F3F4F6; color:#6B7280; border:none; border-radius:12px; padding:13px 16px; font-family:'Nunito',sans-serif; font-size:.9rem; font-weight:700; cursor:pointer; }
+
     /* submission modal */
     .sub-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:2000; overflow-y:auto; padding:20px; }
     .sub-overlay.open { display:flex; align-items:flex-start; justify-content:center; }
@@ -537,6 +575,13 @@
     .voice-action-chip { display:inline-flex; align-items:center; gap:5px;
       background:#D1FAE5; color:#065F46; border-radius:20px;
       padding:4px 12px; font-size:.78rem; font-weight:800; margin-top:4px; }
+
+    .voice-hints-box { display:flex; flex-direction:column; gap:5px; }
+    .voice-hints-label { font-size:.7rem; font-weight:800; color:#9CA3AF; text-transform:uppercase; letter-spacing:.06em; }
+    .voice-hint-pill { display:inline-flex; align-items:center; gap:5px; background:#F3F4F6;
+      border-radius:20px; padding:5px 11px; font-size:.78rem; font-weight:700; color:#4B5563;
+      cursor:pointer; transition:background .15s; }
+    .voice-hint-pill:active { background:#E5E7EB; }
 
     /* Active subject timer badge — shown in header */
     .voice-timer-badge { background:rgba(255,255,255,.28); border:2px solid rgba(255,255,255,.45);
@@ -886,6 +931,15 @@
   <div class="voice-status-row">
     <div class="voice-status-dot" id="voice-dot"></div>
     <div class="voice-status-txt" id="voice-status-txt">Tap the mic and speak</div>
+  </div>
+  <div class="voice-hints-box" id="voice-hints-box">
+    <div class="voice-hints-label">Try saying…</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;">
+      <span class="voice-hint-pill">✅ I finished math</span>
+      <span class="voice-hint-pill">⏱️ Start timer for reading</span>
+      <span class="voice-hint-pill">⏹ Stop timer for science</span>
+      <span class="voice-hint-pill">✨ Add task chess puzzles</span>
+    </div>
   </div>
   <div class="voice-transcript-box" id="voice-transcript-box"></div>
   <div class="voice-reply-box"      id="voice-reply-box"></div>
@@ -1710,6 +1764,7 @@ function render() {
       t.forEach((task,i)=>{
         const id=`${s}-${i}`, isDone=!!state[id];
         if(isDone)done++; total++;
+        _taskMeta[id] = { text: task, subject: s };
         // For VocabularyStars task, show the last logged word inline
         let taskExtra = '';
         if (s === 'Vocabulary' && task.toLowerCase().includes('vocabularystars')) {
@@ -1722,6 +1777,8 @@ function render() {
           <div class="task-checkbox">${isDone?"✓":""}</div>
           <div class="task-text">${task}${taskExtra}</div>
           <div class="task-cam-btn" title="Submit your work" onclick="event.stopPropagation();openSubmitModal('${id}','${task}','${s}')">📷</div>
+          <button class="task-timer-btn" id="tbtn-${id}" title="Start timer" onclick="event.stopPropagation();timerBtnClick('${id}')"><span class="t-icon">⏱</span><span class="t-disp" id="tdisp-${id}"></span></button>
+          <button class="task-timer-stop" id="tstop-${id}" title="Stop &amp; log time" onclick="event.stopPropagation();timerStopClick('${id}')">⏹</button>
         </div>`;
       });
       if (s === "Debate") {
@@ -1731,9 +1788,38 @@ function render() {
     });
   }
 
+  // ── Custom tasks (Sarah's own) ──────────────────────────
+  const customTasks = loadCustomTasks();
+  if (customTasks.length || !dayPlan) {
+    planHTML += `<div class="subject-block"><div class="subject-header" style="background:#D97706;">✨ My Own Tasks</div>`;
+    customTasks.forEach(ct => {
+      const isDone = !!state[ct.id];
+      if(isDone)done++; total++;
+      _taskMeta[ct.id] = { text: ct.text, subject: 'Custom' };
+      planHTML += `<div class="task-item custom-task${isDone?" done":""}" id="t-${ct.id}" onclick="toggle('${ct.id}','${todayK}')">
+        <div class="task-checkbox">${isDone?"✓":""}</div>
+        <div class="task-text">${ct.text}</div>
+        <div class="task-cam-btn" title="Submit your work" onclick="event.stopPropagation();openSubmitModal('${ct.id}','${ct.text}','Custom')">📷</div>
+        <button class="task-timer-btn" id="tbtn-${ct.id}" title="Start timer" onclick="event.stopPropagation();timerBtnClick('${ct.id}')"><span class="t-icon">⏱</span><span class="t-disp" id="tdisp-${ct.id}"></span></button>
+        <button class="task-timer-stop" id="tstop-${ct.id}" title="Stop &amp; log time" onclick="event.stopPropagation();timerStopClick('${ct.id}')">⏹</button>
+        <button class="custom-task-del" title="Remove task" onclick="event.stopPropagation();deleteCustomTask('${ct.id}')">✕</button>
+      </div>`;
+    });
+    planHTML += `</div>`;
+  }
+
+  // ── Add your own task button ─────────────────────────────
+  planHTML += `
+    <button class="add-custom-trigger" id="add-custom-trigger" onclick="showAddCustomInput()">✨ Add your own task</button>
+    <div class="add-custom-row" id="add-custom-row">
+      <input class="add-custom-input" id="custom-task-input" placeholder="What are you working on?" onkeydown="if(event.key==='Enter')addCustomTask()">
+      <button class="add-custom-btn" onclick="addCustomTask()">Add ✓</button>
+    </div>`;
+
   document.getElementById("plan-content").innerHTML = planHTML;
   document.getElementById("stat-tasks").textContent = total;
   refreshBanner(done, total);
+  restoreTimerDisplays();
 
   // Wins
   renderWins(dayKey(-1), (dow+6)%7, PLAN, ACFG);
@@ -3523,6 +3609,157 @@ async function syncToNotion() {
   }
 }
 
+// ═══════════════════════════════════════════════════════════
+//  TASK TIMER
+// ═══════════════════════════════════════════════════════════
+const _timers   = {};    // taskId → { accumulated(ms), startedAt, running, interval }
+const _taskMeta = {};    // taskId → { text, subject } — populated during render
+
+function timerBtnClick(taskId) {
+  const { text } = _taskMeta[taskId] || { text: taskId };
+  if (!_timers[taskId]) _timers[taskId] = { accumulated:0, startedAt:null, running:false, interval:null };
+  const t = _timers[taskId];
+  if (!t.running) {
+    t.startedAt = Date.now();
+    t.running   = true;
+    t.interval  = setInterval(() => _timerTick(taskId), 1000);
+  } else {
+    t.accumulated += Date.now() - t.startedAt;
+    t.startedAt    = null;
+    t.running      = false;
+    clearInterval(t.interval);
+  }
+  _timerRefreshBtn(taskId);
+}
+
+function timerStopClick(taskId) {
+  const t = _timers[taskId];
+  if (!t) return;
+  if (t.running) {
+    t.accumulated += Date.now() - t.startedAt;
+    t.running = false;
+    clearInterval(t.interval);
+  }
+  const mins = Math.max(1, Math.round(t.accumulated / 60000));
+  const { text } = _taskMeta[taskId] || { text: taskId };
+  document.getElementById('timerConfTaskName').textContent = text;
+  document.getElementById('timerConfMins').value = mins;
+  document.getElementById('timerConfOverlay').classList.add('open');
+  _timerConfId = taskId;
+}
+
+let _timerConfId = null;
+
+function confirmLogTime() {
+  if (!_timerConfId) return;
+  const mins = parseInt(document.getElementById('timerConfMins').value) || 1;
+  const taskId = _timerConfId;
+  // Save to daily time log
+  const now = new Date();
+  const timeKey = `hs-time-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const log = load(timeKey) || {};
+  log[taskId] = (log[taskId] || 0) + mins;
+  log[`${taskId}__text`] = (_taskMeta[taskId] || {}).text || taskId;
+  save(timeKey, log);
+  // Reset timer
+  delete _timers[taskId];
+  _timerConfId = null;
+  document.getElementById('timerConfOverlay').classList.remove('open');
+  // Flash confirmation on button
+  const btn = document.getElementById(`tbtn-${taskId}`);
+  const disp = document.getElementById(`tdisp-${taskId}`);
+  if (btn)  { btn.className = 'task-timer-btn logged'; btn.querySelector('.t-icon').textContent = '✓'; }
+  if (disp) { disp.textContent = `${mins}m`; }
+  setTimeout(() => {
+    if (btn)  { btn.className = 'task-timer-btn'; btn.querySelector('.t-icon').textContent = '⏱'; }
+    if (disp) disp.textContent = '';
+    const stop = document.getElementById(`tstop-${taskId}`);
+    if (stop) stop.classList.remove('visible');
+  }, 3000);
+}
+
+function closeTimerConfirm() {
+  if (_timerConfId) { delete _timers[_timerConfId]; _timerConfId = null; }
+  document.getElementById('timerConfOverlay').classList.remove('open');
+}
+
+function _timerTick(taskId) {
+  const t = _timers[taskId];
+  if (!t) return;
+  const elapsed = t.accumulated + (t.running ? Date.now() - t.startedAt : 0);
+  const m = Math.floor(elapsed/60000), s = Math.floor((elapsed%60000)/1000);
+  const disp = document.getElementById(`tdisp-${taskId}`);
+  if (disp) disp.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+function _timerRefreshBtn(taskId) {
+  const t = _timers[taskId];
+  if (!t) return;
+  const btn  = document.getElementById(`tbtn-${taskId}`);
+  const stop = document.getElementById(`tstop-${taskId}`);
+  if (!btn) return;
+  if (t.running) {
+    btn.className = 'task-timer-btn running';
+    btn.querySelector('.t-icon').textContent = '⏸';
+    btn.title = 'Tap to pause';
+  } else {
+    btn.className = 'task-timer-btn paused';
+    btn.querySelector('.t-icon').textContent = '▶';
+    btn.title = 'Tap to resume';
+  }
+  if (stop) stop.classList.toggle('visible', t.running || t.accumulated > 0);
+}
+
+function restoreTimerDisplays() {
+  for (const [taskId, t] of Object.entries(_timers)) {
+    const elapsed = t.accumulated + (t.running ? Date.now() - t.startedAt : 0);
+    if (elapsed === 0) continue;
+    const m = Math.floor(elapsed/60000), s = Math.floor((elapsed%60000)/1000);
+    const disp = document.getElementById(`tdisp-${taskId}`);
+    if (disp) disp.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    _timerRefreshBtn(taskId);
+  }
+}
+
+// Expose per-task timer start/stop for voice assistant (distinct from legacy vaStartTimer/vaStopTimer)
+function vaStartTaskTimer(taskId) {
+  if (!_timers[taskId] || !_timers[taskId].running) timerBtnClick(taskId);
+}
+function vaStopTaskTimer(taskId) {
+  if (_timers[taskId] && (_timers[taskId].running || _timers[taskId].accumulated > 0)) timerStopClick(taskId);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CUSTOM TASKS
+// ═══════════════════════════════════════════════════════════
+function _customKey() {
+  const n = new Date();
+  return `hs-custom-${n.getFullYear()}-${n.getMonth()}-${n.getDate()}`;
+}
+function loadCustomTasks() { return load(_customKey()) || []; }
+function saveCustomTasks(tasks) { save(_customKey(), tasks); }
+
+function showAddCustomInput() {
+  document.getElementById('add-custom-trigger').style.display = 'none';
+  document.getElementById('add-custom-row').classList.add('open');
+  setTimeout(() => document.getElementById('custom-task-input').focus(), 50);
+}
+
+function addCustomTask() {
+  const input = document.getElementById('custom-task-input');
+  const text  = (input?.value || '').trim();
+  if (!text) return;
+  const tasks = loadCustomTasks();
+  tasks.push({ id: `custom-${Date.now()}`, text });
+  saveCustomTasks(tasks);
+  render();
+}
+
+function deleteCustomTask(id) {
+  saveCustomTasks(loadCustomTasks().filter(t => t.id !== id));
+  render();
+}
+
 // ── INIT ──
 render();
 renderPrayerCard();
@@ -3734,6 +3971,13 @@ function vaSetState(state, msg='') {
 
 function vaShowOverlay() {
   document.getElementById('voice-overlay')?.classList.add('show');
+  // Reset hints + clear previous reply when overlay opens fresh
+  const hints = document.getElementById('voice-hints-box');
+  if (hints) hints.style.display = 'flex';
+  const reply = document.getElementById('voice-reply-box');
+  if (reply) { reply.style.display = 'none'; reply.innerHTML = ''; }
+  const trans = document.getElementById('voice-transcript-box');
+  if (trans) { trans.style.display = 'none'; trans.textContent = ''; }
   VA.open = true;
 }
 function vaHideTranscript() {
@@ -3741,6 +3985,9 @@ function vaHideTranscript() {
   if (el) el.style.display='none';
 }
 function vaShowTranscript(text) {
+  // Hide hints once the user has spoken
+  const hints = document.getElementById('voice-hints-box');
+  if (hints) hints.style.display = 'none';
   const el = document.getElementById('voice-transcript-box');
   if (!el) return;
   el.textContent = `"${text}"`;
@@ -3828,27 +4075,43 @@ async function vaHandleTranscript(text) {
   const activeSub   = VA.activeSubject ? VA.activeSubject.subject : 'none';
   const redoSubs    = loadSubs().filter(s => s.status === 'redo').map(s => `${s.subject}: "${s.taskText}"`);
 
+  // Build task list for context
+  const taskList = Object.entries(_taskMeta).map(([id, m]) => `${id}: "${m.text}" (${m.subject})`).join('\n');
+  const activeTimers = Object.entries(_timers)
+    .filter(([,t]) => t.running || t.accumulated > 0)
+    .map(([id, t]) => {
+      const mins = Math.round((t.accumulated + (t.running ? Date.now()-t.startedAt : 0)) / 60000);
+      return `${id} (${mins}m, ${t.running ? 'running' : 'paused'})`;
+    }).join(', ') || 'none';
+
   const systemPrompt = `You are Aria, a warm and encouraging learning buddy for Sarah, a 7–8 year old homeschool student.
 Keep all replies SHORT — 1–2 sentences max, warm and fun. Use occasional emojis. Talk like a friendly older sister.
 
 Sarah can ask you to:
-- Start or stop a subject timer
-- Skip a subject/task today
-- Get help when a photo submission was unclear
+- Start a timer for a task ("start timer for math", "I'm starting chess")
+- Stop or pause a timer ("stop", "pause math timer")
+- Mark a task as done ("I finished reading", "done with vocab")
+- Add a custom task ("add task: free reading", "I also did painting")
+- Get help with a redo submission
 
-Always respond with ONLY a JSON object — no other text — in this exact format:
+Always respond with ONLY a JSON object — no other text:
 {
   "reply": "<1–2 short warm sentences>",
   "action": {
-    "type": "<START_SUBJECT | STOP_SUBJECT | SKIP_SUBJECT | SUBMISSION_HELP | NONE>",
-    "subject": "<canonical subject name — only for START_SUBJECT and SKIP_SUBJECT>"
+    "type": "<START_TIMER | STOP_TIMER | MARK_DONE | ADD_TASK | SUBMISSION_HELP | NONE>",
+    "taskId": "<exact task id from the list below — for START_TIMER, STOP_TIMER, MARK_DONE>",
+    "taskText": "<free text — only for ADD_TASK>"
   }
 }
 
-Context right now:
-- Time: ${timeStr}
-- Active subject timer: ${activeSub}
-- Pending redo submissions: ${redoSubs.length ? redoSubs.join('; ') : 'none'}`;
+Today's tasks (id: text):
+${taskList || 'No tasks loaded yet.'}
+
+Active timers right now: ${activeTimers}
+Current time: ${timeStr}
+Pending redo submissions: ${redoSubs.length ? redoSubs.join('; ') : 'none'}
+
+For START_TIMER / STOP_TIMER / MARK_DONE: pick the best matching taskId from the list above based on what Sarah says. If she says a subject name like "math", pick the first task in that subject.`;
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -3901,12 +4164,43 @@ Context right now:
 
 // ── Action executor ──────────────────────────────────────────
 function vaExecuteAction({ reply, action }) {
-  const type    = action?.type || 'NONE';
-  const subject = action?.subject ? canonSubject(action.subject) : null;
+  const type     = action?.type || 'NONE';
+  const taskId   = action?.taskId;
+  const taskText = action?.taskText;
+  // Legacy subject-based actions
+  const subject  = action?.subject ? canonSubject(action.subject) : null;
 
-  // Build reply HTML
   let chipHtml = '';
-  if (type === 'START_SUBJECT' && subject) {
+
+  if (type === 'START_TIMER' && taskId) {
+    vaStartTaskTimer(taskId);
+    const label = (_taskMeta[taskId] || {}).text || taskId;
+    chipHtml = `<div class="voice-action-chip">⏱️ Timer started: ${label}</div>`;
+
+  } else if (type === 'STOP_TIMER' && taskId) {
+    vaStopTaskTimer(taskId);
+    const label = (_taskMeta[taskId] || {}).text || taskId;
+    chipHtml = `<div class="voice-action-chip">⏹ Timer stopped: ${label}</div>`;
+
+  } else if (type === 'MARK_DONE' && taskId) {
+    const now = new Date();
+    const todayK = `hs-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+    const state = load(todayK) || {};
+    state[taskId] = true;
+    save(todayK, state);
+    render();
+    const label = (_taskMeta[taskId] || {}).text || taskId;
+    chipHtml = `<div class="voice-action-chip">✅ Done: ${label}</div>`;
+
+  } else if (type === 'ADD_TASK' && taskText) {
+    const tasks = loadCustomTasks();
+    tasks.push({ id: `custom-${Date.now()}`, text: taskText });
+    saveCustomTasks(tasks);
+    render();
+    chipHtml = `<div class="voice-action-chip">✨ Added: ${taskText}</div>`;
+
+  } else if (type === 'START_SUBJECT' && subject) {
+    // Legacy — keep working
     chipHtml = `<div class="voice-action-chip">⏱️ Started: ${subject}</div>`;
     vaStartTimer(subject);
   } else if (type === 'STOP_SUBJECT') {
@@ -3919,8 +4213,7 @@ function vaExecuteAction({ reply, action }) {
   } else if (type === 'SUBMISSION_HELP') {
     const redos = loadSubs().filter(s => s.status === 'redo');
     if (redos.length) {
-      const r = redos[0];
-      chipHtml = `<div class="voice-action-chip">📸 Redo: ${r.subject}</div>`;
+      chipHtml = `<div class="voice-action-chip">📸 Redo: ${redos[0].subject}</div>`;
     }
   }
 
@@ -4086,5 +4379,22 @@ function vaSpeakText(text, onDone) {
 
 // Notion key field is now directly in the HTML — no dynamic injection needed.
 </script>
+
+<!-- ── TIMER CONFIRM MODAL ─────────────────────────────── -->
+<div class="timer-conf-overlay" id="timerConfOverlay">
+  <div class="timer-conf-box">
+    <div class="timer-conf-head">⏱ Log time for this task?</div>
+    <div class="timer-conf-task" id="timerConfTaskName"></div>
+    <div class="timer-conf-row">
+      <input class="timer-conf-inp" type="number" id="timerConfMins" min="1" max="999">
+      <span class="timer-conf-lbl">minutes<br>to log</span>
+    </div>
+    <div class="timer-conf-btns">
+      <button class="timer-conf-log"  onclick="confirmLogTime()">✅ Log it</button>
+      <button class="timer-conf-skip" onclick="closeTimerConfirm()">Discard</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
