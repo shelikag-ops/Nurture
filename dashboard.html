@@ -1177,9 +1177,13 @@
     <div class="panel-section">🐉 Beast Academy</div>
     <div class="panel-row">
       <div class="panel-field"><label class="panel-label">Book (e.g. 3D)</label><input class="panel-input" id="p-ba-book"></div>
-      <div class="panel-field"><label class="panel-label">Chapter (e.g. Ch 2: Estimation)</label><input class="panel-input" id="p-ba-chapter"></div>
+      <div class="panel-field"><label class="panel-label">Chapter (e.g. Ch 11: Fractions)</label><input class="panel-input" id="p-ba-chapter"></div>
     </div>
-    <div class="panel-field"><label class="panel-label">Detail (topics covered)</label><input class="panel-input" id="p-ba-detail"></div>
+    <div class="panel-row">
+      <div class="panel-field"><label class="panel-label">Chapters completed (e.g. 10)</label><input class="panel-input" id="p-ba-chapters-done" type="number" min="0" step="1" placeholder="0"></div>
+      <div class="panel-field"><label class="panel-label">Total chapters in book (e.g. 12)</label><input class="panel-input" id="p-ba-chapters-total" type="number" min="1" step="1" placeholder="12"></div>
+    </div>
+    <div class="panel-field"><label class="panel-label">Detail / lessons remaining note</label><input class="panel-input" id="p-ba-detail"></div>
 
     <div class="panel-section">📘 Singapore Math</div>
     <div class="panel-row">
@@ -1402,9 +1406,11 @@ function openPanel() {
   document.getElementById('p-vocab-done').value     = ac.vocabDone       || '';
   document.getElementById('p-vocab-target').value   = w.vocabTarget      || '';
   document.getElementById('p-vocab-note').value     = w.vocabNote        || '';
-  document.getElementById('p-ba-book').value        = w.ba.book          || '';
-  document.getElementById('p-ba-chapter').value     = w.ba.chapter       || '';
-  document.getElementById('p-ba-detail').value      = w.ba.detail        || '';
+  document.getElementById('p-ba-book').value          = w.ba.book              || '';
+  document.getElementById('p-ba-chapter').value       = w.ba.chapter           || '';
+  document.getElementById('p-ba-chapters-done').value = w.ba.chaptersDone  != null ? w.ba.chaptersDone  : '';
+  document.getElementById('p-ba-chapters-total').value= w.ba.chaptersTotal != null ? w.ba.chaptersTotal : '';
+  document.getElementById('p-ba-detail').value        = w.ba.detail            || '';
   document.getElementById('p-sm-chapter').value     = w.sm.chapter       || '';
   document.getElementById('p-sm-topic').value       = w.sm.topic         || '';
   document.getElementById('p-sm-detail').value      = w.sm.detail        || '';
@@ -1496,7 +1502,9 @@ function saveConfig() {
       bookNote:    v('p-book-note'),
       debateTheme: v('p-debate'),
       classes:     v('p-classes'),
-      ba:      { book:v('p-ba-book'),      chapter:v('p-ba-chapter'),  detail:v('p-ba-detail')  },
+      ba:      { book:v('p-ba-book'), chapter:v('p-ba-chapter'), detail:v('p-ba-detail'),
+                 chaptersDone:  n('p-ba-chapters-done')  ?? undefined,
+                 chaptersTotal: n('p-ba-chapters-total') ?? undefined },
       sm:      { chapter:v('p-sm-chapter'),topic:v('p-sm-topic'),      detail:v('p-sm-detail')  },
       ixl:     { skill:v('p-ixl-skill'),   detail:v('p-ixl-detail')                              },
       science: { chapter:v('p-sci-chapter'),part:v('p-sci-part')                                 },
@@ -3209,13 +3217,19 @@ function renderParentView() {
         ${ixl.lastSkill?`<span class="pv-tag" style="background:#6366F122;color:#4F46E5;">Last: ${ixl.lastSkill}${ixl.smartScore?' · SS '+ixl.smartScore:''}</span>`:''}
       </div></div>`;
     }
-    if (ba.currentBook || ba.chaptersComplete != null) {
-      const baPct = ba.chaptersComplete && ba.totalChapters ? Math.round(ba.chaptersComplete/ba.totalChapters*100) : null;
-      html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Beast Academy</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
-        ${ba.currentBook?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">Book ${ba.currentBook}</span>`:''}
-        ${ba.chaptersComplete!=null?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">${ba.chaptersComplete}/${ba.totalChapters||'?'} chapters${baPct?' ('+baPct+'%)':''}</span>`:''}
-        ${ba.currentChapter?`<span style="font-size:.76rem;color:#6B7280;align-self:center;">${ba.currentChapter}</span>`:''}
-      </div></div>`;
+    {
+      const pvBaDone  = cfg.week?.ba?.chaptersDone  != null ? cfg.week.ba.chaptersDone  : (ba.chaptersComplete ?? null);
+      const pvBaTotal = cfg.week?.ba?.chaptersTotal != null ? cfg.week.ba.chaptersTotal : (ba.totalChapters   ?? null);
+      const pvBaBook  = cfg.week?.ba?.book || ba.currentBook || null;
+      const pvBaChap  = cfg.week?.ba?.chapter || ba.currentChapter || null;
+      const pvBaPct   = pvBaDone != null && pvBaTotal ? Math.round(pvBaDone/pvBaTotal*100) : null;
+      if (pvBaBook || pvBaDone != null) {
+        html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Beast Academy</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${pvBaBook?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">Book ${pvBaBook}</span>`:''}
+          ${pvBaDone!=null?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">${pvBaDone}/${pvBaTotal||'?'} chapters done${pvBaPct?' ('+pvBaPct+'%)':''}</span>`:''}
+          ${pvBaChap?`<span style="font-size:.76rem;color:#6B7280;align-self:center;">In progress: ${pvBaChap}</span>`:''}
+        </div></div>`;
+      }
     }
     if (vs.totalWords || vs.level) {
       html += `<div><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">VocabularyStars</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
@@ -4309,10 +4323,12 @@ function renderProgressCard() {
   const chessDetail = chessParts.length ? chessParts.join(' · ') : 'Fetching from Lichess…';
   const chessBadge  = chessRating ? `⭐ ${chessRating}` : null;
 
-  // Beast Academy — prefer sync data over parent config
-  const baPct    = ba.chaptersComplete && ba.totalChapters ? Math.round(ba.chaptersComplete / ba.totalChapters * 100) : null;
-  const baDetail = ba.chaptersComplete != null
-    ? `${ba.currentBook || w.ba?.book || ''} · ${ba.chaptersComplete}/${ba.totalChapters || '?'} chapters · ${ba.currentChapter || w.ba?.chapter || ''}`
+  // Beast Academy — parent panel overrides take priority over sync data
+  const baDone   = w.ba?.chaptersDone  != null ? w.ba.chaptersDone  : (ba.chaptersComplete ?? null);
+  const baTotal  = w.ba?.chaptersTotal != null ? w.ba.chaptersTotal : (ba.totalChapters   ?? null);
+  const baPct    = baDone != null && baTotal ? Math.round(baDone / baTotal * 100) : null;
+  const baDetail = baDone != null
+    ? `${w.ba?.book || ba.currentBook || ''} · ${baDone}/${baTotal || '?'} chapters done · ${w.ba?.chapter || ba.currentChapter || ''}`
     : (w.ba?.book ? `${w.ba.book} · ${w.ba.chapter || ''}` : '—');
   const baBadge  = baPct != null ? baPct + '%' : null;
 
