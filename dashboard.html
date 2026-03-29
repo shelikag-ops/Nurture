@@ -3954,14 +3954,15 @@ function renderProgressCard() {
   const sciPct    = Math.round((cfg.scienceComplete / cfg.scienceTotal) * 100);
   const vocPct    = Math.round((cfg.vocabDone / cfg.vocabTotal) * 100);
 
-  // Chess — prefer ChessKid (primary platform)
-  const ck      = plat.chessKid  || {};
+  // Chess — Lichess public API (ChessKid has no public API)
   const li      = plat.lichess   || {};
   const ixl     = plat.ixl       || {};
-  const chessRating = ck.rating || li.rating || null;
-  const chessDetail = chessRating
-    ? `ChessKid ${ck.rating ? ck.rating : ''}${li.rating ? ' · Lichess ' + li.rating : ''}`
-    : 'No rating synced yet';
+  const chessRating = li.rating || null;
+  const chessParts = [];
+  if (li.classical) chessParts.push(`Classical ${li.classical}`);
+  if (li.puzzleRating) chessParts.push(`Puzzles ${li.puzzleRating} (${(li.puzzlesSolved||0).toLocaleString()} solved)`);
+  if (li.gamesWon) chessParts.push(`${li.gamesWon}W / ${(li.gamesPlayed||0) - (li.gamesWon||0)}L`);
+  const chessDetail = chessParts.length ? chessParts.join(' · ') : 'Fetching Lichess stats…';
   const chessBadge  = chessRating ? `⭐ ${chessRating}` : null;
 
   // IXL
@@ -4058,32 +4059,35 @@ async function fetchChessStats() {
   const today = todayISO();
   const plat  = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
 
-  // Only re-fetch if not already fetched today
-  if (plat.chessKid?.lastUpdated === today && plat.lichess?.lastUpdated === today) return;
+  // Only re-fetch if already done today
+  if (plat.lichess?.lastUpdated === today) return;
 
   try {
-    // Chess.com public API (no key needed)
-    const [ckRes, liRes] = await Promise.allSettled([
-      fetch('https://api.chess.com/pub/player/newsorenight/stats', { cache: 'no-cache' }),
-      fetch('https://lichess.org/api/user/Sarahbh', { headers: { Accept: 'application/json' }, cache: 'no-cache' })
-    ]);
+    // Lichess public API — no auth needed. ChessKid has no public API (privacy-restricted for kids).
+    const res = await fetch('https://lichess.org/api/user/Sarahbh', {
+      headers: { Accept: 'application/json' }, cache: 'no-cache'
+    });
+    if (!res.ok) return;
+    const li = await res.json();
 
-    if (ckRes.status === 'fulfilled' && ckRes.value.ok) {
-      const ck = await ckRes.value.json();
-      const rapid  = ck.chess_rapid?.last?.rating  || ck.chess_blitz?.last?.rating || null;
-      const games  = (ck.chess_rapid?.record?.win  || 0) + (ck.chess_rapid?.record?.loss || 0) + (ck.chess_rapid?.record?.draw || 0);
-      const wins   = ck.chess_rapid?.record?.win   || 0;
-      plat.chessKid = { rating: rapid, gamesPlayed: games, gamesWon: wins, lastUpdated: today };
-    }
+    // Pick best display rating (classical has most games; fall back to rapid/blitz)
+    const classical = li.perfs?.classical?.rating || null;
+    const rapid     = li.perfs?.rapid?.rating     || null;
+    const blitz     = li.perfs?.blitz?.rating     || null;
+    const puzzle    = li.perfs?.puzzle?.rating     || null;
+    const displayRating = classical || rapid || blitz;
 
-    if (liRes.status === 'fulfilled' && liRes.value.ok) {
-      const li = await liRes.value.json();
-      const blitz  = li.perfs?.blitz?.rating  || null;
-      const rapid  = li.perfs?.rapid?.rating  || null;
-      const rating = rapid || blitz;
-      const games  = li.count?.all || 0;
-      plat.lichess = { rating, gamesPlayed: games, lastUpdated: today };
-    }
+    plat.lichess = {
+      rating:        displayRating,
+      classical:     classical,
+      rapid:         rapid,
+      blitz:         blitz,
+      puzzleRating:  puzzle,
+      puzzlesSolved: li.perfs?.puzzle?.games || 0,
+      gamesPlayed:   li.count?.all  || 0,
+      gamesWon:      li.count?.win  || 0,
+      lastUpdated:   today
+    };
 
     localStorage.setItem('hs-platform-stats', JSON.stringify(plat));
     renderProgressCard(); // refresh card with live ratings
