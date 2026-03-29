@@ -1392,21 +1392,24 @@
                 // So seedIfEmpty('news-' + dateKey, ...) writes to localStorage key 'news-news-' + dateKey
                 // and getLocalStorage('news-' + dateKey) reads from 'news-news-' + dateKey  ✓
                 if (data.stories.length) {
+                    // Always overwrite story content from fresh JSON — user answers are stored separately
                     const s = data.stories[0];
-                    seedIfEmpty('news-' + dateKey, {
+                    const existingStory = getLocalStorage('news-' + dateKey) || {};
+                    setLocalStorage('news-' + dateKey, {
                         headline: s.headline, summary: s.summary,
                         bigWord: s.bigWord, bigWordDef: s.bigWordDef,
                         question: s.thinkQuestion,
-                        videoQuery: s.videoQuery
+                        videoQuery: s.videoQuery,
+                        // Preserve any user-written answers
+                        thinkAnswer: existingStory.thinkAnswer || '',
+                        answered: existingStory.answered || false
                     });
-                    // All-stories stored with direct key (no prefix wrapper) — read back the same way
-                    if (!localStorage.getItem('news-all-stories-' + dateKey)) {
-                        localStorage.setItem('news-all-stories-' + dateKey, JSON.stringify(data.stories));
-                    }
+                    // Always refresh all-stories list from JSON
+                    localStorage.setItem('news-all-stories-' + dateKey, JSON.stringify(data.stories));
                 }
                 if (data.videos && data.videos.length) {
-                    if (!localStorage.getItem('news-videos-' + dateKey))
-                        localStorage.setItem('news-videos-' + dateKey, JSON.stringify(data.videos));
+                    // Always overwrite video list from fresh JSON
+                    localStorage.setItem('news-videos-' + dateKey, JSON.stringify(data.videos));
                 }
                 if (data.infographic) {
                     // Always update infographic from fresh JSON (overwrite stale content)
