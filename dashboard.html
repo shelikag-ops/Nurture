@@ -86,6 +86,16 @@
     .card { background:white; border-radius:20px; padding:24px; margin-bottom:16px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
     .card-title { font-size:1.05rem; font-weight:800; color:#2D3047; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
 
+    /* ── END-OF-DAY CARD ── */
+    .eod-card { background:white; border-radius:20px; padding:22px; margin-bottom:16px; box-shadow:0 2px 12px rgba(0,0,0,.06); display:none; }
+    .eod-card.visible { display:block; }
+    .eod-card .card-title { margin-bottom:14px; }
+    .eod-win-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:.95rem; font-weight:600; color:#065F46; }
+    .eod-win-check { color:#06D6A0; font-size:1.2rem; }
+    .eod-stat-line { font-size:.95rem; font-weight:600; color:#374151; margin-bottom:6px; }
+    .eod-stat-line.highlight { color:#06D6A0; font-weight:700; }
+    .eod-closing-line { font-size:.95rem; font-weight:600; color:#1B9AAA; margin-top:12px; padding-top:12px; border-top:1px solid #E5E7EB; }
+
     /* ── GRID ── */
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
     @media(max-width:820px){ .grid-2{grid-template-columns:1fr;} .header h1{font-size:1.6rem;} }
@@ -952,6 +962,14 @@
 <button class="voice-fab" id="voice-fab" onclick="voiceToggle()" aria-label="Voice assistant">
   <span class="voice-fab-icon" id="voice-fab-icon">🎙️</span>
 </button>
+
+<!-- END-OF-DAY FEEDBACK CARD -->
+<div class="eod-card" id="eod-card">
+  <div class="card-title">🌟 Great work today, Sarah!</div>
+  <div id="eod-content">
+    <!-- Populated by renderEndOfDayCard() -->
+  </div>
+</div>
 
 </div><!-- end sarah-view -->
 
@@ -1823,6 +1841,7 @@ function render() {
   document.getElementById("stat-tasks").textContent = total;
   refreshBanner(done, total);
   restoreTimerDisplays();
+  renderEndOfDayCard();
 
   // Wins
   renderWins(dayKey(-1), (dow+6)%7, PLAN, ACFG);
@@ -1850,6 +1869,100 @@ function render() {
 
   // Social challenge card
   renderSocialChallenge();
+}
+
+function renderEndOfDayCard() {
+  const card = document.getElementById('eod-card');
+  const content = document.getElementById('eod-content');
+  if (!card || !content) return;
+
+  const now = new Date();
+  const todayKey = `hs-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const hour = now.getHours();
+  
+  // Check: show if after 3pm OR all tasks done
+  const tasksState = load(todayKey) || {};
+  const allTasks = document.querySelectorAll('.task-item');
+  const allDone = allTasks.length > 0 && Array.from(allTasks).every(t => t.classList.contains('done'));
+  const shouldShow = hour >= 15 || allDone;
+  
+  if (!shouldShow) {
+    card.classList.remove('visible');
+    return;
+  }
+
+  // Collect wins (completed tasks)
+  let wins = [];
+  
+  // Standard tasks from tasksState
+  for (const [key, val] of Object.entries(tasksState)) {
+    if (val === true && _taskMeta[key]) {
+      wins.push(_taskMeta[key].text);
+    }
+  }
+  
+  // Custom tasks from localStorage
+  const customKey = _customKey();
+  const customTasks = load(customKey) || [];
+  const customDoneKey = `hs-custom-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const customDoneState = load(customDoneKey) || {};
+  for (const task of customTasks) {
+    if (customDoneState[task.id] === true) {
+      wins.push(task.text);
+    }
+  }
+
+  // Time logged
+  const timeKey = `hs-time-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const timeLog = load(timeKey) || {};
+  const totalMins = Object.entries(timeLog)
+    .filter(([k]) => !k.endsWith('__text'))
+    .reduce((sum, [, v]) => sum + (parseInt(v) || 0), 0);
+
+  // Streak calculation (past 7 days going backwards)
+  let streak = 0;
+  let d = new Date(now);
+  for (let i = 0; i < 7; i++) {
+    const y = d.getFullYear();
+    const m = d.getMonth();
+    const dd = d.getDate();
+    const key = `hs-${y}-${m}-${dd}`;
+    const state = load(key) || {};
+    const hasDone = Object.values(state).some(v => v === true);
+    if (hasDone) {
+      streak++;
+    } else {
+      break;
+    }
+    d.setDate(d.getDate() - 1);
+  }
+
+  // Build HTML
+  let html = '';
+  
+  // Wins list
+  if (wins.length > 0) {
+    for (const win of wins) {
+      html += `<div class="eod-win-row"><span class="eod-win-check">✓</span> ${win}</div>`;
+    }
+    html += '';
+  }
+  
+  // Time logged
+  if (totalMins > 0) {
+    html += `<div class="eod-stat-line highlight">⏱️ ${totalMins} minutes of learning today!</div>`;
+  }
+  
+  // Streak
+  if (streak >= 2) {
+    html += `<div class="eod-stat-line">🔥 ${streak} day streak!</div>`;
+  }
+  
+  // Tomorrow preview
+  html += `<div class="eod-closing-line">Tomorrow: another great day of learning! 🌟</div>`;
+
+  content.innerHTML = html;
+  card.classList.add('visible');
 }
 
 function refreshBanner(done,total) {
@@ -3788,6 +3901,7 @@ renderPrayerCard();
 updateReviewBadge();
 renderNotifications();
 updateHoursPill();
+renderEndOfDayCard();
 
 // ═══════════════════════════════════════════════════════════
 //  DEBATE PREP DOCS
