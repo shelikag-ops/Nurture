@@ -805,8 +805,10 @@
   <!-- REWARDS / SAVINGS ACCOUNT -->
   <div id="rewards-card-container"></div>
 
-  <!-- WEEKLY SOCIAL CHALLENGE -->
+  <!-- DAILY SOCIAL CHALLENGE -->
   <div id="challenge-card-container"></div>
+  <!-- EXTRA CHALLENGE (5 pts, set by parent) -->
+  <div id="extra-challenge-container"></div>
 
   <!-- TWO-COL -->
   <div class="grid-2">
@@ -1268,43 +1270,15 @@
       <div class="panel-field"><label class="panel-label">Points per 🌟 Banyan badge</label><input class="panel-input" id="p-rew-banyan" type="number" min="0" step="5" placeholder="50"></div>
     </div>
 
-    <div class="panel-section">💫 This Week's Social Challenge</div>
+    <div class="panel-section">⚡ Extra Challenge (5 pts)</div>
     <div class="panel-field">
-      <label class="panel-label">Pick a challenge (or choose "Custom" and write your own below)</label>
-      <select class="panel-input" id="p-challenge-pick" onchange="onChallengePickChange()">
-        <option value="">— No challenge this week —</option>
-        <optgroup label="Conversation &amp; Listening">
-          <option value="Ask someone a question you genuinely don't know the answer to, then really listen" data-ext="Write down 3 things you learned from what the person said">Listen &amp; Learn — ask a real question</option>
-          <option value="Start a conversation with someone you don't usually talk to (a neighbour, shopkeeper, or relative)" data-ext="Ask them about something they love doing — then really listen">Talk to someone new</option>
-          <option value="Tell a family member one specific thing you noticed and appreciated about them" data-ext="Say it out loud with eye contact — no texting!">Specific compliment to family</option>
-        </optgroup>
-        <optgroup label="Empathy &amp; Kindness">
-          <option value="Watch someone struggling with something and offer to help without being asked" data-ext="Ask them how it felt to receive help — notice your own feeling too">Help without being asked</option>
-          <option value="Write a thank-you note (physical or message) to someone who helped you recently" data-ext="Hand-deliver it and say the words out loud too">Write a thank-you note</option>
-          <option value="Ask a grandparent or elder to tell you a story from when they were young" data-ext="Write 3 things you discovered about their life that surprised you">Elder story time</option>
-        </optgroup>
-        <optgroup label="Disagreement &amp; Fairness">
-          <option value="When you disagree with someone, try saying 'I see it differently because…' instead of 'You're wrong'" data-ext="Notice how the other person responds when you phrase it this way">Disagree gracefully</option>
-          <option value="Let someone else choose what to do, watch, or eat — without arguing. Notice how it feels" data-ext="At the end, tell them one thing you genuinely enjoyed about their choice">Let someone else choose</option>
-        </optgroup>
-        <optgroup label="Inclusion">
-          <option value="Invite someone who often plays alone to join your activity" data-ext="Make sure they feel included the whole time — check in with them">Include the left-out person</option>
-          <option value="In a group conversation, make sure everyone gets a turn to speak" data-ext="If someone is quiet, ask them: 'What do you think?'">Make room for everyone</option>
-        </optgroup>
-        <optgroup label="Community &amp; Gratitude">
-          <option value="Introduce yourself to someone new using your full name, and ask one question about them" data-ext="Remember their name — use it the next time you see them">Introduce yourself properly</option>
-          <option value="Say thank you (with eye contact) to everyone who serves you today — waiter, driver, cashier" data-ext="Use their name if you can see it, and add one specific thing you appreciated">Thank everyone who serves you</option>
-        </optgroup>
-        <option value="custom">✏️ Custom (type below)…</option>
-      </select>
+      <label class="panel-label">Extra challenge for this week — something brave or hard (leave blank to hide the card)</label>
+      <input class="panel-input" id="p-challenge-ext" placeholder="e.g. Order your entire meal at a restaurant by yourself — no help from anyone">
     </div>
-    <div class="panel-field" id="p-challenge-custom-row" style="display:none;">
-      <label class="panel-label">Custom challenge (what Sarah should do)</label>
-      <input class="panel-input" id="p-challenge-custom" placeholder="Describe the challenge…">
-    </div>
-    <div class="panel-field">
-      <label class="panel-label">Extra challenge (the harder extension — auto-filled, but you can edit)</label>
-      <input class="panel-input" id="p-challenge-ext" placeholder="Optional harder version…">
+    <div style="display:none">
+      <input id="p-challenge-pick" value="">
+      <input id="p-challenge-custom" value="">
+      <div id="p-challenge-custom-row"></div>
     </div>
 
     <div class="panel-section">🗓️ Today's Schedule</div>
@@ -1434,18 +1408,9 @@ function openPanel() {
   document.getElementById('p-elevenlabs-key').value   = localStorage.getItem('hs-elevenlabs-key') || '';
   document.getElementById('p-cal-url').value        = ac.calendarUrl     || '';
   document.getElementById('p-classes').value        = w.classes          || '';
-  // Social challenge
+  // Extra challenge (5 pts)
   const sc = load('hs-social-challenge') || {};
-  const pickEl = document.getElementById('p-challenge-pick');
-  const customText = sc.customText || '';
-  let matched = false;
-  for (const opt of pickEl.options) {
-    if (opt.value === sc.text && opt.value !== 'custom' && opt.value !== '') { opt.selected = true; matched = true; break; }
-  }
-  if (!matched && sc.text) { pickEl.value = 'custom'; }
-  else if (!sc.text)        { pickEl.value = ''; }
-  document.getElementById('p-challenge-custom').value = customText;
-  document.getElementById('p-challenge-ext').value    = sc.extension || '';
+  document.getElementById('p-challenge-ext').value = sc.extension || '';
   document.getElementById('p-challenge-custom-row').style.display = (pickEl.value === 'custom') ? 'block' : 'none';
   // Load rewards config
   {
@@ -1532,18 +1497,10 @@ function saveConfig() {
     };
     localStorage.setItem(REWARDS_CFG_KEY, JSON.stringify(newRcfg));
   }
-  // Social challenge saved separately
-  const pickVal = document.getElementById('p-challenge-pick').value;
-  const extVal  = document.getElementById('p-challenge-ext').value.trim();
-  if (pickVal === 'custom') {
-    const customVal = document.getElementById('p-challenge-custom').value.trim();
-    if (customVal) save('hs-social-challenge', { text: customVal, customText: customVal, extension: extVal });
-    else           localStorage.removeItem('hs-social-challenge');
-  } else if (pickVal) {
-    save('hs-social-challenge', { text: pickVal, extension: extVal });
-  } else {
-    localStorage.removeItem('hs-social-challenge');
-  }
+  // Extra challenge saved separately
+  const extVal = document.getElementById('p-challenge-ext').value.trim();
+  if (extVal) save('hs-social-challenge', { extension: extVal });
+  else        localStorage.removeItem('hs-social-challenge');
   closePanel();
   location.reload();
 }
@@ -1980,8 +1937,9 @@ function render() {
   // VocabularyStars word log
   renderVocabWordLog();
 
-  // Social challenge card
+  // Social challenge cards
   renderSocialChallenge();
+  renderExtraChallenge();
 
   // Rewards / savings account card
   renderRewardsCard();
@@ -2511,54 +2469,111 @@ function renderVocabWordLog() {
 //  WEEKLY SOCIAL CHALLENGE
 // ═══════════════════════════════════════════════════════════
 
-function onChallengePickChange() {
-  const pick = document.getElementById('p-challenge-pick');
-  const customRow = document.getElementById('p-challenge-custom-row');
-  const extInput  = document.getElementById('p-challenge-ext');
-  const isCustom  = pick.value === 'custom';
-  customRow.style.display = isCustom ? 'block' : 'none';
-  // Auto-fill extension from data-ext attribute
-  if (!isCustom && pick.value) {
-    const selected = pick.options[pick.selectedIndex];
-    extInput.value = selected.getAttribute('data-ext') || '';
-  } else if (!isCustom) {
-    extInput.value = '';
-  }
-}
+function onChallengePickChange() { /* legacy — no-op */ }
+
+const SOCIAL_LOG_KEY = 'hs-social-log';
+
+// Daily challenge pool — rotates by day-of-year so it changes each day
+const SOCIAL_CHALLENGES = [
+  { emoji:'📞', text:'Call an extended family member and have a real conversation — ask about something in their life, not just "how are you"', who:'extended family' },
+  { emoji:'🍽️', text:'Order your food at a restaurant or café entirely by yourself — ask questions, handle payment, say thank you with eye contact', who:'restaurant/shop' },
+  { emoji:'🏘️', text:'Say hello to a neighbour and have a proper 2-minute chat — ask about something happening in their life', who:'neighbour' },
+  { emoji:'🌍', text:'Start a real conversation with someone you don\'t know well — a shopkeeper, a classmate\'s parent, or anyone new', who:'new person' },
+  { emoji:'📞', text:'Video call or call a relative who lives far away — ask them one specific question about their life and really listen', who:'extended family' },
+  { emoji:'🏪', text:'Ask a shopkeeper or service person for help finding or choosing something, then thank them by name if you can see it', who:'stranger/shop' },
+  { emoji:'👋', text:'Introduce yourself properly to someone new — say your full name, ask one question about them, and remember their answer', who:'new person' },
+];
 
 function renderSocialChallenge() {
   const el = document.getElementById('challenge-card-container');
   if (!el) return;
-  const sc = load('hs-social-challenge') || {};
-  if (!sc.text) {
-    el.innerHTML = ''; // hide entirely if no challenge set
-    return;
-  }
-  const weekLabel = (() => {
-    const d = new Date(); const start = new Date(d.getFullYear(), 0, 0);
-    const week = Math.ceil(((d - start) / 86400000 + start.getDay() + 1) / 7);
-    return `Week ${week} · ${d.toLocaleDateString('en-IN', {month:'short', year:'numeric'})}`;
-  })();
-  const savedRefl = load('hs-challenge-refl-' + new Date().toISOString().slice(0,10)) || '';
+
+  const today = todayISO();
+  const log   = load(SOCIAL_LOG_KEY) || {};
+  const entry = log[today] || { done: false, bonus: false };
+
+  // Count all days where social challenge was done
+  const totalDone = Object.values(log).filter(e => e.done).length;
+
+  // Pick challenge by day-of-year so it rotates daily
+  const d = new Date();
+  const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+  const ch = SOCIAL_CHALLENGES[dayOfYear % SOCIAL_CHALLENGES.length];
+
+  const doneBtn   = `<button onclick="completeSocialChallenge()" style="width:100%;padding:12px 0;background:linear-gradient(135deg,#7C3AED,#8B5CF6);color:#fff;border:none;border-radius:12px;font-weight:800;font-size:.95rem;cursor:pointer;letter-spacing:.01em;">✅ I did it today! · +3 pts</button>`;
+  const doneBadge = `<div style="background:#D1FAE5;border-radius:10px;padding:10px 14px;font-weight:800;color:#059669;text-align:center;font-size:.9rem;">✅ Social challenge done today! +3 pts earned</div>`;
+
+  const bonusBtn  = `<div style="margin-top:10px;padding:10px 14px;background:rgba(124,58,237,.07);border-radius:10px;border:1px solid rgba(124,58,237,.18);">
+      <div style="font-size:.74rem;font-weight:800;color:#7C3AED;margin-bottom:7px;">🌟 Bonus: Did you also talk to a complete stranger all by yourself today?</div>
+      <button onclick="completeBonusChallenge()" style="width:100%;padding:9px 0;background:#7C3AED;color:#fff;border:none;border-radius:9px;font-weight:700;font-size:.84rem;cursor:pointer;">Yes! +1 bonus pt 🎉</button>
+    </div>`;
+  const bonusDone = `<div style="margin-top:8px;font-size:.78rem;font-weight:800;color:#7C3AED;text-align:center;">⭐ Bonus point earned today!</div>`;
+
   el.innerHTML = `
     <div class="challenge-card">
-      <div class="challenge-badge">💫 Social Challenge</div>
-      <div class="challenge-week-label">${weekLabel}</div>
-      <div class="challenge-text">${sc.text}</div>
-      ${sc.extension ? `
-      <div class="challenge-ext-box">
-        <div class="challenge-ext-label">⚡ Extra Challenge</div>
-        <div class="challenge-ext-text">${sc.extension}</div>
-      </div>` : ''}
-      <div class="challenge-refl-label">How did it go? What did you notice?</div>
-      <textarea class="challenge-refl-input" id="challenge-refl" rows="3"
-        placeholder="Write what happened, how it felt, or what surprised you…"
-        oninput="saveChallengeReflection(this.value)">${savedRefl}</textarea>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div class="challenge-badge">💫 Daily Social Challenge</div>
+        ${totalDone > 0 ? `<div style="font-size:.72rem;font-weight:800;color:#059669;background:#D1FAE5;padding:3px 9px;border-radius:20px;">🌟 ${totalDone} done so far!</div>` : ''}
+      </div>
+      <div class="challenge-text">${ch.emoji} ${ch.text}</div>
+      <div style="font-size:.78rem;color:#6B7280;font-weight:600;margin-bottom:12px;">Complete this = <strong style="color:#7C3AED;">+3 points</strong></div>
+      ${entry.done ? doneBadge : doneBtn}
+      ${entry.bonus ? bonusDone : bonusBtn}
     </div>`;
 }
 
-function saveChallengeReflection(val) {
-  save('hs-challenge-refl-' + new Date().toISOString().slice(0,10), val);
+function completeSocialChallenge() {
+  const today = todayISO();
+  const log = load(SOCIAL_LOG_KEY) || {};
+  if (log[today]?.done) return;
+  log[today] = { ...(log[today] || {}), done: true };
+  save(SOCIAL_LOG_KEY, log);
+  const cfg = getRewardsCfg();
+  rewardLog('social', 'Social challenge completed', cfg.socialPoints || 3);
+  renderSocialChallenge();
+}
+
+function completeBonusChallenge() {
+  const today = todayISO();
+  const log = load(SOCIAL_LOG_KEY) || {};
+  if (log[today]?.bonus) return;
+  log[today] = { ...(log[today] || {}), bonus: true };
+  save(SOCIAL_LOG_KEY, log);
+  rewardLog('social', 'Bonus: spoke to a stranger independently 🌟', 1);
+  renderSocialChallenge();
+}
+
+function renderExtraChallenge() {
+  const el = document.getElementById('extra-challenge-container');
+  if (!el) return;
+  const sc = load('hs-social-challenge') || {};
+  if (!sc.extension) { el.innerHTML = ''; return; }
+
+  const today   = todayISO();
+  const xLog    = load('hs-extra-challenge-log') || {};
+  const xDone   = xLog[today] || false;
+
+  const xBtn    = `<button onclick="completeExtraChallenge()" style="width:100%;padding:11px 0;background:linear-gradient(135deg,#D97706,#F59E0B);color:#fff;border:none;border-radius:12px;font-weight:800;font-size:.93rem;cursor:pointer;">⚡ Challenge complete! · +5 pts</button>`;
+  const xBadge  = `<div style="background:#FEF9C3;border-radius:10px;padding:10px 14px;font-weight:800;color:#854D0E;text-align:center;font-size:.9rem;">⚡ Extra challenge done! +5 pts earned</div>`;
+
+  el.innerHTML = `
+    <div class="challenge-card" style="background:linear-gradient(135deg,#FFFBEB 0%,#FEF3C7 100%);border-color:rgba(245,158,11,.3);">
+      <div class="challenge-badge" style="background:rgba(245,158,11,.15);color:#D97706;">⚡ Extra Challenge</div>
+      <div class="challenge-text" style="color:#92400E;">${sc.extension}</div>
+      <div style="font-size:.78rem;color:#B45309;font-weight:600;margin-bottom:12px;">Complete this = <strong style="color:#D97706;">+5 points</strong></div>
+      ${xDone ? xBadge : xBtn}
+    </div>`;
+}
+
+function completeExtraChallenge() {
+  const today = todayISO();
+  const xLog  = load('hs-extra-challenge-log') || {};
+  if (xLog[today]) return;
+  xLog[today] = true;
+  save('hs-extra-challenge-log', xLog);
+  const cfg = getRewardsCfg();
+  rewardLog('extra', 'Extra challenge completed ⚡', cfg.extraPoints || 5);
+  renderExtraChallenge();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3228,11 +3243,30 @@ function renderParentView() {
       const pvBaChap  = cfg.week?.ba?.chapter || ba.currentChapter || null;
       const pvBaPct   = pvBaDone != null && pvBaTotal ? Math.round(pvBaDone/pvBaTotal*100) : null;
       if (pvBaBook || pvBaDone != null) {
+        // BA daily activity minutes for current month
+        const now = new Date();
+        const baMinKey = `hs-ba-activity-${now.getFullYear()}-${now.getMonth()+1}`;
+        const baMinData = JSON.parse(localStorage.getItem(baMinKey) || '{}');
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+        const totalMin = Object.values(baMinData).reduce((s,v)=>s+(parseInt(v)||0),0);
+        let miniChart = '';
+        if (Object.keys(baMinData).length > 0) {
+          const maxMin = Math.max(...Object.values(baMinData).map(v=>parseInt(v)||0), 1);
+          const bars = Array.from({length:daysInMonth},(_,i)=>{
+            const day = i+1;
+            const mins = baMinData[day] || 0;
+            const h = Math.max(2, Math.round((mins/maxMin)*28));
+            const isToday = day === now.getDate();
+            const bg = mins===0 ? '#F3F4F6' : isToday ? '#F59E0B' : '#FCD34D';
+            return `<div title="Mar ${day}: ${mins} min" style="display:inline-block;width:6px;height:${h}px;background:${bg};border-radius:2px;margin-right:1px;vertical-align:bottom;"></div>`;
+          }).join('');
+          miniChart = `<div style="margin-top:6px;"><div style="font-size:.67rem;color:#9CA3AF;margin-bottom:3px;">Activity this month · ${totalMin} min total</div><div style="line-height:0;padding:4px 0;">${bars}</div></div>`;
+        }
         html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Beast Academy</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
           ${pvBaBook?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">Book ${pvBaBook}</span>`:''}
           ${pvBaDone!=null?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">${pvBaDone}/${pvBaTotal||'?'} chapters done${pvBaPct?' ('+pvBaPct+'%)':''}</span>`:''}
           ${pvBaChap?`<span style="font-size:.76rem;color:#6B7280;align-self:center;">In progress: ${pvBaChap}</span>`:''}
-        </div></div>`;
+        </div>${miniChart}</div>`;
       }
     }
     if (vs.totalWords || vs.level) {
@@ -4194,8 +4228,10 @@ const REWARDS_CFG_KEY = 'hs-rewards-cfg';
 function getRewardsCfg() {
   const saved = JSON.parse(localStorage.getItem(REWARDS_CFG_KEY) || '{}');
   return {
-    rupeesPerTask:   saved.rupeesPerTask   ?? 2,
-    rupeesPerTimer:  saved.rupeesPerTimer  ?? 1,   // per 30 min
+    rupeesPerTask:    saved.rupeesPerTask   ?? 1,
+    rupeesPerTimer:   saved.rupeesPerTimer  ?? 1,   // per 30 min
+    socialPoints:     saved.socialPoints    ?? 3,
+    extraPoints:      saved.extraPoints     ?? 5,
     badgeRupees: {
       Seed:    saved.badgeRupees?.Seed    ?? 5,
       Sprout:  saved.badgeRupees?.Sprout  ?? 10,
