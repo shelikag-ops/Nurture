@@ -1,138 +1,79 @@
 {
-  "date": "2026-03-29",
+  "date": "2026-03-30",
   "stories": [
     {
-      "headline": "NASA Prepares Emergency Rescue Teams for Artemis II — the First Crewed Moon Mission in 50 Years",
-      "summary": "NASA is finalising its emergency plans for Artemis II, the first mission to send astronauts around the Moon since Apollo 17 in 1972. A dedicated rescue team practises how to reach the crew within minutes if anything goes wrong on the launch pad or shortly after liftoff. The mission will carry four astronauts — including the first woman and first Canadian to fly to the Moon. Scientists are calling it a giant leap toward eventually landing humans on Mars.",
-      "bigWord": "Contingency",
-      "bigWordDef": "A contingency plan is a backup plan for when something unexpected goes wrong. NASA's rescue team exists as a contingency — just in case.",
-      "thinkQuestion": "Why do you think NASA spends months practising for emergencies that might never happen? What does that tell you about how important preparation is before doing something risky?",
-      "videoQuery": "NASA Artemis II moon mission explained 2026 astronauts"
+      "title": "India Celebrates Ram Navami Festival Across the Country",
+      "summary": "Ram Navami, the birthday of Lord Ram, is being celebrated with great joy across India on March 30, 2026. Temples are decorated with flowers and lights, and people are singing devotional songs and offering prayers. Grand processions called 'Shobha Yatras' are taking place in cities like Ayodhya, Varanasi, and Mumbai.",
+      "category": "India",
+      "emoji": "🙏",
+      "videoQuery": "Ram Navami 2026 celebration Ayodhya"
     },
     {
-      "headline": "India's Climate System Is 'Flashing Red', Warn Top Scientists — Hottest 11 Years Ever Recorded",
-      "summary": "The World Meteorological Organization released its annual report saying the past 11 years were the hottest in recorded history. Arctic sea ice hit a record low in March 2026, and ocean warming is now happening twice as fast as it did 20 years ago. India's own weather patterns are shifting — monsoon timing has become less predictable, and extreme heat events are happening more often. Scientists say urgent action is needed from every country.",
-      "bigWord": "Meteorological",
-      "bigWordDef": "Relating to weather and the atmosphere. Meteorologists are scientists who study weather patterns and climate — 'meteorological' is the adjective form.",
-      "thinkQuestion": "Scientists say climate change is 'flashing red' like a warning light on a dashboard. If you saw a warning light on a car and kept driving without stopping, what would happen? How is that similar to what's happening with Earth's climate?",
-      "videoQuery": "climate change 2026 explained kids Earth warming fastest ever"
+      "title": "Scientists Discover New Way to Track Ocean Health From Space",
+      "summary": "Researchers have announced an improved method of using satellites to measure the health of our oceans by tracking tiny plants called phytoplankton. These microscopic plants produce half of Earth's oxygen and are very important for sea life. Scientists say this new technology will help us understand climate change better.",
+      "category": "Science",
+      "emoji": "🌊",
+      "videoQuery": "satellite ocean health phytoplankton 2026"
     },
     {
-      "headline": "IndiGo Launches 30+ New Flight Routes from Navi Mumbai's Brand New Airport",
-      "summary": "IndiGo, India's largest airline, began flights from the newly opened Navi Mumbai International Airport today, adding over 30 routes connecting the city to destinations including Agra, Ayodhya, Kolkata, and Goa. The new airport was built to reduce pressure on Mumbai's existing Chhatrapati Shivaji Maharaj International Airport, which handles more than 50 million passengers a year. Navi Mumbai residents previously had to travel 45–90 minutes to catch a flight.",
-      "bigWord": "Infrastructure",
-      "bigWordDef": "The basic systems and structures a city or country needs to function — like roads, airports, water supply, and power. A new airport is a piece of infrastructure.",
-      "thinkQuestion": "Building a new airport takes years and costs billions of rupees. Who do you think benefits the most from the new Navi Mumbai airport — and who paid for it? Is that fair?",
-      "videoQuery": "Navi Mumbai airport opening India new 2026"
+      "title": "IPL 2026 Season Heats Up With Exciting Matches",
+      "summary": "The Indian Premier League cricket season is in full swing, with teams across India competing in thrilling matches. Fans are filling stadiums and watching on television to cheer for their favourite teams. Young cricket stars are getting a chance to shine alongside experienced international players.",
+      "category": "Sport",
+      "emoji": "🏏",
+      "videoQuery": "IPL 2026 latest match highlights"
     },
     {
-      "headline": "Scientists Discover the Brain Can Rewire Itself After a Stroke — Opening Doors to New Treatments",
-      "summary": "A new study published this week found that after a stroke — when blood flow to the brain is blocked — the brain can form new connections to take over the work of damaged areas. Scientists watched this process happening in real time using advanced brain scans. The discovery means doctors may one day be able to give people medicine or therapy that actively encourages this rewiring, helping stroke patients recover more of their speech and movement.",
-      "bigWord": "Neuroplasticity",
-      "bigWordDef": "The brain's ability to reorganise itself by forming new connections. 'Neuro' means brain, and 'plasticity' means the ability to change shape — so neuroplasticity means the brain can reshape itself.",
-      "thinkQuestion": "If the brain can rewire itself and adapt after damage, what does that tell us about how we learn new things? Do you think this is related to why practising a skill every day makes you better at it?",
-      "videoQuery": "neuroplasticity brain rewiring explained kids how brain heals"
+      "title": "Tech Companies Race to Build Smarter AI Assistants",
+      "summary": "Big technology companies around the world are competing to make artificial intelligence helpers that can understand and answer questions even better than before. These AI tools can now help students with homework, help doctors find diseases, and even write computer programs. Experts say AI will keep getting smarter throughout 2026.",
+      "category": "Tech",
+      "emoji": "🤖",
+      "videoQuery": "AI assistants technology 2026 explained kids"
     },
     {
-      "headline": "Pope Francis Leads Palm Sunday Mass at Vatican as Millions of Christians Mark Holy Week",
-      "summary": "Hundreds of thousands of Christians gathered at St. Peter's Square in Rome today as Pope Francis led the Palm Sunday Mass, marking the start of Holy Week. Palm Sunday commemorates Jesus's arrival in Jerusalem 2,000 years ago, when people waved palm branches to welcome him. Similar celebrations took place across India, including in Goa, Kerala, and Mumbai. Holy Week ends with Easter Sunday next week, the most important day in the Christian calendar.",
-      "bigWord": "Commemorate",
-      "bigWordDef": "To do something special to remember and honour an important event or person from the past. Festivals often commemorate historical or religious moments.",
-      "thinkQuestion": "Palm Sunday has been celebrated for over 2,000 years. Why do you think people continue to mark events that happened so long ago? Are there events your own family commemorates every year?",
-      "videoQuery": "Palm Sunday explained Holy Week Christianity children"
-    },
-    {
-      "headline": "PM Modi's Mann Ki Baat: India Must Stay United as Global Tensions Rise",
-      "summary": "Prime Minister Narendra Modi delivered his monthly Mann Ki Baat radio address today, speaking to millions of Indians. He emphasised that when the world faces conflict and uncertainty, it is more important than ever for Indians to remain united and avoid political divisions. He highlighted India's growing role as a global voice for peace and called on citizens to support each other through difficult times. The address is broadcast in 22 Indian languages and reaches over 100 million listeners.",
-      "bigWord": "Solidarity",
-      "bigWordDef": "Agreement and support among a group of people, especially during difficult times. When people show solidarity, they stand together and help each other.",
-      "thinkQuestion": "PM Modi said there is 'no place for selfish politics' when the world faces challenges. What do you think 'selfish politics' means? Can you think of an example where people working together achieved more than they would have alone?",
-      "videoQuery": "Mann Ki Baat India radio address explained Modi"
-    },
-    {
-      "headline": "March Madness Elite Eight: Arizona and Illinois Win Thrillers to Reach Final Four",
-      "summary": "Two more teams punched their tickets to the Final Four in America's famous March Madness college basketball tournament. Number-one seed Arizona beat Purdue, and third-seed Illinois defeated Iowa in dramatic games. Today, Duke faces UConn and Michigan plays Tennessee to decide the last two spots. March Madness sees 68 college teams compete in a single-elimination tournament, and upsets by underdog teams make it one of the most-watched sporting events in the world.",
-      "bigWord": "Single-elimination",
-      "bigWordDef": "A tournament format where if you lose one game, you are out of the competition entirely. There are no second chances — every match matters completely.",
-      "thinkQuestion": "In a single-elimination tournament, one loss means you're done. Do you think this is the fairest way to find the best team, or could a team have a bad day and lose even if they're actually the strongest? What format would you design?",
-      "videoQuery": "March Madness 2026 tournament explained college basketball Final Four"
-    }
-  ],
-  "videos": [
-    {
-      "title": "NASA's Artemis II: Sending Humans Back to the Moon",
-      "description": "A clear explainer on the Artemis programme — who the astronauts are, what the mission will do, and why NASA is returning to the Moon after 50 years.",
-      "url": "https://www.youtube.com/results?search_query=NASA+Artemis+II+moon+mission+explained+2026+astronauts",
-      "topic": "Space & Science"
-    },
-    {
-      "title": "Climate Change 2026: Why Scientists Are Alarmed",
-      "description": "An explanation of what the World Meteorological Organization's 'flashing red' warning means, and why the past 11 years have been the hottest ever recorded.",
-      "url": "https://www.youtube.com/results?search_query=climate+change+2026+explained+kids+Earth+warming+fastest+ever",
-      "topic": "Environment & Climate"
-    },
-    {
-      "title": "What Is Neuroplasticity? How Your Brain Can Change Itself",
-      "description": "A simple, visual explainer on how the brain rewires itself when we learn something new — and how this discovery is helping stroke patients recover.",
-      "url": "https://www.youtube.com/results?search_query=neuroplasticity+brain+rewiring+explained+kids+how+brain+heals",
-      "topic": "Science & Health"
+      "title": "World Leaders Meet to Discuss Climate Goals Progress",
+      "summary": "Government leaders from many countries gathered this week to review how well nations are doing at reducing pollution and fighting climate change. Many countries shared updates on their use of solar and wind energy, which has grown a lot in recent years. Children and young activists around the world are watching closely to see if leaders keep their promises.",
+      "category": "World",
+      "emoji": "🌍",
+      "videoQuery": "climate change world leaders meeting 2026"
     }
   ],
   "infographic": {
-    "caption": "Earth's Climate — The Numbers Behind the Warning",
-    "fact": "11 consecutive hottest years on record: 2015–2025 · Arctic sea ice hit a new record LOW in March 2026: 13.76 million km² · Ocean warming now 2× faster than 1960–2005 · Extreme heat events in India: up 40% in 10 years · WMO warning level: 'FLASHING RED' — first time ever",
-    "question": "Scientists say Earth's climate is 'flashing red' like a warning light. If you could send one message to every world leader about what to do next, what would you say?"
+    "topic": "How Phytoplankton Help Our Planet",
+    "fact1": "Phytoplankton are tiny plant-like creatures that live in the ocean — so small you need a microscope to see them!",
+    "fact2": "They produce about 50% of all the oxygen on Earth, which means every second breath you take comes from the ocean.",
+    "fact3": "Billions of sea animals, from tiny shrimp to giant whales, depend on phytoplankton as the start of their food chain.",
+    "fact4": "When oceans get warmer due to climate change, phytoplankton numbers can drop — which is why scientists use satellites to monitor them."
   },
   "quiz": [
     {
-      "q": "What is special about NASA's Artemis II mission?",
+      "q": "Which festival celebrating Lord Ram's birthday was observed on March 30, 2026?",
       "options": [
-        "It will be the first mission to land on Mars",
-        "It will be the first crewed flight around the Moon since 1972",
-        "It will carry the world's most powerful telescope to orbit",
-        "It will be the first all-robot space mission"
+        "Diwali",
+        "Ram Navami",
+        "Holi",
+        "Eid"
       ],
-      "correct": 1
+      "answer": 1
     },
     {
-      "q": "What does the World Meteorological Organization mean when it says Earth's climate is 'flashing red'?",
+      "q": "What are the tiny ocean plants that scientists are now tracking from space?",
       "options": [
-        "The sky is turning red because of wildfires",
-        "A new red planet has been discovered near Earth",
-        "It is an emergency warning — action is urgently needed",
-        "Red is the new colour scientists use to describe normal weather"
+        "Seaweed",
+        "Coral",
+        "Phytoplankton",
+        "Algae Blobs"
       ],
-      "correct": 2
+      "answer": 2
     },
     {
-      "q": "What is neuroplasticity?",
+      "q": "Roughly how much of Earth's oxygen do ocean phytoplankton produce?",
       "options": [
-        "A type of plastic used in brain surgery",
-        "The brain's ability to rewire and form new connections",
-        "A new drug that speeds up thinking",
-        "The part of the brain that controls memory only"
+        "10%",
+        "25%",
+        "75%",
+        "50%"
       ],
-      "correct": 1
-    },
-    {
-      "q": "Why was the new Navi Mumbai airport built?",
-      "options": [
-        "To replace Mumbai's old airport which was demolished",
-        "To give IndiGo its own private airport",
-        "To reduce pressure on Mumbai's existing airport which handles 50 million passengers",
-        "Because Navi Mumbai wanted to become India's capital city"
-      ],
-      "correct": 2
-    },
-    {
-      "q": "What is a 'single-elimination' tournament?",
-      "options": [
-        "A tournament where only one team is allowed to enter",
-        "A competition where losing one game means you are out",
-        "A tournament where you play every other team once",
-        "A competition with no finals — just group stages"
-      ],
-      "correct": 1
+      "answer": 3
     }
   ]
 }
