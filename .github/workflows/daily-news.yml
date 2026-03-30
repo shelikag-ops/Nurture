@@ -5,12 +5,17 @@ on:
     - cron: '30 0 * * *'   # 6:00 AM IST (00:30 UTC) every day
   workflow_dispatch:        # allows manual "Run workflow" trigger
 
+permissions:
+  contents: write           # needed for git push
+
 jobs:
   generate-news:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate news content via Claude
         env:
