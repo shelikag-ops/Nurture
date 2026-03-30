@@ -1105,16 +1105,13 @@
     <div id="pv-rewards"></div>
   </div>
 
-  <!-- Notion Sync -->
+  <!-- Notion Auto-Sync -->
   <div class="pv-card" style="margin-top:16px;">
-    <div class="pv-title">📤 Sync to Notion</div>
-    <div style="font-size:.83rem;color:#6B7280;margin-bottom:14px;line-height:1.5;">
-      Pushes today's completed tasks to the Activity Log, Vocab Sprint Tracker, and Science Chapter Roadmap in Notion.<br>
-      Requires GitHub PAT in ⚙️ Settings and <code style="background:#F3F4F6;padding:1px 5px;border-radius:4px;">NOTION_TOKEN</code> secret in the GitHub repo.
-    </div>
+    <div class="pv-title">📤 Notion Activity Log</div>
+    <div id="pv-notion-status" style="font-size:.83rem;color:#6B7280;margin-bottom:14px;line-height:1.5;">Checking…</div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-      <button id="notion-sync-btn" onclick="syncToNotion()" style="background:#000;color:white;border:none;border-radius:12px;padding:11px 20px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:7px;">
-        <span>📤</span> Sync Today to Notion
+      <button id="notion-retry-btn" onclick="retryNotionSync()" style="background:#1e1b4b;color:white;border:none;border-radius:12px;padding:10px 18px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer;display:none;align-items:center;gap:7px;">
+        🔄 Retry Pending
       </button>
       <div id="notion-sync-status" style="font-size:.82rem;font-weight:700;color:#9CA3AF;"></div>
     </div>
@@ -2964,7 +2961,7 @@ function switchView(v) {
   document.getElementById('parent-view').classList.toggle('visible', !isSarah);
   document.getElementById('tab-sarah').classList.toggle('active', isSarah);
   document.getElementById('tab-parent').classList.toggle('active', !isSarah);
-  if (!isSarah) renderParentView();
+  if (!isSarah) { renderParentView(); renderNotionSyncCard(); }
 }
 
 function pvSetMode(m) {
@@ -3938,106 +3935,42 @@ function parseDurationFromTask(taskText) {
   return m ? parseInt(m[1]) : 30; // default 30 min
 }
 
-async function syncToNotion() {
-  const btn    = document.getElementById('notion-sync-btn');
-  const status = document.getElementById('notion-sync-status');
-  const ghPat  = localStorage.getItem('hs-github-pat');
+// ── Parent view: render Notion sync card status ──
+function renderNotionSyncCard() {
+  const statusEl  = document.getElementById('pv-notion-status');
+  const retryBtn  = document.getElementById('notion-retry-btn');
+  if (!statusEl) return;
 
-  if (!ghPat) {
-    status.innerHTML = '⚠️ Add GitHub PAT in ⚙️ Settings first.';
-    status.style.color = '#EF4444';
+  const proxySet  = !!getNotionProxyUrl();
+  const queue     = notionQueueRead();
+  const synced    = queue.filter(e => e.synced).length;
+  const pending   = queue.filter(e => !e.synced).length;
+  const total     = queue.length;
+
+  if (!proxySet) {
+    statusEl.innerHTML = '⚠️ Cloudflare proxy not set — add Worker URL in ⚙️ Settings to enable auto-sync.';
+    if (retryBtn) retryBtn.style.display = 'none';
     return;
   }
 
-  btn.disabled = true;
-  btn.innerHTML = '<span class="debate-loading-spinner"></span> Syncing…';
-  status.innerHTML = '';
-
-  try {
-    const now    = new Date();
-    const today  = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    const todayK = `hs-${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
-    const weekStr = isoWeekStr(now);
-    const cfg    = getActiveCFG();
-    const PLAN   = buildPlan(cfg);
-    const dow    = now.getDay();
-    const dayPlan = PLAN[dow] || [];
-    const state  = load(todayK) || {};
-
-    // ── Build activity entries from completed tasks ──
-    const activities = [];
-    dayPlan.forEach(({s, t}) => {
-      const notionSubject = NOTION_SUBJECT_MAP[s] || s;
-      t.forEach((taskText, i) => {
-        if (state[`${s}-${i}`]) {
-          activities.push({
-            activity: taskText.replace(/ — \d+ min.*/i, '').trim(),
-            subject:  notionSubject,
-            type:     'Planned',
-            date:     today,
-            duration: parseDurationFromTask(taskText),
-            week:     weekStr,
-          });
-        }
-      });
-    });
-
-    // ── Vocab entry ──
-    const vocabDone = cfg.vocabDone || 0;
-    const vocabTaskDone = !!(state['Vocabulary-0'] || state['Vocabulary-1']);
-    const vocab = {
-      date:         today,
-      newWordsToday: vocabTaskDone ? (cfg.week?.vocabTarget ? Math.min(60, cfg.week.vocabTarget) : 50) : 0,
-      runningTotal:  vocabDone,
-      wordsRemaining: Math.max(0, (cfg.vocabTotal || 1900) - vocabDone),
-      vocabComSession: !!state['Vocabulary-1'],
-      revisionDone:    !!state['Vocabulary-0'],
-    };
-
-    // ── Science session increment ──
-    const sciDone = !!state['Science-0'];
-    const scienceSession = sciDone ? {
-      chapterInProgress: cfg.scienceInProgress || 'Ch 7 — C-1 Energy',
-      increment: 1,
-    } : null;
-
-    const payload = { syncDate: today, activities, vocab, scienceSession, weekStr };
-
-    // ── Write queue file to GitHub ──
-    const REPO = 'shelikag-ops/Nurture';
-    const FILE = 'notion-sync-queue.json';
-
-    // First try to get existing SHA (needed for update)
-    let sha = null;
-    try {
-      const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`, {
-        headers: { 'Authorization': `token ${ghPat}`, 'Accept': 'application/vnd.github.v3+json' }
-      });
-      if (r.ok) { const d = await r.json(); sha = d.sha; }
-    } catch {}
-
-    const body = { message: `Notion sync: ${today}`, content: btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2)))), ...(sha ? {sha} : {}) };
-
-    const resp = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`, {
-      method:  'PUT',
-      headers: { 'Authorization': `token ${ghPat}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-      body:    JSON.stringify(body),
-    });
-
-    if (resp.ok) {
-      status.innerHTML = `✅ Queued! GitHub Actions will push to Notion within ~30 sec. (${activities.length} activities)`;
-      status.style.color = '#06D6A0';
-    } else {
-      const err = await resp.json();
-      throw new Error(err.message || resp.statusText);
-    }
-  } catch (e) {
-    status.innerHTML = `⚠️ Error: ${e.message}`;
-    status.style.color = '#EF4444';
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<span>📤</span> Sync Today to Notion';
+  if (total === 0) {
+    statusEl.innerHTML = '✅ <strong>Auto-sync active.</strong> Entries will appear in Notion the moment tasks are completed — no button press needed.';
+    if (retryBtn) retryBtn.style.display = 'none';
+  } else if (pending === 0) {
+    statusEl.innerHTML = `✅ All ${total} entr${total === 1 ? 'y' : 'ies'} synced to Notion today.`;
+    if (retryBtn) retryBtn.style.display = 'none';
+  } else {
+    statusEl.innerHTML = `🔄 <strong>${synced}/${total}</strong> entries synced. ${pending} pending — tap Retry to push now.`;
+    if (retryBtn) { retryBtn.style.display = 'inline-flex'; retryBtn.textContent = `🔄 Retry ${pending} Pending`; }
   }
+}
+
+async function retryNotionSync() {
+  const btn = document.getElementById('notion-retry-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Syncing…'; }
+  await drainNotionQueue();
+  if (btn) btn.disabled = false;
+  renderNotionSyncCard();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -4442,22 +4375,81 @@ function renderProgressCard() {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  NOTION SYNC QUEUE
-//  Dashboard → Notion bridge: queues activity entries locally.
-//  The nightly sync task drains this queue into Notion Activity Log.
+//  NOTION AUTO-SYNC
+//  Every task completion fires instantly to Notion via the
+//  Cloudflare Worker proxy (/notion route). Failed entries
+//  are kept in localStorage and retried on next page load.
+//  Activity Log DB: 3b959280-4d96-4681-873f-8fe9c3399ee5
 // ═══════════════════════════════════════════════════════════
-const NOTION_QUEUE_KEY = 'hs-notion-queue';
+const NOTION_QUEUE_KEY  = 'hs-notion-queue';
+const NOTION_ACTIVITY_DB = '3b959280-4d96-4681-873f-8fe9c3399ee5';
+
+function getNotionProxyUrl() {
+  const proxy = (localStorage.getItem('hs-proxy-url') || '').replace(/\/$/, '');
+  return proxy ? `${proxy}/notion` : null;
+}
+
+async function syncEntryToNotion(entry) {
+  const base = getNotionProxyUrl();
+  if (!base) return false; // no proxy — skip silently
+  try {
+    const props = {
+      'Activity': { title: [{ text: { content: (entry.activity || 'Study').slice(0, 100) } }] },
+      'Subject':  { select: { name: entry.subject || 'General' } },
+      'Type':     { select: { name: entry.type    || 'Planned' } },
+      'Date':     { date:   { start: entry.date } },
+    };
+    if (entry.duration) props['Duration (min)'] = { number: entry.duration };
+    if (entry.week)     props['Week']            = { rich_text: [{ text: { content: entry.week } }] };
+    if (entry.notes)    props['Notes']           = { rich_text: [{ text: { content: entry.notes } }] };
+
+    const resp = await fetch(`${base}/v1/pages`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ parent: { database_id: NOTION_ACTIVITY_DB }, properties: props }),
+    });
+    return resp.ok;
+  } catch { return false; }
+}
 
 function notionQueueAdd(entry) {
   try {
     const queue = JSON.parse(localStorage.getItem(NOTION_QUEUE_KEY) || '[]');
-    // Deduplicate: don't add same activity+date+source twice (e.g. task toggled twice)
+    // Deduplicate: don't add same activity+date+source twice
     const key = `${entry.activity}|${entry.date}|${entry.source}`;
     if (queue.some(q => `${q.activity}|${q.date}|${q.source}` === key)) return;
-    queue.push({ ...entry, queuedAt: new Date().toISOString() });
+    const withMeta = { ...entry, queuedAt: new Date().toISOString(), synced: false };
+    queue.push(withMeta);
     localStorage.setItem(NOTION_QUEUE_KEY, JSON.stringify(queue));
-    _updateNotionSyncBadge(queue.length);
+    _updateNotionSyncBadge(queue.filter(q => !q.synced).length);
+
+    // ── Auto-sync immediately ──
+    syncEntryToNotion(entry).then(ok => {
+      if (ok) _markQueueEntrySynced(key);
+    });
   } catch(e) { /* localStorage full */ }
+}
+
+function _markQueueEntrySynced(key) {
+  try {
+    const queue   = JSON.parse(localStorage.getItem(NOTION_QUEUE_KEY) || '[]');
+    const updated = queue.map(e =>
+      `${e.activity}|${e.date}|${e.source}` === key ? { ...e, synced: true } : e
+    );
+    localStorage.setItem(NOTION_QUEUE_KEY, JSON.stringify(updated));
+    _updateNotionSyncBadge(updated.filter(e => !e.synced).length);
+  } catch {}
+}
+
+async function drainNotionQueue() {
+  if (!getNotionProxyUrl()) return;
+  const queue   = JSON.parse(localStorage.getItem(NOTION_QUEUE_KEY) || '[]');
+  const pending = queue.filter(e => !e.synced);
+  if (!pending.length) return;
+  for (const entry of pending) {
+    const ok = await syncEntryToNotion(entry);
+    if (ok) _markQueueEntrySynced(`${entry.activity}|${entry.date}|${entry.source}`);
+  }
 }
 
 function notionQueueRead() {
@@ -4531,8 +4523,9 @@ renderNotifications();
 updateHoursPill();
 renderEndOfDayCard();
 renderProgressCard();
-_updateNotionSyncBadge(notionQueueRead().length);
-fetchChessStats(); // async — updates progress card when done
+_updateNotionSyncBadge(notionQueueRead().filter(e => !e.synced).length);
+drainNotionQueue(); // retry any unsynced entries from previous sessions
+fetchChessStats();  // async — updates progress card when done
 
 // ═══════════════════════════════════════════════════════════
 //  DEBATE PREP DOCS
