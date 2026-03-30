@@ -1,0 +1,84 @@
+name: Daily News Content
+
+on:
+  schedule:
+    - cron: '30 0 * * *'   # 6:00 AM IST (00:30 UTC) every day
+  workflow_dispatch:        # allows manual "Run workflow" trigger
+
+jobs:
+  generate-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Generate news content via Claude
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cat > generate.py << 'PYEOF'
+          import os, json, datetime, urllib.request, urllib.error
+
+          today = datetime.date.today().isoformat()
+          api_key = os.environ["ANTHROPIC_API_KEY"]
+
+          prompt = f"""Today is {today}. Generate a JSON object for a children's daily news app (age 10).
+          Use ONLY real, verifiable current events from the past 48 hours. No invented stories.
+
+          Return ONLY valid JSON in this exact shape:
+          {{
+            "date": "{today}",
+            "stories": [
+              {{"title": "...", "summary": "2-3 sentences, simple language", "category": "Science|World|India|Tech|Sport", "emoji": "🔬", "videoQuery": "search term for YouTube"}},
+              {{"title": "...", "summary": "...", "category": "...", "emoji": "...", "videoQuery": "..."}},
+              {{"title": "...", "summary": "...", "category": "...", "emoji": "...", "videoQuery": "..."}}
+            ],
+            "infographic": {{"topic": "...", "fact1": "...", "fact2": "...", "fact3": "...", "fact4": "..."}},
+            "quiz": [
+              {{"q": "...", "options": ["A", "B", "C", "D"], "answer": 0}},
+              {{"q": "...", "options": ["A", "B", "C", "D"], "answer": 1}},
+              {{"q": "...", "options": ["A", "B", "C", "D"], "answer": 2}}
+            ]
+          }}"""
+
+          payload = json.dumps({
+              "model": "claude-sonnet-4-6",
+              "max_tokens": 1500,
+              "messages": [{"role": "user", "content": prompt}]
+          }).encode()
+
+          req = urllib.request.Request(
+              "https://api.anthropic.com/v1/messages",
+              data=payload,
+              headers={
+                  "x-api-key": api_key,
+                  "anthropic-version": "2023-06-01",
+                  "content-type": "application/json"
+              }
+          )
+
+          try:
+              with urllib.request.urlopen(req, timeout=30) as resp:
+                  data = json.loads(resp.read())
+                  text = data["content"][0]["text"].strip()
+                  if text.startswith("```"):
+                      text = text.split("```")[1]
+                      if text.startswith("json"):
+                          text = text[4:]
+                  content = json.loads(text.strip())
+                  with open("news-content.json", "w") as f:
+                      json.dump(content, f, indent=2, ensure_ascii=False)
+                  print(f"✅ News generated for {today}")
+          except Exception as e:
+              print(f"❌ Error: {e}")
+              raise
+          PYEOF
+          python3 generate.py
+
+      - name: Commit updated news content
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add news-content.json
+          git diff --staged --quiet || git commit -m "chore: daily news content $(date -u +%Y-%m-%d)"
+          git push
