@@ -1235,6 +1235,10 @@
       <input class="panel-input" id="p-api-key" type="password" placeholder="sk-ant-…" autocomplete="off">
     </div>
     <div class="panel-field">
+      <label class="panel-label">Cloudflare Proxy URL — paste your Worker URL if api.anthropic.com is blocked on your network</label>
+      <input class="panel-input" id="p-proxy-url" type="url" placeholder="https://anthropic-proxy.shelikag.workers.dev" autocomplete="off">
+    </div>
+    <div class="panel-field">
       <label class="panel-label">Notion API Token — for Activity Log sync (optional)</label>
       <input class="panel-input" id="p-notion-key" type="password" placeholder="secret_…" autocomplete="off">
     </div>
@@ -1403,6 +1407,7 @@ function openPanel() {
   document.getElementById('p-book-note').value      = w.bookNote         || '';
   document.getElementById('p-debate').value         = w.debateTheme      || '';
   document.getElementById('p-api-key').value          = localStorage.getItem('hs-api-key')        || '';
+  document.getElementById('p-proxy-url').value        = localStorage.getItem('hs-proxy-url')      || '';
   document.getElementById('p-notion-key').value       = localStorage.getItem('hs-notion-key')     || '';
   document.getElementById('p-github-pat').value       = localStorage.getItem('hs-github-pat')     || '';
   document.getElementById('p-elevenlabs-key').value   = localStorage.getItem('hs-elevenlabs-key') || '';
@@ -1447,6 +1452,9 @@ function saveConfig() {
   const elevenlabsKey = v('p-elevenlabs-key').trim();
   if (apiKey)         localStorage.setItem('hs-api-key',        apiKey);
   else                localStorage.removeItem('hs-api-key');
+  const proxyUrl = v('p-proxy-url').trim();
+  if (proxyUrl)       localStorage.setItem('hs-proxy-url',      proxyUrl);
+  else                localStorage.removeItem('hs-proxy-url');
   if (notionKey)      localStorage.setItem('hs-notion-key',     notionKey);
   else                localStorage.removeItem('hs-notion-key');
   if (elevenlabsKey)  localStorage.setItem('hs-elevenlabs-key', elevenlabsKey);
@@ -2643,6 +2651,10 @@ async function handleImageSelect(input) {
 function getApiKey() {
   return localStorage.getItem('hs-api-key') || '';
 }
+function getAnthropicEndpoint() {
+  const proxy = localStorage.getItem('hs-proxy-url') || '';
+  return proxy ? proxy.replace(/\/$/, '') : 'https://api.anthropic.com/v1/messages';
+}
 
 async function checkClarity(base64DataUrl) {
   const key = getApiKey();
@@ -2652,7 +2664,7 @@ async function checkClarity(base64DataUrl) {
   const base64 = base64DataUrl.includes(',') ? base64DataUrl.split(',')[1] : base64DataUrl;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(getAnthropicEndpoint(), {
       method: 'POST',
       headers: {
         'x-api-key': key,
@@ -4636,13 +4648,13 @@ Use only HTML tags (ol, li, strong, em). No markdown.`;
 
     // Call for Brief
     const [briefRes, questionsRes] = await Promise.all([
-      fetch('https://api.anthropic.com/v1/messages', {
+      fetch(getAnthropicEndpoint(), {
         method:'POST',
         headers:{ 'x-api-key':key, 'anthropic-version':'2023-06-01', 'content-type':'application/json', 'anthropic-dangerous-direct-browser-calls':'true' },
         body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:800,
           messages:[{ role:'user', content: briefPrompt }] })
       }),
-      fetch('https://api.anthropic.com/v1/messages', {
+      fetch(getAnthropicEndpoint(), {
         method:'POST',
         headers:{ 'x-api-key':key, 'anthropic-version':'2023-06-01', 'content-type':'application/json', 'anthropic-dangerous-direct-browser-calls':'true' },
         body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:600,
@@ -4870,7 +4882,7 @@ Pending redo submissions: ${redoSubs.length ? redoSubs.join('; ') : 'none'}
 For START_TIMER / STOP_TIMER / MARK_DONE: pick the best matching taskId from the list above based on what Sarah says. If she says a subject name like "math", pick the first task in that subject.`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(getAnthropicEndpoint(), {
       method:'POST',
       headers:{
         'x-api-key': key,
