@@ -1416,7 +1416,7 @@ function openPanel() {
   // Extra challenge (5 pts)
   const sc = load('hs-social-challenge') || {};
   document.getElementById('p-challenge-ext').value = sc.extension || '';
-  document.getElementById('p-challenge-custom-row').style.display = (pickEl.value === 'custom') ? 'block' : 'none';
+  // p-challenge-custom-row is hidden (legacy, no longer used)
   // Load rewards config
   {
     const _rcfg = getRewardsCfg();
