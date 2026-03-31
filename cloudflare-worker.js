@@ -7,7 +7,7 @@
 const CORS = {
   'Access-Control-Allow-Origin':  '*',
   'Access-Control-Allow-Methods': 'GET,POST,PATCH,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type,x-api-key,anthropic-version,anthropic-dangerous-direct-browser-access,Authorization,Notion-Version',
+  'Access-Control-Allow-Headers': 'Content-Type,x-api-key,anthropic-version,anthropic-dangerous-direct-browser-access,Authorization,Notion-Version,x-notion-key',
 };
 
 export default {
@@ -27,10 +27,14 @@ export default {
 
       const body = (request.method !== 'GET') ? await request.text() : undefined;
 
+      // Token passed from dashboard via x-notion-key header (stored in browser localStorage)
+      // Falls back to NOTION_TOKEN env var if header is absent
+      const notionToken = request.headers.get('x-notion-key') || env.NOTION_TOKEN || '';
+
       const notionResp = await fetch(notionUrl, {
         method:  request.method,
         headers: {
-          'Authorization':  `Bearer ${env.NOTION_TOKEN}`,
+          'Authorization':  `Bearer ${notionToken}`,
           'Content-Type':   'application/json',
           'Notion-Version': '2022-06-28',
         },
