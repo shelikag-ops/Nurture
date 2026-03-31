@@ -4379,10 +4379,10 @@ function renderProgressCard() {
 //  Every task completion fires instantly to Notion via the
 //  Cloudflare Worker proxy (/notion route). Failed entries
 //  are kept in localStorage and retried on next page load.
-//  Activity Log DB: 3b959280-4d96-4681-873f-8fe9c3399ee5
+//  Activity Log DB (page ID): a9d4bb9c-eb0c-4288-8cf5-7805a47f3139
 // ═══════════════════════════════════════════════════════════
 const NOTION_QUEUE_KEY  = 'hs-notion-queue';
-const NOTION_ACTIVITY_DB = '3b959280-4d96-4681-873f-8fe9c3399ee5';
+const NOTION_ACTIVITY_DB = 'a9d4bb9c-eb0c-4288-8cf5-7805a47f3139';
 
 function getNotionProxyUrl() {
   const proxy = (localStorage.getItem('hs-proxy-url') || '').replace(/\/$/, '');
@@ -5074,7 +5074,7 @@ async function vaPushToNotion(entry) {
   const token = localStorage.getItem('hs-notion-key');
   if (!token) return; // silently skip — parent can add key later
 
-  const DB_ID = '3b959280-4d96-4681-873f-8fe9c3399ee5'; // Activity Log DB
+  const DB_ID = 'a9d4bb9c-eb0c-4288-8cf5-7805a47f3139'; // Activity Log DB (page ID)
   const today = new Date();
   const weekNum = (load('hs-cfg-override') || {}).week?.num || 1;
 
