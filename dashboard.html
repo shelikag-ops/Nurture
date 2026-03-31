@@ -1237,7 +1237,7 @@
     </div>
     <div class="panel-field">
       <label class="panel-label">Notion API Token — for Activity Log sync (optional)</label>
-      <input class="panel-input" id="p-notion-key" type="password" placeholder="secret_…" autocomplete="off">
+      <input class="panel-input" id="p-notion-key" type="password" placeholder="ntn_… or secret_…" autocomplete="off">
     </div>
     <div class="panel-field">
       <label class="panel-label">GitHub PAT — relay for Notion sync (needs <code style="background:#F3F4F6;padding:1px 4px;border-radius:4px;">contents:write</code> on the Nurture repo)</label>
@@ -4403,9 +4403,10 @@ async function syncEntryToNotion(entry) {
     if (entry.week)     props['Week']            = { rich_text: [{ text: { content: entry.week } }] };
     if (entry.notes)    props['Notes']           = { rich_text: [{ text: { content: entry.notes } }] };
 
+    const notionToken = localStorage.getItem('hs-notion-key') || '';
     const resp = await fetch(`${base}/v1/pages`, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(notionToken ? { 'x-notion-key': notionToken } : {}) },
       body:    JSON.stringify({ parent: { database_id: NOTION_ACTIVITY_DB }, properties: props }),
     });
     return resp.ok;
