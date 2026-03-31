@@ -1,79 +1,79 @@
 {
-  "date": "2026-03-30",
+  "date": "2026-03-31",
   "stories": [
     {
-      "title": "India Celebrates Ram Navami Festival Across the Country",
-      "summary": "Ram Navami, the birthday of Lord Ram, is being celebrated with great joy across India on March 30, 2026. Temples are decorated with flowers and lights, and people are singing devotional songs and offering prayers. Grand processions called 'Shobha Yatras' are taking place in cities like Ayodhya, Varanasi, and Mumbai.",
+      "title": "India Celebrates 50 Years of Aryabhata Satellite Launch",
+      "summary": "India marks a big milestone as it remembers launching its very first satellite, Aryabhata, back in 1975. This tiny spacecraft helped India become one of the early countries to explore space. Today, India's space agency ISRO continues to build on that legacy with many exciting missions.",
       "category": "India",
-      "emoji": "🙏",
-      "videoQuery": "Ram Navami 2026 celebration Ayodhya"
+      "emoji": "🛰️",
+      "videoQuery": "Aryabhata India first satellite ISRO history"
     },
     {
-      "title": "Scientists Discover New Way to Track Ocean Health From Space",
-      "summary": "Researchers have announced an improved method of using satellites to measure the health of our oceans by tracking tiny plants called phytoplankton. These microscopic plants produce half of Earth's oxygen and are very important for sea life. Scientists say this new technology will help us understand climate change better.",
+      "title": "World Backup Day Reminds Everyone to Save Their Files",
+      "summary": "March 31 is World Backup Day, a special day that reminds people to save copies of their important photos, schoolwork, and files so they don't lose them forever. Tech experts say millions of people lose their data every year because of accidents or broken devices. It is a great habit to back up your files to a safe place like a hard drive or the cloud.",
+      "category": "Tech",
+      "emoji": "💾",
+      "videoQuery": "World Backup Day how to backup your data kids"
+    },
+    {
+      "title": "Scientists Track Record Ocean Temperatures Heading Into 2026",
+      "summary": "Climate researchers have reported that ocean temperatures around the world remain at record high levels as we enter the second quarter of 2026. Warm oceans can affect weather patterns, cause stronger storms, and harm coral reefs that many sea animals call home. Scientists are urging governments to act quickly to help cool the planet.",
       "category": "Science",
       "emoji": "🌊",
-      "videoQuery": "satellite ocean health phytoplankton 2026"
+      "videoQuery": "ocean temperatures climate change 2026 explained for kids"
     },
     {
-      "title": "IPL 2026 Season Heats Up With Exciting Matches",
-      "summary": "The Indian Premier League cricket season is in full swing, with teams across India competing in thrilling matches. Fans are filling stadiums and watching on television to cheer for their favourite teams. Young cricket stars are getting a chance to shine alongside experienced international players.",
+      "title": "IPL 2026 Season Heats Up with Thrilling Matches",
+      "summary": "The Indian Premier League cricket tournament is in full swing, with teams competing in exciting matches across stadiums in India. Fans are cheering loudly as their favourite players hit big sixes and take incredible wickets. The competition is very close this year, making it hard to predict who will lift the trophy.",
       "category": "Sport",
       "emoji": "🏏",
       "videoQuery": "IPL 2026 latest match highlights"
     },
     {
-      "title": "Tech Companies Race to Build Smarter AI Assistants",
-      "summary": "Big technology companies around the world are competing to make artificial intelligence helpers that can understand and answer questions even better than before. These AI tools can now help students with homework, help doctors find diseases, and even write computer programs. Experts say AI will keep getting smarter throughout 2026.",
-      "category": "Tech",
-      "emoji": "🤖",
-      "videoQuery": "AI assistants technology 2026 explained kids"
-    },
-    {
-      "title": "World Leaders Meet to Discuss Climate Goals Progress",
-      "summary": "Government leaders from many countries gathered this week to review how well nations are doing at reducing pollution and fighting climate change. Many countries shared updates on their use of solar and wind energy, which has grown a lot in recent years. Children and young activists around the world are watching closely to see if leaders keep their promises.",
+      "title": "Easter Weekend Brings Joy to Millions Around the World",
+      "summary": "People in many countries are celebrating Easter this weekend with egg hunts, family gatherings, and special meals. Easter is one of the most important holidays for Christians and is also a fun springtime celebration for many others. Cities around the world have organised parades and community events to mark the occasion.",
       "category": "World",
-      "emoji": "🌍",
-      "videoQuery": "climate change world leaders meeting 2026"
+      "emoji": "🐣",
+      "videoQuery": "Easter 2026 celebrations around the world"
     }
   ],
   "infographic": {
-    "topic": "How Phytoplankton Help Our Planet",
-    "fact1": "Phytoplankton are tiny plant-like creatures that live in the ocean — so small you need a microscope to see them!",
-    "fact2": "They produce about 50% of all the oxygen on Earth, which means every second breath you take comes from the ocean.",
-    "fact3": "Billions of sea animals, from tiny shrimp to giant whales, depend on phytoplankton as the start of their food chain.",
-    "fact4": "When oceans get warmer due to climate change, phytoplankton numbers can drop — which is why scientists use satellites to monitor them."
+    "topic": "Why Backing Up Your Data is Super Important",
+    "fact1": "About 1 in 3 people have lost their files due to accidents — that's a LOT of missing homework and precious photos!",
+    "fact2": "The word 'backup' means making a second copy of your files so you always have a spare, just like a spare tyre on a car.",
+    "fact3": "Cloud storage saves your files on powerful computers far away, so even if your device breaks, your data is safe.",
+    "fact4": "World Backup Day started in 2011 to remind everyone to protect their digital memories every single year."
   },
   "quiz": [
     {
-      "q": "Which festival celebrating Lord Ram's birthday was observed on March 30, 2026?",
+      "q": "What was the name of India's very first satellite launched in 1975?",
       "options": [
-        "Diwali",
-        "Ram Navami",
-        "Holi",
-        "Eid"
+        "Mangalyaan",
+        "Aryabhata",
+        "Chandrayaan",
+        "Rohini"
       ],
       "answer": 1
     },
     {
-      "q": "What are the tiny ocean plants that scientists are now tracking from space?",
+      "q": "What date is celebrated every year as World Backup Day?",
       "options": [
-        "Seaweed",
-        "Coral",
-        "Phytoplankton",
-        "Algae Blobs"
+        "January 1",
+        "February 14",
+        "March 31",
+        "April 5"
       ],
       "answer": 2
     },
     {
-      "q": "Roughly how much of Earth's oxygen do ocean phytoplankton produce?",
+      "q": "Which cricket tournament is currently being played across stadiums in India?",
       "options": [
-        "10%",
-        "25%",
-        "75%",
-        "50%"
+        "The Ashes",
+        "ICC World Cup",
+        "IPL 2026",
+        "Asia Cup"
       ],
-      "answer": 3
+      "answer": 2
     }
   ]
 }
