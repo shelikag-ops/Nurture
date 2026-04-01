@@ -1,77 +1,63 @@
 {
-  "date": "2026-03-31",
+  "date": "2026-04-01",
   "stories": [
     {
-      "title": "India Celebrates 50 Years of Aryabhata Satellite Launch",
-      "summary": "India marks a big milestone as it remembers launching its very first satellite, Aryabhata, back in 1975. This tiny spacecraft helped India become one of the early countries to explore space. Today, India's space agency ISRO continues to build on that legacy with many exciting missions.",
-      "category": "India",
-      "emoji": "🛰️",
-      "videoQuery": "Aryabhata India first satellite ISRO history"
-    },
-    {
-      "title": "World Backup Day Reminds Everyone to Save Their Files",
-      "summary": "March 31 is World Backup Day, a special day that reminds people to save copies of their important photos, schoolwork, and files so they don't lose them forever. Tech experts say millions of people lose their data every year because of accidents or broken devices. It is a great habit to back up your files to a safe place like a hard drive or the cloud.",
-      "category": "Tech",
-      "emoji": "💾",
-      "videoQuery": "World Backup Day how to backup your data kids"
-    },
-    {
-      "title": "Scientists Track Record Ocean Temperatures Heading Into 2026",
-      "summary": "Climate researchers have reported that ocean temperatures around the world remain at record high levels as we enter the second quarter of 2026. Warm oceans can affect weather patterns, cause stronger storms, and harm coral reefs that many sea animals call home. Scientists are urging governments to act quickly to help cool the planet.",
-      "category": "Science",
-      "emoji": "🌊",
-      "videoQuery": "ocean temperatures climate change 2026 explained for kids"
-    },
-    {
-      "title": "IPL 2026 Season Heats Up with Thrilling Matches",
-      "summary": "The Indian Premier League cricket tournament is in full swing, with teams competing in exciting matches across stadiums in India. Fans are cheering loudly as their favourite players hit big sixes and take incredible wickets. The competition is very close this year, making it hard to predict who will lift the trophy.",
-      "category": "Sport",
-      "emoji": "🏏",
-      "videoQuery": "IPL 2026 latest match highlights"
-    },
-    {
-      "title": "Easter Weekend Brings Joy to Millions Around the World",
-      "summary": "People in many countries are celebrating Easter this weekend with egg hunts, family gatherings, and special meals. Easter is one of the most important holidays for Christians and is also a fun springtime celebration for many others. Cities around the world have organised parades and community events to mark the occasion.",
+      "title": "Note: Stories Below Are Illustrative — AI Cannot Verify Real-Time News",
+      "summary": "I must be honest with you: my knowledge has a training cutoff and I cannot access live internet news from March 30–April 1, 2026. Providing invented 'current events' as real news would be misleading, especially for children. Please use a trusted news source like BBC Newsround or Reuters Kids for verified stories.",
       "category": "World",
-      "emoji": "🐣",
-      "videoQuery": "Easter 2026 celebrations around the world"
+      "emoji": "⚠️",
+      "videoQuery": "BBC Newsround latest news April 2026"
+    },
+    {
+      "title": "Why Honest News Matters for Kids",
+      "summary": "Good journalism means only reporting things that can be verified as true. Fake or made-up news can spread confusion and hurt people. Always check trusted sources before believing a story!",
+      "category": "World",
+      "emoji": "📰",
+      "videoQuery": "how to spot fake news for kids"
+    },
+    {
+      "title": "How to Find Real Kids' News Today",
+      "summary": "Great places to read real news for kids include BBC Newsround, Time for Kids, and Newsela. These sites are written specially for young readers and fact-check every story before publishing.",
+      "category": "Tech",
+      "emoji": "🔍",
+      "videoQuery": "BBC Newsround top stories 2026"
     }
   ],
   "infographic": {
-    "topic": "Why Backing Up Your Data is Super Important",
-    "fact1": "About 1 in 3 people have lost their files due to accidents — that's a LOT of missing homework and precious photos!",
-    "fact2": "The word 'backup' means making a second copy of your files so you always have a spare, just like a spare tyre on a car.",
-    "fact3": "Cloud storage saves your files on powerful computers far away, so even if your device breaks, your data is safe.",
-    "fact4": "World Backup Day started in 2011 to remind everyone to protect their digital memories every single year."
+    "topic": "How News Gets Verified",
+    "fact1": "Journalists check at least 2 independent sources before publishing a story.",
+    "fact2": "Reputable news outlets have editors who review stories for accuracy before they go live.",
+    "fact3": "AI assistants like this one have a training cutoff date and cannot browse live news.",
+    "fact4": "BBC Newsround, Reuters, and AP are among the world's most trusted news organisations for kids and adults."
   },
   "quiz": [
     {
-      "q": "What was the name of India's very first satellite launched in 1975?",
+      "q": "What should you do before believing a news story you read online?",
       "options": [
-        "Mangalyaan",
-        "Aryabhata",
-        "Chandrayaan",
-        "Rohini"
+        "Share it immediately",
+        "Check a trusted news source",
+        "Ignore it completely",
+        "Make up your own version"
       ],
       "answer": 1
     },
     {
-      "q": "What date is celebrated every year as World Backup Day?",
+      "q": "Which of these is a trusted news source made especially for children?",
       "options": [
-        "January 1",
-        "February 14",
-        "March 31",
-        "April 5"
+        "A random social media post",
+        "An anonymous blog",
+        "BBC Newsround",
+        "A forwarded WhatsApp message"
       ],
       "answer": 2
     },
     {
-      "q": "Which cricket tournament is currently being played across stadiums in India?",
+      "q": "Why is it important for news to be verified before publishing?",
       "options": [
-        "The Ashes",
-        "ICC World Cup",
-        "IPL 2026",
-        "Asia Cup"
+        "To make it longer",
+        "To add more pictures",
+        "To make sure it is true and does not mislead people",
+        "To make it harder to read"
       ],
       "answer": 2
     }
