@@ -1159,8 +1159,11 @@
 <!-- PARENT EDIT PANEL -->
 <div id="panel-overlay" class="panel-overlay" onclick="if(event.target===this)closePanel()">
   <div class="panel-box">
-    <div class="panel-title">⚙️ Update This Week's Plan</div>
-    <div class="panel-subtitle">Changes are saved in this browser. Tap "Save &amp; Refresh" when done.</div>
+    <div class="panel-title" style="display:flex;align-items:center;gap:10px;">
+      ⚙️ Update This Week's Plan
+      <span id="firebase-sync-dot" title="Sync status" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#D1D5DB;flex-shrink:0;margin-top:2px;" ></span>
+    </div>
+    <div class="panel-subtitle">Changes are saved in this browser and synced across your devices. Tap "Save &amp; Refresh" when done.</div>
     <div id="panel-override-badge" style="display:none" class="panel-saved-badge">✓ Using your saved plan (not the file default)</div>
 
     <!-- TAB SWITCHER -->
@@ -5552,6 +5555,81 @@ function vaSpeakText(text, onDone) {
     </div>
   </div>
 </div>
+
+<!-- ══════════════════════════════════════════════════════
+     FIREBASE CROSS-DEVICE SYNC
+     Loaded last so the dashboard initialises fully first.
+     ══════════════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/data-sync.js"></script>
+<script>
+(async function initFirebaseSync() {
+  if (typeof isFirebaseConfigured !== 'function' || !isFirebaseConfigured()) {
+    console.log('[Sync] Firebase not configured — running localStorage-only');
+    return;
+  }
+
+  // ── Step 1: Pull latest cloud data into localStorage before first render ──
+  await DataSync.syncFromFirebase();
+  // Re-render now that we have the freshest data
+  if (typeof renderDashboard === 'function') renderDashboard();
+  else if (typeof buildDayPlan === 'function') buildDayPlan();
+
+  // ── Step 2: Proxy localStorage so every write auto-syncs to Firebase ──
+  const _origSet    = localStorage.setItem.bind(localStorage);
+  const _origRemove = localStorage.removeItem.bind(localStorage);
+
+  // Keys that should be visible to ALL devices (shared scope)
+  const SHARED_PREFIXES = [
+    'hs-submissions', 'hs-cfg-override', 'hs-rewards-log',
+    'hs-rewards-catalog', 'hs-platform-stats', 'hs-sub-notifs',
+    'hs-wg-batch-queue', 'hs-wg-pending-sub'
+  ];
+  function isSharedKey(k) { return SHARED_PREFIXES.some(p => k.startsWith(p)); }
+
+  localStorage.setItem = function(key, value) {
+    _origSet(key, value);
+    if (key.startsWith('hs-') || key.startsWith('wg-')) {
+      DataSync.setItem(key, value, { shared: isSharedKey(key) }).catch(() => {});
+    }
+  };
+  localStorage.removeItem = function(key) {
+    _origRemove(key);
+    if (key.startsWith('hs-') || key.startsWith('wg-')) {
+      DataSync.removeItem(key).catch(() => {});
+    }
+  };
+
+  // ── Step 3: Real-time listeners — update UI when another device writes ──
+  const LIVE_KEYS = [
+    { key: 'hs-submissions',    shared: true,  render: () => { if (typeof renderReviewList === 'function') renderReviewList(); if (typeof updateReviewBadge === 'function') updateReviewBadge(); } },
+    { key: 'hs-cfg-override',   shared: true,  render: () => { if (typeof buildDayPlan === 'function') buildDayPlan(); } },
+    { key: 'hs-rewards-log',    shared: true,  render: () => { if (typeof renderPanelRewards === 'function') renderPanelRewards(); } },
+    { key: 'hs-rewards-catalog',shared: true,  render: () => { if (typeof renderPanelRewards === 'function') renderPanelRewards(); } },
+    { key: 'hs-platform-stats', shared: true,  render: () => { if (typeof renderParentView === 'function') renderParentView(); } },
+  ];
+
+  LIVE_KEYS.forEach(({ key, shared, render }) => {
+    DataSync.onUpdate(key, (newVal) => {
+      if (newVal !== localStorage.getItem(key)) {
+        _origSet(key, newVal);
+        try { render(); } catch(e) {}
+      }
+    }, { shared });
+  });
+
+  // ── Step 4: Show sync status dot in parent panel ──
+  const dot = document.getElementById('firebase-sync-dot');
+  if (dot) {
+    dot.style.background = '#10B981';
+    dot.title = '☁️ Firebase sync active — data syncs across all your devices';
+  }
+
+  console.log('[Dashboard] ✅ Firebase real-time sync active');
+})();
+</script>
 
 </body>
 </html>
