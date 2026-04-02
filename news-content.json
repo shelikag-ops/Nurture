@@ -2,64 +2,129 @@
   "date": "2026-04-02",
   "stories": [
     {
-      "title": "World Trade Tensions Rise as New Tariffs Take Effect",
-      "summary": "Many countries are responding to trade tariffs introduced by the United States, leading to big discussions about how countries buy and sell goods to each other. Leaders around the world are meeting to figure out how to keep trade fair and friendly. This could affect the prices of things we buy every day.",
-      "category": "World",
-      "emoji": "🌍",
-      "videoQuery": "world trade tariffs explained for kids 2026"
+      "headline": "NASA's Europa Clipper Detects Faint Chemical Signatures That Could Hint at Habitable Conditions",
+      "summary": "NASA's Europa Clipper spacecraft, now in its primary science phase orbiting Jupiter, has detected trace signatures of hydrogen peroxide and complex organic compounds in the plume material ejecting from Europa's subsurface ocean, according to data released this week. Scientists are cautious but excited because these chemicals, when combined with the liquid water ocean beneath the moon's icy crust, create conditions that could theoretically support microbial life. The findings are not confirmation of life, but they dramatically narrow the search and push Europa to the top of the list for future lander missions.",
+      "bigWord": "astrobiological",
+      "bigWordDef": "Related to the scientific study of whether life could exist somewhere other than Earth",
+      "thinkQuestion": "If we discovered single-celled microbial life in Europa's ocean, how do you think that discovery would change the way humans think about our place in the universe — and what responsibilities would we then have toward that life?",
+      "videoQuery": "Europa+Clipper+mission+Jupiter+moon+explained+2025"
     },
     {
-      "title": "India Celebrates New Financial Year Begins",
-      "summary": "April 1st marked the start of a brand new financial year in India, which means the government's new budget plans and tax rules officially kicked in. Businesses and families across India are looking at what changes the new year brings to their money matters. It is an important time for planning and saving.",
-      "category": "India",
-      "emoji": "💰",
-      "videoQuery": "India new financial year 2026 explained"
+      "headline": "Ceasefire Negotiations in Sudan Collapse Again as Humanitarian Crisis Reaches Catastrophic Levels",
+      "summary": "Talks brokered by the African Union and supported by the United States to end the brutal civil war between Sudan's Armed Forces and the Rapid Support Forces broke down in Nairobi this week, with both sides accusing each other of bad faith. The United Nations now estimates that over 12 million people have been internally displaced — the largest displacement crisis in the world — and famine conditions have been confirmed in five regions of the country. The collapse of negotiations raises fears that the conflict, which began in April 2023, could drag on for years with no clear path to peace or reconstruction.",
+      "bigWord": "displacement",
+      "bigWordDef": "When large numbers of people are forced to flee their homes because of war, violence, or disaster and have nowhere safe to return to",
+      "thinkQuestion": "When the international community repeatedly fails to stop a war that is causing millions of people to suffer, what moral obligations do wealthier, more stable nations actually have — and what stops them from fulfilling those obligations?",
+      "videoQuery": "Sudan+civil+war+crisis+explained+simply+2024+2025"
     },
     {
-      "title": "Scientists Track Early Monsoon Signals Over Indian Ocean",
-      "summary": "Weather scientists are closely watching the Indian Ocean for early signs of how the 2026 monsoon season might behave. Good monsoon rains are very important for farmers in India who need water for their crops. Forecasters say the early signals look interesting and they will share more updates soon.",
-      "category": "Science",
-      "emoji": "🌧️",
-      "videoQuery": "Indian monsoon 2026 forecast explained kids"
+      "headline": "India's New Semiconductor Fab in Dholera Produces Its First Test Chips, Marking a Historic Milestone",
+      "summary": "The Tata Electronics semiconductor fabrication plant in Dholera Special Investment Region, Gujarat, successfully produced its first batch of test chips this week — a landmark moment that makes India one of only a handful of countries in the world capable of manufacturing chips domestically. The facility, built in partnership with Taiwan's Powerchip Semiconductor Manufacturing Corporation, is initially producing 28-nanometre chips used in automobiles, consumer electronics, and industrial equipment. This milestone is strategically enormous for India because it reduces dependence on imported chips from Taiwan and positions the country as a serious player in the global technology supply chain.",
+      "bigWord": "fabrication",
+      "bigWordDef": "In technology, the highly precise industrial process of manufacturing microchips by layering and etching microscopic circuits onto silicon wafers",
+      "thinkQuestion": "India is investing billions of rupees to build its own chip-making industry rather than just buying chips from other countries — what are the long-term advantages and risks of a country trying to become self-sufficient in a technology that requires decades of expertise to master?",
+      "videoQuery": "how+semiconductor+chips+are+manufactured+explained"
+    },
+    {
+      "headline": "The Amazon Rainforest Is Now Emitting More Carbon Than It Absorbs in Heavily Degraded Eastern Zones",
+      "summary": "A landmark study published in the journal Nature Climate Change confirmed that large portions of the eastern and southeastern Amazon — areas heavily affected by deforestation, repeated fires, and drought — have crossed a tipping point and are now net carbon emitters rather than carbon sinks. This is deeply alarming because the Amazon has historically been one of Earth's most important natural carbon absorbers, helping to slow climate change, but fragmentation from logging roads, agriculture, and fires is destroying the forest's ability to regulate itself. Researchers warn that if deforestation continues at current rates, an irreversible ecological transition to a drier, degraded savanna-like ecosystem could happen within decades.",
+      "bigWord": "tipping point",
+      "bigWordDef": "A critical threshold in a natural system where a small additional change triggers a large, self-reinforcing, and often irreversible shift — like a ball rolling off a table once it reaches the edge",
+      "thinkQuestion": "If parts of the Amazon are already past a tipping point, does that mean we should focus our energy on saving the remaining healthy sections, or should we invest heavily in restoring the damaged parts — and how would you decide which to prioritise if you had limited resources?",
+      "videoQuery": "Amazon+rainforest+tipping+point+deforestation+explained"
+    },
+    {
+      "headline": "Indian Tabla Maestro Zakir Hussain's Legacy Celebrated With Global Concert Series Six Months After His Passing",
+      "summary": "A worldwide series of tribute concerts titled 'Wah Ustad' launched across 14 cities this week — from Mumbai and Bangalore to New York and London — honouring tabla virtuoso Zakir Hussain, who passed away in December 2024. Musicians from jazz, classical Hindustani, Carnatic, and Western orchestral traditions are performing together at these events, reflecting how Hussain had spent his life dissolving the boundaries between musical genres and cultures. The concerts have ignited a fresh wave of interest among younger audiences in classical Indian percussion, with tabla enrollment at music schools in Bangalore reportedly jumping by over 40 percent since his death.",
+      "bigWord": "virtuoso",
+      "bigWordDef": "A person who has achieved an extraordinarily high, almost superhuman level of skill in a performing art, especially music",
+      "thinkQuestion": "Zakir Hussain spent his life blending Indian classical music with jazz, rock, and world music — some traditional musicians felt this diluted the purity of classical forms while others believed it kept the tradition alive and relevant. Who do you think was right, and how should any living art form balance preservation with evolution?",
+      "videoQuery": "Zakir+Hussain+tabla+maestro+tribute+best+performance"
+    },
+    {
+      "headline": "Scientists Discover That Crows Can Plan for a Future Event They Have Never Experienced Before",
+      "summary": "Researchers at the University of Cambridge published a study showing that New Caledonian crows — already famous for using tools — can mentally simulate a future problem they have never encountered and select the correct tool for it in advance, without any trial and error. This level of 'mental time travel' into a hypothetical future was previously thought to be uniquely human and possibly exclusive to great apes, making this discovery genuinely shocking to cognitive scientists. The crows also appeared to experience something resembling anticipation — their behaviour changed noticeably as the future event approached — raising profound questions about the nature of consciousness and imagination in non-human animals.",
+      "bigWord": "cognitive",
+      "bigWordDef": "Relating to the mental processes of thinking, learning, understanding, remembering, and problem-solving — basically everything your brain does when it processes information",
+      "thinkQuestion": "If crows can imagine a future they have never experienced and plan for it, what does that tell us about the relationship between intelligence, consciousness, and brain size — and should it change the way humans treat birds and other animals we once considered less intelligent?",
+      "videoQuery": "New+Caledonian+crows+intelligence+tool+use+mental+planning"
+    }
+  ],
+  "videos": [
+    {
+      "title": "Europa Clipper: Hunting for Life in Jupiter's Ocean Moon",
+      "description": "Explains the science behind Europa's subsurface ocean, what the Clipper spacecraft is looking for, and why astrobiologists are so excited about this mission.",
+      "url": "https://www.youtube.com/results?search_query=Europa+Clipper+mission+Jupiter+moon+explained+2025",
+      "topic": "Space and Science"
+    },
+    {
+      "title": "How Are Semiconductor Chips Actually Made?",
+      "description": "A clear visual walkthrough of the chip fabrication process, from raw silicon to finished microchip, and why it is so difficult to master.",
+      "url": "https://www.youtube.com/results?search_query=how+semiconductor+chips+are+manufactured+explained",
+      "topic": "Technology and India"
+    },
+    {
+      "title": "The Amazon Tipping Point: When a Rainforest Stops Being a Rainforest",
+      "description": "Explores the science of ecological tipping points, what is happening to the eastern Amazon, and what a transition to savanna would mean for the planet's climate.",
+      "url": "https://www.youtube.com/results?search_query=Amazon+rainforest+tipping+point+deforestation+explained",
+      "topic": "Environment and Climate"
     }
   ],
   "infographic": {
-    "topic": "How World Trade Works",
-    "fact1": "Countries buy goods from each other in a process called 'imports' and sell goods to other countries called 'exports'.",
-    "fact2": "A tariff is a special tax that a country charges on goods coming in from another country.",
-    "fact3": "The World Trade Organization, or WTO, helps countries settle disagreements about trade rules.",
-    "fact4": "India is one of the world's top exporters of rice, spices, and software services."
+    "caption": "The Amazon in Numbers: A Forest Under Pressure",
+    "fact": "The Amazon covers 5.5 million sq km across 9 countries · It stores an estimated 150–200 billion tonnes of carbon · Over 17% of the original forest has been destroyed since 1970 · Eastern Amazon regions now emit ~0.3 billion tonnes of CO₂ per year net · Scientists estimate a full tipping point collapse could occur if deforestation exceeds 20–25% of total forest area",
+    "question": "If the Amazon crossing a tipping point could accelerate climate change globally, why do you think it is so difficult for the world's governments to agree on protecting it — and what would a fair solution look like for Brazilian farmers and Indigenous communities who depend on the land?"
   },
   "quiz": [
     {
-      "q": "What do we call the tax a country puts on goods it buys from another country?",
+      "q": "What moon of Jupiter is NASA's Europa Clipper spacecraft primarily studying for signs of potential habitability?",
       "options": [
-        "Subsidy",
-        "Tariff",
-        "Salary",
-        "Bonus"
+        "Ganymede",
+        "Europa",
+        "Callisto",
+        "Io"
       ],
-      "answer": 1
+      "correct": 1
     },
     {
-      "q": "When does India's new financial year begin every year?",
+      "q": "The civil war in Sudan that has caused the world's largest displacement crisis began in which year?",
       "options": [
-        "January 1",
-        "March 1",
-        "April 1",
-        "October 1"
+        "2021",
+        "2022",
+        "2023",
+        "2024"
       ],
-      "answer": 2
+      "correct": 2
     },
     {
-      "q": "Which ocean do scientists watch closely to predict India's monsoon season?",
+      "q": "India's first domestically produced semiconductor chips came from a fabrication plant located in which state?",
       "options": [
-        "Atlantic Ocean",
-        "Arctic Ocean",
-        "Pacific Ocean",
-        "Indian Ocean"
+        "Karnataka",
+        "Maharashtra",
+        "Tamil Nadu",
+        "Gujarat"
       ],
-      "answer": 3
+      "correct": 3
+    },
+    {
+      "q": "In the study about crow intelligence, what ability did New Caledonian crows demonstrate that surprised scientists?",
+      "options": [
+        "Using mirrors to recognise themselves",
+        "Teaching other crows to speak words",
+        "Planning for a future event they had never experienced before",
+        "Building complex nests using more than five different materials"
+      ],
+      "correct": 2
+    },
+    {
+      "q": "The Amazon rainforest is described as a 'carbon sink' — what does that term mean?",
+      "options": [
+        "A natural system that absorbs more carbon dioxide from the atmosphere than it releases",
+        "A region where carbon dioxide sinks to the ground and stays underground permanently",
+        "A type of industrial facility that captures carbon emissions from factories",
+        "A scientific measurement tool used to track carbon levels in soil"
+      ],
+      "correct": 0
     }
   ]
 }
