@@ -1383,9 +1383,11 @@
                 if (!data || !data.stories) return;
                 // Load content regardless of exact date match — GitHub Actions keeps the file current.
                 // Only skip if the file is genuinely stale (more than 3 days old).
+                // Only skip if file is genuinely stale (>14 days). A few days old is fine —
+                // GitHub Actions keeps it current once ANTHROPIC_API_KEY is set in repo secrets.
                 if (data.date) {
                     const ageDays = Math.floor((today - new Date(data.date)) / 86400000);
-                    if (ageDays > 3) return;
+                    if (ageDays > 14) return;
                 }
 
                 // getLocalStorage/setLocalStorage both add 'news-' prefix internally.
@@ -1407,9 +1409,26 @@
                     // Always refresh all-stories list from JSON
                     localStorage.setItem('news-all-stories-' + dateKey, JSON.stringify(data.stories));
                 }
-                if (data.videos && data.videos.length) {
-                    // Always overwrite video list from fresh JSON
-                    localStorage.setItem('news-videos-' + dateKey, JSON.stringify(data.videos));
+                // Build video list: curated picks first, then auto-generated search cards
+                // from every story's videoQuery so Watch & Learn always has one card per story.
+                {
+                    const curatedVids = (data.videos && data.videos.length) ? data.videos : [];
+                    const storyVids = (data.stories || []).map(s => ({
+                        title: s.headline,
+                        description: 'Tap to search YouTube for videos about this story.',
+                        url: 'https://www.youtube.com/results?search_query=' + encodeURIComponent(s.videoQuery || s.headline),
+                        topic: 'Search YouTube'
+                    }));
+                    // Merge: curated cards first, then story cards not already covered
+                    const allVids = [
+                        ...curatedVids,
+                        ...storyVids.filter(sv =>
+                            !curatedVids.some(cv => cv.title.toLowerCase() === sv.title.toLowerCase())
+                        )
+                    ];
+                    if (allVids.length) {
+                        localStorage.setItem('news-videos-' + dateKey, JSON.stringify(allVids));
+                    }
                 }
                 if (data.infographic) {
                     // Always update infographic from fresh JSON (overwrite stale content)
