@@ -1,0 +1,3279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worksheet Grader — Sarah's Learning Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F8F6F0;
+  --card: #ffffff;
+  --primary: #1e1b4b;
+  --accent: #667eea;
+  --accent-light: #EDE9FE;
+  --green: #06D6A0;
+  --green-bg: #D1FAE5;
+  --green-text: #065F46;
+  --amber: #F59E0B;
+  --amber-bg: #FEF3C7;
+  --amber-text: #92400E;
+  --red: #EF4444;
+  --red-bg: #FEE2E2;
+  --red-text: #991B1B;
+  --gray: #6B7280;
+  --gray-light: #F3F4F6;
+  --border: #E5E7EB;
+  --font: 'Nunito', system-ui, sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:100vh; }
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 24px 32px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.header h1 { font-size:1.5rem; font-weight:900; }
+.header .sub { font-size:.88rem; opacity:.85; font-weight:600; }
+.header-right { display:flex; gap:10px; align-items:center; }
+
+/* ── SUBJECT TOGGLE ── */
+.subject-toggle {
+  display:flex;
+  background:rgba(255,255,255,.15);
+  border-radius:99px;
+  padding:3px;
+  gap:2px;
+}
+.subject-toggle button {
+  padding:7px 18px;
+  border:none;
+  border-radius:99px;
+  font-family:var(--font);
+  font-size:.82rem;
+  font-weight:800;
+  cursor:pointer;
+  background:transparent;
+  color:rgba(255,255,255,.6);
+  transition:all .2s;
+}
+.subject-toggle button.active {
+  background:white;
+  color:var(--primary);
+}
+
+/* ── SETTINGS GEAR ── */
+.gear-btn {
+  background:rgba(255,255,255,.2);
+  border:none;
+  width:38px;height:38px;
+  border-radius:50%;
+  font-size:1.2rem;
+  cursor:pointer;
+  color:white;
+  transition:background .2s;
+}
+.gear-btn:hover { background:rgba(255,255,255,.35); }
+
+/* ── CONTAINER ── */
+.container { max-width:960px; margin:0 auto; padding:20px 16px; }
+
+/* ── CARDS ── */
+.card {
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:24px;
+  margin-bottom:16px;
+  box-shadow:var(--shadow);
+}
+.card-title {
+  font-size:1rem;
+  font-weight:800;
+  color:var(--primary);
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* ── SETTINGS PANEL ── */
+.settings-overlay {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  z-index:1000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+.settings-overlay.visible { display:flex; }
+.settings-panel {
+  background:white;
+  border-radius:var(--radius);
+  padding:32px;
+  width:90%;
+  max-width:480px;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+.settings-panel h2 {
+  font-size:1.1rem;
+  font-weight:900;
+  color:var(--primary);
+  margin-bottom:20px;
+}
+.form-group { margin-bottom:16px; }
+.form-group label {
+  display:block;
+  font-size:.82rem;
+  font-weight:700;
+  color:var(--gray);
+  margin-bottom:6px;
+}
+.form-group input[type="text"],
+.form-group input[type="password"] {
+  width:100%;
+  padding:10px 14px;
+  border:2px solid var(--border);
+  border-radius:var(--radius-sm);
+  font-family:var(--font);
+  font-size:.88rem;
+  font-weight:600;
+  transition:border-color .2s;
+}
+.form-group input:focus {
+  outline:none;
+  border-color:var(--accent);
+}
+.slider-row {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.slider-row input[type="range"] {
+  flex:1;
+  accent-color:var(--accent);
+}
+.slider-val {
+  font-size:.95rem;
+  font-weight:800;
+  color:var(--primary);
+  min-width:40px;
+  text-align:right;
+}
+.btn {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:10px 22px;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-family:var(--font);
+  font-size:.88rem;
+  font-weight:800;
+  cursor:pointer;
+  transition:all .2s;
+}
+.btn-primary { background:var(--accent); color:white; }
+.btn-primary:hover { background:#5a6fd6; }
+.btn-primary:disabled { background:var(--border); color:var(--gray); cursor:not-allowed; }
+.btn-secondary { background:var(--gray-light); color:var(--primary); }
+.btn-secondary:hover { background:var(--border); }
+.btn-green { background:var(--green); color:white; }
+.btn-green:hover { background:#05c493; }
+.btn-green:disabled { background:var(--border); color:var(--gray); cursor:not-allowed; }
+.btn-sm { padding:6px 14px; font-size:.78rem; }
+
+/* ── UPLOAD ZONE ── */
+.upload-zone {
+  border:3px dashed var(--border);
+  border-radius:var(--radius);
+  padding:48px 24px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative;
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color:var(--accent);
+  background:var(--accent-light);
+}
+.upload-zone .icon { font-size:2.5rem; margin-bottom:10px; }
+.upload-zone .label { font-size:.95rem; font-weight:700; color:var(--primary); }
+.upload-zone .hint { font-size:.8rem; color:var(--gray); margin-top:6px; }
+.upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+
+/* ── PREVIEW THUMBS ── */
+.preview-thumb {
+  width:80px;height:100px;
+  object-fit:cover;
+  border-radius:8px;
+  border:2px solid var(--border);
+}
+.preview-thumb-pdf {
+  width:80px;height:100px;
+  border-radius:8px;
+  border:2px solid var(--accent);
+  background:var(--accent-light);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.7rem;
+  font-weight:800;
+  color:var(--accent);
+  text-align:center;
+  padding:4px;
+}
+
+/* ── PROGRESS ── */
+.progress-bar-wrap {
+  display:none;
+  margin:16px 0;
+}
+.progress-bar-wrap.visible { display:block; }
+.progress-label {
+  font-size:.82rem;
+  font-weight:700;
+  color:var(--gray);
+  margin-bottom:6px;
+}
+.progress-track {
+  background:var(--gray-light);
+  border-radius:99px;
+  height:8px;
+  overflow:hidden;
+}
+.progress-fill {
+  height:100%;
+  border-radius:99px;
+  background:linear-gradient(90deg, var(--accent), #764ba2);
+  transition:width .3s;
+  width:0%;
+}
+
+/* ── REVIEW TABLE ── */
+.review-table { width:100%; border-collapse:separate; border-spacing:0 6px; }
+.review-table th {
+  text-align:left;
+  font-size:.75rem;
+  font-weight:800;
+  color:var(--gray);
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  padding:0 8px 8px;
+}
+.review-table td {
+  padding:10px 8px;
+  font-size:.85rem;
+  font-weight:600;
+  vertical-align:middle;
+}
+.review-table tr.row-ok td { background:var(--green-bg); }
+.review-table tr.row-ok td:first-child { border-radius:var(--radius-sm) 0 0 var(--radius-sm); }
+.review-table tr.row-ok td:last-child { border-radius:0 var(--radius-sm) var(--radius-sm) 0; }
+.review-table tr.row-flag td { background:var(--amber-bg); }
+.review-table tr.row-flag td:first-child { border-radius:var(--radius-sm) 0 0 var(--radius-sm); }
+.review-table tr.row-flag td:last-child { border-radius:0 var(--radius-sm) var(--radius-sm) 0; }
+.review-table tr.row-needs-answer td { background:var(--red-bg); }
+.review-table tr.row-needs-answer td:first-child { border-radius:var(--radius-sm) 0 0 var(--radius-sm); }
+.review-table tr.row-needs-answer td:last-child { border-radius:0 var(--radius-sm) var(--radius-sm) 0; }
+.quick-answer-btn { display:inline-block; margin-top:4px; padding:2px 8px; font-size:0.78em; border-radius:4px; border:1px solid #c62828; color:#c62828; background:#fff; cursor:pointer; }
+.quick-answer-btn:hover { background:#fce4ec; }
+
+.flag-badge {
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:3px 10px;
+  border-radius:99px;
+  font-size:.72rem;
+  font-weight:800;
+}
+.flag-badge.ok { background:var(--green-bg); color:var(--green-text); }
+.flag-badge.warn { background:var(--amber-bg); color:var(--amber-text); }
+
+.low-conf { background:#FDE68A; padding:1px 4px; border-radius:4px; }
+
+/* correction-input styles moved to CORRECTION FIELD GROUP section */
+
+/* ── RESULTS ── */
+.score-bar {
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:20px 24px;
+  border-radius:var(--radius);
+  margin-bottom:16px;
+}
+.score-bar.green { background:linear-gradient(135deg, #D1FAE5, #A7F3D0); }
+.score-bar.amber { background:linear-gradient(135deg, #FEF3C7, #FDE68A); }
+.score-bar.red { background:linear-gradient(135deg, #FEE2E2, #FECACA); }
+.score-big {
+  font-size:2.2rem;
+  font-weight:900;
+  color:var(--primary);
+}
+.score-pct {
+  font-size:1.3rem;
+  font-weight:800;
+}
+.score-label {
+  font-size:.88rem;
+  font-weight:700;
+  color:var(--gray);
+}
+
+.result-table { width:100%; border-collapse:separate; border-spacing:0 4px; }
+.result-table th {
+  text-align:left;
+  font-size:.72rem;
+  font-weight:800;
+  color:var(--gray);
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  padding:0 8px 8px;
+}
+.result-table td {
+  padding:8px;
+  font-size:.82rem;
+  font-weight:600;
+  background:var(--gray-light);
+  vertical-align:top;
+}
+.result-table tr td:first-child { border-radius:var(--radius-sm) 0 0 var(--radius-sm); }
+.result-table tr td:last-child { border-radius:0 var(--radius-sm) var(--radius-sm) 0; }
+.result-table .correct-cell { color:var(--green-text); }
+.result-table .wrong-cell { color:var(--red-text); background:var(--red-bg); }
+
+.mark { font-size:1.1rem; }
+
+/* ── ERROR PATTERN CARDS ── */
+.error-card {
+  border-left:4px solid;
+  border-radius:var(--radius-sm);
+  padding:14px 18px;
+  margin-bottom:10px;
+}
+.error-card.careless { background:#FFF7ED; border-color:#FB923C; }
+.error-card.procedural { background:#FDF2F8; border-color:#EC4899; }
+.error-card.conceptual { background:#FEF2F2; border-color:#EF4444; }
+.error-card.computation { background:#EFF6FF; border-color:#3B82F6; }
+.error-card.missed_error { background:#FFF7ED; border-color:#FB923C; }
+.error-card.wrong_correction { background:#FEF2F2; border-color:#EF4444; }
+.error-card.partially_correct { background:#FDF2F8; border-color:#EC4899; }
+.error-card-title { font-size:.88rem; font-weight:800; margin-bottom:4px; }
+.error-card-detail { font-size:.82rem; font-weight:600; color:var(--gray); line-height:1.5; }
+
+/* ── OBSERVATIONS ── */
+.observations-box {
+  background:linear-gradient(135deg, var(--accent-light), #F5F3FF);
+  border-radius:var(--radius);
+  padding:20px 24px;
+  margin-top:16px;
+  border:2px solid #C4B5FD;
+}
+.observations-box h3 {
+  font-size:.95rem;
+  font-weight:900;
+  color:var(--primary);
+  margin-bottom:10px;
+}
+.observations-box p {
+  font-size:.88rem;
+  font-weight:600;
+  color:#374151;
+  line-height:1.6;
+}
+
+/* ── SECTIONS ── */
+.section { display:none; }
+.section.active { display:block; }
+
+/* ── BACK LINK ── */
+.back-link {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:.82rem;
+  font-weight:700;
+  color:var(--accent);
+  cursor:pointer;
+  margin-bottom:12px;
+}
+.back-link:hover { text-decoration:underline; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px) {
+  .header { padding:16px; }
+  .header h1 { font-size:1.2rem; }
+  .container { padding:12px 10px; }
+  .card { padding:16px; }
+  .review-table, .result-table { font-size:.75rem; }
+  .score-big { font-size:1.6rem; }
+}
+
+/* ── RAW OUTPUT ── */
+.raw-output {
+  background:#1e1b4b;
+  color:#a5b4fc;
+  border-radius:var(--radius-sm);
+  padding:16px;
+  font-family:'Fira Code', monospace;
+  font-size:.78rem;
+  white-space:pre-wrap;
+  word-break:break-all;
+  max-height:300px;
+  overflow-y:auto;
+  display:none;
+}
+.raw-output.visible { display:block; }
+
+/* ── BOOK SELECTOR ── */
+.book-selector {
+  display:none;
+  background:linear-gradient(135deg, #F5F3FF, #EDE9FE);
+  border:2px solid #C4B5FD;
+  border-radius:var(--radius);
+  padding:20px 24px;
+  margin-top:16px;
+}
+.book-selector.visible { display:block; }
+.book-selector h3 { font-size:.92rem; font-weight:800; color:var(--primary); margin-bottom:12px; }
+.book-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:500px) { .book-grid { grid-template-columns:1fr; } }
+.book-grid select, .book-grid input {
+  padding:9px 12px;
+  border:2px solid var(--border);
+  border-radius:var(--radius-sm);
+  font-family:var(--font);
+  font-size:.85rem;
+  font-weight:600;
+  background:white;
+}
+.book-grid select:focus, .book-grid input:focus { outline:none; border-color:var(--accent); }
+
+/* ── EXAMPLE CARDS ── */
+.examples-section {
+  background:#FFF7ED;
+  border:2px solid #FDBA74;
+  border-radius:var(--radius);
+  padding:16px 20px;
+  margin-bottom:16px;
+}
+.examples-section h3 { font-size:.88rem; font-weight:800; color:#9A3412; margin-bottom:10px; }
+.example-card {
+  background:white;
+  border-radius:var(--radius-sm);
+  padding:10px 14px;
+  margin-bottom:8px;
+  border-left:4px solid #FDBA74;
+  font-size:.82rem;
+  font-weight:600;
+  color:#374151;
+}
+.example-label {
+  font-size:.72rem;
+  font-weight:800;
+  text-transform:uppercase;
+  color:#EA580C;
+  letter-spacing:.5px;
+  margin-bottom:4px;
+}
+
+/* ── MISSING QUESTIONS BANNER ── */
+.missing-banner {
+  display:none;
+  background:#EFF6FF;
+  border:2px solid #93C5FD;
+  border-radius:var(--radius);
+  padding:14px 20px;
+  margin-bottom:12px;
+}
+.missing-banner.visible { display:block; }
+.missing-banner-title { font-size:.85rem; font-weight:800; color:#1E40AF; margin-bottom:6px; }
+.missing-banner-detail { font-size:.8rem; font-weight:600; color:#374151; line-height:1.5; }
+.missing-banner .btn { margin-top:10px; }
+
+/* ── INFO BADGE (non-blocking) ── */
+.flag-badge.info {
+  background:#DBEAFE;
+  color:#1E40AF;
+}
+
+/* ── CORRECTION FIELD GROUP ── */
+.correction-group { display:flex; flex-direction:column; gap:6px; }
+.correction-group label {
+  font-size:.68rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+  color:var(--gray);
+}
+.correction-input {
+  width:160px;
+  padding:6px 10px;
+  border:2px solid var(--border);
+  border-radius:6px;
+  font-family:var(--font);
+  font-size:.82rem;
+  font-weight:700;
+}
+.correction-input:focus { outline:none; border-color:var(--accent); }
+.correction-input.flagged-input { border-color:var(--amber); }
+.correction-input.page-input { width:60px; border-color:#93C5FD; }
+
+/* ── ROW ACTIONS ── */
+.row-actions {
+  display:flex;
+  gap:4px;
+  align-items:center;
+}
+.row-action-btn {
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  font-size:.78rem;
+  font-weight:700;
+  padding:3px 8px;
+  border-radius:6px;
+  font-family:var(--font);
+  transition:background .15s;
+  white-space:nowrap;
+}
+.row-action-btn:hover { background:rgba(0,0,0,.06); }
+.row-action-btn.edit-btn { color:var(--accent); }
+.row-action-btn.merge-btn { color:#7C3AED; }
+.row-action-btn.delete-btn { color:var(--red); }
+
+/* ── INLINE EDITING STATE ── */
+.editing-row td { background:#F5F3FF !important; }
+.inline-edit-field {
+  width:100%;
+  padding:5px 8px;
+  border:2px solid var(--accent);
+  border-radius:6px;
+  font-family:var(--font);
+  font-size:.82rem;
+  font-weight:700;
+  background:white;
+}
+.inline-edit-field:focus { outline:none; border-color:#7C3AED; }
+
+/* ── PAGE EDIT ── */
+.page-cell {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+}
+.page-cell .page-num { font-size:.78rem; font-weight:800; color:var(--gray); }
+.page-cell .page-edit-link {
+  font-size:.62rem;
+  color:var(--accent);
+  cursor:pointer;
+  text-decoration:underline;
+}
+
+/* ── CHAPTER/PAGE BADGE ── */
+.chapter-badge {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 14px;
+  border-radius:99px;
+  font-size:.78rem;
+  font-weight:800;
+  background:var(--accent-light);
+  color:var(--accent);
+  margin-bottom:12px;
+}
+.page-badge {
+  font-size:.7rem;
+  font-weight:700;
+  color:var(--gray);
+  white-space:nowrap;
+}
+
+/* ── SPINNER ── */
+@keyframes spin { to { transform:rotate(360deg); } }
+.spinner {
+  display:inline-block;
+  width:18px;height:18px;
+  border:3px solid var(--border);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+  vertical-align:middle;
+  margin-right:6px;
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div>
+    <h1>Worksheet Grader</h1>
+    <div class="sub">Upload → OCR → Review → Grade → Report</div>
+  </div>
+  <div class="header-right">
+    <div class="subject-toggle">
+      <button id="btn-math" class="active" onclick="setSubject('math')">Math</button>
+      <button id="btn-grammar" onclick="setSubject('grammar')">Grammar / EiC</button>
+    </div>
+    <button class="gear-btn" onclick="openKeyLibrary()" title="Answer Key Library" style="font-size:1rem;">📚</button>
+    <button class="gear-btn" onclick="toggleSettings()" title="Settings">⚙</button>
+  </div>
+</div>
+
+<!-- ── KEY LIBRARY OVERLAY ── -->
+<div class="settings-overlay" id="keylibrary-overlay">
+  <div class="settings-panel" style="max-height:85vh;overflow-y:auto;width:92%;max-width:520px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <h2 style="margin:0;">📚 Answer Key Library</h2>
+      <button onclick="closeKeyLibrary()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#666;line-height:1;">✕</button>
+    </div>
+    <!-- Upload new key for any book/chapter -->
+    <div style="background:#F3F4F6;border-radius:12px;padding:14px;margin-bottom:16px;">
+      <div style="font-size:.8rem;font-weight:800;color:#374151;margin-bottom:10px;">➕ Save Key for a Chapter</div>
+      <div style="display:grid;grid-template-columns:1fr 90px;gap:8px;margin-bottom:8px;">
+        <select id="kl-book" style="padding:8px 10px;border-radius:8px;border:1.5px solid #D1D5DB;font-family:inherit;font-size:.82rem;font-weight:700;background:white;">
+          <option value="">— Select book —</option>
+          <optgroup label="Singapore Math (CWP)">
+            <option value="SM CWP Book 2">SM CWP Book 2</option>
+            <option value="SM CWP Book 3">SM CWP Book 3</option>
+            <option value="SM CWP Book 4">SM CWP Book 4</option>
+            <option value="SM CWP Book 5">SM CWP Book 5</option>
+          </optgroup>
+          <optgroup label="SM Challenge">
+            <option value="SM Challenge 2+">SM Challenge 2+</option>
+            <option value="SM Challenge 3+">SM Challenge 3+</option>
+            <option value="SM Challenge 4+">SM Challenge 4+</option>
+            <option value="SM Challenge 5+">SM Challenge 5+</option>
+          </optgroup>
+          <optgroup label="Beast Academy">
+            <option value="BA 3A">BA 3A</option><option value="BA 3B">BA 3B</option>
+            <option value="BA 3C">BA 3C</option><option value="BA 3D">BA 3D</option>
+            <option value="BA 4A">BA 4A</option><option value="BA 4B">BA 4B</option>
+            <option value="BA 4C">BA 4C</option><option value="BA 4D">BA 4D</option>
+          </optgroup>
+          <optgroup label="English / Grammar">
+            <option value="EIC Book 1">EIC Book 1</option>
+            <option value="EIC Book 2">EIC Book 2</option>
+            <option value="Mosdos Opal">Mosdos Opal</option>
+          </optgroup>
+        </select>
+        <input id="kl-chapter" type="text" placeholder="Ch #" style="padding:8px 10px;border-radius:8px;border:1.5px solid #D1D5DB;font-family:inherit;font-size:.85rem;font-weight:700;">
+      </div>
+      <label style="display:inline-block;background:#4F46E5;color:white;border-radius:10px;padding:8px 16px;font-family:inherit;font-size:.82rem;font-weight:800;cursor:pointer;position:relative;">
+        📷 Upload Key Image(s)
+        <input type="file" accept="image/jpeg,image/png,application/pdf" multiple
+          style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleKeyLibraryUpload(this.files)">
+      </label>
+      <div id="kl-upload-status" style="font-size:.78rem;font-weight:700;color:#6B7280;margin-top:8px;min-height:18px;"></div>
+    </div>
+    <!-- Stored keys list -->
+    <div style="font-size:.8rem;font-weight:800;color:#374151;margin-bottom:8px;">📋 Saved Keys</div>
+    <div id="kl-list"></div>
+  </div>
+</div>
+
+<!-- ── SETTINGS OVERLAY ── -->
+<div class="settings-overlay" id="settings-overlay">
+  <div class="settings-panel">
+    <h2>⚙ API Settings</h2>
+    <div class="form-group">
+      <label>Mistral API Key</label>
+      <input type="password" id="inp-mistral" placeholder="Enter Mistral API key...">
+    </div>
+    <div class="form-group">
+      <label>Anthropic API Key</label>
+      <input type="password" id="inp-anthropic" placeholder="Enter Anthropic API key...">
+    </div>
+    <div class="form-group">
+      <label>OCR Confidence Threshold</label>
+      <div class="slider-row">
+        <input type="range" id="inp-threshold" min="70" max="98" value="85">
+        <span class="slider-val" id="threshold-val">85%</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+      <button class="btn btn-secondary" onclick="toggleSettings()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── BATCH MODE BANNER ── -->
+  <div id="batch-banner" style="display:none;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;padding:12px 18px;border-radius:14px;margin-bottom:16px;font-family:inherit;font-size:.85rem;font-weight:800;text-align:center;letter-spacing:.01em;"></div>
+
+  <!-- ══════ SECTION 1: UPLOAD ══════ -->
+  <div class="section active" id="sec-upload">
+    <div class="card">
+      <div class="card-title">📷 Upload Worksheet</div>
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" accept="image/jpeg,image/png,application/pdf" multiple id="file-input">
+        <div class="icon">📄</div>
+        <div class="label">Drop worksheet pages here or click to browse</div>
+        <div class="hint">Multiple JPG/PNG images or a single PDF — all pages processed together</div>
+      </div>
+      <div class="preview-area" id="preview-area" style="display:none;">
+        <div style="font-size:.82rem;font-weight:700;color:var(--gray);margin-bottom:8px;" id="file-summary"></div>
+        <div class="preview-thumbs" id="preview-thumbs" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      </div>
+      <!-- Book selector — shown after files are picked, before OCR -->
+      <div class="book-selector" id="book-selector">
+        <h3>Which book are these pages from?</h3>
+        <div class="book-grid">
+          <select id="sel-book" onchange="onBookSelect()">
+            <option value="">— Select book —</option>
+            <optgroup label="Singapore Math (CWP)">
+              <option value="SM CWP Book 2">Singapore Math CWP Book 2</option>
+              <option value="SM CWP Book 3">Singapore Math CWP Book 3</option>
+              <option value="SM CWP Book 4">Singapore Math CWP Book 4</option>
+              <option value="SM CWP Book 5">Singapore Math CWP Book 5</option>
+            </optgroup>
+            <optgroup label="Singapore Math Challenge">
+              <option value="SM Challenge 2+">SM Challenge 2+</option>
+              <option value="SM Challenge 3+">SM Challenge 3+</option>
+              <option value="SM Challenge 4+">SM Challenge 4+</option>
+              <option value="SM Challenge 5+">SM Challenge 5+</option>
+            </optgroup>
+            <optgroup label="Beast Academy">
+              <option value="BA 3A">Beast Academy 3A</option>
+              <option value="BA 3B">Beast Academy 3B</option>
+              <option value="BA 3C">Beast Academy 3C</option>
+              <option value="BA 3D">Beast Academy 3D</option>
+              <option value="BA 4A">Beast Academy 4A</option>
+              <option value="BA 4B">Beast Academy 4B</option>
+              <option value="BA 4C">Beast Academy 4C</option>
+              <option value="BA 4D">Beast Academy 4D</option>
+            </optgroup>
+            <optgroup label="English / Grammar">
+              <option value="EIC Book 1">Editor in Chief Book 1</option>
+              <option value="EIC Book 2">Editor in Chief Book 2</option>
+              <option value="Mosdos Opal">Mosdos Opal</option>
+            </optgroup>
+            <option value="other">Other (type below)</option>
+          </select>
+          <input type="text" id="inp-book-custom" placeholder="Custom book name (if Other)" style="display:none;">
+        </div>
+        <div class="book-grid" style="margin-top:10px;">
+          <input type="text" id="inp-chapter" placeholder="Chapter # (auto-detected from page, or type here)">
+          <button class="btn btn-primary" id="btn-start-ocr" onclick="confirmBookAndOCR()">Start OCR</button>
+        </div>
+      </div>
+
+      <div class="progress-bar-wrap" id="ocr-progress">
+        <div class="progress-label" id="ocr-label"><span class="spinner"></span>Running OCR...</div>
+        <div class="progress-track"><div class="progress-fill" id="ocr-fill"></div></div>
+      </div>
+      <div class="raw-output" id="raw-ocr"></div>
+    </div>
+  </div>
+
+  <!-- ══════ SECTION 2: REVIEW ══════ -->
+  <div class="section" id="sec-review">
+    <div class="back-link" onclick="goTo('upload')">← Back to Upload</div>
+    <!-- Book/Chapter badge -->
+    <div class="chapter-badge" id="review-chapter-badge" style="display:none;"></div>
+
+    <!-- Missing questions banner -->
+    <div class="missing-banner" id="missing-banner">
+      <div class="missing-banner-title">Some questions appear to be missing</div>
+      <div class="missing-banner-detail" id="missing-detail"></div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:10px;">
+        <label class="btn btn-secondary btn-sm" style="cursor:pointer;position:relative;">
+          Upload missing pages
+          <input type="file" accept="image/jpeg,image/png,application/pdf" multiple id="upload-more-input"
+            style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleMorePages(this.files)">
+        </label>
+        <button class="btn btn-sm" style="background:transparent;color:#1E40AF;font-weight:700;text-decoration:underline;border:none;cursor:pointer;"
+          onclick="dismissMissing()">Skip — grade what I have</button>
+      </div>
+    </div>
+
+    <!-- Examples (shown separately, not graded) -->
+    <div class="examples-section" id="examples-section" style="display:none;">
+      <h3>Worked Examples (context only — not graded)</h3>
+      <div id="examples-body"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔍 Review Parsed Questions</div>
+      <p style="font-size:.82rem;font-weight:600;color:var(--gray);margin-bottom:14px;" id="review-subtitle">
+        Confirm or correct flagged items before grading.
+      </p>
+      <div style="overflow-x:auto;">
+        <table class="review-table" id="review-table">
+          <thead><tr>
+            <th>Page</th>
+            <th>Q#</th>
+            <th>Problem</th>
+            <th>Student Answer</th>
+            <th id="th-answer-key" style="display:none;">Answer Key ✓</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody id="review-body"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-green" id="btn-grade" disabled onclick="startGrading()">Confirm & Grade</button>
+        <label class="btn btn-secondary btn-sm" style="cursor:pointer;position:relative;">
+          + Add more pages
+          <input type="file" accept="image/jpeg,image/png,application/pdf" multiple
+            style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleMorePages(this.files)">
+        </label>
+        <label class="btn btn-secondary btn-sm" style="cursor:pointer;position:relative;background:#e8f5e9;border-color:#4caf50;">
+          📋 Upload Answer Key
+          <input type="file" accept="image/jpeg,image/png,application/pdf" multiple
+            style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleAnswerKeyUpload(this.files)">
+        </label>
+        <button class="btn btn-secondary btn-sm" onclick="toggleRawOCR()">Show Raw OCR</button>
+        <button class="btn btn-secondary btn-sm" onclick="toggleParserLog()">Parser Log</button>
+      </div>
+      <div class="raw-output" id="raw-ocr-review"></div>
+      <div class="raw-output" id="parser-log" style="font-size:0.8em;white-space:pre-wrap;max-height:400px;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- ══════ SECTION 3: GRADING ══════ -->
+  <div class="section" id="sec-grading">
+    <div class="card">
+      <div class="card-title"><span class="spinner"></span> Grading in Progress</div>
+      <div class="progress-bar-wrap visible">
+        <div class="progress-label" id="grade-label">Grading Q1 of ...</div>
+        <div class="progress-track"><div class="progress-fill" id="grade-fill"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ SECTION 4: REPORT ══════ -->
+  <div class="section" id="sec-report">
+    <div class="back-link" onclick="goTo('upload')">← New Worksheet</div>
+
+    <!-- Book/Chapter badge on report -->
+    <div class="chapter-badge" id="report-chapter-badge" style="display:none;"></div>
+
+    <!-- Score Bar -->
+    <div class="score-bar" id="score-bar">
+      <div>
+        <div class="score-big" id="score-fraction">—</div>
+        <div class="score-label">questions correct</div>
+      </div>
+      <div class="score-pct" id="score-pct">—</div>
+    </div>
+
+    <!-- Question-by-Question -->
+    <div class="card">
+      <div class="card-title">📋 Question-by-Question Results</div>
+      <div style="overflow-x:auto;">
+        <table class="result-table" id="result-table">
+          <thead><tr>
+            <th>Page</th>
+            <th>Q#</th>
+            <th>Problem</th>
+            <th>Student</th>
+            <th>Correct</th>
+            <th></th>
+            <th>Note</th>
+          </tr></thead>
+          <tbody id="result-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Error Patterns -->
+    <div class="card" id="error-patterns-card" style="display:none;">
+      <div class="card-title">🔎 Error Pattern Analysis</div>
+      <div id="error-patterns"></div>
+    </div>
+
+    <!-- Observations -->
+    <div class="observations-box" id="observations-box" style="display:none;">
+      <h3>📝 Observations for Parent</h3>
+      <p id="observations-text"></p>
+    </div>
+
+    <!-- Dashboard sync status (shown automatically when opened from dashboard) -->
+    <div id="send-to-dashboard-wrap" style="display:none;margin-top:16px;background:linear-gradient(135deg,#EDE9FE,#FDF4FF);border:2px solid #C4B5FD;border-radius:16px;padding:16px 18px;">
+      <div style="font-size:.85rem;font-weight:800;color:#6D28D9;margin-bottom:4px;">📲 Dashboard Sync</div>
+      <div id="send-to-dashboard-msg" style="font-size:.85rem;font-weight:700;color:#10B981;min-height:20px;"></div>
+    </div>
+
+    <!-- Export -->
+    <div style="margin-top:16px;display:flex;gap:10px;">
+      <button class="btn btn-primary" onclick="exportReport()">⬇ Export Report</button>
+      <button class="btn btn-secondary" onclick="goTo('upload')">Grade Another</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let subject = 'math';           // 'math' | 'grammar'
+let ocrMarkdown = '';
+let parsedQuestions = [];        // { question_number, problem_text, student_answer, confidence, low_tokens[], flagged, flag_reason, resolved, page }
+let parsedExamples = [];         // { label, text, answer, page }
+let detectedChapter = '';        // auto-detected from OCR
+let bookName = '';               // user-selected book
+let chapterNumber = '';          // user-confirmed chapter
+let gradingResults = [];         // { ...question, correct_answer, student_correct, error_type, brief_note }
+let answerKeyMap = {};           // { questionNumber: correctAnswer } — from uploaded answer key
+let uploadedFiles = [];          // array of { file, dataUrl, type: 'image'|'pdf' }
+let allOcrData = [];             // raw OCR responses per file/page
+
+// ═══════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════
+function loadSettings() {
+  document.getElementById('inp-mistral').value = localStorage.getItem('wg-mistral-key') || '';
+  document.getElementById('inp-anthropic').value = localStorage.getItem('wg-anthropic-key') || localStorage.getItem('hs-api-key') || '';
+  const t = parseInt(localStorage.getItem('wg-threshold')) || 85;
+  document.getElementById('inp-threshold').value = t;
+  document.getElementById('threshold-val').textContent = t + '%';
+}
+function saveSettings() {
+  localStorage.setItem('wg-mistral-key', document.getElementById('inp-mistral').value.trim());
+  localStorage.setItem('wg-anthropic-key', document.getElementById('inp-anthropic').value.trim());
+  localStorage.setItem('wg-threshold', document.getElementById('inp-threshold').value);
+  toggleSettings();
+}
+function toggleSettings() {
+  const o = document.getElementById('settings-overlay');
+  o.classList.toggle('visible');
+  if (o.classList.contains('visible')) loadSettings();
+}
+document.getElementById('inp-threshold').addEventListener('input', e => {
+  document.getElementById('threshold-val').textContent = e.target.value + '%';
+});
+
+// Auto-open settings if keys missing
+// ── Dashboard handoff state ──
+let _dashboardSubId = null;
+
+// ── Batch queue state ──
+let _batchQueue  = [];   // array of subIds
+let _batchIndex  = 0;
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadSettings();
+  if (!localStorage.getItem('wg-mistral-key') || !localStorage.getItem('wg-anthropic-key')) {
+    if (!localStorage.getItem('wg-mistral-key') && !localStorage.getItem('wg-anthropic-key') && !localStorage.getItem('hs-api-key')) {
+      toggleSettings();
+    }
+  }
+
+  // ── Auto-load photo from dashboard submission ──
+  if (new URLSearchParams(window.location.search).get('from') === 'dashboard') {
+    const pending = JSON.parse(localStorage.getItem('hs-wg-pending-sub') || 'null');
+    if (pending && pending.imageData && pending.subId) {
+      _dashboardSubId = pending.subId;
+
+      // Map dashboard subject to grader subject
+      const mathSubjects = ['Math', 'Beast Academy', 'Singapore Math', 'IXL'];
+      const autoSubject  = mathSubjects.some(s => (pending.subject||'').toLowerCase().includes(s.toLowerCase())) ? 'math' : 'grammar';
+      setSubject(autoSubject);
+
+      // Pre-fill book/chapter from task text
+      const taskText = pending.taskText || '';
+      if (taskText) {
+        const chMatch = taskText.match(/ch(?:apter)?\s*(\d+)/i);
+        if (chMatch) { const ci = document.getElementById('inp-chapter'); if (ci) ci.value = chMatch[1]; }
+        // Try to extract book name
+        const bookMatch = taskText.match(/([A-Z][A-Za-z\s]+(?:Math|Academy|English))/);
+        if (bookMatch) { const bi = document.getElementById('inp-book'); if (bi) bi.value = bookMatch[1].trim(); }
+      }
+
+      // Load the image as an uploaded file
+      fetch(pending.imageData)
+        .then(r => r.blob())
+        .then(blob => {
+          const file = new File([blob], 'submission.jpg', { type: 'image/jpeg' });
+          // Inject into the upload files array
+          if (typeof handleFiles === 'function') {
+            handleFiles([file]);
+          } else {
+            // Fallback: find file input and set it
+            const fi = document.getElementById('file-input') || document.querySelector('input[type=file]');
+            if (fi) {
+              const dt = new DataTransfer();
+              dt.items.add(file);
+              fi.files = dt.files;
+              fi.dispatchEvent(new Event('change'));
+            }
+          }
+        })
+        .catch(() => {});
+
+      // Show banner
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;padding:12px 20px;font-family:inherit;font-size:.85rem;font-weight:800;text-align:center;border-radius:12px;margin-bottom:16px;';
+      banner.textContent = `📲 Loaded from dashboard — ${pending.subject}: ${(pending.taskText||'').replace(/\s*—\s*\d+\s*min.*/i,'').slice(0,60)}`;
+      const firstSection = document.querySelector('.section');
+      if (firstSection) firstSection.insertBefore(banner, firstSection.firstChild);
+    }
+  }
+
+  // ── Batch mode ──
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('batch') === 'true') {
+    _batchQueue = JSON.parse(localStorage.getItem('hs-wg-batch-queue') || '[]');
+    _batchIndex = 0;
+    if (_batchQueue.length > 0) {
+      loadBatchItem(0);
+    } else {
+      const b = document.getElementById('batch-banner');
+      if (b) { b.textContent = '⚠ Batch queue is empty.'; b.style.display = 'block'; }
+    }
+  }
+});
+
+// ═══════════════════════════════════════════
+//  BATCH MODE
+// ═══════════════════════════════════════════
+function loadBatchItem(idx) {
+  if (idx >= _batchQueue.length) { showBatchComplete(); return; }
+  _batchIndex = idx;
+  const subId = _batchQueue[idx];
+  const subs  = JSON.parse(localStorage.getItem('hs-submissions') || '[]');
+  const sub   = subs.find(s => s.id === subId);
+  if (!sub) { loadBatchItem(idx + 1); return; }
+
+  _dashboardSubId = subId;
+
+  // Map subject
+  const mathKw = ['Math','Beast Academy','Singapore Math','IXL'];
+  const autoSub = mathKw.some(k => (sub.subject||'').toLowerCase().includes(k.toLowerCase())) ? 'math' : 'grammar';
+  setSubject(autoSub);
+
+  // Pre-fill chapter
+  const chMatch = (sub.taskText||'').match(/ch(?:apter)?\s*(\d+)/i);
+  if (chMatch) { const ci = document.getElementById('inp-chapter'); if (ci) ci.value = chMatch[1]; }
+
+  // Load image
+  fetch(sub.imageData)
+    .then(r => r.blob())
+    .then(blob => {
+      const file = new File([blob], 'batch-' + idx + '.jpg', { type: 'image/jpeg' });
+      if (typeof handleFiles === 'function') handleFiles([file]);
+    })
+    .catch(() => {});
+
+  updateBatchBanner();
+}
+
+function updateBatchBanner() {
+  const b = document.getElementById('batch-banner');
+  if (!b) return;
+  const sub = (() => {
+    const subs = JSON.parse(localStorage.getItem('hs-submissions') || '[]');
+    return subs.find(s => s.id === _batchQueue[_batchIndex]);
+  })();
+  const label = sub ? `${sub.subject}: ${(sub.taskText||'').replace(/\s*—\s*\d+\s*min.*/i,'').slice(0,50)}` : '';
+  b.textContent = `📦 Batch ${_batchIndex + 1} / ${_batchQueue.length}${label ? ' — ' + label : ''}`;
+  b.style.display = 'block';
+}
+
+function showBatchComplete() {
+  const b = document.getElementById('batch-banner');
+  if (b) {
+    b.textContent = `✅ Batch complete — all ${_batchQueue.length} submissions graded!`;
+    b.style.background = 'linear-gradient(135deg,#059669,#10B981)';
+    b.style.display = 'block';
+  }
+  localStorage.removeItem('hs-wg-batch-queue');
+}
+
+// ═══════════════════════════════════════════
+//  SUBJECT TOGGLE
+// ═══════════════════════════════════════════
+function setSubject(s) {
+  subject = s;
+  document.getElementById('btn-math').classList.toggle('active', s === 'math');
+  document.getElementById('btn-grammar').classList.toggle('active', s === 'grammar');
+}
+
+// ═══════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════
+function goTo(sec) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + sec).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════════
+//  FILE UPLOAD (multi-file + PDF support)
+// ═══════════════════════════════════════════
+const uploadZone = document.getElementById('upload-zone');
+const fileInput = document.getElementById('file-input');
+
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e => {
+  if (e.target.files.length) handleFiles(e.target.files);
+});
+
+async function handleFiles(fileList) {
+  const mistralKey = localStorage.getItem('wg-mistral-key');
+  if (!mistralKey) {
+    alert('Please set your Mistral API key in Settings first.');
+    toggleSettings();
+    return;
+  }
+
+  uploadedFiles = [];
+  const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+  const files = Array.from(fileList).filter(f => validTypes.includes(f.type));
+
+  if (files.length === 0) {
+    alert('Please upload JPG, PNG, or PDF files.');
+    return;
+  }
+
+  // Sort: images by name, PDFs first (since they contain multiple pages)
+  files.sort((a, b) => {
+    if (a.type === 'application/pdf' && b.type !== 'application/pdf') return -1;
+    if (b.type === 'application/pdf' && a.type !== 'application/pdf') return 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  // Read all files as data URLs
+  const previewArea = document.getElementById('preview-area');
+  const thumbs = document.getElementById('preview-thumbs');
+  const summary = document.getElementById('file-summary');
+  previewArea.style.display = 'block';
+  thumbs.innerHTML = '';
+
+  for (const file of files) {
+    const dataUrl = await readFileAsDataUrl(file);
+    const isPdf = file.type === 'application/pdf';
+    uploadedFiles.push({ file, dataUrl, type: isPdf ? 'pdf' : 'image' });
+
+    // Show thumbnail
+    if (isPdf) {
+      const div = document.createElement('div');
+      div.className = 'preview-thumb-pdf';
+      div.textContent = 'PDF\n' + file.name.slice(0, 12);
+      thumbs.appendChild(div);
+    } else {
+      const img = document.createElement('img');
+      img.className = 'preview-thumb';
+      img.src = dataUrl;
+      img.alt = file.name;
+      thumbs.appendChild(img);
+    }
+  }
+
+  const imgCount = uploadedFiles.filter(f => f.type === 'image').length;
+  const pdfCount = uploadedFiles.filter(f => f.type === 'pdf').length;
+  const parts = [];
+  if (imgCount) parts.push(imgCount + ' image' + (imgCount > 1 ? 's' : ''));
+  if (pdfCount) parts.push(pdfCount + ' PDF' + (pdfCount > 1 ? 's' : ''));
+  summary.textContent = parts.join(' + ') + ' ready';
+
+  // Show book selector — OCR starts after user confirms book
+  document.getElementById('book-selector').classList.add('visible');
+}
+
+function onBookSelect() {
+  const sel = document.getElementById('sel-book');
+  const custom = document.getElementById('inp-book-custom');
+  custom.style.display = sel.value === 'other' ? 'block' : 'none';
+
+  // Auto-set subject based on book
+  if (sel.value.startsWith('EIC') || sel.value === 'Mosdos Opal') {
+    setSubject('grammar');
+  } else if (sel.value && sel.value !== 'other') {
+    setSubject('math');
+  }
+}
+
+async function confirmBookAndOCR() {
+  const sel = document.getElementById('sel-book');
+  bookName = sel.value === 'other'
+    ? document.getElementById('inp-book-custom').value.trim()
+    : sel.value;
+
+  if (!bookName) {
+    alert('Please select or type a book name.');
+    return;
+  }
+
+  chapterNumber = document.getElementById('inp-chapter').value.trim();
+  document.getElementById('book-selector').classList.remove('visible');
+
+  // Auto-load answer key from localStorage if one was previously saved for this book+chapter
+  loadAnswerKeyFromStorage();
+
+  const mistralKey = localStorage.getItem('wg-mistral-key');
+  await runOCRPipeline(mistralKey);
+}
+
+function loadAnswerKeyFromStorage() {
+  if (!bookName || !chapterNumber) return;
+  const storageKey = 'wg-answer-key-' + bookName + '-ch' + chapterNumber;
+  const stored = localStorage.getItem(storageKey);
+  if (stored) {
+    try {
+      answerKeyMap = JSON.parse(stored);
+      const count = Object.keys(answerKeyMap).length;
+      if (count > 0) {
+        plog('Auto-loaded ' + count + ' answer key entries from localStorage: ' + storageKey);
+        document.getElementById('th-answer-key').style.display = '';
+      }
+    } catch(e) { /* ignore bad data */ }
+  }
+}
+
+// ═══════════════════════════════════════════
+//  ANSWER KEY LIBRARY (multi-chapter manager)
+// ═══════════════════════════════════════════
+function openKeyLibrary() {
+  renderKeyLibrary();
+  document.getElementById('keylibrary-overlay').classList.add('visible');
+}
+function closeKeyLibrary() {
+  document.getElementById('keylibrary-overlay').classList.remove('visible');
+}
+
+function renderKeyLibrary() {
+  const list   = document.getElementById('kl-list');
+  const allKeys = Object.keys(localStorage)
+    .filter(k => k.startsWith('wg-answer-key-'))
+    .sort();
+  if (!allKeys.length) {
+    list.innerHTML = '<div style="color:#9CA3AF;font-size:.82rem;padding:10px 0;">No answer keys saved yet — upload one above.</div>';
+    return;
+  }
+  list.innerHTML = allKeys.map(key => {
+    let data = {};
+    try { data = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
+    const count  = Object.keys(data).length;
+    const m      = key.match(/^wg-answer-key-(.+)-ch(\d+)$/);
+    const label  = m ? `${m[1]} — Ch ${m[2]}` : key.replace('wg-answer-key-','');
+    const sample = Object.entries(data).slice(0, 4).map(([q,a]) => `Q${q}:${a}`).join(' · ');
+    return `<div style="background:#F9FAFB;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;border:1.5px solid #E5E7EB;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:.82rem;font-weight:800;color:#1e1b4b;">${escHtml(label)}</div>
+        <div style="font-size:.72rem;color:#6B7280;margin-top:1px;">${count} answer${count !== 1 ? 's' : ''} stored</div>
+        ${sample ? `<div style="font-size:.68rem;color:#9CA3AF;margin-top:2px;word-break:break-all;">${escHtml(sample)}…</div>` : ''}
+      </div>
+      <button onclick="deleteStoredKey('${key.replace(/'/g,"\\'")}',this)" style="flex-shrink:0;background:#FEE2E2;border:none;border-radius:8px;padding:5px 10px;font-size:.75rem;font-weight:800;color:#991B1B;cursor:pointer;">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+function deleteStoredKey(key, btn) {
+  const label = key.replace('wg-answer-key-','');
+  if (!confirm(`Delete answer key for "${label}"?\nThis cannot be undone.`)) return;
+  localStorage.removeItem(key);
+  // If we deleted the current chapter's key, clear the active map
+  if (bookName && chapterNumber && key === 'wg-answer-key-' + bookName + '-ch' + chapterNumber) {
+    answerKeyMap = {};
+    const th = document.getElementById('th-answer-key');
+    if (th) th.style.display = 'none';
+  }
+  renderKeyLibrary();
+}
+
+async function handleKeyLibraryUpload(files) {
+  const book    = document.getElementById('kl-book').value;
+  const chapter = document.getElementById('kl-chapter').value.trim();
+  const status  = document.getElementById('kl-upload-status');
+  if (!book)    { status.textContent = '⚠ Select a book first.';         status.style.color = '#EF4444'; return; }
+  if (!chapter) { status.textContent = '⚠ Enter a chapter number first.'; status.style.color = '#EF4444'; return; }
+  status.textContent = '⏳ Processing key image(s)…'; status.style.color = '#6B7280';
+
+  // Temporarily override grader context so handleAnswerKeyUpload writes to the right key
+  const prevBook = bookName, prevCh = chapterNumber, prevMap = { ...answerKeyMap };
+  bookName = book; chapterNumber = chapter; answerKeyMap = {};
+
+  try {
+    await handleAnswerKeyUpload(files);
+    const count = Object.keys(answerKeyMap).length;
+    status.textContent = count > 0
+      ? `✅ ${count} answers saved — ${book} Ch ${chapter}`
+      : '⚠ No answers found — try a clearer photo';
+    status.style.color = count > 0 ? '#10B981' : '#F59E0B';
+    renderKeyLibrary();
+  } catch(e) {
+    status.textContent = '❌ Upload failed: ' + (e.message || e);
+    status.style.color = '#EF4444';
+  }
+
+  // Restore grader context (unless user switched book/chapter in the main UI)
+  bookName = prevBook; chapterNumber = prevCh;
+  // Merge: if the key just saved is for the currently active chapter, update live map
+  const savedKey = 'wg-answer-key-' + book + '-ch' + chapter;
+  if (book === prevBook && chapter === prevCh) {
+    // Reload into active map
+    try { answerKeyMap = JSON.parse(localStorage.getItem(savedKey) || '{}'); } catch(e) {}
+  } else {
+    answerKeyMap = prevMap;
+  }
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  IMAGE COMPRESSION
+//  Phone photos are 3–12MB; Mistral OCR chokes on large base64.
+//  Resize to max 2000px on longest side, JPEG quality 85%.
+//  Drops a 5MB photo to ~200–400KB — well within API limits.
+// ═══════════════════════════════════════════
+function compressImage(dataUrl, maxDim = 2000, quality = 0.85) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      // Only resize if larger than maxDim
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else       { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', quality);
+      const origKB = Math.round(dataUrl.length * 3 / 4 / 1024);
+      const newKB = Math.round(compressed.length * 3 / 4 / 1024);
+      console.log(`Image compressed: ${img.width}x${img.height} → ${w}x${h}, ${origKB}KB → ${newKB}KB`);
+      resolve(compressed);
+    };
+    img.onerror = () => resolve(dataUrl); // fallback to original on error
+    img.src = dataUrl;
+  });
+}
+
+// ═══════════════════════════════════════════
+//  STEP 1: OCR PIPELINE (multi-page)
+// ═══════════════════════════════════════════
+async function runOCRPipeline(mistralKey) {
+  const prog = document.getElementById('ocr-progress');
+  const label = document.getElementById('ocr-label');
+  const fill = document.getElementById('ocr-fill');
+  const rawEl = document.getElementById('raw-ocr');
+
+  prog.classList.add('visible');
+  allOcrData = [];
+  ocrMarkdown = '';
+
+  const totalFiles = uploadedFiles.length;
+  let processedFiles = 0;
+
+  for (const uf of uploadedFiles) {
+    processedFiles++;
+    label.innerHTML = '<span class="spinner"></span>OCR: page ' + processedFiles + ' of ' + totalFiles + '...';
+    fill.style.width = Math.round((processedFiles / totalFiles) * 80) + '%';
+
+    try {
+      const isPdf = uf.type === 'pdf';
+
+      // Compress images before sending (phone photos are 3–12MB, too large for API)
+      let sendUrl = uf.dataUrl;
+      if (!isPdf) {
+        label.innerHTML = '<span class="spinner"></span>Compressing page ' + processedFiles + '...';
+        sendUrl = await compressImage(uf.dataUrl);
+      }
+
+      // Build request body — Mistral OCR handles both images and PDFs
+      const body = {
+        model: 'mistral-ocr-latest',
+        document: isPdf
+          ? { type: 'document_url', document_url: sendUrl }
+          : { type: 'image_url', image_url: sendUrl },
+        include_image_base64: false
+      };
+
+      const resp = await fetch('https://api.mistral.ai/v1/ocr', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + mistralKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text();
+        label.innerHTML = '❌ OCR failed on file ' + processedFiles + ' — see raw response below';
+        rawEl.textContent = 'HTTP ' + resp.status + ' on ' + uf.file.name + '\n\n' + errText;
+        rawEl.classList.add('visible');
+        return;
+      }
+
+      const data = await resp.json();
+      allOcrData.push(data);
+
+      // Extract markdown — PDFs return multiple pages, images return one
+      if (data.pages && data.pages.length > 0) {
+        const pageMd = data.pages.map(p => p.markdown || '').join('\n\n');
+        ocrMarkdown += (ocrMarkdown ? '\n\n--- PAGE BREAK ---\n\n' : '') + pageMd;
+
+        // Update total count if PDF had multiple pages
+        if (isPdf && data.pages.length > 1) {
+          const summaryEl = document.getElementById('file-summary');
+          summaryEl.textContent = summaryEl.textContent.replace(
+            'ready —',
+            '(' + data.pages.length + ' pages in PDF) —'
+          );
+        }
+      } else if (data.text) {
+        ocrMarkdown += (ocrMarkdown ? '\n\n--- PAGE BREAK ---\n\n' : '') + data.text;
+      } else {
+        ocrMarkdown += (ocrMarkdown ? '\n\n' : '') + JSON.stringify(data, null, 2);
+      }
+
+    } catch (err) {
+      label.innerHTML = '❌ OCR error on ' + uf.file.name + ': ' + err.message;
+      rawEl.textContent = err.stack || err.message;
+      rawEl.classList.add('visible');
+      return;
+    }
+  }
+
+  fill.style.width = '100%';
+  label.textContent = '✓ OCR complete — ' + totalFiles + ' file' + (totalFiles > 1 ? 's' : '') + ' processed';
+  rawEl.textContent = ocrMarkdown;
+  // Also copy to review section's raw output element
+  const reviewRaw = document.getElementById('raw-ocr-review');
+  if (reviewRaw) reviewRaw.textContent = ocrMarkdown;
+
+  // Parse all questions across all pages
+  const rawDataMerged = allOcrData.length === 1 ? allOcrData[0] : { pages: allOcrData.flatMap(d => d.pages || []) };
+  const parsed = parseQuestions(ocrMarkdown, rawDataMerged);
+  parsedQuestions = parsed.questions;
+  parsedExamples = parsed.examples;
+
+  // Auto-detect chapter if not manually entered
+  if (parsed.detectedChapter && !chapterNumber) {
+    chapterNumber = parsed.detectedChapter;
+    document.getElementById('inp-chapter').value = chapterNumber;
+  }
+
+  if (parsedQuestions.length === 0) {
+    label.textContent = '⚠ No questions detected — check raw OCR output';
+    rawEl.classList.add('visible');
+    return;
+  }
+
+  const exNote = parsedExamples.length > 0 ? ' + ' + parsedExamples.length + ' example(s)' : '';
+  document.getElementById('file-summary').textContent =
+    uploadedFiles.length + ' file' + (uploadedFiles.length > 1 ? 's' : '') +
+    ' → ' + parsedQuestions.length + ' questions' + exNote + ' detected';
+
+  // ── Step 1.5: Claude-powered answer extraction ──
+  const anthropicKey = localStorage.getItem('wg-anthropic-key') || localStorage.getItem('hs-api-key');
+  if (anthropicKey) {
+    label.innerHTML = '<span class="spinner"></span>Extracting student answers with AI...';
+    fill.style.width = '90%';
+    try {
+      await extractAnswersWithClaude(anthropicKey, ocrMarkdown, parsedQuestions, parsedExamples);
+      plog('Claude answer extraction complete');
+    } catch (e) {
+      plog('Claude extraction failed: ' + e.message + ' — falling back to parser answers');
+    }
+  } else {
+    plog('No Anthropic key — skipping Claude answer extraction');
+  }
+
+  fill.style.width = '100%';
+  label.textContent = '✓ Processing complete — ' + parsedQuestions.length + ' questions ready for review';
+
+  // Run sanity checks
+  runSanityChecks(parsedQuestions);
+
+  // Move to review
+  renderReview();
+  goTo('review');
+}
+
+// ═══════════════════════════════════════════
+//  STEP 1.5: CLAUDE ANSWER EXTRACTION
+// ═══════════════════════════════════════════
+async function extractAnswersWithClaude(apiKey, ocrText, questions, examples) {
+  // Build context: include the example so Claude understands expected answer format
+  const exampleContext = examples.length > 0
+    ? 'WORKED EXAMPLE(S) from this chapter (shows the expected problem format and how answers look):\n' +
+      examples.map(ex => ex.label + ': ' + ex.text + (ex.answer ? ' → Answer: ' + ex.answer : '')).join('\n') + '\n\n'
+    : '';
+
+  // Build question list for Claude to extract answers from
+  const qList = questions.map(q =>
+    'Q' + q.question_number + ' (page ' + q.page + '): ' + q.problem_text.slice(0, 200)
+  ).join('\n');
+
+  const prompt = `You are analyzing a scanned student worksheet (OCR'd). Extract what the STUDENT actually answered for each question.
+
+CRITICAL RULES:
+
+STEP 1 — READ THE QUESTION CAREFULLY:
+- Identify exactly what the question is asking for. It might ask "How many X? How many Y?" or "What is the total?" or "How much did he pay?" — each requires a different kind of answer.
+- The answer you extract must directly respond to what was asked. If the question asks "How many trucks?", the answer is a count of trucks. If it asks "What is the total value?", the answer is a dollar amount.
+
+STEP 2 — DISTINGUISH GIVEN vs COMPUTED (THIS IS CRITICAL):
+- Read the question text and LIST every number that appears in it. These are ALL GIVEN — they are NOT the answer.
+- Example: "84 marbles are to be placed into 10 boxes" → 84 and 10 are GIVEN. The answer CANNOT be 84 or 10.
+- Example: "There are a total of 26 wheels" → 26 is GIVEN (it's the constraint). The answer CANNOT be 26.
+- Example: "paid $16 for 11 postcards" → 16 and 11 are GIVEN. The answer CANNOT be 16 or 11.
+- The student's answer is NEW information they COMPUTED — values that do NOT appear anywhere in the question text.
+- If the only number you can find IS a number from the question, the answer has NOT been found — flag as low confidence.
+
+STEP 3 — FIND THE STUDENT'S CHOSEN ANSWER:
+- TICK MARKS (✓, ✔, checkmarks, "×" used as a check) next to a table row indicate the student's chosen answer. This takes HIGHEST priority — even if it's not the last row.
+- If no tick mark, the last FILLED row in the table is likely the answer (students work down rows until finding the right combination).
+- Handwritten text like "car=4 motor=2", shorthand labels, circled numbers, or standalone numbers near the question are direct answers.
+- Drawings with labels (e.g., circles labeled "car" or "motorcycle") may encode the answer.
+
+STEP 4 — MAP THE ANSWER TO THE QUESTION:
+- Use the table HEADERS to understand what each column value means.
+- From the identified answer row, extract ONLY the values that answer what the question asked.
+- Use the same nouns/units from the question in your answer.
+- Example: If question asks "How many trucks? How many cars?" and headers are "No. of trucks | wheels | cars | wheels | Total", extract the truck count and car count columns.
+- Example: If question asks "What was the total cost?", extract the Total column value.
+
+STEP 5 — ACCURACY OVER COVERAGE:
+- ONLY provide an answer if you are genuinely confident. It is FAR better to leave an answer blank and flag it for manual review than to guess wrong.
+- If the student's work is in an image/drawing that OCR returned as ![img], you CANNOT read it — mark confidence "low" and leave the answer blank.
+- If multiple conflicting answers exist across methods (e.g., drawing says "car=4" but table says "5 cars"), flag as "low" and explain the conflict in the method field — do NOT pick one.
+- If the table rows don't match the target number from the question (e.g., question says 84 marbles but no row totals 84), the student may not have finished — flag as "low" with method "incomplete work: no row matches target".
+- If in doubt, leave it blank. The parent will key in the correct answer manually.
+
+IGNORE: Teacher feedback ("good job", stamps), method headers, publisher text, ISBN numbers.
+
+${exampleContext}FULL OCR TEXT:
+<ocr>
+${ocrText}
+</ocr>
+
+DETECTED QUESTIONS:
+${qList}
+
+Respond ONLY with a JSON array:
+[
+  {"q": 1, "answer": "5 cars, 3 motorcycles", "method": "table row 3 — tick mark", "confidence": "high"},
+  {"q": 2, "answer": "", "method": "answer in drawing (![img]) — cannot read", "confidence": "low"}
+]
+
+Fields:
+- "answer": The student's answer using the same nouns from the question. LEAVE BLANK ("") if unsure — never guess.
+- "method": How you identified it — be specific: "tick mark on row 2", "written text: car=4", "table last filled row", "answer in drawing — cannot read", "incomplete work: no row matches target", "conflicting answers across methods"
+- "confidence": "high" (clear tick mark or explicit text), "medium" (inferred from last row with matching total), "low" (unclear, conflicting, or in images)
+- If confidence is "low", you MUST leave "answer" as "" (blank)
+
+IMPORTANT: I am also sending you the original page IMAGES so you can visually inspect handwritten answers, tick marks, circles, drawings, and anything the OCR text missed. Use both the OCR text AND the images together.`;
+
+  // Build multimodal content: text prompt + page images
+  const contentBlocks = [];
+
+  // Add compressed page images so Claude can visually read handwriting, tick marks, drawings
+  for (const uf of uploadedFiles) {
+    try {
+      const compressed = await compressImage(uf.dataUrl, 1200, 0.7);  // Smaller for Claude to save tokens
+      const base64 = compressed.split(',')[1];  // Strip "data:image/jpeg;base64,"
+      if (base64) {
+        contentBlocks.push({
+          type: 'image',
+          source: { type: 'base64', media_type: 'image/jpeg', data: base64 }
+        });
+      }
+    } catch(e) { /* skip failed images */ }
+  }
+
+  // Add the text prompt after the images
+  contentBlocks.push({ type: 'text', text: prompt });
+
+  plog('Sending ' + (contentBlocks.length - 1) + ' page images + prompt to Claude for extraction');
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: contentBlocks }]
+    })
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text();
+    throw new Error('Claude API error: ' + resp.status + ' ' + errText.slice(0, 200));
+  }
+
+  const data = await resp.json();
+  const text = data.content && data.content[0] ? data.content[0].text : '';
+  plog('Claude extraction raw response: ' + text.slice(0, 300) + '...');
+
+  // Parse the JSON array from Claude's response
+  const jsonMatch = text.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) {
+    plog('Could not parse JSON from Claude response');
+    return;
+  }
+
+  try {
+    const extracted = JSON.parse(jsonMatch[0]);
+    let matched = 0;
+    let flagged = 0;
+    for (const item of extracted) {
+      const q = questions.find(q => Math.floor(q.question_number) === item.q);
+      if (!q) continue;
+
+      q._extraction_method = item.method || '';
+      q._extraction_confidence = item.confidence || 'medium';
+
+      const parserHadAnswer = q.student_answer && q.student_answer.trim() && q.student_answer !== '.';
+
+      if (item.answer && item.confidence !== 'low') {
+        // Claude is confident — use its answer (it has image context the parser doesn't)
+        if (parserHadAnswer && q.student_answer !== item.answer) {
+          plog('Q' + item.q + ' Claude overriding parser answer "' + q.student_answer + '" → "' + item.answer + '"');
+        }
+        q.student_answer = item.answer;
+        matched++;
+        plog('Q' + item.q + ' ✓ answer: "' + item.answer + '" (method: ' + item.method + ', confidence: ' + item.confidence + ')');
+      } else if (item.confidence === 'low' && parserHadAnswer) {
+        // Claude is unsure but parser found something — keep parser answer, just note Claude's assessment
+        plog('Q' + item.q + ' keeping parser answer "' + q.student_answer + '" — Claude unsure: ' + (item.method || ''));
+      } else {
+        // Neither Claude nor parser has an answer — flag for manual entry
+        q.student_answer = '';
+        q.flagged = true;
+        q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') +
+          'Needs manual answer — ' + (item.method || 'could not extract');
+        flagged++;
+        plog('Q' + item.q + ' ⚠ flagged for manual answer: ' + (item.method || 'no answer found'));
+      }
+    }
+    plog('Results: ' + matched + ' answers extracted, ' + flagged + ' flagged for manual entry');
+  } catch (e) {
+    plog('JSON parse error: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  PARSE QUESTIONS FROM OCR MARKDOWN
+// ═══════════════════════════════════════════
+function parseQuestions(md, rawData) {
+  parserLog.length = 0;  // Clear previous log
+  plog('Starting parse — ' + md.split('--- PAGE BREAK ---').length + ' pages detected');
+  const questions = [];
+  const examples = [];
+  let foundChapter = '';
+
+  // Split into pages first (we inserted PAGE BREAK markers during OCR)
+  const pages = md.split(/---\s*PAGE BREAK\s*---/);
+
+  // Patterns
+  const chapterPattern = /(?:chapter|ch\.?|unit)\s*(\d+)/i;
+  const examplePattern = /^[\s]*(?:example|ex\.?|worked\s*example|e\.g\.)\s*(\d*)\s*[.):—\-]?\s*(.*)/i;
+  const qPattern = /^[\s]*(?:Q|q|#)?[\s]*(\d+)[\s]*[.):\]]\s*(.*)/;
+  const mathExprPattern = /^[\s]*(\d[\d\s+\-×÷*/=().,%]+\d[\s]*[=][\s]*[\d_?]+)/;
+
+  let globalQCount = 0;
+
+  for (let pageIdx = 0; pageIdx < pages.length; pageIdx++) {
+    let pageNum = pageIdx + 1;  // default to upload order
+    const pageText = pages[pageIdx];
+    const lines = pageText.split('\n').filter(l => l.trim());
+
+    // Try to detect printed book page number from ALL lines
+    // Strategy: scan every line for known patterns (publisher lines, standalone numbers, ISBN lines)
+    // Priority: publisher line number > ISBN-adjacent number > standalone number at top/bottom
+    const bookPageStandalone = /^\s*(\d{1,3})\s*$/;
+    const publisherPagePat = /(?:Pte\s+Ltd|Publishers?|Singapore\s+Asia|©)\s+(\d{2,3})\b/i;
+    const isbnPagePat = /(?:978[\d-]+)\s+(?:Singapore\s+Math\s+Challenge\s+)?(\d{2,3})\b/i;
+    const trailingPagePat = /\b(\d{2,3})\s*$/;  // number at very end of a line with publisher text
+
+    let detectedBookPage = null;
+
+    // First pass: look for publisher-line page numbers (most reliable for SM books)
+    for (const sl of lines) {
+      const pubMatch = sl.match(publisherPagePat);
+      if (pubMatch) {
+        const pn = parseInt(pubMatch[1]);
+        if (pn >= 1 && pn <= 500) { detectedBookPage = pn; break; }
+      }
+      const isbnMatch = sl.match(isbnPagePat);
+      if (isbnMatch) {
+        const pn = parseInt(isbnMatch[1]);
+        if (pn >= 1 && pn <= 500) { detectedBookPage = pn; break; }
+      }
+    }
+
+    // Second pass: standalone numbers at top/bottom of page
+    if (!detectedBookPage) {
+      const edgeLines = [...lines.slice(0, 3), ...lines.slice(-3)];
+      for (const sl of edgeLines) {
+        const bpMatch = sl.match(bookPageStandalone);
+        if (bpMatch) {
+          const pn = parseInt(bpMatch[1]);
+          if (pn >= 1 && pn <= 500) { detectedBookPage = pn; break; }
+        }
+      }
+    }
+
+    // Third pass: trailing number on any line containing publisher-like text
+    if (!detectedBookPage) {
+      for (const sl of lines) {
+        if (/(?:Pte|Ltd|Publishers?|Singapore|©|Challenge)/i.test(sl)) {
+          const trMatch = sl.match(trailingPagePat);
+          if (trMatch) {
+            const pn = parseInt(trMatch[1]);
+            if (pn >= 10 && pn <= 500) { detectedBookPage = pn; break; }
+          }
+        }
+      }
+    }
+
+    if (detectedBookPage) pageNum = detectedBookPage;
+
+    // Check for chapter at top of page (first 5 lines)
+    for (let i = 0; i < Math.min(5, lines.length); i++) {
+      const chMatch = lines[i].match(chapterPattern);
+      if (chMatch) {
+        foundChapter = chMatch[1];
+        break;
+      }
+    }
+
+    let inExample = false;
+    let currentExample = null;
+    let currentQ = null;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+
+      // Skip chapter headers, page numbers, titles, and noise lines
+      if (chapterPattern.test(trimmed) && trimmed.length < 60) continue;
+      if (/^[\s]*page\s*\d+/i.test(trimmed)) continue;
+      // Only skip standalone numbers as noise when NOT inside a question or example
+      // (inside a question, a standalone number could be the student's answer)
+      if (isNoiseLine(trimmed) && !(currentQ && /^\s*[-]?\d[\d,./]*\s*$/.test(trimmed))) continue;
+
+      // Detect example start
+      const exMatch = trimmed.match(examplePattern);
+      if (exMatch) {
+        // Save previous items — extract table answers before flushing
+        if (currentQ) {
+          if (currentQ._hasTable && !currentQ.student_answer) {
+            currentQ.student_answer = extractAnswerFromCompleteTable(currentQ.problem_text);
+          }
+          questions.push(currentQ); currentQ = null;
+        }
+        if (currentExample) {
+          if (currentExample._hasTable && !currentExample.answer) {
+            currentExample.answer = extractAnswerFromCompleteTable(currentExample.text);
+          }
+          examples.push(currentExample);
+        }
+
+        inExample = true;
+        const exNum = exMatch[1] || (examples.length + 1);
+        const rest = exMatch[2].trim();
+        const { problem, answer } = extractProblemAndAnswer(rest);
+        currentExample = {
+          label: 'Example ' + exNum,
+          text: problem || rest,
+          answer: answer,
+          page: pageNum
+        };
+        continue;
+      }
+
+      // Detect question number — this ends any current example section
+      const qMatch = trimmed.match(qPattern);
+      if (qMatch) {
+        // Save previous — extract table answers before flushing
+        if (currentExample) {
+          if (currentExample._hasTable && !currentExample.answer) {
+            currentExample.answer = extractAnswerFromCompleteTable(currentExample.text);
+          }
+          examples.push(currentExample); currentExample = null; inExample = false;
+        }
+        if (currentQ) {
+          if (currentQ._hasTable && !currentQ.student_answer) {
+            currentQ.student_answer = extractAnswerFromCompleteTable(currentQ.problem_text);
+          }
+          questions.push(currentQ);
+        }
+
+        const num = parseInt(qMatch[1]);
+        const rest = stripNoise(qMatch[2].trim());
+        const { problem, answer } = extractProblemAndAnswer(rest);
+        plog('Q' + num + ' (p.' + pageNum + ') initial: rest="' + rest.slice(0,60) + '" → answer="' + answer + '"');
+
+        currentQ = {
+          question_number: num,
+          problem_text: problem,
+          student_answer: answer,
+          confidence: 100,
+          low_tokens: [],
+          flagged: false,
+          flag_reason: '',
+          resolved: false,
+          page: pageNum
+        };
+        globalQCount++;
+        inExample = false;
+        continue;
+      }
+
+      // Continuation line
+      if (inExample && currentExample) {
+        if (trimmed) {
+          const cleaned = stripNoise(trimmed);
+          if (!cleaned) continue;
+          // Table lines: accumulate without extracting (we process full table at flush)
+          if (cleaned.includes('|')) {
+            currentExample.text += '\n' + cleaned;
+            currentExample._hasTable = true;
+            continue;
+          }
+          if (!currentExample.answer) {
+            const { problem, answer } = extractProblemAndAnswer(cleaned);
+            if (answer) {
+              if (problem) currentExample.text += ' ' + problem;
+              currentExample.answer = answer;
+            } else {
+              currentExample.text += ' ' + cleaned;
+            }
+          } else {
+            if (!/^\s*\d{2,3}\s*$/.test(cleaned)) {
+              currentExample.text += ' ' + cleaned;
+            }
+          }
+        }
+      } else if (currentQ) {
+        if (trimmed) {
+          const cleaned = stripNoise(trimmed);
+          if (!cleaned) continue;
+
+          // Table lines: accumulate without extracting answer yet
+          // Tables span multiple lines; we extract the answer from the COMPLETE table at flush time
+          if (cleaned.includes('|')) {
+            currentQ.problem_text += '\n' + cleaned;
+            currentQ._hasTable = true;
+            continue;
+          }
+
+          // Skip image references from OCR
+          if (/^\!\[.*\]\(.*\)$/.test(cleaned)) continue;
+
+          if (!currentQ.student_answer) {
+            const { problem, answer } = extractProblemAndAnswer(cleaned);
+            if (answer) {
+              if (problem) currentQ.problem_text += ' ' + problem;
+              currentQ.student_answer = answer;
+            } else {
+              currentQ.problem_text += ' ' + cleaned;
+            }
+          } else {
+            if (!/^\s*\d{2,3}\s*$/.test(cleaned)) {
+              currentQ.problem_text += ' ' + cleaned;
+            }
+          }
+        }
+      } else if (!inExample) {
+        // Try standalone math expression without question number
+        const mathMatch = trimmed.match(mathExprPattern);
+        if (mathMatch) {
+          globalQCount++;
+          const { problem, answer } = extractProblemAndAnswer(trimmed);
+          currentQ = {
+            question_number: globalQCount,
+            problem_text: problem,
+            student_answer: answer,
+            confidence: 100,
+            low_tokens: [],
+            flagged: false,
+            flag_reason: '',
+            resolved: false,
+            page: pageNum
+          };
+        }
+      }
+    }
+
+    // Flush end-of-page items — extract answers from complete tables
+    if (currentExample) {
+      if (currentExample._hasTable && !currentExample.answer) {
+        currentExample.answer = extractAnswerFromCompleteTable(currentExample.text);
+      }
+      examples.push(currentExample);
+    }
+    if (currentQ) {
+      if (currentQ._hasTable && !currentQ.student_answer) {
+        currentQ.student_answer = extractAnswerFromCompleteTable(currentQ.problem_text);
+        plog('Q' + currentQ.question_number + ' table answer extracted: "' + currentQ.student_answer + '"');
+      }
+      plog('Q' + currentQ.question_number + ' FINAL: answer="' + (currentQ.student_answer || '(none)') + '" hasTable=' + !!currentQ._hasTable);
+      questions.push(currentQ);
+    }
+  }
+
+  // Sort questions by question number (primary), then page (secondary)
+  questions.sort((a, b) => a.question_number !== b.question_number ? a.question_number - b.question_number : a.page - b.page);
+
+  // Deduplicate: when same Q# appears multiple times (e.g. from overlapping page scans),
+  // keep the version with the best data (has answer > no answer, longer problem text wins ties)
+  // Deduplicate: when same Q# appears multiple times, check if they're truly the same question
+  // or different questions with an OCR-misread number
+  const deduped = [];
+  for (const q of questions) {
+    const existing = deduped.find(d => d.question_number === q.question_number);
+    if (!existing) {
+      deduped.push(q);
+    } else {
+      // Check if problem texts are substantially different (= different questions, OCR misread the number)
+      const textA = existing.problem_text.replace(/[^a-zA-Z]/g, '').toLowerCase().slice(0, 40);
+      const textB = q.problem_text.replace(/[^a-zA-Z]/g, '').toLowerCase().slice(0, 40);
+      const overlap = textA && textB ? (textA.includes(textB.slice(0, 15)) || textB.includes(textA.slice(0, 15))) : true;
+
+      if (!overlap) {
+        // Different questions — OCR probably misread the number on one of them
+        // Keep both; flag the new one so user can fix its Q#
+        q.flagged = true;
+        q.flag_reason = 'Duplicate Q' + q.question_number + ' — likely OCR misread the question number. Click Q# to fix.';
+        q.question_number = q.question_number + 0.5;  // Temporarily offset to avoid collision; user fixes via Q# edit
+        deduped.push(q);
+        plog('DEDUP Q' + Math.floor(q.question_number) + ': DIFFERENT problems detected (p.' + existing.page + ' vs p.' + q.page + ') — keeping both, flagging for Q# fix');
+      } else {
+        // Same question from overlapping scans — keep the better version
+        const scoreExisting = (existing.student_answer ? 10 : 0) + Math.floor(existing.problem_text.length / 20);
+        const scoreNew = (q.student_answer ? 10 : 0) + Math.floor(q.problem_text.length / 20);
+        plog('DEDUP Q' + q.question_number + ': same question (p.' + existing.page + ' score=' + scoreExisting + ' vs p.' + q.page + ' score=' + scoreNew + ') → keeping ' + (scoreNew > scoreExisting ? 'new' : 'existing'));
+        if (scoreNew > scoreExisting) {
+          const idx = deduped.indexOf(existing);
+          deduped[idx] = q;
+        }
+      }
+    }
+  }
+
+  // If structured OCR returned word-level confidence, use it
+  if (rawData && rawData.pages) {
+    applyConfidenceScores(deduped, rawData);
+  }
+
+  return { questions: deduped, examples, detectedChapter: foundChapter };
+}
+
+// Lines to strip before extracting problem/answer (publisher, ISBN, method headers, etc.)
+const NOISE_PATTERNS = [
+  /(?:Singapore\s+Asia\s+Publishers?|Marshall\s+Cavendish)/i,
+  /(?:Pte\s+Ltd|©|Copyright)/i,
+  /978[\d-]+/,                              // ISBN lines
+  /^\s*(?:Method\s+\d+\s*[:.])/i,           // Method headers (Method 1: Solve by Drawing)
+  /(?:Singapore\s+Math\s+Challenge)/i,      // Book title anywhere in line
+  /(?:Challenging\s+Word\s+Problems?)/i,    // Book title anywhere in line
+  /^\s*(?:page\s*\d+)/i,
+  /^\s*\d{2,3}\s*$/,                         // Standalone page numbers (2+ digits only; single digits could be Q#s or answers)
+  /(?:printed\s+by\s+Singapore)/i,           // "printed by Singapore"
+  /(?:E[-]?\s*[A-Z]?[-]?\s*\d{1,3}\s*[Ww]atts?)/i,  // OCR garbage like "E84 watts", "E-L-4 Watts"
+  /^\s*(?:Singapore)\s*$/i,                  // Standalone "Singapore"
+  /(?:Frank\s+Schaffer|Educational\s+Publishing)/i,
+  /(?:EPB\s+Pan\s+Pacific)/i,
+  /(?:All\s+rights?\s+reserved)/i,
+  /(?:Singapore\s+Main\s+Challenge)/i,       // OCR misread of "Math"
+  /(?:Singapore\s+Manual)/i,                 // OCR misread
+  /^\s*(?:Name|Date)\s*$/i,                  // Standalone "Name" or "Date" fields
+  /^\s*Name\s+Date\s*/i,                     // "Name Date" line
+  /^\s*(?:Name\s+_+|Date\s+_+)/i,           // "Name ___" or "Date ___"
+  /^\s*!\[.*\]\(.*\)\s*$/,                   // Image references ![img](img.jpeg)
+  /(?:Solve\s+by\s+(?:Drawing|Assuming))/i,  // Method instructions (not student work)
+  /(?:Make\s+a\s+Table)/i,                   // Method instructions
+];
+
+function isNoiseLine(line) {
+  const t = line.trim();
+  if (!t) return true;
+  return NOISE_PATTERNS.some(p => p.test(t));
+}
+
+// Strip noise fragments from a line that also contains useful content
+function stripNoise(line) {
+  let clean = line;
+  for (const p of NOISE_PATTERNS) {
+    clean = clean.replace(p, ' ');
+  }
+  return clean.replace(/\s+/g, ' ').trim();
+}
+
+function extractProblemAndAnswer(text) {
+  // --- TABLE DETECTION ---
+  // If text contains pipe characters, it's likely a markdown table from OCR
+  if (text.includes('|')) {
+    return extractFromTable(text);
+  }
+
+  let clean = text.replace(/\s+/g, ' ').trim();
+
+  // If the text is JUST a number (possibly a student's answer), return it as the answer
+  const pureNumber = clean.match(/^\s*([-]?\d[\d,./]*)\s*$/);
+  if (pureNumber) {
+    return { problem: '', answer: pureNumber[1].replace(/,/g, '') };
+  }
+
+  // Strip noise lines (publisher, ISBN, etc.) — but NOT pure numbers (handled above)
+  if (isNoiseLine(clean)) return { problem: '', answer: '' };
+
+  // Look for = sign, answer is after it
+  const eqParts = clean.split('=');
+  if (eqParts.length >= 2) {
+    const problem = eqParts.slice(0, -1).join('=').trim();
+    let answer = eqParts[eqParts.length - 1].trim();
+    // Clean answer — take first number-like token
+    const answerMatch = answer.match(/[-]?\d[\d,./]*/);
+    if (answerMatch) answer = answerMatch[0].replace(/,/g, '');
+    return { problem: problem.trim(), answer: answer || '' };
+  }
+
+  // No = sign — last number on line is the answer
+  const nums = clean.match(/[-]?\d[\d,./]*/g);
+  if (nums && nums.length > 1) {
+    const answer = nums[nums.length - 1].replace(/,/g, '');
+    return { problem: clean, answer };
+  }
+
+  return { problem: clean, answer: '' };
+}
+
+// Extract problem and answer from markdown table format
+// Tables look like: | header1 | header2 | ... |
+//                   | val1    | val2    | ... |
+function extractFromTable(text) {
+  const rows = text.split('\n').map(r => r.trim()).filter(r => r.includes('|'));
+
+  // Parse each row into cells
+  const parsed = rows.map(r => {
+    return r.split('|')
+      .map(c => c.trim())
+      .filter(c => c && !/^[-:]+$/.test(c));  // drop empty cells and separator rows (---)
+  }).filter(r => r.length > 0);
+
+  if (parsed.length === 0) {
+    // Fallback: strip pipes and treat as plain text
+    const fallback = text.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
+    return { problem: fallback, answer: '' };
+  }
+
+  // Separator rows (|---|---|) produce empty arrays after filtering — skip them
+  const dataRows = parsed.filter(r => r.some(c => !/^[-:]+$/.test(c)));
+
+  if (dataRows.length === 0) {
+    const fallback = text.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
+    return { problem: fallback, answer: '' };
+  }
+
+  // If there's a header row + data rows, the answer is usually in the last cell of the last data row
+  // For single-row tables, same logic applies
+  const lastRow = dataRows[dataRows.length - 1];
+  const lastCell = lastRow[lastRow.length - 1];
+
+  // Check if last cell looks like an answer (number, fraction, expression result)
+  const answerMatch = lastCell.match(/[-]?\d[\d,./]*/);
+  let answer = '';
+  if (answerMatch) {
+    answer = answerMatch[0].replace(/,/g, '');
+  }
+
+  // Problem text: reconstruct the table without destroying structure
+  // For display purposes, join header + data but mark what the answer was
+  const problemParts = [];
+  for (let i = 0; i < dataRows.length; i++) {
+    const row = dataRows[i];
+    // If this is the last row and we extracted the answer from it, note it
+    if (i === dataRows.length - 1 && answer) {
+      const displayCells = row.slice(0, -1);
+      if (displayCells.length > 0) problemParts.push(displayCells.join(' | '));
+    } else {
+      problemParts.push(row.join(' | '));
+    }
+  }
+
+  const problem = problemParts.join(' ; ').trim() || text.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
+  return { problem, answer };
+}
+
+// Extract the student's answer from a complete multi-line table embedded in problem text.
+// For chicken-and-rabbit style problems, students fill rows until finding the correct total.
+// The LAST data row is typically the answer.
+function extractAnswerFromCompleteTable(text) {
+  const lines = text.split('\n');
+  const dataRows = [];
+
+  for (const line of lines) {
+    if (!line.includes('|')) {
+      // Non-pipe line that looks like a data row (space-separated numbers): "5 20 3 6 26"
+      const nums = line.trim().match(/[-]?\d[\d,.]*/g);
+      if (nums && nums.length >= 3) {
+        dataRows.push(nums.map(n => n.replace(/,/g, '')));
+      }
+      continue;
+    }
+
+    const cells = line.split('|').map(c => c.trim()).filter(c => c);
+
+    // Skip separator rows (|---|---|)
+    if (cells.every(c => /^[-:]+$/.test(c))) continue;
+
+    // Skip header rows (contain words like "No. of", "Value", "Total")
+    if (cells.some(c => /(?:No\.\s*of|Value|Total|legs|wheels|marbles|books|tickets)/i.test(c))) continue;
+
+    // This is a data row — extract numeric values
+    const numericCells = cells.filter(c => /[-]?\d[\d,.]*/.test(c));
+    if (numericCells.length >= 2) {
+      dataRows.push(numericCells.map(c => {
+        const m = c.match(/[-]?\d[\d,.]*/);
+        return m ? m[0].replace(/,/g, '') : c;
+      }));
+    }
+  }
+
+  if (dataRows.length === 0) return '';
+
+  // Last data row is the student's final answer
+  const lastRow = dataRows[dataRows.length - 1];
+  return lastRow.join(', ');
+}
+
+function applyConfidenceScores(questions, rawData) {
+  const threshold = parseInt(localStorage.getItem('wg-threshold')) || 85;
+
+  // Mistral OCR may return word-level or chunk-level confidence
+  // Walk through pages → chunks → words
+  try {
+    for (const page of (rawData.pages || [])) {
+      for (const chunk of (page.chunks || page.blocks || [])) {
+        const words = chunk.words || chunk.tokens || [];
+        for (const w of words) {
+          if (w.confidence !== undefined && w.confidence < threshold / 100) {
+            // Try to match this word to a question
+            const wordText = w.text || w.value || '';
+            for (const q of questions) {
+              if (q.problem_text.includes(wordText) || q.student_answer === wordText) {
+                q.low_tokens.push({ text: wordText, confidence: Math.round(w.confidence * 100) });
+                if (w.confidence * 100 < threshold) {
+                  q.confidence = Math.min(q.confidence, Math.round(w.confidence * 100));
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch(e) {
+    // Confidence structure may vary — graceful fallback
+    console.log('Confidence parsing note:', e.message);
+  }
+
+  // Flag low confidence questions
+  for (const q of questions) {
+    if (q.confidence < threshold) {
+      q.flagged = true;
+      q.flag_reason = 'Low OCR confidence on: ' + q.low_tokens.map(t => t.text).join(', ');
+    }
+  }
+}
+
+// ═══════════════════════════════════════════
+//  STEP 2: SANITY CHECKS
+// ═══════════════════════════════════════════
+let missingQuestions = [];  // e.g. [4, 6] — detected gaps in Q# sequence
+
+function runSanityChecks(questions) {
+  const threshold = parseInt(localStorage.getItem('wg-threshold')) || 85;
+  missingQuestions = [];
+
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+
+    if (subject === 'math') {
+      // Check: student answer should contain at least some numbers
+      // (answers may be contextual like "5 cars, 3 motorcycles" from Claude extraction)
+      if (q.student_answer && !/\d/.test(q.student_answer)) {
+        q.flagged = true;
+        q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') + 'No numbers in answer';
+      }
+
+      // Check: empty answer
+      if (!q.student_answer || !q.student_answer.trim()) {
+        q.flagged = true;
+        q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') + 'No answer detected';
+      }
+
+      // Check: problem doesn't parse as math
+      const hasMathOp = /[+\-×÷*/]/.test(q.problem_text) || /\d/.test(q.problem_text);
+      if (!hasMathOp && q.problem_text.length > 0) {
+        q.flagged = true;
+        q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') + 'May not be a math expression';
+      }
+    }
+
+    // Check: question number gap — INFORMATIONAL only, not blocking
+    if (i > 0 && q.question_number !== questions[i-1].question_number + 1) {
+      const expectedStart = questions[i-1].question_number + 1;
+      const expectedEnd = q.question_number - 1;
+      for (let m = expectedStart; m <= expectedEnd; m++) {
+        if (!missingQuestions.includes(m)) missingQuestions.push(m);
+      }
+      // Mark as info (non-blocking) — NOT flagged
+      q.sequence_gap = true;
+      q.gap_note = 'Q' + (expectedEnd === expectedStart ? expectedStart : expectedStart + '–' + expectedEnd) + ' not found in upload';
+    }
+
+    // Check: same answer repeated 4+ times — ONLY if answers are non-empty
+    // AND the problem texts are also suspiciously similar (OCR may have duplicated a question)
+    if (i >= 3) {
+      const recent = [questions[i-3], questions[i-2], questions[i-1], q];
+      const ans = q.student_answer ? q.student_answer.trim() : '';
+      if (ans && recent.every(r => r.student_answer && r.student_answer.trim() === ans)) {
+        // Check if problem texts are also similar (OCR duplication) vs genuinely same answer
+        const texts = recent.map(r => r.problem_text.replace(/\s+/g, ' ').trim().slice(0, 50));
+        const uniqueTexts = new Set(texts);
+        if (uniqueTexts.size <= 2) {
+          // Problems look very similar too — likely OCR duplicated the same question
+          q.flagged = true;
+          q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') + 'Possible duplicate — same answer and similar problem text';
+        }
+        // If problems are all different but answers happen to match, don't flag — it's legitimate
+      }
+    }
+  }
+}
+
+// Handle uploading additional pages for missing questions
+async function handleMorePages(fileList) {
+  const mistralKey = localStorage.getItem('wg-mistral-key');
+  if (!fileList.length || !mistralKey) return;
+
+  const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+  const newFiles = Array.from(fileList).filter(f => validTypes.includes(f.type));
+  if (!newFiles.length) return;
+
+  // Show progress
+  const prog = document.getElementById('ocr-progress');
+  const label = document.getElementById('ocr-label');
+  const fill = document.getElementById('ocr-fill');
+  prog.classList.add('visible');
+  goTo('upload');
+
+  for (let fi = 0; fi < newFiles.length; fi++) {
+    const file = newFiles[fi];
+    label.innerHTML = '<span class="spinner"></span>OCR: additional page ' + (fi+1) + ' of ' + newFiles.length + '...';
+    fill.style.width = Math.round(((fi+1) / newFiles.length) * 100) + '%';
+
+    const dataUrl = await readFileAsDataUrl(file);
+    const isPdf = file.type === 'application/pdf';
+
+    // Compress large images before sending to Mistral
+    let sendUrl = dataUrl;
+    if (!isPdf) {
+      label.innerHTML = '<span class="spinner"></span>Compressing additional page ' + (fi+1) + '...';
+      sendUrl = await compressImage(dataUrl);
+    }
+
+    const body = {
+      model: 'mistral-ocr-latest',
+      document: isPdf
+        ? { type: 'document_url', document_url: sendUrl }
+        : { type: 'image_url', image_url: sendUrl },
+      include_image_base64: false
+    };
+
+    try {
+      label.innerHTML = '<span class="spinner"></span>OCR: additional page ' + (fi+1) + ' of ' + newFiles.length + '...';
+      const resp = await fetch('https://api.mistral.ai/v1/ocr', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + mistralKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      let newMd = '';
+      if (data.pages && data.pages.length > 0) {
+        newMd = data.pages.map(p => p.markdown || '').join('\n\n');
+      } else if (data.text) { newMd = data.text; }
+
+      ocrMarkdown += '\n\n--- PAGE BREAK ---\n\n' + newMd;
+      allOcrData.push(data);
+    } catch(e) { continue; }
+  }
+
+  // Re-parse everything
+  const rawDataMerged = { pages: allOcrData.flatMap(d => d.pages || []) };
+  const parsed = parseQuestions(ocrMarkdown, rawDataMerged);
+  parsedQuestions = parsed.questions;
+  parsedExamples = parsed.examples;
+  if (parsed.detectedChapter && !chapterNumber) chapterNumber = parsed.detectedChapter;
+
+  // Re-run Claude answer extraction on the updated question set
+  const anthropicKey = localStorage.getItem('wg-anthropic-key') || localStorage.getItem('hs-api-key');
+  if (anthropicKey) {
+    label.innerHTML = '<span class="spinner"></span>Re-extracting answers with AI...';
+    try {
+      await extractAnswersWithClaude(anthropicKey, ocrMarkdown, parsedQuestions, parsedExamples);
+    } catch(e) { plog('Re-extraction failed: ' + e.message); }
+  }
+
+  runSanityChecks(parsedQuestions);
+  renderReview();
+  goTo('review');
+}
+
+// ═══════════════════════════════════════════
+//  ANSWER KEY UPLOAD & PARSING
+// ═══════════════════════════════════════════
+async function handleAnswerKeyUpload(fileList) {
+  const mistralKey = localStorage.getItem('wg-mistral-key');
+  if (!fileList.length || !mistralKey) {
+    alert('Please set your Mistral API key in Settings first.');
+    return;
+  }
+
+  const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+  const files = Array.from(fileList).filter(f => validTypes.includes(f.type));
+  if (!files.length) return;
+
+  const prog = document.getElementById('ocr-progress');
+  const label = document.getElementById('ocr-label');
+  const fill = document.getElementById('ocr-fill');
+  prog.classList.add('visible');
+
+  let answerKeyText = '';
+
+  // OCR each answer key page
+  for (let i = 0; i < files.length; i++) {
+    label.innerHTML = '<span class="spinner"></span>OCR answer key page ' + (i+1) + ' of ' + files.length + '...';
+    fill.style.width = Math.round(((i+1) / files.length) * 70) + '%';
+
+    const dataUrl = await readFileAsDataUrl(files[i]);
+    const isPdf = files[i].type === 'application/pdf';
+    let sendUrl = dataUrl;
+    if (!isPdf) sendUrl = await compressImage(dataUrl);
+
+    try {
+      const resp = await fetch('https://api.mistral.ai/v1/ocr', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + mistralKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'mistral-ocr-latest',
+          document: isPdf
+            ? { type: 'document_url', document_url: sendUrl }
+            : { type: 'image_url', image_url: sendUrl },
+          include_image_base64: false
+        })
+      });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      if (data.pages && data.pages.length > 0) {
+        answerKeyText += data.pages.map(p => p.markdown || '').join('\n\n') + '\n\n';
+      } else if (data.text) {
+        answerKeyText += data.text + '\n\n';
+      }
+    } catch(e) { continue; }
+  }
+
+  if (!answerKeyText.trim()) {
+    label.textContent = '⚠ Could not read answer key pages';
+    return;
+  }
+
+  // Use Claude to parse the answer key into structured Q→Answer mapping
+  label.innerHTML = '<span class="spinner"></span>Parsing answer key with AI...';
+  fill.style.width = '85%';
+
+  const anthropicKey = localStorage.getItem('wg-anthropic-key') || localStorage.getItem('hs-api-key');
+  if (!anthropicKey) {
+    label.textContent = '⚠ Need Anthropic API key to parse answer key';
+    return;
+  }
+
+  try {
+    const chapterCtx = chapterNumber ? 'The student is working on Chapter ' + chapterNumber + '. ' : '';
+    const bookCtx = bookName ? 'The book is "' + bookName + '". ' : '';
+
+    const prompt = `You are parsing an ANSWER KEY from the back of a math workbook. ${bookCtx}${chapterCtx}
+
+The answer key OCR text is below. Extract EVERY question-answer pair you can find. Answer keys typically list answers by chapter/page number and question number.
+
+<answer_key_ocr>
+${answerKeyText}
+</answer_key_ocr>
+
+${chapterNumber ? 'Focus on Chapter ' + chapterNumber + ' answers, but include all if chapters overlap.' : ''}
+
+Respond ONLY with a JSON array of objects:
+[
+  {"chapter": 7, "q": 1, "answer": "5 cars, 3 motorcycles", "page": 122},
+  {"chapter": 7, "q": 2, "answer": "2 adult tickets, 3 child tickets", "page": 123}
+]
+
+- "chapter": chapter number (integer) — REQUIRED, identify from the answer key headings
+- "q": question number (integer)
+- "answer": the correct answer as written in the answer key. Keep it exactly as printed — do not rephrase.
+- "page": book page number if listed, or null
+
+Include answers from ALL chapters present in the answer key, not just one. Tag each with the correct chapter number so they can be stored and retrieved by chapter.
+
+If the answer key uses a compact format (like "1. 5, 3  2. 2, 3"), expand the answers to be clear, using context from the question numbers and chapter topic if possible.`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': anthropicKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!resp.ok) throw new Error('API error: ' + resp.status);
+    const data = await resp.json();
+    const text = data.content && data.content[0] ? data.content[0].text : '';
+    plog('Answer key raw response: ' + text.slice(0, 300));
+
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+
+      // Group answers by chapter (answer keys may span multiple chapters)
+      const byChapter = {};
+      for (const item of parsed) {
+        if (!item.q) continue;
+        const ch = item.chapter || chapterNumber || 'unknown';
+        if (!byChapter[ch]) byChapter[ch] = {};
+        byChapter[ch][item.q] = item.answer || '';
+        plog('Answer key Ch' + ch + ' Q' + item.q + ': ' + (item.answer || '(blank)'));
+      }
+
+      // Save ALL chapters to localStorage for future sessions
+      for (const [ch, answers] of Object.entries(byChapter)) {
+        const storageKey = 'wg-answer-key-' + (bookName || 'unknown') + '-ch' + ch;
+        // Merge with any existing stored answers for this chapter
+        const existing = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        const merged = { ...existing, ...answers };
+        localStorage.setItem(storageKey, JSON.stringify(merged));
+        plog('Saved ' + Object.keys(answers).length + ' answers to localStorage: ' + storageKey);
+      }
+
+      // Load current chapter's answers into active answerKeyMap
+      const currentCh = chapterNumber || 'unknown';
+      const currentKey = 'wg-answer-key-' + (bookName || 'unknown') + '-ch' + currentCh;
+      answerKeyMap = JSON.parse(localStorage.getItem(currentKey) || '{}');
+
+      // Also merge any answers that came without a chapter tag
+      if (byChapter['unknown']) {
+        answerKeyMap = { ...answerKeyMap, ...byChapter['unknown'] };
+      }
+      if (byChapter[currentCh]) {
+        answerKeyMap = { ...answerKeyMap, ...byChapter[currentCh] };
+      }
+
+      // Show the answer key column
+      document.getElementById('th-answer-key').style.display = '';
+
+      const totalSaved = Object.values(byChapter).reduce((sum, ch) => sum + Object.keys(ch).length, 0);
+      const chaptersFound = Object.keys(byChapter).filter(c => c !== 'unknown');
+      fill.style.width = '100%';
+      label.textContent = '✓ Answer key loaded — ' + totalSaved + ' answers' +
+        (chaptersFound.length > 1 ? ' across chapters ' + chaptersFound.join(', ') : '') +
+        ' (saved for future sessions)';
+      renderReview();
+    } else {
+      throw new Error('Could not parse JSON from response');
+    }
+  } catch(e) {
+    label.textContent = '⚠ Answer key parse error: ' + e.message;
+    plog('Answer key error: ' + e.message);
+  }
+}
+
+function dismissMissing() {
+  document.getElementById('missing-banner').classList.remove('visible');
+}
+
+// ═══════════════════════════════════════════
+//  RENDER REVIEW TABLE
+// ═══════════════════════════════════════════
+function renderReview() {
+  // Show/hide answer key column header based on whether key is loaded
+  const thAK = document.getElementById('th-answer-key');
+  if (thAK) thAK.style.display = Object.keys(answerKeyMap).length > 0 ? '' : 'none';
+
+  // Show book/chapter badge
+  const badge = document.getElementById('review-chapter-badge');
+  if (bookName || chapterNumber) {
+    badge.style.display = 'inline-flex';
+    badge.textContent = (bookName || '') + (chapterNumber ? ' — Chapter ' + chapterNumber : '');
+  }
+
+  // Render examples
+  const exSection = document.getElementById('examples-section');
+  const exBody = document.getElementById('examples-body');
+  if (parsedExamples.length > 0) {
+    exSection.style.display = 'block';
+    exBody.innerHTML = '';
+    for (const ex of parsedExamples) {
+      const div = document.createElement('div');
+      div.className = 'example-card';
+      div.innerHTML = `
+        <div class="example-label">${escHtml(ex.label)} <span class="page-badge">p.${ex.page}</span></div>
+        <div>${escHtml(ex.text)}${ex.answer ? ' = <strong>' + escHtml(ex.answer) + '</strong>' : ''}</div>
+      `;
+      exBody.appendChild(div);
+    }
+  } else {
+    exSection.style.display = 'none';
+  }
+
+  // Show missing questions banner (non-blocking)
+  const missBanner = document.getElementById('missing-banner');
+  const missDetail = document.getElementById('missing-detail');
+  if (missingQuestions.length > 0) {
+    missBanner.classList.add('visible');
+    const missStr = missingQuestions.map(n => 'Q' + n).join(', ');
+    missDetail.innerHTML = '<strong>Missing:</strong> ' + missStr +
+      '<br>These questions weren\'t found in the uploaded pages. You can upload the missing pages, or skip and grade what you have.';
+  } else {
+    missBanner.classList.remove('visible');
+  }
+
+  // Render questions table
+  const tbody = document.getElementById('review-body');
+  tbody.innerHTML = '';
+
+  for (let i = 0; i < parsedQuestions.length; i++) {
+    const q = parsedQuestions[i];
+    const isEditing = q._editing === true;
+    const tr = document.createElement('tr');
+    const needsAnswer = !q.student_answer || !q.student_answer.trim();
+    tr.className = isEditing ? 'editing-row' :
+                   needsAnswer ? 'row-needs-answer' :
+                   q.flagged ? 'row-flag' : 'row-ok';
+
+    // Highlight low confidence tokens in problem text
+    let displayProblem = escHtml(q.problem_text);
+    for (const lt of (q.low_tokens || [])) {
+      displayProblem = displayProblem.replace(
+        escHtml(lt.text),
+        '<span class="low-conf">' + escHtml(lt.text) + '?</span>'
+      );
+    }
+
+    // Build status badges
+    let statusHtml = '';
+    if (q.flagged && !q.resolved) {
+      statusHtml = '<span class="flag-badge warn">⚠ ' + escHtml(q.flag_reason) + '</span>';
+    } else if (q.flagged && q.resolved) {
+      statusHtml = '<span class="flag-badge ok">✓ corrected</span>';
+    } else if (q.sequence_gap) {
+      statusHtml = '<span class="flag-badge info">ℹ ' + escHtml(q.gap_note) + '</span>';
+    } else if (q._edited) {
+      statusHtml = '<span class="flag-badge ok">✓ manually edited</span>';
+    } else {
+      statusHtml = '<span class="flag-badge ok">✓ auto-accepted</span>';
+    }
+
+    // Page cell — editable
+    const pageHtml = `<div class="page-cell">
+      <span class="page-num">p.${q.page || '?'}</span>
+      <span class="page-edit-link" onclick="editPageNum(${i})">edit</span>
+    </div>`;
+
+    // Actions column — every row gets edit; rows can also merge-down or delete
+    let actionsHtml = '';
+    if (isEditing) {
+      // Inline edit mode — show save/cancel + labeled inputs
+      actionsHtml = `<div class="correction-group">
+        <div>
+          <label>Student's answer</label>
+          <input class="inline-edit-field" data-idx="${i}" data-field="answer"
+            placeholder="Student's answer" value="${escAttr(q.student_answer || '')}">
+        </div>
+        <div>
+          <label>Problem text</label>
+          <input class="inline-edit-field" data-idx="${i}" data-field="problem"
+            placeholder="Problem text" value="${escAttr(q.problem_text)}" style="width:240px;">
+        </div>
+        <div>
+          <label>Question #</label>
+          <input class="inline-edit-field" data-idx="${i}" data-field="qnum"
+            placeholder="Q#" value="${q.question_number}" style="width:60px;">
+        </div>
+        <div class="row-actions" style="margin-top:4px;">
+          <button class="row-action-btn edit-btn" onclick="saveEdit(${i})">Save</button>
+          <button class="row-action-btn" onclick="cancelEdit(${i})">Cancel</button>
+        </div>
+      </div>`;
+    } else {
+      actionsHtml = `<div class="row-actions">
+        <button class="row-action-btn edit-btn" onclick="startEdit(${i})" title="Edit this question">✎ Edit</button>
+        ${i < parsedQuestions.length - 1 ? '<button class="row-action-btn merge-btn" onclick="mergeWithNext('+i+')" title="Merge this question with the next one (fix a bad split)">⊕ Merge ↓</button>' : ''}
+        <button class="row-action-btn delete-btn" onclick="deleteQuestion(${i})" title="Remove this question">✕</button>
+      </div>`;
+    }
+
+    // Answer key cell — only if answer key is loaded
+    const hasAnswerKey = Object.keys(answerKeyMap).length > 0;
+    const qNum = Math.floor(q.question_number);
+    const correctAnswer = answerKeyMap[qNum] || '';
+    let answerKeyCell = '';
+    if (hasAnswerKey) {
+      if (correctAnswer) {
+        // Compare with student answer if both exist
+        const studentHasAnswer = q.student_answer && q.student_answer.trim();
+        const matchStyle = studentHasAnswer ?
+          (q.student_answer.trim().toLowerCase() === correctAnswer.trim().toLowerCase()
+            ? 'color:#2e7d32;' : 'color:#c62828;') : '';
+        answerKeyCell = `<td style="font-size:0.9em;${matchStyle}">${escHtml(correctAnswer)}</td>`;
+      } else {
+        answerKeyCell = '<td style="color:#aaa;font-size:0.85em;">—</td>';
+      }
+    }
+
+    tr.innerHTML = `
+      <td>${pageHtml}</td>
+      <td style="font-weight:800;cursor:pointer;" onclick="editQNum(${i})" title="Click to change question number">Q${Number.isInteger(q.question_number) ? q.question_number : Math.floor(q.question_number) + '?'} <span style="font-size:0.65em;color:#999;font-weight:400;">✎</span></td>
+      <td>${isEditing ? escHtml(q.problem_text) : displayProblem}</td>
+      <td>
+        ${escHtml(q.student_answer || '—')}
+        ${q._extraction_method ? '<div style="font-size:0.7em;color:#888;margin-top:2px;">' + escHtml(q._extraction_method) + '</div>' : ''}
+        <button class="quick-answer-btn" onclick="quickEditAnswer(${i})">${q.student_answer ? '✎ Edit answer' : '+ Enter answer'}</button>
+      </td>
+      ${answerKeyCell}
+      <td>${statusHtml}</td>
+      <td>${actionsHtml}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  checkAllResolved();
+}
+
+// ── Edit any question (flagged or auto-accepted) ──
+function startEdit(idx) {
+  parsedQuestions[idx]._editing = true;
+  renderReview();
+}
+function cancelEdit(idx) {
+  parsedQuestions[idx]._editing = false;
+  renderReview();
+}
+function saveEdit(idx) {
+  const row = document.querySelectorAll('#review-body tr')[idx];
+  const fields = row.querySelectorAll('.inline-edit-field');
+  fields.forEach(f => {
+    const field = f.dataset.field;
+    const val = f.value.trim();
+    if (field === 'answer') parsedQuestions[idx].student_answer = val;
+    else if (field === 'problem') parsedQuestions[idx].problem_text = val;
+    else if (field === 'qnum') parsedQuestions[idx].question_number = parseInt(val) || parsedQuestions[idx].question_number;
+  });
+  parsedQuestions[idx]._editing = false;
+  parsedQuestions[idx]._edited = true;
+  // If it was flagged and now has both fields, mark resolved
+  if (parsedQuestions[idx].flagged && parsedQuestions[idx].student_answer && parsedQuestions[idx].problem_text) {
+    parsedQuestions[idx].resolved = true;
+  }
+  sortQuestions();
+  renderReview();
+}
+
+// ── Merge two questions that OCR incorrectly split ──
+function mergeWithNext(idx) {
+  if (idx >= parsedQuestions.length - 1) return;
+  const q = parsedQuestions[idx];
+  const next = parsedQuestions[idx + 1];
+
+  // Append next question's text to this one
+  q.problem_text = q.problem_text + ' ' + next.problem_text;
+  // Use the next question's answer if this one is empty, or keep this one
+  if (!q.student_answer && next.student_answer) {
+    q.student_answer = next.student_answer;
+  }
+  q._edited = true;
+  // If was flagged, try to resolve
+  if (q.flagged && q.student_answer && q.problem_text) q.resolved = true;
+
+  // Remove the next question
+  parsedQuestions.splice(idx + 1, 1);
+
+  // Re-sort, re-run sanity checks, and re-render
+  sortQuestions();
+  runSanityChecks(parsedQuestions);
+  renderReview();
+}
+
+// ── Delete a question (bad OCR artifact, duplicate, etc.) ──
+function deleteQuestion(idx) {
+  const q = parsedQuestions[idx];
+  if (!confirm('Remove Q' + q.question_number + '?\n"' + q.problem_text.slice(0, 60) + '..."')) return;
+  parsedQuestions.splice(idx, 1);
+  sortQuestions();
+  runSanityChecks(parsedQuestions);
+  renderReview();
+}
+
+// ── Sort questions by Q# (primary), page (secondary) ──
+function sortQuestions() {
+  parsedQuestions.sort((a, b) => a.question_number !== b.question_number ? a.question_number - b.question_number : (a.page || 0) - (b.page || 0));
+}
+
+function editPageNum(idx) {
+  const newPage = prompt('Enter the printed book page number for Q' + parsedQuestions[idx].question_number + ':', parsedQuestions[idx].page || '');
+  if (newPage !== null && newPage.trim()) {
+    parsedQuestions[idx].page = parseInt(newPage.trim()) || newPage.trim();
+    renderReview();
+  }
+}
+
+function quickEditAnswer(idx) {
+  const q = parsedQuestions[idx];
+  const newAnswer = prompt(
+    'Q' + q.question_number + ': ' + q.problem_text.slice(0, 80) + '...\n\nEnter the student\'s answer:',
+    q.student_answer || ''
+  );
+  if (newAnswer !== null) {
+    q.student_answer = newAnswer.trim();
+    q._edited = true;
+    q._extraction_method = 'manually entered';
+    q._extraction_confidence = 'high';
+    // Clear the flag if it was about a missing answer
+    if (q.flagged && q.student_answer) {
+      q.resolved = true;
+    }
+    renderReview();
+  }
+}
+
+function editQNum(idx) {
+  const newNum = prompt('Enter the correct question number:', parsedQuestions[idx].question_number);
+  if (newNum !== null && newNum.trim()) {
+    const parsed = parseInt(newNum.trim());
+    if (parsed && parsed > 0) {
+      parsedQuestions[idx].question_number = parsed;
+      parsedQuestions[idx]._edited = true;
+      sortQuestions();
+      runSanityChecks(parsedQuestions);
+      renderReview();
+    }
+  }
+}
+
+function checkAllResolved() {
+  // Only real flags (not sequence_gap) block grading
+  const allGood = parsedQuestions.every(q => !q.flagged || q.resolved);
+  document.getElementById('btn-grade').disabled = !allGood;
+  // Review step always requires manual confirmation — even when opened from dashboard
+}
+
+// ── Parser debug log (visible in-app since dev tools may not be available) ──
+const parserLog = [];
+function plog(msg) {
+  parserLog.push(msg);
+  console.log('[Parser] ' + msg);
+}
+function toggleParserLog() {
+  const el = document.getElementById('parser-log');
+  if (el.classList.contains('visible')) {
+    el.classList.remove('visible');
+  } else {
+    el.textContent = parserLog.length ? parserLog.join('\n') : '(no parser log yet — upload pages first)';
+    el.classList.add('visible');
+  }
+}
+
+function toggleRawOCR() {
+  // Show raw OCR in whichever section is currently visible
+  const reviewEl = document.getElementById('raw-ocr-review');
+  const uploadEl = document.getElementById('raw-ocr');
+  // Copy text to the review panel's element if it's empty
+  if (reviewEl && !reviewEl.textContent && uploadEl.textContent) {
+    reviewEl.textContent = uploadEl.textContent;
+  }
+  // Toggle the one in the review section (since that's where the button lives)
+  if (reviewEl) {
+    reviewEl.classList.toggle('visible');
+  } else {
+    uploadEl.classList.toggle('visible');
+  }
+}
+
+// ═══════════════════════════════════════════
+//  STEP 3: GRADING (Claude)
+// ═══════════════════════════════════════════
+async function startGrading() {
+  const anthropicKey = localStorage.getItem('wg-anthropic-key') || localStorage.getItem('hs-api-key');
+  if (!anthropicKey) {
+    alert('Please set your Anthropic API key in Settings first.');
+    toggleSettings();
+    return;
+  }
+
+  goTo('grading');
+  const label = document.getElementById('grade-label');
+  const fill = document.getElementById('grade-fill');
+  const total = parsedQuestions.length;
+
+  let completed = 0;
+  label.textContent = 'Grading Q1 of ' + total + '...';
+
+  // Build grading promises — one per question, run in parallel
+  const promises = parsedQuestions.map((q, i) => {
+    if (q.flagged && !q.resolved) {
+      // Unresolved flag — skip
+      return Promise.resolve({
+        ...q,
+        correct_answer: null,
+        student_correct: null,
+        error_type: null,
+        brief_note: 'Not graded — needs review'
+      });
+    }
+
+    // Build example context string for this grading call
+    const exContext = parsedExamples.length > 0
+      ? '\n\nReference — worked examples from the same page show the expected method:\n' +
+        parsedExamples.map(ex => ex.label + ': ' + ex.text + (ex.answer ? ' = ' + ex.answer : '')).join('\n') + '\n'
+      : '';
+
+    const bookContext = bookName ? `\nBook: ${bookName}` : '';
+    const chapContext = chapterNumber ? ` | Chapter: ${chapterNumber}` : '';
+
+    const systemPrompt = subject === 'math'
+      ? "You are grading a math worksheet for an elementary-age student. Be precise and analytical. Return ONLY valid JSON, no markdown."
+      : "You are grading a grammar/editing worksheet (Editor in Chief style) for an elementary-age student. Evaluate whether the student correctly identified and fixed the grammar/punctuation/capitalization error. Return ONLY valid JSON, no markdown.";
+
+    const userPrompt = subject === 'math'
+      ? `${bookContext}${chapContext}\nProblem: ${q.problem_text}\nStudent's answer: ${q.student_answer}${exContext}\n\nDo the following:\n1. Solve the problem yourself to get the correct answer\n2. Compare to student's answer\n3. Return JSON only:\n{\n  "correct_answer": "...",\n  "student_correct": true/false,\n  "error_type": null or one of ["careless", "procedural", "conceptual", "computation"],\n  "brief_note": "one sentence, what went wrong if incorrect"\n}`
+      : `${bookContext}${chapContext}\nSentence/passage: ${q.problem_text}\nStudent's correction: ${q.student_answer}${exContext}\n\nDo the following:\n1. Identify the grammar/punctuation/capitalization error in the original\n2. Determine the correct fix\n3. Evaluate the student's correction\n4. Return JSON only:\n{\n  "correct_answer": "the correct fix",\n  "student_correct": true/false,\n  "error_type": null or one of ["missed_error", "wrong_correction", "partially_correct", "correct"],\n  "brief_note": "one sentence explaining the evaluation"\n}`;
+
+    return callClaude(anthropicKey, systemPrompt, userPrompt)
+      .then(result => {
+        completed++;
+        label.textContent = 'Grading Q' + Math.min(completed + 1, total) + ' of ' + total + '...';
+        fill.style.width = Math.round((completed / total) * 100) + '%';
+        return { ...q, ...result };
+      })
+      .catch(err => {
+        completed++;
+        label.textContent = 'Grading Q' + Math.min(completed + 1, total) + ' of ' + total + '...';
+        fill.style.width = Math.round((completed / total) * 100) + '%';
+        return {
+          ...q,
+          correct_answer: null,
+          student_correct: null,
+          error_type: null,
+          brief_note: 'Grading error: ' + err.message
+        };
+      });
+  });
+
+  gradingResults = await Promise.all(promises);
+  label.textContent = '✓ Grading complete';
+  fill.style.width = '100%';
+
+  // Generate parent observations
+  await generateObservations(anthropicKey);
+
+  // Render report
+  renderReport();
+  goTo('report');
+
+  // Auto-send to dashboard if opened from there
+  if (_dashboardSubId) {
+    sendToDashboard(true); // silent = true
+  }
+}
+
+async function callClaude(apiKey, systemPrompt, userPrompt) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }]
+    })
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text();
+    throw new Error('Claude API ' + resp.status + ': ' + errText.slice(0, 200));
+  }
+
+  const data = await resp.json();
+  const text = data.content?.[0]?.text || '';
+
+  // Parse JSON from response (handle possible markdown wrapping)
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('No JSON in response: ' + text.slice(0, 100));
+
+  return JSON.parse(jsonMatch[0]);
+}
+
+// ═══════════════════════════════════════════
+//  PARENT OBSERVATIONS (final Claude call)
+// ═══════════════════════════════════════════
+async function generateObservations(apiKey) {
+  const errors = gradingResults.filter(r => r.student_correct === false);
+  if (errors.length === 0) return;
+
+  const summary = gradingResults.map(r =>
+    `Q${r.question_number}: "${r.problem_text}" → student: ${r.student_answer}, correct: ${r.correct_answer}, ${r.student_correct ? 'CORRECT' : 'WRONG (' + (r.error_type || 'unknown') + '): ' + (r.brief_note || '')}`
+  ).join('\n');
+
+  const bookInfo = bookName ? `Book: ${bookName}${chapterNumber ? ', Chapter ' + chapterNumber : ''}` : '';
+  const prompt = `Here are the grading results for a ${subject === 'math' ? 'math' : 'grammar/editing'} worksheet completed by an 8-year-old student named Sarah (Grade 3 level).\n${bookInfo}\n\n${summary}\n\nScore: ${gradingResults.filter(r=>r.student_correct).length}/${gradingResults.length}\n\nWrite a short paragraph (3-5 sentences) for her parent synthesizing patterns across ALL errors. Be specific about which skills need attention. Reference the known error patterns: she's strong conceptually but has arithmetic fluency gaps, especially in subtraction with regrouping. If these results confirm or diverge from that pattern, note it. Be constructive and actionable — this parent is hands-on and data-driven.`;
+
+  try {
+    const resp = await callClaude(
+      apiKey,
+      'You are an educational diagnostician writing a brief observation for a homeschool parent. Be specific, constructive, and data-driven. Return plain text, NOT JSON.',
+      prompt
+    );
+    // This will fail JSON parse — handle gracefully
+  } catch(e) {
+    // Expected — the response is plain text, not JSON
+  }
+
+  // Re-call without JSON expectation
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        system: 'You are an educational diagnostician writing a brief observation for a homeschool parent. Be specific, constructive, and data-driven. Return plain text only.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      const text = data.content?.[0]?.text || '';
+      document.getElementById('observations-text').textContent = text;
+      document.getElementById('observations-box').style.display = 'block';
+    }
+  } catch(e) {
+    console.error('Observations error:', e);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  STEP 4: RENDER REPORT
+// ═══════════════════════════════════════════
+function renderReport() {
+  // Show book/chapter badge on report
+  const rBadge = document.getElementById('report-chapter-badge');
+  if (bookName || chapterNumber) {
+    rBadge.style.display = 'inline-flex';
+    rBadge.textContent = (bookName || '') + (chapterNumber ? ' — Chapter ' + chapterNumber : '');
+  }
+
+  const correct = gradingResults.filter(r => r.student_correct === true).length;
+  const total = gradingResults.length;
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+  // Score bar
+  const bar = document.getElementById('score-bar');
+  bar.className = 'score-bar ' + (pct >= 80 ? 'green' : pct >= 60 ? 'amber' : 'red');
+  document.getElementById('score-fraction').textContent = correct + ' / ' + total;
+  document.getElementById('score-pct').textContent = pct + '%';
+
+  // Results table
+  const tbody = document.getElementById('result-body');
+  tbody.innerHTML = '';
+  for (const r of gradingResults) {
+    const isCorrect = r.student_correct === true;
+    const isSkipped = r.student_correct === null;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="page-badge">p.${r.page || '?'}</td>
+      <td style="font-weight:800;">Q${r.question_number}</td>
+      <td>${escHtml(r.problem_text)}</td>
+      <td class="${isCorrect ? '' : isSkipped ? '' : 'wrong-cell'}">${escHtml(r.student_answer || '—')}</td>
+      <td class="${isCorrect ? 'correct-cell' : ''}">${escHtml(r.correct_answer || '—')}</td>
+      <td><span class="mark">${isCorrect ? '✓' : isSkipped ? '—' : '✗'}</span></td>
+      <td style="font-size:.78rem;color:var(--gray);">${escHtml(r.brief_note || '')}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  // Error patterns
+  const errors = gradingResults.filter(r => r.student_correct === false && r.error_type);
+  if (errors.length > 0) {
+    const card = document.getElementById('error-patterns-card');
+    card.style.display = 'block';
+    const container = document.getElementById('error-patterns');
+    container.innerHTML = '';
+
+    // Group by type
+    const groups = {};
+    for (const e of errors) {
+      const type = e.error_type || 'unknown';
+      if (!groups[type]) groups[type] = [];
+      groups[type].push(e);
+    }
+
+    const typeLabels = {
+      careless: 'Careless Errors',
+      procedural: 'Procedural Errors',
+      conceptual: 'Conceptual Errors',
+      computation: 'Computation Errors',
+      missed_error: 'Missed Errors',
+      wrong_correction: 'Wrong Corrections',
+      partially_correct: 'Partially Correct'
+    };
+
+    for (const [type, items] of Object.entries(groups)) {
+      const pctOfErrors = Math.round((items.length / errors.length) * 100);
+      const qNums = items.map(i => 'Q' + i.question_number).join(', ');
+      const notes = items.map(i => i.brief_note).filter(Boolean);
+
+      const div = document.createElement('div');
+      div.className = 'error-card ' + type;
+      div.innerHTML = `
+        <div class="error-card-title">${typeLabels[type] || type} — ${items.length} (${pctOfErrors}% of errors)</div>
+        <div class="error-card-detail">
+          Questions: ${qNums}<br>
+          ${notes.length > 0 ? notes[0] : ''}
+        </div>
+      `;
+      container.appendChild(div);
+    }
+  } else {
+    document.getElementById('error-patterns-card').style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════
+//  SEND RESULTS TO DASHBOARD
+// ═══════════════════════════════════════════
+function sendToDashboard(silent) {
+  if (!_dashboardSubId) return;
+  try {
+    const correct = gradingResults.filter(r => r.student_correct === true).length;
+    const total   = gradingResults.length;
+    const pct     = total > 0 ? Math.round(correct / total * 100) : 0;
+    const obsText = document.getElementById('observations-text')?.textContent || '';
+
+    // Build error pattern groups
+    const errors = gradingResults.filter(r => r.student_correct === false && r.error_type);
+    const groups = {};
+    errors.forEach(e => { (groups[e.error_type] = groups[e.error_type] || []).push(e); });
+
+    // Find and update the submission in hs-submissions
+    const SUBS_KEY = 'hs-submissions';
+    const subs = JSON.parse(localStorage.getItem(SUBS_KEY) || '[]');
+    const idx  = subs.findIndex(s => s.id === _dashboardSubId);
+    if (idx >= 0) {
+      subs[idx] = {
+        ...subs[idx],
+        status: 'assessed',
+        score: pct,
+        assessment: {
+          correct, total,
+          results: gradingResults,
+          errorPatterns: groups,
+          observations: obsText,
+          gradedAt: new Date().toISOString(),
+        }
+      };
+      localStorage.setItem(SUBS_KEY, JSON.stringify(subs));
+    }
+
+    // Clear the pending handoff
+    localStorage.removeItem('hs-wg-pending-sub');
+
+    // Update UI
+    const wrap = document.getElementById('send-to-dashboard-wrap');
+    const msg  = document.getElementById('send-to-dashboard-msg');
+    if (wrap) wrap.style.display = 'block';
+    if (msg) {
+      msg.style.color = '#10B981';
+      msg.textContent = `✅ Sent to parent portal — ${pct}% (${correct}/${total})`;
+    }
+    const btn = wrap?.querySelector('button');
+    if (btn) { btn.disabled = true; btn.textContent = '✅ Results Sent!'; btn.style.opacity = '.6'; }
+
+    // ── Batch mode: show Next button if there are more items ──
+    if (_batchQueue.length > 0 && _batchIndex < _batchQueue.length - 1) {
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn btn-primary';
+      nextBtn.style.cssText = 'margin-top:10px;width:100%;';
+      nextBtn.textContent = `▶ Next submission (${_batchIndex + 2} / ${_batchQueue.length})`;
+      nextBtn.onclick = () => {
+        // Reset grader state
+        uploadedFiles = []; allOcrData = []; parsedQuestions = []; parsedExamples = [];
+        gradingResults = []; answerKeyMap = {};
+        document.getElementById('preview-area').style.display = 'none';
+        document.getElementById('book-selector').style.display = 'none';
+        document.getElementById('ocr-progress').classList.remove('visible');
+        document.getElementById('raw-ocr').textContent = '';
+        goTo('upload');
+        loadBatchItem(_batchIndex + 1);
+      };
+      if (wrap) wrap.appendChild(nextBtn);
+    } else if (_batchQueue.length > 0 && _batchIndex === _batchQueue.length - 1) {
+      showBatchComplete();
+    }
+  } catch(e) {
+    if (!silent) {
+      const msg = document.getElementById('send-to-dashboard-msg');
+      if (msg) { msg.style.color = '#EF4444'; msg.textContent = 'Error sending — please try again.'; }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════
+//  EXPORT REPORT
+// ═══════════════════════════════════════════
+function exportReport() {
+  const correct = gradingResults.filter(r => r.student_correct === true).length;
+  const total = gradingResults.length;
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const date = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const subjectLabel = subject === 'math' ? 'Math' : 'Grammar / Editor in Chief';
+  const bookLabel = bookName ? bookName + (chapterNumber ? ', Chapter ' + chapterNumber : '') : '';
+
+  let rows = '';
+  for (const r of gradingResults) {
+    const bg = r.student_correct === true ? '#D1FAE5' : r.student_correct === false ? '#FEE2E2' : '#F3F4F6';
+    rows += `<tr style="background:${bg};">
+      <td style="padding:8px;font-size:.75em;color:#666;">p.${r.page || '?'}</td>
+      <td style="padding:8px;font-weight:700;">Q${r.question_number}</td>
+      <td style="padding:8px;">${escHtml(r.problem_text)}</td>
+      <td style="padding:8px;">${escHtml(r.student_answer || '—')}</td>
+      <td style="padding:8px;">${escHtml(r.correct_answer || '—')}</td>
+      <td style="padding:8px;font-size:1.2em;">${r.student_correct === true ? '✓' : r.student_correct === false ? '✗' : '—'}</td>
+      <td style="padding:8px;font-size:.85em;color:#555;">${escHtml(r.brief_note || '')}</td>
+    </tr>`;
+  }
+
+  // Error patterns
+  let errorSection = '';
+  const errors = gradingResults.filter(r => r.student_correct === false && r.error_type);
+  if (errors.length > 0) {
+    const groups = {};
+    for (const e of errors) {
+      const type = e.error_type || 'unknown';
+      if (!groups[type]) groups[type] = [];
+      groups[type].push(e);
+    }
+    errorSection = '<h2 style="margin-top:32px;">Error Pattern Analysis</h2>';
+    for (const [type, items] of Object.entries(groups)) {
+      const pctE = Math.round((items.length / errors.length) * 100);
+      errorSection += `<div style="border-left:4px solid #667eea;padding:12px 16px;margin:8px 0;background:#F5F3FF;border-radius:8px;">
+        <strong>${type}</strong> — ${items.length} (${pctE}% of errors)<br>
+        Questions: ${items.map(i => 'Q'+i.question_number).join(', ')}<br>
+        <em>${items[0]?.brief_note || ''}</em>
+      </div>`;
+    }
+  }
+
+  const obsText = document.getElementById('observations-text').textContent;
+  const obsSection = obsText ? `<div style="background:#EDE9FE;border:2px solid #C4B5FD;border-radius:12px;padding:20px;margin-top:24px;">
+    <h3>Observations for Parent</h3>
+    <p style="margin-top:8px;line-height:1.6;">${escHtml(obsText)}</p>
+  </div>` : '';
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Grading Report — ${date}</title>
+<style>body{font-family:system-ui,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;color:#333;}
+table{width:100%;border-collapse:collapse;margin-top:16px;}th{text-align:left;font-size:.75em;text-transform:uppercase;color:#666;padding:8px;border-bottom:2px solid #ddd;}td{border-bottom:1px solid #eee;}
+h1{color:#1e1b4b;}h2{color:#667eea;margin-top:24px;}</style></head>
+<body>
+<h1>Worksheet Grading Report</h1>
+<p><strong>Date:</strong> ${date} &nbsp;|&nbsp; <strong>Subject:</strong> ${subjectLabel}${bookLabel ? ' &nbsp;|&nbsp; <strong>Book:</strong> ' + escHtml(bookLabel) : ''} &nbsp;|&nbsp; <strong>Score:</strong> ${correct}/${total} (${pct}%)</p>
+<div style="height:12px;background:#e5e7eb;border-radius:99px;margin:16px 0;overflow:hidden;">
+  <div style="height:100%;width:${pct}%;background:${pct>=80?'#06D6A0':pct>=60?'#F59E0B':'#EF4444'};border-radius:99px;"></div>
+</div>
+<h2>Question-by-Question</h2>
+<table><thead><tr><th>Page</th><th>Q#</th><th>Problem</th><th>Student</th><th>Correct</th><th></th><th>Note</th></tr></thead>
+<tbody>${rows}</tbody></table>
+${errorSection}
+${obsSection}
+<p style="margin-top:32px;font-size:.8em;color:#999;">Generated by Sarah's Worksheet Grader — ${date}</p>
+</body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const safeBook = bookName ? bookName.replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() : subject;
+  const safeChap = chapterNumber ? '-ch' + chapterNumber : '';
+  a.download = `grading-report-${safeBook}${safeChap}-${new Date().toISOString().slice(0,10)}.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+function escAttr(s) {
+  return (s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+</script>
+</body>
+</html>
