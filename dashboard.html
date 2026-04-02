@@ -791,9 +791,9 @@
       <div class="stat-label">Words to go</div>
     </div>
     <div class="stat-card">
-      <div class="stat-emoji">🔬</div>
-      <div class="stat-value" id="stat-science">1 / 53</div>
-      <div class="stat-label">Science chapters</div>
+      <div class="stat-emoji">📖</div>
+      <div class="stat-value" id="stat-books">0</div>
+      <div class="stat-label">Books read</div>
     </div>
     <div class="stat-card">
       <div class="stat-emoji">📚</div>
@@ -1316,6 +1316,7 @@
     <div class="panel-section">📚 Reading</div>
     <div class="panel-field"><label class="panel-label">Current book (shown in plan)</label><input class="panel-input" id="p-book"></div>
     <div class="panel-field"><label class="panel-label">Book note for Sarah</label><input class="panel-input" id="p-book-note"></div>
+    <div class="panel-field"><label class="panel-label">Books read this year (count, shown on student dashboard)</label><input class="panel-input" id="p-books-read" type="number" min="0" step="1" placeholder="0"></div>
 
     <div class="panel-section">💬 Debate</div>
     <div class="panel-field"><label class="panel-label">Theme / topic this week</label><input class="panel-input" id="p-debate"></div>
@@ -1409,6 +1410,7 @@ const CFG = {
   scienceComplete:   1,
   scienceInProgress: "Ch 1: Baloney Detection Kit — Part 2 (today)",
   scienceTotal: 53,
+  booksRead: 0,
   // Google Calendar: paste your embed URL from Google Calendar settings → "Share" → "Get embeddable link"
   // Leave blank to show manual schedule from week.classes instead
   calendarUrl: "https://calendar.google.com/calendar/embed?src=7bea0c9b2b0c9e05b3266da65e5f7028e3020e23f1e8f6d62d3604b0a8da4893%40group.calendar.google.com&ctz=America%2FNew_York",
@@ -1447,6 +1449,7 @@ function getActiveCFG() {
   if (ov.vocabDone          !== undefined) m.vocabDone          = ov.vocabDone;
   if (ov.scienceComplete    !== undefined) m.scienceComplete    = ov.scienceComplete;
   if (ov.scienceInProgress)               m.scienceInProgress  = ov.scienceInProgress;
+  if (ov.booksRead          !== undefined) m.booksRead          = ov.booksRead;
   if (ov.calendarUrl        !== undefined) m.calendarUrl        = ov.calendarUrl;
   const w = ov.week;
   if (w.num         !== undefined) m.week.num         = w.num;
@@ -1496,6 +1499,7 @@ function openPanel() {
   document.getElementById('p-hist-source').value    = w.history.source   || '';
   document.getElementById('p-book').value           = w.book             || '';
   document.getElementById('p-book-note').value      = w.bookNote         || '';
+  document.getElementById('p-books-read').value     = ac.booksRead != null ? ac.booksRead : '';
   document.getElementById('p-debate').value         = w.debateTheme      || '';
   document.getElementById('p-api-key').value          = localStorage.getItem('hs-api-key')        || '';
   document.getElementById('p-proxy-url').value        = localStorage.getItem('hs-proxy-url')      || '';
@@ -1557,6 +1561,7 @@ function saveConfig() {
     vocabDone:         n('p-vocab-done'),
     scienceComplete:   n('p-sci-complete'),
     scienceInProgress: v('p-sci-inprogress'),
+    booksRead:         n('p-books-read'),
     calendarUrl:       v('p-cal-url'),
     week: {
       num:         n('p-week-num') || 1,
@@ -1925,7 +1930,7 @@ function render() {
   const vLeft = ACFG.vocabTotal - ACFG.vocabDone;
   document.getElementById("stat-vocab").textContent   = ACFG.vocabDone.toLocaleString();
   document.getElementById("stat-left").textContent    = vLeft.toLocaleString();
-  document.getElementById("stat-science").textContent = `${ACFG.scienceComplete} / ${ACFG.scienceTotal}`;
+  document.getElementById("stat-books").textContent = ACFG.booksRead ?? 0;
 
   // Vocab bar
   const pct = Math.round((ACFG.vocabDone/ACFG.vocabTotal)*100);
@@ -3417,11 +3422,25 @@ function renderParentView() {
   const chessEl = document.getElementById('pv-chess');
   if (chessEl) {
     const plat = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
-    const li   = plat.lichess || {};
+    const li   = plat.lichess  || {};
+    const ck   = plat.chesskid || {};
     const ixl  = plat.ixl    || {};
     const ba   = plat.beastAcademy || {};
     const vs   = plat.vocabularyStars || {};
     let html = '';
+
+    // ── ChessKid ──
+    if (ck.rating || ck.gamesWon) {
+      const ckTotal = (ck.gamesWon||0) + (ck.gamesLost||0) + (ck.gamesDrawn||0);
+      const ckWr = ckTotal ? Math.round((ck.gamesWon||0)/ckTotal*100) : null;
+      html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">ChessKid (NewSoreNight)</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${ck.rapid?`<span class="pv-tag" style="background:#22C55E22;color:#15803D;">Rapid ${ck.rapid}</span>`:''}
+        ${ck.puzzleRating?`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">Puzzles ${ck.puzzleRating}</span>`:''}
+        ${ckTotal?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">${ck.gamesWon}W · ${ck.gamesLost}L${ckWr?' · '+ckWr+'% wins':''}</span>`:''}
+      </div></div>`;
+    }
+
+    // ── Lichess ──
     if (li.rating || li.gamesPlayed) {
       const wr = li.gamesPlayed ? Math.round((li.gamesWon||0)/li.gamesPlayed*100) : null;
       html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Lichess (Sarahbh)</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
@@ -4697,13 +4716,16 @@ function renderProgressCard() {
   const vs      = plat.vocabularyStars|| {};
   const vc      = plat.vocabCom       || {};
 
-  // Chess (Lichess live API)
-  const chessRating = li.rating || null;
+  // Chess (Lichess + ChessKid live APIs)
+  const ck          = plat.chesskid || {};
+  const chessRating = li.rating || ck.rapid || null;
   const chessParts = [];
-  if (li.classical)    chessParts.push(`Classical ${li.classical}`);
-  if (li.puzzleRating) chessParts.push(`Puzzles ${li.puzzleRating} (${(li.puzzlesSolved||0).toLocaleString()} solved)`);
+  if (ck.rapid)        chessParts.push(`CK Rapid ${ck.rapid}`);
+  if (ck.puzzleRating) chessParts.push(`CK Puzzles ${ck.puzzleRating}`);
+  if (li.classical)    chessParts.push(`Lichess Classical ${li.classical}`);
+  if (li.puzzleRating) chessParts.push(`Li Puzzles ${li.puzzleRating} (${(li.puzzlesSolved||0).toLocaleString()} solved)`);
   if (li.gamesWon != null && li.gamesPlayed) chessParts.push(`${li.gamesWon}W · ${li.gamesPlayed - li.gamesWon}L`);
-  const chessDetail = chessParts.length ? chessParts.join(' · ') : 'Fetching from Lichess…';
+  const chessDetail = chessParts.length ? chessParts.join(' · ') : 'Fetching ratings…';
   const chessBadge  = chessRating ? `⭐ ${chessRating}` : null;
 
   // Beast Academy — parent panel overrides take priority over sync data
@@ -4879,39 +4901,64 @@ async function fetchChessStats() {
   const today = todayISO();
   const plat  = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
 
-  // Only re-fetch if already done today
-  if (plat.lichess?.lastUpdated === today) return;
+  // Only re-fetch if already done today for both platforms
+  const lichessDone   = plat.lichess?.lastUpdated   === today;
+  const chesskidDone  = plat.chesskid?.lastUpdated  === today;
+  if (lichessDone && chesskidDone) return;
 
-  try {
-    // Lichess public API — no auth needed. ChessKid has no public API (privacy-restricted for kids).
-    const res = await fetch('https://lichess.org/api/user/Sarahbh', {
-      headers: { Accept: 'application/json' }, cache: 'no-cache'
-    });
-    if (!res.ok) return;
-    const li = await res.json();
+  // ── Lichess (public API) ──
+  if (!lichessDone) {
+    try {
+      const res = await fetch('https://lichess.org/api/user/Sarahbh', {
+        headers: { Accept: 'application/json' }, cache: 'no-cache'
+      });
+      if (res.ok) {
+        const li = await res.json();
+        const classical = li.perfs?.classical?.rating || null;
+        const rapid     = li.perfs?.rapid?.rating     || null;
+        const blitz     = li.perfs?.blitz?.rating     || null;
+        const puzzle    = li.perfs?.puzzle?.rating     || null;
+        plat.lichess = {
+          rating:        classical || rapid || blitz,
+          classical, rapid, blitz,
+          puzzleRating:  puzzle,
+          puzzlesSolved: li.perfs?.puzzle?.games || 0,
+          gamesPlayed:   li.count?.all  || 0,
+          gamesWon:      li.count?.win  || 0,
+          lastUpdated:   today
+        };
+      }
+    } catch(e) { /* offline */ }
+  }
 
-    // Pick best display rating (classical has most games; fall back to rapid/blitz)
-    const classical = li.perfs?.classical?.rating || null;
-    const rapid     = li.perfs?.rapid?.rating     || null;
-    const blitz     = li.perfs?.blitz?.rating     || null;
-    const puzzle    = li.perfs?.puzzle?.rating     || null;
-    const displayRating = classical || rapid || blitz;
+  // ── ChessKid via Chess.com public API (shared infrastructure) ──
+  if (!chesskidDone) {
+    try {
+      const res = await fetch('https://api.chess.com/pub/player/newsorenight/stats', {
+        headers: { Accept: 'application/json' }, cache: 'no-cache'
+      });
+      if (res.ok) {
+        const ck = await res.json();
+        // ChessKid mostly uses rapid time controls for kids
+        const rapid  = ck.chess_rapid?.last?.rating  || ck.chess_blitz?.last?.rating || null;
+        const bullet = ck.chess_bullet?.last?.rating  || null;
+        const puzzle = ck.tactics?.highest?.rating    || null;
+        const record = ck.chess_rapid?.record || ck.chess_blitz?.record || {};
+        plat.chesskid = {
+          rating:       rapid,
+          rapid, bullet,
+          puzzleRating: puzzle,
+          gamesWon:     record.win   || 0,
+          gamesLost:    record.loss  || 0,
+          gamesDrawn:   record.draw  || 0,
+          lastUpdated:  today
+        };
+      }
+    } catch(e) { /* CORS or offline — ChessKid data may not be available */ }
+  }
 
-    plat.lichess = {
-      rating:        displayRating,
-      classical:     classical,
-      rapid:         rapid,
-      blitz:         blitz,
-      puzzleRating:  puzzle,
-      puzzlesSolved: li.perfs?.puzzle?.games || 0,
-      gamesPlayed:   li.count?.all  || 0,
-      gamesWon:      li.count?.win  || 0,
-      lastUpdated:   today
-    };
-
-    localStorage.setItem('hs-platform-stats', JSON.stringify(plat));
-    renderProgressCard(); // refresh card with live ratings
-  } catch(e) { /* offline — use cached */ }
+  localStorage.setItem('hs-platform-stats', JSON.stringify(plat));
+  renderProgressCard(); // refresh card with live ratings
 }
 
 // ── INIT ──
@@ -5581,24 +5628,20 @@ function vaSpeakText(text, onDone) {
   const _origSet    = localStorage.setItem.bind(localStorage);
   const _origRemove = localStorage.removeItem.bind(localStorage);
 
-  // Keys that should be visible to ALL devices (shared scope)
-  const SHARED_PREFIXES = [
-    'hs-submissions', 'hs-cfg-override', 'hs-rewards-log',
-    'hs-rewards-catalog', 'hs-platform-stats', 'hs-sub-notifs',
-    'hs-wg-batch-queue', 'hs-wg-pending-sub'
-  ];
-  function isSharedKey(k) { return SHARED_PREFIXES.some(p => k.startsWith(p)); }
+  // ALL hs- keys go to shared scope so every device sees the same data.
+  // hw- keys (homework) are also shared — parent adds HW on laptop, Sarah sees it on iPad.
+  function isSharedKey(k) { return k.startsWith('hs-') || k.startsWith('hw-'); }
 
   localStorage.setItem = function(key, value) {
     _origSet(key, value);
-    if (key.startsWith('hs-') || key.startsWith('wg-')) {
+    if (key.startsWith('hs-') || key.startsWith('wg-') || key.startsWith('hw-')) {
       DataSync.setItem(key, value, { shared: isSharedKey(key) }).catch(() => {});
     }
   };
   localStorage.removeItem = function(key) {
     _origRemove(key);
-    if (key.startsWith('hs-') || key.startsWith('wg-')) {
-      DataSync.removeItem(key).catch(() => {});
+    if (key.startsWith('hs-') || key.startsWith('wg-') || key.startsWith('hw-')) {
+      DataSync.removeItem(key, { shared: isSharedKey(key) }).catch(() => {});
     }
   };
 
@@ -5619,6 +5662,32 @@ function vaSpeakText(text, onDone) {
       }
     }, { shared });
   });
+
+  // ── Real-time listener for daily task state + homework (date-keyed) ──
+  // These keys change as Sarah and Shell check tasks / add homework across devices.
+  // We listen to the entire shared Firebase subtree and re-render when anything
+  // matching today's date keys changes.
+  try {
+    const now = new Date();
+    const dayTag = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+    const todayTaskKey = `hs-${dayTag}`;
+    const todayCustomKey = `hs-custom-${dayTag}`;
+    const todayHwKey = `hw-${dayTag}`;
+    [todayTaskKey, todayCustomKey].forEach(k => {
+      DataSync.onUpdate(k, (newVal) => {
+        if (newVal !== localStorage.getItem(k)) {
+          _origSet(k, newVal);
+          try { if (typeof render === 'function') render(); } catch(e) {}
+        }
+      }, { shared: true });
+    });
+    DataSync.onUpdate(todayHwKey, (newVal) => {
+      if (newVal !== localStorage.getItem(todayHwKey)) {
+        _origSet(todayHwKey, newVal);
+        try { if (typeof renderHomework === 'function') renderHomework(); } catch(e) {}
+      }
+    }, { shared: true });
+  } catch(e) { /* non-critical */ }
 
   // ── Step 4: Show sync status dot in parent panel ──
   const dot = document.getElementById('firebase-sync-dot');
