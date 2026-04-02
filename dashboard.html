@@ -2355,13 +2355,20 @@ function renderSchedule(ac) {
           el.innerHTML = html;
         })
         .catch(() => {
-          // Fallback: stripped agenda iframe if fetch fails (e.g. calendar not public)
-          const ctz = (calUrl.match(/ctz=([^&]+)/) || ['','America%2FNew_York'])[1];
-          const src = srcMatch[1];
-          const fbUrl = `https://calendar.google.com/calendar/embed?src=${src}&ctz=${ctz}`
-            + `&mode=AGENDA&showTitle=0&showNav=0&showDate=0&showPrint=0&showTabs=0&showCalendars=0&showTz=0`;
-          el.innerHTML = `<div class="schedule-iframe-wrap">
-            <iframe src="${fbUrl}" style="width:100%;height:220px;border:none;" frameborder="0" scrolling="no"></iframe>
+          // Fallback: open-in-calendar button (avoids Google 3rd-party cookie errors)
+          const ctz  = (calUrl.match(/ctz=([^&]+)/) || ['','America%2FNew_York'])[1];
+          const openUrl = `https://calendar.google.com/calendar/r/day`;
+          el.innerHTML = `<div style="text-align:center;padding:18px 10px;">
+            <div style="font-size:2rem;margin-bottom:8px;">🗓️</div>
+            <a href="${openUrl}" target="_blank"
+               style="display:inline-block;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;
+                      text-decoration:none;padding:11px 24px;border-radius:12px;font-family:'Nunito',sans-serif;
+                      font-size:.9rem;font-weight:800;box-shadow:0 4px 12px rgba(79,70,229,.3);">
+              📅 Open Today's Calendar
+            </a>
+            <div style="font-size:.75rem;color:#9CA3AF;font-weight:600;margin-top:10px;">
+              Opens Google Calendar in a new tab
+            </div>
           </div>`;
         });
       return;
