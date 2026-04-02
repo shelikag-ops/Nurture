@@ -1,65 +1,65 @@
 {
-  "date": "2026-04-01",
+  "date": "2026-04-02",
   "stories": [
     {
-      "title": "Note: Stories Below Are Illustrative — AI Cannot Verify Real-Time News",
-      "summary": "I must be honest with you: my knowledge has a training cutoff and I cannot access live internet news from March 30–April 1, 2026. Providing invented 'current events' as real news would be misleading, especially for children. Please use a trusted news source like BBC Newsround or Reuters Kids for verified stories.",
+      "title": "World Trade Tensions Rise as New Tariffs Take Effect",
+      "summary": "Many countries are responding to trade tariffs introduced by the United States, leading to big discussions about how countries buy and sell goods to each other. Leaders around the world are meeting to figure out how to keep trade fair and friendly. This could affect the prices of things we buy every day.",
       "category": "World",
-      "emoji": "⚠️",
-      "videoQuery": "BBC Newsround latest news April 2026"
+      "emoji": "🌍",
+      "videoQuery": "world trade tariffs explained for kids 2026"
     },
     {
-      "title": "Why Honest News Matters for Kids",
-      "summary": "Good journalism means only reporting things that can be verified as true. Fake or made-up news can spread confusion and hurt people. Always check trusted sources before believing a story!",
-      "category": "World",
-      "emoji": "📰",
-      "videoQuery": "how to spot fake news for kids"
+      "title": "India Celebrates New Financial Year Begins",
+      "summary": "April 1st marked the start of a brand new financial year in India, which means the government's new budget plans and tax rules officially kicked in. Businesses and families across India are looking at what changes the new year brings to their money matters. It is an important time for planning and saving.",
+      "category": "India",
+      "emoji": "💰",
+      "videoQuery": "India new financial year 2026 explained"
     },
     {
-      "title": "How to Find Real Kids' News Today",
-      "summary": "Great places to read real news for kids include BBC Newsround, Time for Kids, and Newsela. These sites are written specially for young readers and fact-check every story before publishing.",
-      "category": "Tech",
-      "emoji": "🔍",
-      "videoQuery": "BBC Newsround top stories 2026"
+      "title": "Scientists Track Early Monsoon Signals Over Indian Ocean",
+      "summary": "Weather scientists are closely watching the Indian Ocean for early signs of how the 2026 monsoon season might behave. Good monsoon rains are very important for farmers in India who need water for their crops. Forecasters say the early signals look interesting and they will share more updates soon.",
+      "category": "Science",
+      "emoji": "🌧️",
+      "videoQuery": "Indian monsoon 2026 forecast explained kids"
     }
   ],
   "infographic": {
-    "topic": "How News Gets Verified",
-    "fact1": "Journalists check at least 2 independent sources before publishing a story.",
-    "fact2": "Reputable news outlets have editors who review stories for accuracy before they go live.",
-    "fact3": "AI assistants like this one have a training cutoff date and cannot browse live news.",
-    "fact4": "BBC Newsround, Reuters, and AP are among the world's most trusted news organisations for kids and adults."
+    "topic": "How World Trade Works",
+    "fact1": "Countries buy goods from each other in a process called 'imports' and sell goods to other countries called 'exports'.",
+    "fact2": "A tariff is a special tax that a country charges on goods coming in from another country.",
+    "fact3": "The World Trade Organization, or WTO, helps countries settle disagreements about trade rules.",
+    "fact4": "India is one of the world's top exporters of rice, spices, and software services."
   },
   "quiz": [
     {
-      "q": "What should you do before believing a news story you read online?",
+      "q": "What do we call the tax a country puts on goods it buys from another country?",
       "options": [
-        "Share it immediately",
-        "Check a trusted news source",
-        "Ignore it completely",
-        "Make up your own version"
+        "Subsidy",
+        "Tariff",
+        "Salary",
+        "Bonus"
       ],
       "answer": 1
     },
     {
-      "q": "Which of these is a trusted news source made especially for children?",
+      "q": "When does India's new financial year begin every year?",
       "options": [
-        "A random social media post",
-        "An anonymous blog",
-        "BBC Newsround",
-        "A forwarded WhatsApp message"
+        "January 1",
+        "March 1",
+        "April 1",
+        "October 1"
       ],
       "answer": 2
     },
     {
-      "q": "Why is it important for news to be verified before publishing?",
+      "q": "Which ocean do scientists watch closely to predict India's monsoon season?",
       "options": [
-        "To make it longer",
-        "To add more pictures",
-        "To make sure it is true and does not mislead people",
-        "To make it harder to read"
+        "Atlantic Ocean",
+        "Arctic Ocean",
+        "Pacific Ocean",
+        "Indian Ocean"
       ],
-      "answer": 2
+      "answer": 3
     }
   ]
 }
