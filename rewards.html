@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sarah's Rewards ⭐</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: #F5F3FF; min-height: 100vh; }
+
+  /* ── HEADER ── */
+  .rw-header {
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #EC4899 100%);
+    padding: 28px 20px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .rw-header::before {
+    content: '⭐✨🌟💫⭐✨🌟💫⭐✨🌟💫';
+    position: absolute; top: 6px; left: 0; right: 0;
+    font-size: .85rem; opacity: .25; letter-spacing: 6px;
+    white-space: nowrap; overflow: hidden;
+  }
+  .rw-back { position: absolute; top: 16px; left: 16px; background: rgba(255,255,255,.2); border: none; border-radius: 10px; padding: 8px 14px; color: white; font-family: 'Nunito', sans-serif; font-size: .85rem; font-weight: 800; cursor: pointer; text-decoration: none; display: inline-block; }
+  .rw-header-name { color: rgba(255,255,255,.8); font-size: .85rem; font-weight: 700; margin-bottom: 4px; }
+  .rw-balance { color: white; font-size: 3.8rem; font-weight: 900; line-height: 1; letter-spacing: -.02em; }
+  .rw-balance-lbl { color: rgba(255,255,255,.75); font-size: 1rem; font-weight: 700; margin-top: 4px; }
+  .rw-today-badge { display: inline-block; background: rgba(255,255,255,.2); border: 1.5px solid rgba(255,255,255,.4); border-radius: 20px; padding: 5px 14px; color: white; font-size: .82rem; font-weight: 800; margin-top: 10px; }
+
+  /* ── FLOATING CARD ── */
+  .rw-body { padding: 0 16px 40px; max-width: 520px; margin: -48px auto 0; }
+  .rw-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(79,70,229,.1); }
+  .rw-card-title { font-size: .75rem; font-weight: 900; color: #9CA3AF; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
+
+  /* ── MILESTONE TIERS ── */
+  .tier-track { position: relative; margin: 6px 0 18px; }
+  .tier-bar { height: 12px; background: #E5E7EB; border-radius: 99px; overflow: hidden; }
+  .tier-fill { height: 12px; border-radius: 99px; background: linear-gradient(90deg, #6366F1, #A855F7, #EC4899); transition: width .8s cubic-bezier(.4,0,.2,1); }
+  .tier-labels { display: flex; justify-content: space-between; margin-top: 8px; }
+  .tier-label { font-size: .7rem; font-weight: 800; color: #9CA3AF; text-align: center; flex: 1; }
+  .tier-label.active { color: #6366F1; }
+  .tier-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .tier-chip { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 12px; font-size: .82rem; font-weight: 800; flex: 1; min-width: 110px; background: #F3F4F6; color: #9CA3AF; border: 2px solid transparent; }
+  .tier-chip.earned { background: #EDE9FE; color: #6D28D9; border-color: #A78BFA; }
+  .tier-chip.current { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; border-color: transparent; box-shadow: 0 4px 12px rgba(99,102,241,.35); }
+  .tier-chip-pts { font-size: .68rem; opacity: .7; font-weight: 600; margin-top: 1px; }
+
+  /* ── BADGES ── */
+  .badge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .badge-card { border-radius: 14px; padding: 14px; border: 2px solid #E5E7EB; background: #FAFAFA; }
+  .badge-card.earned { background: #FFFBEB; border-color: #FDE68A; }
+  .badge-card.locked { opacity: .55; }
+  .badge-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .badge-em { font-size: 1.6rem; }
+  .badge-info-name { font-size: .85rem; font-weight: 800; color: #1F2937; line-height: 1.2; }
+  .badge-info-tier { font-size: .7rem; font-weight: 700; color: #9CA3AF; }
+  .badge-status { font-size: .75rem; font-weight: 700; }
+  .badge-status.done { color: #10B981; }
+  .badge-status.prog { color: #6366F1; }
+  .badge-status.lock { color: #9CA3AF; }
+  .badge-prog-bar { height: 5px; background: #E5E7EB; border-radius: 99px; margin-top: 6px; overflow: hidden; }
+  .badge-prog-fill { height: 5px; border-radius: 99px; background: #6366F1; }
+
+  /* ── GOALS ── */
+  .goal-item { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 14px; background: #F9FAFB; border: 1.5px solid #E5E7EB; margin-bottom: 10px; }
+  .goal-item:last-child { margin-bottom: 0; }
+  .goal-em { font-size: 1.8rem; flex-shrink: 0; }
+  .goal-body { flex: 1; min-width: 0; }
+  .goal-name { font-size: .9rem; font-weight: 800; color: #1F2937; }
+  .goal-cost { font-size: .78rem; font-weight: 700; color: #6B7280; margin-bottom: 5px; }
+  .goal-bar { height: 7px; background: #E5E7EB; border-radius: 99px; overflow: hidden; }
+  .goal-fill { height: 7px; border-radius: 99px; background: linear-gradient(90deg, #6366F1, #A855F7); transition: width .6s ease; }
+  .goal-pct { font-size: .72rem; font-weight: 800; color: #6366F1; margin-top: 4px; }
+  .goal-pct.done { color: #10B981; }
+  .goal-empty { color: #9CA3AF; font-size: .88rem; font-weight: 600; text-align: center; padding: 16px 0; }
+
+  /* ── HISTORY FEED ── */
+  .hist-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #F3F4F6; font-size: .83rem; }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-icon { width: 30px; text-align: center; flex-shrink: 0; font-size: 1rem; }
+  .hist-desc { flex: 1; font-weight: 700; color: #374151; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hist-date { font-size: .7rem; color: #9CA3AF; font-weight: 600; flex-shrink: 0; }
+  .hist-pts { font-size: .83rem; font-weight: 900; flex-shrink: 0; }
+  .hist-pts.earn { color: #6366F1; }
+  .hist-pts.spend { color: #EF4444; }
+  .hist-empty { color: #9CA3AF; font-size: .88rem; font-weight: 600; text-align: center; padding: 20px 0; }
+
+  .show-more-btn { width: 100%; background: #F3F4F6; border: none; border-radius: 10px; padding: 10px; font-family: 'Nunito', sans-serif; font-size: .82rem; font-weight: 800; color: #6B7280; cursor: pointer; margin-top: 10px; }
+  .show-more-btn:hover { background: #E5E7EB; }
+</style>
+</head>
+<body>
+
+<div class="rw-header">
+  <a class="rw-back" href="dashboard.html">← Dashboard</a>
+  <div class="rw-header-name" id="rw-name">Sarah's Rewards</div>
+  <div class="rw-balance" id="rw-balance">0</div>
+  <div class="rw-balance-lbl">points</div>
+  <div id="rw-today-badge"></div>
+</div>
+
+<div class="rw-body">
+
+  <!-- MILESTONE TIERS -->
+  <div class="rw-card">
+    <div class="rw-card-title">🏆 Milestone Tiers</div>
+    <div class="tier-track">
+      <div class="tier-bar"><div class="tier-fill" id="tier-fill" style="width:0%"></div></div>
+    </div>
+    <div class="tier-chips" id="tier-chips"></div>
+  </div>
+
+  <!-- BADGE SHOWCASE -->
+  <div class="rw-card">
+    <div class="rw-card-title">🎖️ Badge Showcase</div>
+    <div class="badge-grid" id="badge-grid"></div>
+  </div>
+
+  <!-- GOALS -->
+  <div class="rw-card">
+    <div class="rw-card-title">🎯 Goals & Rewards</div>
+    <div id="goals-list"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="rw-card">
+    <div class="rw-card-title">📜 Points History</div>
+    <div id="hist-list"></div>
+  </div>
+
+</div>
+
+<script>
+// ── localStorage helpers ──
+const REWARDS_LOG_KEY     = 'hs-rewards-log';
+const REWARDS_CATALOG_KEY = 'hs-rewards-catalog';
+
+function getLog()     { return JSON.parse(localStorage.getItem(REWARDS_LOG_KEY) || '[]'); }
+function getCatalog() { return JSON.parse(localStorage.getItem(REWARDS_CATALOG_KEY) || '[]'); }
+
+function totalPts(log) {
+  return Math.round(log.reduce((s, e) => s + (parseFloat(e.rupees) || 0), 0));
+}
+function todayPts(log) {
+  const today = new Date().toISOString().split('T')[0];
+  return Math.round(log.filter(e => e.date === today).reduce((s, e) => s + (parseFloat(e.rupees) || 0), 0));
+}
+
+// ── TIERS ──
+const TIERS = [
+  { name: '🌱 Seedling', min: 0,    max: 99,   color: '#86EFAC' },
+  { name: '🥉 Bronze',   min: 100,  max: 299,  color: '#D97706' },
+  { name: '🥈 Silver',   min: 300,  max: 699,  color: '#6B7280' },
+  { name: '🥇 Gold',     min: 700,  max: 1499, color: '#F59E0B' },
+  { name: '💎 Diamond',  min: 1500, max: Infinity, color: '#6366F1' },
+];
+
+function renderTiers(pts) {
+  const cur = TIERS.findIndex(t => pts >= t.min && pts <= t.max);
+  const nextTier = TIERS[cur + 1];
+  const fill = nextTier
+    ? Math.min(100, Math.round((pts - TIERS[cur].min) / (nextTier.min - TIERS[cur].min) * 100))
+    : 100;
+
+  document.getElementById('tier-fill').style.width = fill + '%';
+
+  const chips = document.getElementById('tier-chips');
+  chips.innerHTML = TIERS.map((t, i) => {
+    const state = i < cur ? 'earned' : i === cur ? 'current' : '';
+    const ptsLbl = i < TIERS.length - 1 ? `${t.min}–${TIERS[i+1].min - 1} pts` : `${t.min}+ pts`;
+    return `<div class="tier-chip ${state}">
+      <div>
+        <div>${t.name}</div>
+        <div class="tier-chip-pts">${ptsLbl}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── BADGES ──
+const BADGES = [
+  { em:'🔬', name:'Curious Scientist', tier:'⭐ Bronze', status:'earned', desc:'C-1 Energy complete!', prog:100 },
+  { em:'📚', name:'Page Turner',        tier:'🥇 Gold',   status:'earned', desc:'Aru Shah 1–4 complete!', prog:100 },
+  { em:'📝', name:'Vocab Sprinter',     tier:'🥈 Silver', status:'prog',   desc:'800 / 1,000 words', prog:80 },
+  { em:'♟️', name:'Pawn Pusher',        tier:'⭐ Bronze', status:'prog',   desc:'0 / 10 Lichess games', prog:0 },
+  { em:'🧮', name:'Math Champion',      tier:'🥈 Silver', status:'locked', desc:'Complete 50 Beast Academy pages', prog:0 },
+  { em:'🗣️', name:'Debate Star',        tier:'⭐ Bronze', status:'locked', desc:'Participate in 5 debates', prog:0 },
+  { em:'🌍', name:'History Explorer',   tier:'⭐ Bronze', status:'locked', desc:'Complete first history unit', prog:0 },
+  { em:'💻', name:'Code Ninja',         tier:'⭐ Bronze', status:'locked', desc:'Build your first project', prog:0 },
+];
+
+function renderBadges() {
+  document.getElementById('badge-grid').innerHTML = BADGES.map(b => `
+    <div class="badge-card ${b.status === 'earned' ? 'earned' : b.status === 'locked' ? 'locked' : ''}">
+      <div class="badge-top">
+        <div class="badge-em">${b.em}</div>
+        <div>
+          <div class="badge-info-name">${b.name}</div>
+          <div class="badge-info-tier">${b.tier}</div>
+        </div>
+      </div>
+      <div class="badge-status ${b.status === 'earned' ? 'done' : b.status === 'prog' ? 'prog' : 'lock'}">
+        ${b.status === 'earned' ? '✅ Earned!' : b.status === 'prog' ? `⚡ ${b.desc}` : `🔒 ${b.desc}`}
+      </div>
+      ${b.status !== 'locked' && b.prog < 100 ? `<div class="badge-prog-bar"><div class="badge-prog-fill" style="width:${b.prog}%"></div></div>` : ''}
+    </div>`).join('');
+}
+
+// ── GOALS ──
+function renderGoals(pts) {
+  const catalog = getCatalog();
+  const el = document.getElementById('goals-list');
+  if (!catalog.length) {
+    el.innerHTML = `<div class="goal-empty">Goals will appear here once Mamma sets them up. Keep earning points! 🌟</div>`;
+    return;
+  }
+  el.innerHTML = catalog.map(g => {
+    const cost = parseInt(g.cost) || 0;
+    const pct  = cost > 0 ? Math.min(100, Math.round(pts / cost * 100)) : 0;
+    const done = pts >= cost;
+    return `<div class="goal-item">
+      <div class="goal-em">${g.emoji || '🎁'}</div>
+      <div class="goal-body">
+        <div class="goal-name">${g.name}</div>
+        <div class="goal-cost">${done ? '✅ You have enough points!' : `${pts} / ${cost} pts needed`}</div>
+        <div class="goal-bar"><div class="goal-fill" style="width:${pct}%"></div></div>
+        <div class="goal-pct ${done ? 'done' : ''}">${done ? 'Ready to redeem! 🎉' : pct + '% of the way there'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── HISTORY ──
+let _showAll = false;
+
+function typeIcon(t) {
+  return t === 'task' ? '✅' : t === 'timer' ? '⏱️' : t === 'badge' ? '🏅' : t === 'redeem' ? '🎁' : '⭐';
+}
+
+function fmtDate(d) {
+  const dt = new Date(d);
+  if (isNaN(dt)) return d || '';
+  return dt.toLocaleDateString('en-IN', { month:'short', day:'numeric' });
+}
+
+function renderHistory() {
+  const log  = getLog();
+  const el   = document.getElementById('hist-list');
+  if (!log.length) { el.innerHTML = `<div class="hist-empty">No activity yet — complete tasks to start earning! 🚀</div>`; return; }
+  const sorted = [...log].reverse();
+  const shown  = _showAll ? sorted : sorted.slice(0, 12);
+  let html = shown.map(e => {
+    const earn = (parseFloat(e.rupees) || 0) >= 0;
+    return `<div class="hist-item">
+      <div class="hist-icon">${typeIcon(e.type)}</div>
+      <div class="hist-desc" title="${e.description}">${e.description}</div>
+      <div class="hist-date">${fmtDate(e.date)}</div>
+      <div class="hist-pts ${earn ? 'earn' : 'spend'}">${earn ? '+' : ''}${Math.round(parseFloat(e.rupees) || 0)}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML = html;
+  if (sorted.length > 12 && !_showAll) {
+    el.innerHTML += `<button class="show-more-btn" onclick="_showAll=true;renderHistory()">Show all ${sorted.length} entries ▾</button>`;
+  }
+}
+
+// ── MAIN RENDER ──
+function render() {
+  const log  = getLog();
+  const pts  = totalPts(log);
+  const tpts = todayPts(log);
+
+  document.getElementById('rw-balance').textContent = pts.toLocaleString();
+  document.getElementById('rw-today-badge').innerHTML = tpts > 0
+    ? `<div class="rw-today-badge">✨ +${tpts} pts today</div>` : '';
+
+  renderTiers(pts);
+  renderBadges();
+  renderGoals(pts);
+  renderHistory();
+}
+
+render();
+
+// Auto-refresh when localStorage changes (e.g. task completed in another tab)
+window.addEventListener('storage', e => {
+  if (e.key === REWARDS_LOG_KEY || e.key === REWARDS_CATALOG_KEY) render();
+});
+</script>
+</body>
+</html>
