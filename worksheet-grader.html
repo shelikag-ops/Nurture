@@ -1769,28 +1769,17 @@ IMPORTANT: I am also sending you the original page IMAGES so you can visually in
         matched++;
         plog('Q' + item.q + ' ✓ answer: "' + item.answer + '" (method: ' + item.method + ', confidence: ' + item.confidence + ')');
       } else if (item.confidence === 'low') {
-        // Claude is unsure — keep parser answer if it has one, flag for review
-        const parserAns = (q.student_answer || '').trim();
-        if (parserHadAnswer) {
-          // Keep parser answer, flag for human review
-          q._extraction_confidence = 'low';
-          q._extraction_method = item.method || '';
-          q.flagged = true;
-          q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') +
-            'Low confidence — verify answer "' + parserAns + '"';
-          flagged++;
-          plog('Q' + item.q + ' ⚠ parser answer "' + parserAns + '" kept, flagged for review');
-        } else {
-          // No parser answer — flag for manual entry
-          q.student_answer = '';
-          q._extraction_confidence = 'low';
-          q._extraction_method = item.method || '';
-          q.flagged = true;
-          q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') +
-            'Needs manual answer — ' + (item.method || 'could not extract');
-          flagged++;
-          plog('Q' + item.q + ' ⚠ no answer found — flagged for manual entry');
-        }
+        // Claude (with images) couldn't find the answer — clear parser answer
+        // (parser often grabs question text or random numbers for word problems)
+        const oldAns = (q.student_answer || '').trim();
+        q.student_answer = '';
+        q._extraction_confidence = 'low';
+        q._extraction_method = item.method || '';
+        q.flagged = true;
+        q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') +
+          'Needs manual answer — ' + (item.method || 'could not extract');
+        flagged++;
+        plog('Q' + item.q + ' ⚠ Claude low confidence — cleared parser answer "' + oldAns + '", flagged for manual entry');
       } else {
         // Neither Claude nor parser has an answer — flag for manual entry
         q.student_answer = '';
@@ -2126,8 +2115,29 @@ function parseQuestions(md, rawData) {
     applyConfidenceScores(deduped, rawData);
   }
 
-  // Answer validation is now handled by the AI Answer + Answer Key comparison
-  // in the review table, rather than clearing parser answers pre-emptively.
+  // ── Post-parse cleanup: clear answers that look like question text, not student work ──
+  // The parser sometimes grabs numbers from question prose ("5 people" → answer "5").
+  // Real student answers are short (numbers, short phrases) — not long prose with question words.
+  for (const q of deduped) {
+    const ans = (q.student_answer || '').trim();
+    if (!ans) continue;
+
+    // If "answer" contains question words, it's question text that leaked through
+    const hasQuestionWords = /\b(?:how\s+many|how\s+much|what|find|total\s+of|were\s+bought|were\s+sold|altogether|in\s+all|remaining|difference)\b/i.test(ans);
+    // If "answer" is very long, it's likely question text
+    const isTooLong = ans.length > 40;
+    // If "answer" is mostly letters (not a number), it's likely question text
+    const isAllText = !/\d/.test(ans);
+
+    if (hasQuestionWords || isTooLong || isAllText) {
+      plog('Q' + q.question_number + ' clearing bad parser answer "' + ans.slice(0, 50) + '" (looks like question text)');
+      // Move the "answer" back into problem text if it's question content
+      if (hasQuestionWords || isTooLong) {
+        q.problem_text = (q.problem_text + ' ' + ans).trim();
+      }
+      q.student_answer = '';
+    }
+  }
 
   return { questions: deduped, examples, detectedChapter: foundChapter };
 }
@@ -2202,11 +2212,16 @@ function extractProblemAndAnswer(text) {
     return { problem: problem.trim(), answer: answer || '' };
   }
 
-  // No = sign — last number on line is the answer
-  const nums = clean.match(/[-]?\d[\d,./]*/g);
-  if (nums && nums.length > 1) {
-    const answer = nums[nums.length - 1].replace(/,/g, '');
-    return { problem: clean, answer };
+  // No = sign — check if this is a math expression (not word-problem prose)
+  // Word problems contain question words and shouldn't have answers extracted from them
+  const isWordProblem = /\b(?:how\s+many|how\s+much|what|find|total\s+of|were\s+bought|were\s+sold|did\s+he|did\s+she|does\s+he|does\s+she|altogether|in\s+all|left\s+over|remaining|difference|more\s+than|less\s+than|each|every|if\s+there|suppose|given\s+that)\b/i.test(clean);
+  if (!isWordProblem) {
+    // Only extract "last number" from math-expression-like lines (e.g., "3 + 4  7")
+    const nums = clean.match(/[-]?\d[\d,./]*/g);
+    if (nums && nums.length > 1) {
+      const answer = nums[nums.length - 1].replace(/,/g, '');
+      return { problem: clean, answer };
+    }
   }
 
   return { problem: clean, answer: '' };
