@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EIC Beginning 1 — Grading Report</title>
+<style>
+  :root { --blue: #1565C0; --green: #2E7D32; --amber: #F57F17; --red: #C62828; --gray: #616161; --light: #F5F5F5; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #fff; color: #333; max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+  h1 { color: var(--blue); font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: var(--gray); font-size: 14px; margin-bottom: 24px; }
+
+  .summary-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .card { padding: 16px; border-radius: 10px; text-align: center; }
+  .card .num { font-size: 28px; font-weight: 700; }
+  .card .label { font-size: 12px; margin-top: 4px; }
+  .card-green { background: #E8F5E9; color: var(--green); }
+  .card-amber { background: #FFF8E1; color: var(--amber); }
+  .card-red { background: #FFEBEE; color: var(--red); }
+
+  .section { margin-bottom: 32px; }
+  .section h2 { font-size: 17px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 2px solid #E3F2FD; }
+  .section h2.green { color: var(--green); border-color: #C8E6C9; }
+  .section h2.amber { color: var(--amber); border-color: #FFF9C4; }
+  .section p.desc { font-size: 13px; color: var(--gray); margin-bottom: 12px; line-height: 1.6; }
+
+  .lesson-group { margin-bottom: 20px; }
+  .lesson-title { font-size: 14px; font-weight: 600; color: var(--blue); margin-bottom: 8px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
+  th { background: var(--blue); color: #fff; padding: 8px 10px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 7px 10px; border-bottom: 1px solid #E0E0E0; vertical-align: top; }
+  tr:nth-child(even) { background: var(--light); }
+
+  .status-done { background: #E8F5E9; color: var(--green); font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+  .status-redo { background: #FFF8E1; color: var(--amber); font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+  .status-wrong { background: #FFEBEE; color: var(--red); font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+
+  .answer-key { background: #F5F5F5; border-left: 3px solid #BDBDBD; padding: 8px 12px; font-size: 12px; color: #555; margin-top: 4px; line-height: 1.6; border-radius: 0 4px 4px 0; }
+
+  .note-box { background: #E3F2FD; border-left: 4px solid var(--blue); padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 24px; }
+  .note-box p { font-size: 13px; line-height: 1.6; }
+  .note-box strong { color: var(--blue); }
+
+  .spot-check { background: #E8F5E9; border-left: 4px solid var(--green); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+  .spot-check p { font-size: 13px; line-height: 1.6; }
+
+  @media print {
+    body { padding: 16px; }
+    .summary-cards { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<h1>Editor in Chief Beginning 1 — Grading Report</h1>
+<p class="subtitle">Lessons 12–16 &bull; Passages 87–132 &bull; Graded March 27, 2026</p>
+
+<div class="summary-cards">
+  <div class="card card-green">
+    <div class="num">24</div>
+    <div class="label">Passages Confirmed<br>(work visible)</div>
+  </div>
+  <div class="card card-amber">
+    <div class="num">22</div>
+    <div class="label">Need Quick List<br>(pencil not readable)</div>
+  </div>
+  <div class="card card-red">
+    <div class="num">0</div>
+    <div class="label">Clearly Incorrect<br>(redo from scratch)</div>
+  </div>
+</div>
+
+<div class="note-box">
+  <p><strong>How this was graded:</strong> I went through every photo of Sarah's workbook. For passages where I could see pencil marks (circles, underlines, written corrections), I've marked them as <span class="status-done">COMPLETED</span> — the answer key is included below each so you can spot-check a few verbally with Sarah. For passages where pencil corrections were invisible in the photos (particularly Lessons 12 &amp; 13, which require structural marks like splitting sentences), those are marked <span class="status-redo">QUICK LIST NEEDED</span> — Sarah just needs to write her corrections in a short list format.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section">
+  <h2 class="green">✓ Confirmed Completed — Corrections Visible</h2>
+  <p class="desc">Sarah's pencil marks are visible on these passages. The answer key is included for optional spot-checking.</p>
+
+  <!-- LESSON 14 -->
+  <div class="lesson-group">
+    <div class="lesson-title">Lesson 14 — Good vs. Well (Exercise + Passages 109–112)</div>
+    <table>
+      <tr><th>Item</th><th>Page</th><th># Errors</th><th>Status</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>Lesson 14 Exercise</strong></td><td>p. 40</td><td>8 sentences</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Circled answers visible</td>
+      </tr>
+      <tr>
+        <td><strong>105</strong> — Yummy Fish Head</td><td>p. 40</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Circles around word swaps visible</td>
+      </tr>
+      <tr>
+        <td><strong>106</strong> — A Pencil to the Rescue</td><td>p. 40</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Circles visible</td>
+      </tr>
+      <tr>
+        <td><strong>107</strong> — Scout Goodies</td><td>p. 40</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Circles visible</td>
+      </tr>
+      <tr>
+        <td><strong>108</strong> — Gardens Have Friends</td><td>p. 41</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>109</strong> — Doctors and Nurses</td><td>p. 41</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Circles visible</td>
+      </tr>
+      <tr>
+        <td><strong>110</strong> — My Lucky Day</td><td>p. 41</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>111</strong> — Not Stuck!</td><td>p. 42</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>112</strong> — When Seconds Count</td><td>p. 42</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+    </table>
+    <div class="spot-check">
+      <p><strong>Spot-check suggestion:</strong> Ask Sarah — "In passage 109, the sentence says 'Both doctors and nurses work very good.' What's wrong?" Expected answer: "good" should be "well" (because it describes how they work).</p>
+    </div>
+  </div>
+
+  <!-- LESSON 15 -->
+  <div class="lesson-group">
+    <div class="lesson-title">Lesson 15 — Comparisons (Exercise + Passages 113–118)</div>
+    <table>
+      <tr><th>Item</th><th>Page</th><th># Errors</th><th>Status</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>Lesson 15 Exercise</strong></td><td>p. 43</td><td>7 items</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Written answers visible in blanks</td>
+      </tr>
+      <tr>
+        <td><strong>113</strong> — Weaving History</td><td>p. 44</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Underlines/marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>114</strong> — Act of Kindness</td><td>p. 44</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>115</strong> — Up in the Canopy</td><td>p. 44</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>116</strong> — Run, Jon, Run!</td><td>p. 45</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>117</strong> — Our County Fair</td><td>p. 45</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>118</strong> — Teeth Can Build a Home</td><td>p. 45</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- LESSON 16 -->
+  <div class="lesson-group">
+    <div class="lesson-title">Lesson 16 — Homophones (Passages 119–124)</div>
+    <table>
+      <tr><th>Item</th><th>Page</th><th># Errors</th><th>Status</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>119</strong> — To Sea or Not to Sea</td><td>p. 46</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>120</strong> — Using Leftovers</td><td>p. 46</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>121</strong> — Grandma Loves to Bake</td><td>p. 46</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>122</strong> — Rubber Ducks</td><td>p. 47</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>123</strong> — Fun Reading</td><td>p. 47</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+      <tr>
+        <td><strong>124</strong> — A Great Vacation</td><td>p. 47</td><td>4</td>
+        <td><span class="status-done">COMPLETED</span></td>
+        <td>Marks visible</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section">
+  <h2 class="amber">⚠ Quick List Needed — Pencil Marks Not Readable</h2>
+  <p class="desc">For these passages, Sarah's pencil corrections blended with the printed text and aren't visible in the photos. She likely already did the work — she just needs to <strong>write her answers as a quick numbered list on one notebook page</strong> so they can be graded. This is NOT redoing the lesson — just writing down what she already found.</p>
+
+  <!-- LESSON 12 -->
+  <div class="lesson-group">
+    <div class="lesson-title">Lesson 12 — Run-On Sentences (Passages 87–96)</div>
+    <p class="desc" style="margin-bottom:4px; font-style: italic;">Run-on corrections are structural (marking where to add a period and capitalize), making pencil marks nearly invisible on printed text.</p>
+    <table>
+      <tr><th>Passage</th><th>Title</th><th>Page</th><th># Errors</th><th>Status</th></tr>
+      <tr><td><strong>87</strong></td><td>Facts About Bats</td><td>p. 31</td><td>3</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>88</strong></td><td>Fun in the Snow</td><td>p. 31</td><td>3</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>89</strong></td><td>Ants at Work</td><td>p. 32</td><td>3</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>90</strong></td><td>Green Eggs and Goats</td><td>p. 33</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>91</strong></td><td>Folk Songs</td><td>p. 33</td><td>3</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>92</strong></td><td>Ah-Choo!</td><td>p. 33</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>93</strong></td><td>A Bad Idea</td><td>p. 34</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>94</strong></td><td>Reading with Fingertips</td><td>p. 34</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>95</strong></td><td>Displacement</td><td>p. 35</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>96</strong></td><td>Apples and Oranges</td><td>p. 35</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+    </table>
+  </div>
+
+  <!-- LESSON 13 -->
+  <div class="lesson-group">
+    <div class="lesson-title">Lesson 13 — Sentence Fragments (Passages 99–104)</div>
+    <p class="desc" style="margin-bottom:4px; font-style: italic;">Fragment corrections involve joining sentences or adding missing parts — also hard to see as pencil marks on printed text.</p>
+    <table>
+      <tr><th>Passage</th><th>Title</th><th>Page</th><th># Errors</th><th>Status</th></tr>
+      <tr><td><strong>99</strong></td><td>People Making Music</td><td>p. 38</td><td>3</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>100</strong></td><td>A Poor Excuse</td><td>p. 38</td><td>3</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>101</strong></td><td>Growing New Teeth</td><td>p. 38</td><td>3</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>102</strong></td><td>Building Your Way</td><td>p. 39</td><td>3</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>103</strong></td><td>Go Fly a Kite!</td><td>p. 39</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>104</strong></td><td>Ring, Ring!</td><td>p. 39</td><td>3</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+    </table>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="lesson-group">
+    <div class="lesson-title">Reviews &amp; Mini Reviews</div>
+    <table>
+      <tr><th>Item</th><th>Page</th><th># Errors</th><th>Status</th></tr>
+      <tr><td><strong>Mini Review L11 &amp; 12</strong></td><td>p. 34</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Review L9–12: Passage 96</strong> — Our New Helmets</td><td>p. 36</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Review L9–12: Passage 97</strong> — Raccoons Under the House</td><td>p. 36</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Mini Review L13 &amp; 14</strong> — Not Sticky Enough</td><td>p. 42</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Mini Review L15 &amp; 16</strong></td><td>p. 47</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Review L15–16: 125</strong> — Weather Clues</td><td>p. 48</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Review L15–16: 126</strong> — A Narrow Escape</td><td>p. 48</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Review L15–16: 127</strong> — Our Eyes and Light</td><td>p. 48</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Review L15–16: 128</strong> — Family Picnic</td><td>p. 49</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Review L13–16: 129</strong> — An Animal Lover</td><td>p. 49</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Review L13–16: 130</strong> — Holiday Spirit</td><td>p. 49</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Review L13–16: 131</strong> — The Lewis and Clark Trail</td><td>p. 50</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+      <tr><td><strong>Review L13–16: 132</strong> — Sir Loin Is Not a Pet</td><td>p. 50</td><td>4</td><td><span class="status-redo">QUICK LIST</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section">
+  <h2 style="color: var(--red); border-color: #FFCDD2;">✗ Clearly Incorrect — Redo from Scratch</h2>
+  <p class="desc">None identified. I could not see any corrections that were clearly wrong — only corrections I couldn't read.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<div style="margin-top: 36px; padding: 20px; background: #E8F5E9; border-radius: 10px;">
+  <h2 style="color: var(--green); font-size: 16px; margin-bottom: 10px;">What Sarah Needs to Do (≈ 15 minutes)</h2>
+  <p style="font-size: 13px; line-height: 1.8; color: #333;">
+    On <strong>one notebook page</strong>, write corrections for the 22 passages listed above in this format:<br><br>
+    <strong style="color: var(--blue);">Passage 87 — Facts About Bats</strong><br>
+    1. "turn" → add period. "They are..." (new sentence)<br>
+    2. "eggs" → add period. "She lays..." (new sentence)<br>
+    3. ...<br><br>
+    <strong style="color: var(--blue);">Passage 88 — Fun in the Snow</strong><br>
+    1. ...<br><br>
+    Use <strong>dark pen</strong>. Write big. Number each passage clearly. That's it!<br><br>
+    The other 24 passages (Lessons 14–16) are <strong>already done</strong> — no need to touch those.
+  </p>
+</div>
+
+</body>
+</html>
