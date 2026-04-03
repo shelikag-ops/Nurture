@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📸 Submission Image Archive</title>
+<style>
+  :root {
+    --blue: #1565C0; --blue-light: #E3F2FD;
+    --green: #2E7D32; --green-light: #E8F5E9;
+    --red: #C62828; --red-light: #FFEBEE;
+    --amber: #F57F17; --amber-light: #FFF8E1;
+    --gray-light: #F5F5F5; --gray-border: #E0E0E0;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); background: var(--gray-light); color: #333; min-height: 100vh; }
+
+  .topbar {
+    background: linear-gradient(135deg, #1565C0, #1976D2);
+    color: white; padding: 20px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  .topbar h1 { font-size: 18px; font-weight: 800; }
+  .topbar p  { font-size: 12px; opacity: .8; margin-top: 2px; }
+  .topbar-right { display: flex; gap: 12px; align-items: center; }
+
+  .btn {
+    padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    cursor: pointer; border: none; font-family: inherit;
+  }
+  .btn-danger  { background: #EF5350; color: white; }
+  .btn-danger:hover { background: #C62828; }
+  .btn-primary { background: white; color: var(--blue); }
+  .btn-primary:hover { background: #E3F2FD; }
+  .btn-green   { background: #43A047; color: white; }
+  .btn-green:hover { background: #2E7D32; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .main { padding: 28px; max-width: 1200px; margin: 0 auto; }
+
+  .status-bar {
+    background: white; border-radius: 12px; padding: 16px 20px;
+    border: 1px solid var(--gray-border); margin-bottom: 24px;
+    display: flex; gap: 28px; align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  }
+  .stat { text-align: center; }
+  .stat-val { font-size: 24px; font-weight: 800; color: var(--blue); }
+  .stat-lbl { font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; }
+  .status-bar-msg { flex: 1; font-size: 13px; color: #666; }
+
+  .subject-group { margin-bottom: 32px; }
+  .subject-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-border);
+  }
+  .subject-badge {
+    padding: 4px 12px; border-radius: 20px; font-size: 12px;
+    font-weight: 800; text-transform: uppercase; letter-spacing: .5px;
+  }
+  .badge-Math    { background: #EDE7F6; color: #5E35B1; }
+  .badge-English { background: #E3F2FD; color: #1565C0; }
+  .badge-Science { background: #E8F5E9; color: #2E7D32; }
+  .badge-History { background: #FFF8E1; color: #F57F17; }
+  .badge-Chess   { background: #FCE4EC; color: #C62828; }
+  .badge-Other   { background: #F5F5F5; color: #616161; }
+
+  .subject-count { font-size: 13px; color: #888; font-weight: 600; }
+  .btn-dl-all {
+    margin-left: auto; padding: 6px 14px; background: var(--blue-light);
+    color: var(--blue); border: none; border-radius: 7px;
+    font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .btn-dl-all:hover { background: #90CAF9; }
+
+  .image-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;
+  }
+
+  .img-card {
+    background: white; border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--gray-border);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    transition: box-shadow .15s;
+  }
+  .img-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.13); }
+  .img-thumb {
+    width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+    cursor: pointer; background: #f0f0f0;
+  }
+  .img-info { padding: 10px 12px; }
+  .img-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .img-date  { font-size: 11px; color: #999; margin-bottom: 8px; }
+  .img-status { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+  .status-assessed { background: var(--green-light); color: var(--green); }
+  .status-pending  { background: var(--amber-light); color: var(--amber); }
+  .img-score { font-size: 12px; color: var(--green); font-weight: 800; margin-bottom: 8px; }
+  .img-actions { display: flex; gap: 6px; }
+  .btn-sm {
+    flex: 1; padding: 6px 0; border-radius: 6px; font-size: 12px;
+    font-weight: 700; border: none; cursor: pointer; font-family: inherit;
+  }
+  .btn-view { background: var(--blue-light); color: var(--blue); }
+  .btn-view:hover { background: #90CAF9; }
+  .btn-dl   { background: var(--green-light); color: var(--green); }
+  .btn-dl:hover { background: #A5D6A7; }
+
+  /* Lightbox */
+  .lightbox {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.88);
+    z-index: 1000; justify-content: center; align-items: center; padding: 24px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox-inner { max-width: 90vw; max-height: 90vh; position: relative; }
+  .lightbox-img { max-width: 90vw; max-height: 82vh; border-radius: 8px; display: block; }
+  .lightbox-info {
+    color: white; padding: 10px 4px 0; font-size: 13px; font-weight: 700;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .lightbox-close {
+    position: absolute; top: -14px; right: -14px;
+    width: 32px; height: 32px; border-radius: 50%; background: white;
+    border: none; cursor: pointer; font-size: 18px; font-weight: 700;
+    color: #333; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  }
+
+  /* Clear confirm modal */
+  .modal-bg {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    z-index: 2000; justify-content: center; align-items: center;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: white; border-radius: 16px; padding: 28px 32px;
+    max-width: 420px; width: 90%; text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,.2);
+  }
+  .modal h2 { font-size: 18px; color: var(--red); margin-bottom: 10px; }
+  .modal p  { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 20px; }
+  .modal-btns { display: flex; gap: 12px; justify-content: center; }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+
+  .loading { text-align: center; padding: 80px 20px; color: #999; font-size: 15px; }
+  .loading .spinner {
+    width: 40px; height: 40px; border: 4px solid #E0E0E0;
+    border-top-color: var(--blue); border-radius: 50%;
+    animation: spin .8s linear infinite; margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>📸 Submission Image Archive</h1>
+    <p id="topbar-sub">Loading submissions from Firebase…</p>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-primary" onclick="downloadAll()">⬇ Download All</button>
+    <button class="btn btn-danger" onclick="openClearModal()">🗑 Clear All Data</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="status-bar">
+    <div class="stat"><div class="stat-val" id="stat-total">—</div><div class="stat-lbl">Total Submissions</div></div>
+    <div class="stat"><div class="stat-val" id="stat-graded">—</div><div class="stat-lbl">Graded</div></div>
+    <div class="stat"><div class="stat-val" id="stat-pending">—</div><div class="stat-lbl">Pending</div></div>
+    <div class="stat"><div class="stat-val" id="stat-subjects">—</div><div class="stat-lbl">Subjects</div></div>
+    <div class="status-bar-msg" id="status-msg">Connecting to Firebase…</div>
+  </div>
+
+  <div id="archive-root">
+    <div class="loading"><div class="spinner"></div>Loading images from Firebase…</div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" onclick="closeLightbox()">×</button>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="">
+    <div class="lightbox-info">
+      <span id="lightbox-title"></span>
+      <button class="btn btn-green btn-sm" style="width:auto;padding:6px 14px;" onclick="downloadCurrent()">⬇ Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- Clear confirm modal -->
+<div class="modal-bg" id="clear-modal">
+  <div class="modal">
+    <h2>⚠️ Clear All Submissions?</h2>
+    <p>This will permanently delete all submission records and images from Firebase. This cannot be undone.<br><br>Make sure you have downloaded any images you want to keep first.</p>
+    <div class="modal-btns">
+      <button class="btn btn-primary" style="background:#f5f5f5;color:#333;" onclick="closeClearModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmClear()">Yes, Delete Everything</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script>
+  let _allSubs = [];
+  let _lightboxCurrent = null;
+
+  // ── Init Firebase ──
+  const FIREBASE_CONFIG = window.FIREBASE_CONFIG || {};
+  let db = null;
+
+  function initFirebase() {
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+      }
+      db = firebase.database();
+      return true;
+    } catch(e) {
+      console.error('Firebase init failed:', e);
+      return false;
+    }
+  }
+
+  // ── Load submissions ──
+  async function loadSubmissions() {
+    if (!initFirebase()) {
+      showError('Could not connect to Firebase. Check firebase-config.js.');
+      return;
+    }
+
+    try {
+      const snap = await db.ref('hs-submissions').once('value');
+      const val  = snap.val();
+
+      if (!val) {
+        _allSubs = [];
+      } else if (Array.isArray(val)) {
+        _allSubs = val.filter(Boolean);
+      } else if (typeof val === 'object') {
+        _allSubs = Object.values(val).filter(Boolean);
+      }
+
+      // Also check localStorage as fallback / supplement
+      try {
+        const local = JSON.parse(localStorage.getItem('hs-submissions') || '[]');
+        if (local.length > 0) {
+          const firebaseIds = new Set(_allSubs.map(s => s.id));
+          const localOnly = local.filter(s => s && s.id && !firebaseIds.has(s.id));
+          _allSubs = [..._allSubs, ...localOnly];
+        }
+      } catch(e) {}
+
+      renderArchive(_allSubs);
+    } catch(e) {
+      showError('Error loading from Firebase: ' + e.message);
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('status-msg').textContent = '❌ ' + msg;
+    document.getElementById('archive-root').innerHTML =
+      `<div class="empty-state"><div class="icon">❌</div><p>${msg}</p></div>`;
+  }
+
+  // ── Render ──
+  function renderArchive(subs) {
+    const total    = subs.length;
+    const graded   = subs.filter(s => s.status === 'assessed').length;
+    const pending  = total - graded;
+
+    document.getElementById('stat-total').textContent    = total;
+    document.getElementById('stat-graded').textContent   = graded;
+    document.getElementById('stat-pending').textContent  = pending;
+    document.getElementById('topbar-sub').textContent    = `${total} submission${total !== 1 ? 's' : ''} found`;
+    document.getElementById('status-msg').textContent    = total
+      ? `✅ Loaded ${total} submissions — ${graded} graded, ${pending} pending`
+      : '📭 No submissions found in Firebase or localStorage.';
+
+    if (total === 0) {
+      document.getElementById('archive-root').innerHTML =
+        `<div class="empty-state"><div class="icon">📭</div><p>No submissions found. Images will appear here after Sarah submits work.</p></div>`;
+      document.getElementById('stat-subjects').textContent = '0';
+      return;
+    }
+
+    // Group by subject
+    const groups = {};
+    subs.forEach(s => {
+      const subj = (s.subject || 'Other').trim();
+      if (!groups[subj]) groups[subj] = [];
+      groups[subj].push(s);
+    });
+
+    // Sort each group by date descending
+    Object.values(groups).forEach(g => g.sort((a, b) =>
+      new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0)
+    ));
+
+    document.getElementById('stat-subjects').textContent = Object.keys(groups).length;
+
+    // Sort subjects alphabetically
+    const subjectOrder = ['Math', 'English', 'Science', 'History', 'Chess', 'Debate'];
+    const sortedSubjects = Object.keys(groups).sort((a, b) => {
+      const ia = subjectOrder.indexOf(a), ib = subjectOrder.indexOf(b);
+      if (ia >= 0 && ib >= 0) return ia - ib;
+      if (ia >= 0) return -1;
+      if (ib >= 0) return 1;
+      return a.localeCompare(b);
+    });
+
+    let html = '';
+    sortedSubjects.forEach(subj => {
+      const items = groups[subj];
+      const badgeClass = getBadgeClass(subj);
+      html += `
+        <div class="subject-group" id="group-${encodeURIComponent(subj)}">
+          <div class="subject-header">
+            <span class="subject-badge ${badgeClass}">${subjectEmoji(subj)} ${subj}</span>
+            <span class="subject-count">${items.length} submission${items.length !== 1 ? 's' : ''}</span>
+            <button class="btn-dl-all" onclick="downloadSubject('${encodeURIComponent(subj)}')">⬇ Download All ${subj}</button>
+          </div>
+          <div class="image-grid">
+            ${items.map(s => renderCard(s)).join('')}
+          </div>
+        </div>`;
+    });
+
+    document.getElementById('archive-root').innerHTML = html;
+  }
+
+  function renderCard(s) {
+    const hasImage = !!(s.imageData && s.imageData.startsWith('data:'));
+    const thumb = hasImage
+      ? s.imageData
+      : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="165"><rect fill="%23f0f0f0" width="220" height="165"/><text x="110" y="88" font-size="14" fill="%23999" text-anchor="middle">No image</text></svg>';
+
+    const dateStr = s.submittedAt
+      ? new Date(s.submittedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      : 'Unknown date';
+
+    const statusHtml = s.status === 'assessed'
+      ? `<div class="img-status status-assessed">✅ Graded</div>`
+      : `<div class="img-status status-pending">⏳ Pending</div>`;
+
+    const scoreHtml = (s.status === 'assessed' && s.score != null)
+      ? `<div class="img-score">Score: ${s.score}%</div>`
+      : '';
+
+    const taskLabel = (s.taskText || s.description || '').replace(/\s*—\s*\d+\s*min.*/i, '').slice(0, 60) || 'Submitted work';
+
+    return `
+      <div class="img-card" id="card-${s.id}">
+        <img class="img-thumb" src="${thumb}"
+          alt="${taskLabel}"
+          onclick="openLightbox('${s.id}')"
+          onerror="this.src='data:image/svg+xml,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;220&quot; height=&quot;165&quot;><rect fill=&quot;%23f0f0f0&quot; width=&quot;220&quot; height=&quot;165&quot;/><text x=&quot;110&quot; y=&quot;88&quot; font-size=&quot;14&quot; fill=&quot;%23999&quot; text-anchor=&quot;middle&quot;>No image</text></svg>'">
+        <div class="img-info">
+          <div class="img-title" title="${taskLabel}">${taskLabel}</div>
+          <div class="img-date">${dateStr}</div>
+          ${statusHtml}${scoreHtml}
+          <div class="img-actions">
+            ${hasImage ? `
+              <button class="btn-sm btn-view" onclick="openLightbox('${s.id}')">🔍 View</button>
+              <button class="btn-sm btn-dl"   onclick="downloadSingle('${s.id}')">⬇ Save</button>
+            ` : '<span style="font-size:12px;color:#bbb;">No image stored</span>'}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── Lightbox ──
+  function openLightbox(id) {
+    const s = _allSubs.find(x => x.id === id);
+    if (!s || !s.imageData) return;
+    _lightboxCurrent = s;
+    document.getElementById('lightbox-img').src = s.imageData;
+    document.getElementById('lightbox-title').textContent =
+      `${s.subject || ''} — ${(s.taskText || '').replace(/\s*—\s*\d+\s*min.*/i,'').slice(0,60)}`;
+    document.getElementById('lightbox').classList.add('open');
+  }
+  function closeLightbox(e) {
+    if (!e || e.target === document.getElementById('lightbox') || e.target === document.querySelector('.lightbox-close')) {
+      document.getElementById('lightbox').classList.remove('open');
+      _lightboxCurrent = null;
+    }
+  }
+
+  // ── Downloads ──
+  function downloadSingle(id) {
+    const s = _allSubs.find(x => x.id === id);
+    if (!s || !s.imageData) return;
+    const a = document.createElement('a');
+    a.href = s.imageData;
+    const dt = s.submittedAt ? new Date(s.submittedAt).toISOString().slice(0,10) : 'unknown-date';
+    const subj = (s.subject || 'Other').replace(/\s+/g, '_');
+    const label = (s.taskText || 'work').replace(/[^a-zA-Z0-9\s_-]/g,'').replace(/\s+/g,'_').slice(0,40);
+    a.download = `${subj}_${label}_${dt}.jpg`;
+    a.click();
+  }
+
+  function downloadCurrent() {
+    if (_lightboxCurrent) downloadSingle(_lightboxCurrent.id);
+  }
+
+  function downloadSubject(encodedSubj) {
+    const subj = decodeURIComponent(encodedSubj);
+    const items = _allSubs.filter(s => (s.subject || 'Other') === subj && s.imageData);
+    if (!items.length) { alert('No images to download for ' + subj); return; }
+    items.forEach((s, i) => setTimeout(() => downloadSingle(s.id), i * 300));
+  }
+
+  function downloadAll() {
+    const withImages = _allSubs.filter(s => s.imageData);
+    if (!withImages.length) { alert('No images found.'); return; }
+    if (!confirm(`Download all ${withImages.length} images? They will download one by one.`)) return;
+    withImages.forEach((s, i) => setTimeout(() => downloadSingle(s.id), i * 400));
+  }
+
+  // ── Clear modal ──
+  function openClearModal()  { document.getElementById('clear-modal').classList.add('open'); }
+  function closeClearModal() { document.getElementById('clear-modal').classList.remove('open'); }
+
+  async function confirmClear() {
+    closeClearModal();
+    document.getElementById('status-msg').textContent = '🗑 Clearing all submissions…';
+    try {
+      // Clear Firebase
+      if (db) await db.ref('hs-submissions').remove();
+      // Clear localStorage
+      localStorage.removeItem('hs-submissions');
+      localStorage.removeItem('hs-wg-pending-sub');
+      localStorage.removeItem('hs-wg-batch-queue');
+      _allSubs = [];
+      renderArchive([]);
+      document.getElementById('status-msg').textContent = '✅ All submissions cleared.';
+      document.getElementById('topbar-sub').textContent = '0 submissions';
+    } catch(e) {
+      document.getElementById('status-msg').textContent = '❌ Error clearing: ' + e.message;
+    }
+  }
+
+  // ── Helpers ──
+  function getBadgeClass(subj) {
+    if (subj.includes('Math') || subj.includes('Beast') || subj.includes('Singapore')) return 'badge-Math';
+    if (subj.includes('English') || subj.includes('EIC') || subj.includes('Grammar')) return 'badge-English';
+    if (subj.includes('Science')) return 'badge-Science';
+    if (subj.includes('History')) return 'badge-History';
+    if (subj.includes('Chess'))   return 'badge-Chess';
+    return 'badge-Other';
+  }
+  function subjectEmoji(subj) {
+    if (subj.includes('Math'))    return '🔢';
+    if (subj.includes('English') || subj.includes('EIC') || subj.includes('Grammar')) return '📖';
+    if (subj.includes('Science')) return '🔬';
+    if (subj.includes('History')) return '🏛';
+    if (subj.includes('Chess'))   return '♟️';
+    return '📋';
+  }
+
+  // ── Start ──
+  window.addEventListener('DOMContentLoaded', loadSubmissions);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+</body>
+</html>
