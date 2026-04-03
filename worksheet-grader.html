@@ -1559,17 +1559,22 @@ STEP 2 — DISTINGUISH GIVEN vs COMPUTED (THIS IS CRITICAL):
 - If the only number you can find IS a number from the question, the answer has NOT been found — flag as low confidence.
 
 STEP 3 — FIND THE STUDENT'S CHOSEN ANSWER:
-- TICK MARKS (✓, ✔, checkmarks, "×" used as a check) next to a table row indicate the student's chosen answer. This takes HIGHEST priority — even if it's not the last row.
-- If no tick mark, the last FILLED row in the table is likely the answer (students work down rows until finding the right combination).
+- For tables with a "guess and check" structure (multiple rows of attempts), the CORRECT ROW is the one whose values SATISFY the constraint from the question — NOT necessarily the last row.
+  * Example: Question says "26 vehicles in all" → find the row where the Total column equals 26.
+  * Example: Question says "84 marbles" → find the row where values sum to 84 or the Total column is 84.
+  * Example: Question says "paid $16" → find the row where the cost column equals 16.
+- TICK MARKS (✓, ✔, checkmarks, "×" used as a check) next to a table row indicate the student's chosen answer. This takes SECOND priority after constraint matching.
+- If neither constraint matching nor tick marks identify a row, the last FILLED row is the fallback.
 - Handwritten text like "car=4 motor=2", shorthand labels, circled numbers, or standalone numbers near the question are direct answers.
 - Drawings with labels (e.g., circles labeled "car" or "motorcycle") may encode the answer.
 
 STEP 4 — MAP THE ANSWER TO THE QUESTION:
 - Use the table HEADERS to understand what each column value means.
-- From the identified answer row, extract ONLY the values that answer what the question asked.
+- From the identified answer row, extract ONLY the values that answer what the question asked. Do NOT include the constraint number itself (e.g., if question asks "How many cars and motorcycles?" and the total is 26, report the cars and motorcycles counts, NOT 26).
 - Use the same nouns/units from the question in your answer.
-- Example: If question asks "How many trucks? How many cars?" and headers are "No. of trucks | wheels | cars | wheels | Total", extract the truck count and car count columns.
+- Example: If question asks "How many trucks? How many cars?" and headers are "No. of trucks | wheels | cars | wheels | Total", extract the truck count and car count columns — NOT the total.
 - Example: If question asks "What was the total cost?", extract the Total column value.
+- Example: If question says "26 vehicles" and asks "how many cars and motorcycles?", find the row with total=26 and report "X cars, Y motorcycles" from that row.
 
 STEP 5 — ACCURACY OVER COVERAGE:
 - ONLY provide an answer if you are genuinely confident. It is FAR better to leave an answer blank and flag it for manual review than to guess wrong.
@@ -2141,15 +2146,16 @@ function extractFromTable(text) {
 }
 
 // Extract the student's answer from a complete multi-line table embedded in problem text.
-// For chicken-and-rabbit style problems, students fill rows until finding the correct total.
-// The LAST data row is typically the answer.
+// For "guess and check" problems, students fill rows trying combinations. The correct row
+// is the one whose values satisfy the constraint from the question (e.g., total = 26).
+// Falls back to last data row if no constraint can be matched.
 function extractAnswerFromCompleteTable(text) {
   const lines = text.split('\n');
   const dataRows = [];
+  const headerRow = [];
 
   for (const line of lines) {
     if (!line.includes('|')) {
-      // Non-pipe line that looks like a data row (space-separated numbers): "5 20 3 6 26"
       const nums = line.trim().match(/[-]?\d[\d,.]*/g);
       if (nums && nums.length >= 3) {
         dataRows.push(nums.map(n => n.replace(/,/g, '')));
@@ -2158,14 +2164,14 @@ function extractAnswerFromCompleteTable(text) {
     }
 
     const cells = line.split('|').map(c => c.trim()).filter(c => c);
-
-    // Skip separator rows (|---|---|)
     if (cells.every(c => /^[-:]+$/.test(c))) continue;
 
-    // Skip header rows (contain words like "No. of", "Value", "Total")
-    if (cells.some(c => /(?:No\.\s*of|Value|Total|legs|wheels|marbles|books|tickets)/i.test(c))) continue;
+    // Capture header row for context
+    if (cells.some(c => /(?:No\.\s*of|Value|Total|legs|wheels|marbles|books|tickets|cost|price|amount)/i.test(c))) {
+      headerRow.push(...cells);
+      continue;
+    }
 
-    // This is a data row — extract numeric values
     const numericCells = cells.filter(c => /[-]?\d[\d,.]*/.test(c));
     if (numericCells.length >= 2) {
       dataRows.push(numericCells.map(c => {
@@ -2177,7 +2183,86 @@ function extractAnswerFromCompleteTable(text) {
 
   if (dataRows.length === 0) return '';
 
-  // Last data row is the student's final answer
+  // ── Try to find the constraint number from the question text ──
+  // Look for key phrases: "total of N", "altogether N", "N in all", "N items", etc.
+  // These are the GIVEN numbers that define which row is the answer.
+  const questionPart = text.split(/\|/)[0] || text; // text before any table
+  const constraintPatterns = [
+    /(?:total\s+(?:of\s+)?|altogether\s+|in\s+all\s+)(\d+)/i,
+    /(\d+)\s+(?:in\s+all|altogether|in\s+total)/i,
+    /(?:are|is|was|were)\s+(\d+)\s+(?:\w+\s+){0,2}(?:in|total|altogether)/i,
+    /(\d+)\s+(?:marbles|wheels|vehicles|animals|coins|stamps|stickers|books|tickets|children|people|students|birds|fish|legs|items|things|objects)/i,
+  ];
+
+  let constraintNum = null;
+  for (const pat of constraintPatterns) {
+    const m = questionPart.match(pat);
+    if (m) {
+      constraintNum = parseInt(m[1]);
+      break;
+    }
+  }
+
+  // ── Find the row that matches the constraint ──
+  // Check if any cell in a row OR the sum of the row equals the constraint
+  if (constraintNum !== null) {
+    // Find "Total" column index from header
+    let totalColIdx = -1;
+    if (headerRow.length) {
+      totalColIdx = headerRow.findIndex(h => /total/i.test(h));
+    }
+
+    for (const row of dataRows) {
+      const nums = row.map(Number);
+      // Check: does the total column match?
+      if (totalColIdx >= 0 && totalColIdx < nums.length && nums[totalColIdx] === constraintNum) {
+        return row.join(', ');
+      }
+      // Check: does the last column (often the total) match?
+      if (nums[nums.length - 1] === constraintNum) {
+        return row.join(', ');
+      }
+      // Check: does any column match? (for simpler tables)
+      if (nums.includes(constraintNum)) {
+        return row.join(', ');
+      }
+      // Check: does the sum of all values equal the constraint?
+      const sum = nums.reduce((a, b) => a + b, 0);
+      if (sum === constraintNum) {
+        return row.join(', ');
+      }
+    }
+  }
+
+  // ── Look for tick marks / checkmarks indicating the student's chosen row ──
+  // Re-scan original lines for ✓, ✔, ☑ near data rows
+  let tickRowIdx = -1;
+  let dataRowCounter = 0;
+  for (const line of lines) {
+    if (/[✓✔☑✗✘×]/.test(line)) {
+      const cells = line.split('|').map(c => c.trim()).filter(c => c);
+      const hasNums = cells.some(c => /\d/.test(c));
+      if (hasNums) {
+        tickRowIdx = dataRowCounter;
+        break;
+      }
+    }
+    // Track which data row index we're on
+    if (line.includes('|')) {
+      const cells = line.split('|').map(c => c.trim()).filter(c => c);
+      if (!cells.every(c => /^[-:]+$/.test(c)) &&
+          !cells.some(c => /(?:No\.\s*of|Value|Total|legs|wheels|marbles)/i.test(c)) &&
+          cells.some(c => /\d/.test(c))) {
+        dataRowCounter++;
+      }
+    }
+  }
+
+  if (tickRowIdx >= 0 && tickRowIdx < dataRows.length) {
+    return dataRows[tickRowIdx].join(', ');
+  }
+
+  // Fallback: last data row (student's final attempt)
   const lastRow = dataRows[dataRows.length - 1];
   return lastRow.join(', ');
 }
@@ -2598,9 +2683,11 @@ function renderReview() {
     const isEditing = q._editing === true;
     const tr = document.createElement('tr');
     const needsAnswer = !q.student_answer || !q.student_answer.trim();
+    const isLowConf = q._extraction_confidence === 'medium' || q._extraction_confidence === 'low';
     tr.className = isEditing ? 'editing-row' :
                    needsAnswer ? 'row-needs-answer' :
-                   q.flagged ? 'row-flag' : 'row-ok';
+                   q.flagged ? 'row-flag' :
+                   isLowConf ? 'row-flag' : 'row-ok';
 
     // Highlight low confidence tokens in problem text
     let displayProblem = escHtml(q.problem_text);
@@ -2617,6 +2704,12 @@ function renderReview() {
       statusHtml = '<span class="flag-badge warn">⚠ ' + escHtml(q.flag_reason) + '</span>';
     } else if (q.flagged && q.resolved) {
       statusHtml = '<span class="flag-badge ok">✓ corrected</span>';
+    } else if (needsAnswer) {
+      statusHtml = '<span class="flag-badge warn">⚠ No answer detected</span>';
+    } else if (q._extraction_confidence === 'low') {
+      statusHtml = '<span class="flag-badge warn">⚠ Low confidence — please verify</span>';
+    } else if (q._extraction_confidence === 'medium') {
+      statusHtml = '<span class="flag-badge warn">⚡ Medium confidence — check answer</span>';
     } else if (q.sequence_gap) {
       statusHtml = '<span class="flag-badge info">ℹ ' + escHtml(q.gap_note) + '</span>';
     } else if (q._edited) {
