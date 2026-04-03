@@ -747,6 +747,10 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
       <input type="password" id="inp-anthropic" placeholder="Enter Anthropic API key...">
     </div>
     <div class="form-group">
+      <label>Notion API Token <span style="font-weight:400;color:#9CA3AF;">(for cross-device draft sync)</span></label>
+      <input type="password" id="inp-notion" placeholder="ntn_… or secret_…">
+    </div>
+    <div class="form-group">
       <label>OCR Confidence Threshold</label>
       <div class="slider-row">
         <input type="range" id="inp-threshold" min="70" max="98" value="85">
@@ -1019,6 +1023,7 @@ function getAnthropicEndpoint() {
 function loadSettings() {
   document.getElementById('inp-mistral').value = localStorage.getItem('wg-mistral-key') || '';
   document.getElementById('inp-anthropic').value = localStorage.getItem('wg-anthropic-key') || localStorage.getItem('hs-api-key') || '';
+  document.getElementById('inp-notion').value = localStorage.getItem('hs-notion-key') || '';
   const t = parseInt(localStorage.getItem('wg-threshold')) || 85;
   document.getElementById('inp-threshold').value = t;
   document.getElementById('threshold-val').textContent = t + '%';
@@ -1026,6 +1031,9 @@ function loadSettings() {
 function saveSettings() {
   localStorage.setItem('wg-mistral-key', document.getElementById('inp-mistral').value.trim());
   localStorage.setItem('wg-anthropic-key', document.getElementById('inp-anthropic').value.trim());
+  const notionKey = document.getElementById('inp-notion').value.trim();
+  if (notionKey) localStorage.setItem('hs-notion-key', notionKey);
+  else localStorage.removeItem('hs-notion-key');
   localStorage.setItem('wg-threshold', document.getElementById('inp-threshold').value);
   toggleSettings();
 }
@@ -3410,15 +3418,25 @@ function approveAndLog() {
 //  SAVE / LOAD DRAFTS
 // ═══════════════════════════════════════════
 const DRAFTS_KEY = 'wg-drafts';
+const NOTION_DRAFTS_DB = 'd648c3a5-5fb2-4cbe-be3d-58f03475280b';
 
-function saveDraft() {
-  const drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+// ── Notion proxy helper (same pattern as dashboard) ──
+function getNotionProxyUrl() {
+  const proxy = (localStorage.getItem('hs-proxy-url') || '').replace(/\/$/, '');
+  return proxy ? `${proxy}/notion` : null;
+}
+function notionHeaders() {
+  const token = localStorage.getItem('hs-notion-key') || '';
+  return { 'Content-Type': 'application/json', ...(token ? { 'x-notion-key': token } : {}) };
+}
+
+// ── Build serializable draft object ──
+function buildDraftObject() {
   const label = (bookName || 'Worksheet') + (chapterNumber ? ' Ch.' + chapterNumber : '') +
     ' — ' + parsedQuestions.length + ' questions';
   const approved = parsedQuestions.filter(q => q._verdict === 'approved' || q._verdict === 'edited').length;
   const rejected = parsedQuestions.filter(q => q._verdict === 'rejected').length;
 
-  // Serializable question data (strip DOM-specific stuff)
   const qData = parsedQuestions.map(q => ({
     question_number: q.question_number,
     problem_text: q.problem_text,
@@ -3440,7 +3458,7 @@ function saveDraft() {
     low_tokens: q.low_tokens
   }));
 
-  const draft = {
+  return {
     id: 'draft-' + Date.now(),
     label,
     date: new Date().toISOString(),
@@ -3454,20 +3472,196 @@ function saveDraft() {
     rejected,
     total: parsedQuestions.length
   };
+}
 
-  // Check if updating an existing draft for same book/chapter
-  const existingIdx = drafts.findIndex(d => d.bookName === bookName && d.chapterNumber === chapterNumber);
+// ── Save draft to localStorage ──
+function saveLocalDraft(draft) {
+  const drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+  const existingIdx = drafts.findIndex(d => d.bookName === draft.bookName && d.chapterNumber === draft.chapterNumber);
   if (existingIdx >= 0) {
+    draft.id = drafts[existingIdx].id;
+    draft._notionPageId = drafts[existingIdx]._notionPageId;
     drafts[existingIdx] = draft;
   } else {
     drafts.unshift(draft);
   }
-
-  // Keep max 20 drafts
   if (drafts.length > 20) drafts.length = 20;
   localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
+  return draft;
+}
 
-  // Visual feedback
+// ── Notion draft sync (fire-and-forget, errors don't block local save) ──
+async function syncDraftToNotion(draft) {
+  const base = getNotionProxyUrl();
+  if (!base) return null;
+
+  // Full JSON goes into page content as a code block (bypasses 2000-char RICH_TEXT limit)
+  const draftJson = JSON.stringify({
+    questions: draft.questions,
+    answerKeyMap: draft.answerKeyMap,
+    examples: draft.examples
+  });
+
+  // Split JSON into 2000-char chunks for Notion code block limit
+  const chunks = [];
+  for (let i = 0; i < draftJson.length; i += 2000) {
+    chunks.push(draftJson.slice(i, i + 2000));
+  }
+
+  const props = {
+    'Title':    { title:     [{ text: { content: draft.label.slice(0, 100) } }] },
+    'Book':     { rich_text: [{ text: { content: (draft.bookName || '').slice(0, 200) } }] },
+    'Chapter':  { rich_text: [{ text: { content: String(draft.chapterNumber || '').slice(0, 50) } }] },
+    'Subject':  { select:    { name: draft.subject || 'math' } },
+    'Status':   { select:    { name: 'draft' } },
+    'Questions':{ number:    draft.total || 0 },
+    'Approved': { number:    draft.approved || 0 },
+    'Rejected': { number:    draft.rejected || 0 },
+    'Score':    { rich_text: [{ text: { content: draft.total > 0 ? Math.round(draft.approved / draft.total * 100) + '%' : '—' } }] },
+    'Saved At': { date:      { start: draft.date } }
+  };
+
+  const children = chunks.map(chunk => ({
+    object: 'block',
+    type: 'code',
+    code: {
+      rich_text: [{ type: 'text', text: { content: chunk } }],
+      language: 'json'
+    }
+  }));
+
+  try {
+    // If we have an existing Notion page ID, archive it and create fresh
+    // (Notion doesn't allow replacing children easily)
+    if (draft._notionPageId) {
+      await fetch(`${base}/v1/pages/${draft._notionPageId}`, {
+        method: 'PATCH',
+        headers: notionHeaders(),
+        body: JSON.stringify({ archived: true })
+      }).catch(() => {});
+    }
+
+    const resp = await fetch(`${base}/v1/pages`, {
+      method: 'POST',
+      headers: notionHeaders(),
+      body: JSON.stringify({
+        parent: { database_id: NOTION_DRAFTS_DB },
+        properties: props,
+        children
+      })
+    });
+
+    if (resp.ok) {
+      const page = await resp.json();
+      // Store Notion page ID in local draft for future updates
+      const drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+      const idx = drafts.findIndex(d => d.bookName === draft.bookName && d.chapterNumber === draft.chapterNumber);
+      if (idx >= 0) {
+        drafts[idx]._notionPageId = page.id;
+        localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
+      }
+      return page.id;
+    }
+    return null;
+  } catch (e) {
+    console.warn('[Notion draft sync failed]', e.message);
+    return null;
+  }
+}
+
+// ── Fetch drafts from Notion ──
+async function fetchNotionDrafts() {
+  const base = getNotionProxyUrl();
+  if (!base) return [];
+
+  try {
+    const resp = await fetch(`${base}/v1/databases/${NOTION_DRAFTS_DB}/query`, {
+      method: 'POST',
+      headers: notionHeaders(),
+      body: JSON.stringify({
+        filter: { property: 'Status', select: { equals: 'draft' } },
+        sorts: [{ property: 'Saved At', direction: 'descending' }],
+        page_size: 20
+      })
+    });
+
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return (data.results || []).map(page => {
+      const p = page.properties;
+      const getText = prop => (prop?.rich_text?.[0]?.plain_text || '');
+      const getTitle = prop => (prop?.title?.[0]?.plain_text || '');
+      return {
+        _notionPageId: page.id,
+        label: getTitle(p['Title']),
+        bookName: getText(p['Book']),
+        chapterNumber: getText(p['Chapter']),
+        subject: p['Subject']?.select?.name || 'math',
+        total: p['Questions']?.number || 0,
+        approved: p['Approved']?.number || 0,
+        rejected: p['Rejected']?.number || 0,
+        date: p['Saved At']?.date?.start || page.created_time,
+        _source: 'notion'
+      };
+    });
+  } catch (e) {
+    console.warn('[Notion draft fetch failed]', e.message);
+    return [];
+  }
+}
+
+// ── Load full draft data from a Notion page (reads code blocks) ──
+async function loadNotionDraftData(pageId) {
+  const base = getNotionProxyUrl();
+  if (!base) return null;
+
+  try {
+    const resp = await fetch(`${base}/v1/blocks/${pageId}/children?page_size=100`, {
+      method: 'GET',
+      headers: notionHeaders()
+    });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+
+    // Concatenate all code blocks to reassemble the JSON
+    let json = '';
+    for (const block of (data.results || [])) {
+      if (block.type === 'code') {
+        json += (block.code?.rich_text?.[0]?.plain_text || '');
+      }
+    }
+    if (!json) return null;
+    return JSON.parse(json);
+  } catch (e) {
+    console.warn('[Notion draft load failed]', e.message);
+    return null;
+  }
+}
+
+// ── Delete a Notion draft (archive the page) ──
+async function deleteNotionDraft(pageId) {
+  const base = getNotionProxyUrl();
+  if (!base) return;
+  try {
+    await fetch(`${base}/v1/pages/${pageId}`, {
+      method: 'PATCH',
+      headers: notionHeaders(),
+      body: JSON.stringify({ archived: true })
+    });
+  } catch (e) {
+    console.warn('[Notion draft delete failed]', e.message);
+  }
+}
+
+// ══════════════════════════════════════
+//  PUBLIC DRAFT API
+// ══════════════════════════════════════
+
+function saveDraft() {
+  const draft = buildDraftObject();
+  saveLocalDraft(draft);
+
+  // Visual feedback (immediate — Notion sync happens in background)
   const saveBtn = document.querySelector('.bulk-actions button[onclick="saveDraft()"]');
   if (saveBtn) {
     saveBtn.textContent = '✅ Draft Saved!';
@@ -3479,14 +3673,79 @@ function saveDraft() {
       saveBtn.style.color = '#92400E';
     }, 2000);
   }
+
+  // Fire-and-forget Notion sync
+  syncDraftToNotion(draft).then(pageId => {
+    if (pageId) {
+      if (saveBtn) {
+        saveBtn.textContent = '☁️ Synced to Notion';
+        saveBtn.style.background = '#DBEAFE';
+        saveBtn.style.color = '#1E40AF';
+        setTimeout(() => {
+          saveBtn.textContent = '💾 Save Draft';
+          saveBtn.style.background = '#FEF3C7';
+          saveBtn.style.color = '#92400E';
+        }, 2000);
+      }
+    }
+  }).catch(() => {});
 }
 
 function loadDraft(draftId) {
+  // Try local first
   const drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
   const draft = drafts.find(d => d.id === draftId);
-  if (!draft) { alert('Draft not found.'); return; }
+  if (draft) {
+    _restoreDraft(draft);
+    return;
+  }
+  alert('Draft not found locally.');
+}
 
-  // Restore state
+async function loadNotionDraft(pageId, meta) {
+  // Show loading state
+  const card = document.getElementById('drafts-card');
+  if (card) {
+    const origHTML = card.querySelector('.draft-info')?.innerHTML;
+    const items = card.querySelectorAll('.draft-item');
+    for (const item of items) {
+      if (item.querySelector(`[onclick*="${pageId}"]`)) {
+        item.querySelector('.draft-resume').textContent = '⏳ Loading…';
+        item.querySelector('.draft-resume').disabled = true;
+      }
+    }
+  }
+
+  const data = await loadNotionDraftData(pageId);
+  if (!data) {
+    alert('Could not load draft from Notion. Check your connection and Notion token.');
+    renderDraftsList();
+    return;
+  }
+
+  // Reconstruct full draft from Notion metadata + page content
+  const draft = {
+    id: 'draft-' + Date.now(),
+    _notionPageId: pageId,
+    label: meta.label,
+    date: meta.date,
+    bookName: meta.bookName,
+    chapterNumber: meta.chapterNumber,
+    subject: meta.subject,
+    answerKeyMap: data.answerKeyMap || {},
+    questions: data.questions || [],
+    examples: data.examples || [],
+    approved: meta.approved,
+    rejected: meta.rejected,
+    total: meta.total
+  };
+
+  // Cache locally
+  saveLocalDraft(draft);
+  _restoreDraft(draft);
+}
+
+function _restoreDraft(draft) {
   bookName = draft.bookName || '';
   chapterNumber = draft.chapterNumber || '';
   subject = draft.subject || 'math';
@@ -3494,7 +3753,6 @@ function loadDraft(draftId) {
   parsedQuestions = draft.questions || [];
   parsedExamples = draft.examples || [];
 
-  // Restore book selector UI
   const selBook = document.getElementById('sel-book');
   if (selBook) {
     for (const opt of selBook.options) {
@@ -3504,7 +3762,6 @@ function loadDraft(draftId) {
   const inpChapter = document.getElementById('inp-chapter');
   if (inpChapter) inpChapter.value = chapterNumber;
 
-  // Run sanity checks and render
   runSanityChecks(parsedQuestions);
   renderReview();
   goTo('review');
@@ -3513,43 +3770,112 @@ function loadDraft(draftId) {
 function deleteDraft(draftId) {
   if (!confirm('Delete this draft?')) return;
   let drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+  const draft = drafts.find(d => d.id === draftId);
+  // Archive from Notion if it was synced
+  if (draft?._notionPageId) deleteNotionDraft(draft._notionPageId);
   drafts = drafts.filter(d => d.id !== draftId);
   localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
   renderDraftsList();
 }
 
-function renderDraftsList() {
-  const drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+async function deleteNotionOnlyDraft(pageId) {
+  if (!confirm('Delete this draft from Notion?')) return;
+  await deleteNotionDraft(pageId);
+  renderDraftsList();
+}
+
+async function renderDraftsList() {
   const card = document.getElementById('drafts-card');
   const list = document.getElementById('drafts-list');
   if (!card || !list) return;
 
-  if (drafts.length === 0) {
+  // Local drafts
+  const localDrafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+
+  // Start rendering local drafts immediately
+  if (localDrafts.length === 0) {
     card.style.display = 'none';
-    return;
+  } else {
+    card.style.display = 'block';
+    list.innerHTML = '';
+    for (const d of localDrafts) {
+      list.appendChild(_buildDraftRow(d, 'local'));
+    }
   }
 
-  card.style.display = 'block';
-  list.innerHTML = '';
+  // Fetch Notion drafts in background (non-blocking)
+  const base = getNotionProxyUrl();
+  const hasNotionKey = !!localStorage.getItem('hs-notion-key');
+  if (base && hasNotionKey) {
+    // Show a subtle loading indicator
+    if (localDrafts.length === 0) {
+      card.style.display = 'block';
+      list.innerHTML = '<div style="text-align:center;color:#9CA3AF;padding:12px;font-size:.85rem;">☁️ Checking Notion for drafts…</div>';
+    }
 
-  for (const d of drafts) {
-    const dateStr = new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-    const progress = d.approved + d.rejected;
-    const progressPct = d.total > 0 ? Math.round(progress / d.total * 100) : 0;
+    const notionDrafts = await fetchNotionDrafts();
 
-    const div = document.createElement('div');
-    div.className = 'draft-item';
+    // Merge: add Notion drafts that aren't already in local
+    const localKeys = new Set(localDrafts.map(d => `${d.bookName}|${d.chapterNumber}`));
+    const notionOnly = notionDrafts.filter(nd => !localKeys.has(`${nd.bookName}|${nd.chapterNumber}`));
+
+    if (localDrafts.length === 0 && notionOnly.length === 0) {
+      card.style.display = 'none';
+      return;
+    }
+
+    card.style.display = 'block';
+    list.innerHTML = '';
+
+    // Local drafts first
+    for (const d of localDrafts) {
+      list.appendChild(_buildDraftRow(d, 'local'));
+    }
+
+    // Notion-only drafts
+    for (const d of notionOnly) {
+      list.appendChild(_buildDraftRow(d, 'notion'));
+    }
+  }
+}
+
+function _buildDraftRow(d, source) {
+  const dateStr = new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  const progress = (d.approved || 0) + (d.rejected || 0);
+  const progressPct = d.total > 0 ? Math.round(progress / d.total * 100) : 0;
+  const badge = source === 'notion' ? ' <span style="background:#DBEAFE;color:#1E40AF;font-size:.65rem;padding:1px 5px;border-radius:6px;font-weight:700;">☁️ Notion</span>'
+    : (d._notionPageId ? ' <span style="background:#D1FAE5;color:#065F46;font-size:.65rem;padding:1px 5px;border-radius:6px;font-weight:700;">✓ Synced</span>' : '');
+
+  const div = document.createElement('div');
+  div.className = 'draft-item';
+
+  if (source === 'notion') {
+    // Notion-only draft: load from Notion on resume
     div.innerHTML = `
       <div style="font-size:1.3rem;">📋</div>
       <div class="draft-info">
-        <div class="draft-title">${escHtml(d.label)}</div>
+        <div class="draft-title">${escHtml(d.label)}${badge}</div>
+        <div class="draft-meta">${dateStr} · ${progress}/${d.total} reviewed (${progressPct}%) · ${d.approved || 0} approved, ${d.rejected || 0} rejected</div>
+      </div>
+      <button class="draft-btn draft-resume notion-resume-btn">☁️ Resume</button>
+      <button class="draft-btn draft-delete notion-delete-btn">✕</button>
+    `;
+    // Use event listeners instead of inline onclick (avoids JSON escaping issues)
+    const meta = { ...d };
+    div.querySelector('.notion-resume-btn').addEventListener('click', () => loadNotionDraft(d._notionPageId, meta));
+    div.querySelector('.notion-delete-btn').addEventListener('click', () => deleteNotionOnlyDraft(d._notionPageId));
+  } else {
+    div.innerHTML = `
+      <div style="font-size:1.3rem;">📋</div>
+      <div class="draft-info">
+        <div class="draft-title">${escHtml(d.label)}${badge}</div>
         <div class="draft-meta">${dateStr} · ${progress}/${d.total} reviewed (${progressPct}%) · ${d.approved || 0} approved, ${d.rejected || 0} rejected</div>
       </div>
       <button class="draft-btn draft-resume" onclick="loadDraft('${d.id}')">▶ Resume</button>
       <button class="draft-btn draft-delete" onclick="deleteDraft('${d.id}')">✕</button>
     `;
-    list.appendChild(div);
   }
+  return div;
 }
 
 function checkAllResolved() {
