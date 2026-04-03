@@ -343,16 +343,48 @@
             transform: scale(0.98);
         }
 
-        .video-card-icon {
+        .video-card-thumb {
             flex-shrink: 0;
-            width: 48px;
-            height: 48px;
-            background: #FF0000;
-            border-radius: 12px;
+            width: 96px;
+            height: 54px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #1a1a2e;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            position: relative;
+        }
+        .video-card-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .video-card-thumb-fallback {
+            color: #FF0000;
+            font-size: 28px;
+            line-height: 1;
+        }
+        .video-card-play {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.25);
+        }
+        .video-card-play-btn {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.92);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #111;
+            padding-left: 2px;
         }
 
         .video-card-body {
@@ -1401,7 +1433,6 @@
                         headline: s.headline, summary: s.summary,
                         bigWord: s.bigWord, bigWordDef: s.bigWordDef,
                         question: s.thinkQuestion,
-                        videoQuery: s.videoQuery,
                         // Preserve any user-written answers
                         thinkAnswer: existingStory.thinkAnswer || '',
                         answered: existingStory.answered || false
@@ -1409,25 +1440,13 @@
                     // Always refresh all-stories list from JSON
                     localStorage.setItem('news-all-stories-' + dateKey, JSON.stringify(data.stories));
                 }
-                // Build video list: curated picks first, then auto-generated search cards
-                // from every story's videoQuery so Watch & Learn always has one card per story.
+                // Store only curated videos with specific direct YouTube watch links
                 {
-                    const curatedVids = (data.videos && data.videos.length) ? data.videos : [];
-                    const storyVids = (data.stories || []).map(s => ({
-                        title: s.headline,
-                        description: 'Tap to search YouTube for videos about this story.',
-                        url: 'https://www.youtube.com/results?search_query=' + encodeURIComponent(s.videoQuery || s.headline),
-                        topic: 'Search YouTube'
-                    }));
-                    // Merge: curated cards first, then story cards not already covered
-                    const allVids = [
-                        ...curatedVids,
-                        ...storyVids.filter(sv =>
-                            !curatedVids.some(cv => cv.title.toLowerCase() === sv.title.toLowerCase())
-                        )
-                    ];
-                    if (allVids.length) {
-                        localStorage.setItem('news-videos-' + dateKey, JSON.stringify(allVids));
+                    const curated = (data.videos || []).filter(v =>
+                        v.url && v.url.includes('youtube.com/watch?v=')
+                    );
+                    if (curated.length) {
+                        localStorage.setItem('news-videos-' + dateKey, JSON.stringify(curated));
                     }
                 }
                 if (data.infographic) {
@@ -1654,40 +1673,29 @@
             try { videos = JSON.parse(localStorage.getItem('news-videos-' + dateKey)); } catch {}
 
             if (videos && videos.length) {
-                list.innerHTML = videos.map(v => `
+                list.innerHTML = videos.map(v => {
+                    // Extract video ID for thumbnail — works for watch?v= URLs
+                    const ytId = v.youtubeId || (v.url.match(/[?&]v=([a-zA-Z0-9_-]{11})/)||[])[1] || '';
+                    const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
+                    const thumbHtml = thumb
+                        ? `<img src="${thumb}" alt="" onerror="this.style.display='none'">`
+                        : '';
+                    return `
                     <a href="${v.url}" target="_blank" rel="noopener" class="video-card">
-                        <div class="video-card-icon">▶</div>
+                        <div class="video-card-thumb">
+                            ${thumbHtml}
+                            <div class="video-card-play"><div class="video-card-play-btn">▶</div></div>
+                        </div>
                         <div class="video-card-body">
                             <div class="video-card-topic">${v.topic || 'Watch & Learn'}</div>
                             <div class="video-card-title">${v.title}</div>
                             <div class="video-card-desc">${v.description}</div>
                         </div>
-                        <div class="video-card-arrow">→</div>
-                    </a>
-                `).join('');
+                        <div class="video-card-arrow">↗</div>
+                    </a>`;
+                }).join('');
             } else {
-                // Fallback: generate search cards from story headlines
-                const allStories = (() => {
-                    try { return JSON.parse(localStorage.getItem('news-all-stories-' + dateKey)) || []; } catch { return []; }
-                })();
-                const fallbackStories = allStories.slice(0, 3);
-                if (fallbackStories.length) {
-                    list.innerHTML = fallbackStories.map(s => {
-                        const q = s.videoQuery || s.headline;
-                        const url = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
-                        return `<a href="${url}" target="_blank" rel="noopener" class="video-card">
-                            <div class="video-card-icon">▶</div>
-                            <div class="video-card-body">
-                                <div class="video-card-topic">Search YouTube</div>
-                                <div class="video-card-title">${s.headline}</div>
-                                <div class="video-card-desc">Tap to search YouTube for videos about this story.</div>
-                            </div>
-                            <div class="video-card-arrow">→</div>
-                        </a>`;
-                    }).join('');
-                } else {
-                    list.innerHTML = `<div class="no-data"><div class="no-data-emoji">📺</div><div class="no-data-text">No videos today yet!</div></div>`;
-                }
+                list.innerHTML = `<div class="no-data"><div class="no-data-emoji">📺</div><div class="no-data-text">Today's curated videos will appear here after the daily update. Check back after 6 AM!</div></div>`;
             }
 
             // Restore saved reflection answer
