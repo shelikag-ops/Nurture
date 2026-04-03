@@ -1768,23 +1768,19 @@ IMPORTANT: I am also sending you the original page IMAGES so you can visually in
         matched++;
         plog('Q' + item.q + ' ✓ answer: "' + item.answer + '" (method: ' + item.method + ', confidence: ' + item.confidence + ')');
       } else if (item.confidence === 'low') {
-        // Claude is unsure — check if parser answer is just a given number from the question
-        // Given numbers appear in the problem text and are NOT the student's computed answer
-        const givenNums = (q.problem_text.match(/\d+/g) || []).map(String);
+        // Claude is unsure — keep parser answer if it has one, flag for review
         const parserAns = (q.student_answer || '').trim();
-        const parserIsGivenNum = givenNums.includes(parserAns);
-
-        if (parserHadAnswer && !parserIsGivenNum) {
-          // Parser has a plausible answer that's not just a given number — keep but flag for review
+        if (parserHadAnswer) {
+          // Keep parser answer, flag for human review
           q._extraction_confidence = 'low';
           q._extraction_method = item.method || '';
           q.flagged = true;
           q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') +
             'Low confidence — verify answer "' + parserAns + '"';
           flagged++;
-          plog('Q' + item.q + ' ⚠ parser answer "' + parserAns + '" kept but flagged — Claude unsure: ' + (item.method || ''));
+          plog('Q' + item.q + ' ⚠ parser answer "' + parserAns + '" kept, flagged for review');
         } else {
-          // Parser answer is a given number or empty — clear it and flag for manual entry
+          // No parser answer — flag for manual entry
           q.student_answer = '';
           q._extraction_confidence = 'low';
           q._extraction_method = item.method || '';
@@ -1792,7 +1788,7 @@ IMPORTANT: I am also sending you the original page IMAGES so you can visually in
           q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') +
             'Needs manual answer — ' + (item.method || 'could not extract');
           flagged++;
-          plog('Q' + item.q + ' ⚠ cleared parser answer "' + parserAns + '" (given number) — flagged for manual entry');
+          plog('Q' + item.q + ' ⚠ no answer found — flagged for manual entry');
         }
       } else {
         // Neither Claude nor parser has an answer — flag for manual entry
@@ -2129,22 +2125,8 @@ function parseQuestions(md, rawData) {
     applyConfidenceScores(deduped, rawData);
   }
 
-  // ── Post-parse sanity: clear answers that are just given numbers from the question ──
-  // This catches cases the parser grabs (e.g., "26" from "total of 26 vehicles")
-  // before Claude extraction even runs.
-  for (const q of deduped) {
-    if (q.student_answer && q.student_answer.trim()) {
-      const givenNums = (q.problem_text.match(/\d+/g) || []).map(String);
-      const ans = q.student_answer.trim();
-      if (givenNums.includes(ans)) {
-        plog('Q' + q.question_number + ' clearing given-number answer "' + ans + '" (appears in question text)');
-        q.student_answer = '';
-        q.flagged = true;
-        q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') +
-          'Answer was a given number from the question — needs manual entry';
-      }
-    }
-  }
+  // Answer validation is now handled by the AI Answer + Answer Key comparison
+  // in the review table, rather than clearing parser answers pre-emptively.
 
   return { questions: deduped, examples, detectedChapter: foundChapter };
 }
