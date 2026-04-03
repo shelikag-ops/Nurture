@@ -37,6 +37,131 @@
       background: rgba(255,255,255,.15);
       color: white;
     }
+
+    /* ── SARAH SUB-TABS ── */
+    .sarah-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 10px 4px 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      margin-bottom: 12px;
+    }
+    .sarah-tabs::-webkit-scrollbar { display: none; }
+    .sarah-tab {
+      flex-shrink: 0;
+      padding: 9px 16px;
+      border: none;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: .82rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .25s;
+      background: #F3F4F6;
+      color: #6B7280;
+      white-space: nowrap;
+    }
+    .sarah-tab.active {
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
+      color: white;
+      box-shadow: 0 3px 12px rgba(99,102,241,.3);
+    }
+    .sarah-tab-content { display: none; }
+    .sarah-tab-content.active { display: block; }
+
+    /* ── DAILY ACTIONS ROW ── */
+    .daily-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .daily-action-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: white;
+      border: 2px solid #E5E7EB;
+      border-radius: 14px;
+      padding: 10px 16px;
+      font-family: 'Nunito', sans-serif;
+      font-size: .85rem;
+      font-weight: 700;
+      color: #374151;
+      cursor: pointer;
+      transition: all .2s;
+      flex: 1 1 calc(50% - 4px);
+      min-width: 140px;
+    }
+    .daily-action-pill:hover { border-color: #A5B4FC; }
+    .daily-action-pill.done {
+      background: #F0FDF4;
+      border-color: #86EFAC;
+      color: #166534;
+    }
+    .daily-action-check {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid #D1D5DB;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    .daily-action-pill.done .daily-action-check {
+      background: #22C55E;
+      border-color: #22C55E;
+      color: white;
+    }
+
+    /* ── REPORTS TAB ── */
+    .reports-toggle {
+      display: flex;
+      background: #F3F4F6;
+      border-radius: 12px;
+      padding: 3px;
+      gap: 2px;
+      margin-bottom: 16px;
+      max-width: 280px;
+    }
+    .reports-toggle-btn {
+      flex: 1;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: .85rem;
+      cursor: pointer;
+      background: transparent;
+      color: #6B7280;
+      transition: all .2s;
+    }
+    .reports-toggle-btn.active {
+      background: #1e1b4b;
+      color: white;
+    }
+    .reports-today-section, .reports-week-section { /* toggled by JS */ }
+
+    /* ── DAILY STORY CARD ── */
+    .story-card { background:white; border-radius:20px; padding:24px; margin-bottom:16px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+    .story-headline { font-size:1.15rem; font-weight:900; color:#1e1b4b; line-height:1.35; margin-bottom:12px; }
+    .story-body { font-size:.92rem; font-weight:600; color:#374151; line-height:1.65; margin-bottom:16px; }
+    .story-bigword { background:linear-gradient(135deg,#EDE9FE,#F5F3FF); border-radius:14px; padding:14px 16px; margin-bottom:14px; border-left:4px solid #7C3AED; }
+    .story-bigword-term { font-size:.95rem; font-weight:900; color:#7C3AED; margin-bottom:4px; }
+    .story-bigword-def { font-size:.85rem; font-weight:600; color:#4C1D95; line-height:1.5; }
+    .story-think { background:linear-gradient(135deg,#FEF3C7,#FFFBEB); border-radius:14px; padding:14px 16px; margin-bottom:14px; border-left:4px solid #D97706; }
+    .story-think-label { font-size:.78rem; font-weight:800; color:#D97706; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+    .story-think-q { font-size:.9rem; font-weight:700; color:#92400E; line-height:1.5; }
+    .story-response-area { margin-top:12px; }
+    .story-nav { display:flex; gap:10px; margin-bottom:16px; align-items:center; justify-content:center; }
+    .story-nav-btn { background:#F3F4F6; border:none; border-radius:10px; padding:8px 16px; font-family:'Nunito',sans-serif; font-weight:800; font-size:.85rem; cursor:pointer; color:#374151; transition:background .2s; }
+    .story-nav-btn:hover { background:#E5E7EB; }
+    .story-nav-btn.active { background:#6366F1; color:white; }
+    .story-counter { font-size:.82rem; font-weight:800; color:#9CA3AF; }
+
     /* ── PARENT VIEW ── */
     #parent-view { display: none; }
     #parent-view.visible { display: block; }
@@ -709,45 +834,22 @@
     </div>
   </div>
 
+  <!-- ── SARAH SUB-TABS ── -->
+  <div class="sarah-tabs">
+    <button class="sarah-tab active" onclick="switchSarahTab('good-morning')">🌅 Good Morning</button>
+    <button class="sarah-tab" onclick="switchSarahTab('news')">📰 News</button>
+    <button class="sarah-tab" onclick="switchSarahTab('story')">📖 Daily Story</button>
+    <button class="sarah-tab" onclick="switchSarahTab('todo')">✅ To Do</button>
+    <button class="sarah-tab" onclick="switchSarahTab('spelling-bee')">🐝 Spelling Bee</button>
+    <button class="sarah-tab" onclick="switchSarahTab('reports')">📊 My Reports</button>
+    <button class="sarah-tab" onclick="switchSarahTab('rewards')">🏆 Rewards</button>
+  </div>
+
+  <!-- ═══ TAB: GOOD MORNING ═══ -->
+  <div id="tab-good-morning" class="sarah-tab-content active">
+
   <!-- MORNING PRAYER + GRATITUDE -->
   <div id="prayer-card-container"></div>
-
-  <!-- Prayer modal -->
-  <div class="prayer-modal" id="prayerModal">
-    <div class="prayer-modal-box">
-      <!-- Ambient background elements -->
-      <div class="prayer-bg-om">🕉</div>
-      <div class="prayer-orb prayer-orb-1"></div>
-      <div class="prayer-orb prayer-orb-2"></div>
-      <div class="prayer-orb prayer-orb-3"></div>
-      <!-- Content -->
-      <div class="prayer-progress" id="prayerProgress"></div>
-      <div class="prayer-stage-label" id="prayerStageLabel"></div>
-      <div class="prayer-stage-title" id="prayerStageTitle"></div>
-      <div id="prayerStageBody"></div>
-      <div style="display:flex;gap:10px;align-items:center;margin-top:6px;position:relative;z-index:1;">
-        <button class="prayer-nav-btn prayer-skip" id="prayerSkipBtn" onclick="prayerNext(false)">Skip</button>
-        <button class="prayer-nav-btn prayer-next" id="prayerNextBtn" onclick="prayerNext(true)">Continue →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SARAH'S NOTIFICATIONS (redo requests + feedback from Mama) -->
-  <div id="notif-section" style="display:none;">
-    <div class="notif-card">
-      <div class="notif-title">📬 Message from Mama</div>
-      <div id="notif-items"></div>
-    </div>
-  </div>
-
-  <!-- TODAY'S SCHEDULE -->
-  <div class="schedule-card" id="schedule-card">
-    <div class="card-title">🗓️ Today's Schedule</div>
-    <div id="schedule-content"></div>
-  </div>
-
-  <!-- NEWS TASK — auto-checks when Sarah completes news activities -->
-  <div id="news-task-container"></div>
 
   <!-- MORNING RITUAL -->
   <div class="card morning-card">
@@ -778,62 +880,85 @@
     </div>
   </div>
 
-  <!-- STATS -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-emoji">📝</div>
-      <div class="stat-value" id="stat-vocab">800</div>
-      <div class="stat-label">Vocab done</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-emoji">🎯</div>
-      <div class="stat-value" id="stat-left">1,200</div>
-      <div class="stat-label">Words to go</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-emoji">📖</div>
-      <div class="stat-value" id="stat-books">0</div>
-      <div class="stat-label">Books read</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-emoji">📚</div>
-      <div class="stat-value" id="stat-tasks">0</div>
-      <div class="stat-label">Tasks today</div>
-    </div>
-  </div>
-
-  <!-- VOCAB BAR -->
+  <!-- YESTERDAY'S WINS (in Good Morning tab) -->
   <div class="card">
-    <div class="card-title">📝 NSF Vocabulary Sprint</div>
-    <div class="prog-label">
-      <span id="vocab-lbl">800 words done</span>
-      <span>1,900 total · <strong id="vocab-pct">40%</strong></span>
+    <div class="card-title">🏆 Yesterday's Wins</div>
+    <div id="gm-wins-content"></div>
+  </div>
+
+  </div><!-- end tab-good-morning -->
+
+  <!-- ═══ TAB: NEWS ═══ -->
+  <div id="tab-news" class="sarah-tab-content">
+  <!-- NEWS TASK — auto-checks when Sarah completes news activities -->
+  <div id="news-task-container"></div>
+  </div><!-- end tab-news -->
+
+  <!-- ═══ TAB: DAILY STORY ═══ -->
+  <div id="tab-story" class="sarah-tab-content">
+  <div id="daily-story-container">
+    <div class="card" style="text-align:center;padding:30px;">
+      <div style="font-size:2rem;margin-bottom:8px;">📖</div>
+      <div style="font-size:.9rem;font-weight:700;color:#9CA3AF;">Loading today's story…</div>
     </div>
-    <div class="prog-track"><div class="prog-fill" id="vocab-bar" style="width:0%;background:linear-gradient(90deg,#06D6A0,#1B9AAA);"></div></div>
-    <div class="prog-note" id="vocab-note-txt"></div>
+  </div>
+  </div><!-- end tab-story -->
+
+  <!-- ═══ TAB: TO DO ═══ -->
+  <div id="tab-todo" class="sarah-tab-content">
+
+  <!-- TODAY'S SCHEDULE -->
+  <div class="schedule-card" id="schedule-card">
+    <div class="card-title">🗓️ Today's Schedule</div>
+    <div id="schedule-content"></div>
   </div>
 
-  <!-- CURRICULUM PROGRESS -->
-  <div id="progress-card-container"></div>
-
-  <!-- REWARDS / SAVINGS ACCOUNT -->
-  <div id="rewards-card-container"></div>
-  <div style="text-align:center;margin:-8px 0 16px;">
-    <a href="rewards.html" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;border-radius:14px;padding:12px 24px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;text-decoration:none;box-shadow:0 4px 14px rgba(99,102,241,.35);">
-      ⭐ View My Full Rewards Dashboard
-    </a>
+  <!-- DAILY ACTIONS (Morning Prayer, News, Reflection, etc.) -->
+  <div class="card daily-actions-card" style="margin-bottom:16px;">
+    <div class="card-title">📋 Daily Actions</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 0;">
+        <input type="checkbox" id="action-prayer" onchange="saveDailyAction('prayer',this.checked)" style="width:18px;height:18px;cursor:pointer;">
+        <span style="font-size:.95rem;font-weight:600;color:#2D3047;">🙏 Morning Prayer</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 0;">
+        <input type="checkbox" id="action-news" onchange="saveDailyAction('news',this.checked)" style="width:18px;height:18px;cursor:pointer;">
+        <span style="font-size:.95rem;font-weight:600;color:#2D3047;">📰 News</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 0;">
+        <input type="checkbox" id="action-reflection" onchange="saveDailyAction('reflection',this.checked)" style="width:18px;height:18px;cursor:pointer;">
+        <span style="font-size:.95rem;font-weight:600;color:#2D3047;">✨ Reflection</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 0;">
+        <input type="checkbox" id="action-thought" onchange="saveDailyAction('thought',this.checked)" style="width:18px;height:18px;cursor:pointer;">
+        <span style="font-size:.95rem;font-weight:600;color:#2D3047;">💭 Thought of the Day</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 0;">
+        <input type="checkbox" id="action-story" onchange="saveDailyAction('story',this.checked)" style="width:18px;height:18px;cursor:pointer;">
+        <span style="font-size:.95rem;font-weight:600;color:#2D3047;">📚 Story</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 0;">
+        <input type="checkbox" id="action-social" onchange="saveDailyAction('social',this.checked)" style="width:18px;height:18px;cursor:pointer;">
+        <span style="font-size:.95rem;font-weight:600;color:#2D3047;">💫 Social Challenge</span>
+      </label>
+    </div>
   </div>
 
-  <!-- DAILY SOCIAL CHALLENGE -->
+  <!-- DAILY SOCIAL CHALLENGE (in To Do tab) -->
   <div id="challenge-card-container"></div>
   <!-- EXTRA CHALLENGE (5 pts, set by parent) -->
   <div id="extra-challenge-container"></div>
 
-  <!-- TWO-COL -->
-  <div class="grid-2">
+  <!-- SARAH'S NOTIFICATIONS (redo requests + feedback from Mama) -->
+  <div id="notif-section" style="display:none;">
+    <div class="notif-card">
+      <div class="notif-title">📬 Message from Mama</div>
+      <div id="notif-items"></div>
+    </div>
+  </div>
 
-    <!-- TODAY'S PLAN (full width) -->
-    <div class="card" style="grid-column:1/-1;">
+  <!-- TODAY'S PLAN (full width) -->
+  <div class="card" style="margin-bottom:16px;">
       <div class="card-title">📆 Today's Plan</div>
       <div class="today-banner">
         <div>
@@ -856,39 +981,6 @@
         <div id="vocab-word-log"></div>
       </div>
     </div>
-
-    <!-- WINS -->
-    <div class="card">
-      <div class="card-title">🏆 Yesterday's Wins</div>
-      <div id="wins-content"></div>
-    </div>
-
-    <!-- BADGES -->
-    <div class="card">
-      <div class="card-title">🏅 Badges in Progress</div>
-      <div class="badge-item">
-        <div class="badge-emoji">📝</div>
-        <div><div class="badge-name">Vocabulary Sprinter 🥈 Silver</div>
-        <div class="badge-desc">800 / 1,000 words — just 200 away!</div></div>
-      </div>
-      <div class="badge-item">
-        <div class="badge-emoji">🔬</div>
-        <div><div class="badge-name">Curious Scientist ⭐ Bronze — EARNED! 🎉</div>
-        <div class="badge-desc">C-1 Energy complete + BDK in progress. Go mark it in Notion!</div></div>
-      </div>
-      <div class="badge-item">
-        <div class="badge-emoji">📚</div>
-        <div><div class="badge-name">Page Turner 🥇 Gold — EARNED! 🎉</div>
-        <div class="badge-desc">Aru Shah series (Books 1–4) complete — incredible reading!</div></div>
-      </div>
-      <div class="badge-item">
-        <div class="badge-emoji">♟️</div>
-        <div><div class="badge-name">Pawn Pusher ⭐ Bronze</div>
-        <div class="badge-desc">10 rated Lichess games to earn this.</div></div>
-      </div>
-    </div>
-
-  </div>
 
   <!-- HOMEWORK TRACKER -->
   <div class="hw-card">
@@ -935,13 +1027,6 @@
     <a href="https://www.ixl.com" target="_blank" class="link-btn" style="background:#0EA5E9;">📊 IXL</a>
   </div>
 
-  <!-- VOCABULARY PRACTICE CARD -->
-  <div class="card" id="vocab-practice-card">
-    <div class="card-title">🐝 Spelling Bee Practice</div>
-    <div id="vocab-bee-progress" style="margin-bottom:14px;"></div>
-    <a href="spelling-bee.html" target="_blank" class="link-btn" style="background:linear-gradient(135deg,#7C3AED,#A855F7);display:inline-block;width:100%;text-align:center;padding:14px;font-size:1rem;border-radius:12px;box-sizing:border-box;">🐝 Open Spelling Bee Practice App</a>
-  </div>
-
   <!-- SUBMIT WORK FOR GRADING CARD -->
   <div class="card" id="submit-work-card">
     <div class="card-title">📤 Submit Work for Grading</div>
@@ -960,6 +1045,117 @@
     </div>
     <button onclick="openFreeSubmit()" style="width:100%;padding:14px 0;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:.02em;">📷 Take Photo &amp; Submit</button>
     <div id="sw-recent" style="margin-top:14px;"></div>
+  </div>
+
+  </div><!-- end tab-todo -->
+
+  <!-- ═══ TAB: SPELLING BEE ═══ -->
+  <div id="tab-spelling-bee" class="sarah-tab-content">
+
+  <!-- VOCABULARY PRACTICE CARD -->
+  <div class="card" id="vocab-practice-card">
+    <div class="card-title">🐝 Spelling Bee Practice</div>
+    <div id="vocab-bee-progress" style="margin-bottom:14px;"></div>
+    <a href="spelling-bee.html" target="_blank" class="link-btn" style="background:linear-gradient(135deg,#7C3AED,#A855F7);display:inline-block;width:100%;text-align:center;padding:14px;font-size:1rem;border-radius:12px;box-sizing:border-box;">🐝 Open Spelling Bee Practice App</a>
+  </div>
+
+  </div><!-- end tab-spelling-bee -->
+
+  <!-- ═══ TAB: MY REPORTS ═══ -->
+  <div id="tab-reports" class="sarah-tab-content">
+
+  <!-- Toggle button for Today / This Week -->
+  <div style="margin-bottom:16px;">
+    <div style="display:flex;background:#F3F4F6;border-radius:10px;padding:3px;gap:2px;width:fit-content;">
+      <button id="reports-toggle-today" onclick="reportToggleMode('today')" style="padding:6px 16px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;background:#1e1b4b;color:white;">📊 Today</button>
+      <button id="reports-toggle-week" onclick="reportToggleMode('week')" style="padding:6px 16px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;background:transparent;color:#6B7280;">📈 This Week</button>
+    </div>
+  </div>
+
+  <!-- DYNAMIC PROGRESS STATS (populated by JS) -->
+  <div id="reports-progress-content"></div>
+
+  <!-- CURRICULUM PROGRESS (overall — always shown) -->
+  <div style="margin-top:8px;">
+    <div style="font-size:.85rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📚 Overall Curriculum Progress</div>
+    <div id="progress-card-container"></div>
+  </div>
+
+  <!-- VOCAB BAR -->
+  <div class="card">
+    <div class="card-title">📝 NSF Vocabulary Sprint</div>
+    <div class="prog-label">
+      <span id="vocab-lbl">800 words done</span>
+      <span>1,900 total · <strong id="vocab-pct">40%</strong></span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="vocab-bar" style="width:0%;background:linear-gradient(90deg,#06D6A0,#1B9AAA);"></div></div>
+    <div class="prog-note" id="vocab-note-txt"></div>
+  </div>
+
+  <!-- BADGES -->
+  <div class="card">
+    <div class="card-title">🏅 Badges in Progress</div>
+    <div class="badge-item">
+      <div class="badge-emoji">📝</div>
+      <div><div class="badge-name">Vocabulary Sprinter 🥈 Silver</div>
+      <div class="badge-desc">800 / 1,000 words — just 200 away!</div></div>
+    </div>
+    <div class="badge-item">
+      <div class="badge-emoji">🔬</div>
+      <div><div class="badge-name">Curious Scientist ⭐ Bronze — EARNED! 🎉</div>
+      <div class="badge-desc">C-1 Energy complete + BDK in progress. Go mark it in Notion!</div></div>
+    </div>
+    <div class="badge-item">
+      <div class="badge-emoji">📚</div>
+      <div><div class="badge-name">Page Turner 🥇 Gold — EARNED! 🎉</div>
+      <div class="badge-desc">Aru Shah series (Books 1–4) complete — incredible reading!</div></div>
+    </div>
+    <div class="badge-item">
+      <div class="badge-emoji">♟️</div>
+      <div><div class="badge-name">Pawn Pusher ⭐ Bronze</div>
+      <div class="badge-desc">10 rated Lichess games to earn this.</div></div>
+    </div>
+  </div>
+
+  </div><!-- end tab-reports -->
+
+  <!-- ═══ TAB: REWARDS ═══ -->
+  <div id="tab-rewards" class="sarah-tab-content">
+
+  <!-- REWARDS / SAVINGS ACCOUNT -->
+  <div id="rewards-card-container"></div>
+  <div style="text-align:center;margin:-8px 0 16px;">
+    <a href="rewards.html" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;border-radius:14px;padding:12px 24px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;text-decoration:none;box-shadow:0 4px 14px rgba(99,102,241,.35);">
+      ⭐ View My Full Rewards Dashboard
+    </a>
+  </div>
+
+  <!-- REWARDS BREAKDOWN: Today / This Week / Lifetime -->
+  <div id="rewards-breakdown-container"></div>
+
+  <!-- STREAKS -->
+  <div id="rewards-streaks-container"></div>
+
+  </div><!-- end tab-rewards -->
+
+  <!-- Prayer modal (global) -->
+  <div class="prayer-modal" id="prayerModal">
+    <div class="prayer-modal-box">
+      <!-- Ambient background elements -->
+      <div class="prayer-bg-om">🕉</div>
+      <div class="prayer-orb prayer-orb-1"></div>
+      <div class="prayer-orb prayer-orb-2"></div>
+      <div class="prayer-orb prayer-orb-3"></div>
+      <!-- Content -->
+      <div class="prayer-progress" id="prayerProgress"></div>
+      <div class="prayer-stage-label" id="prayerStageLabel"></div>
+      <div class="prayer-stage-title" id="prayerStageTitle"></div>
+      <div id="prayerStageBody"></div>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:6px;position:relative;z-index:1;">
+        <button class="prayer-nav-btn prayer-skip" id="prayerSkipBtn" onclick="prayerNext(false)">Skip</button>
+        <button class="prayer-nav-btn prayer-next" id="prayerNextBtn" onclick="prayerNext(true)">Continue →</button>
+      </div>
+    </div>
   </div>
 
   <!-- WORK SUBMISSION MODAL -->
@@ -1044,14 +1240,6 @@
 <button class="voice-fab" id="voice-fab" onclick="voiceToggle()" aria-label="Voice assistant">
   <span class="voice-fab-icon" id="voice-fab-icon">🎙️</span>
 </button>
-
-<!-- END-OF-DAY FEEDBACK CARD -->
-<div class="eod-card" id="eod-card">
-  <div class="card-title">🌟 Great work today, Sarah!</div>
-  <div id="eod-content">
-    <!-- Populated by renderEndOfDayCard() -->
-  </div>
-</div>
 
 </div><!-- end sarah-view -->
 
@@ -1197,7 +1385,7 @@
     <div class="panel-tabs">
       <button class="panel-tab active" id="tab-config"  onclick="switchPanelTab('config')">⚙️ Plan Config</button>
       <button class="panel-tab"        id="tab-reviews" onclick="switchPanelTab('reviews')">📬 Work Reviews <span class="panel-tab-badge" id="review-badge" style="display:none">0</span></button>
-      <button class="panel-tab"        id="tab-rewards" onclick="switchPanelTab('rewards')">🎁 Rewards</button>
+      <button class="panel-tab"        id="panel-tab-rewards" onclick="switchPanelTab('rewards')">🎁 Rewards</button>
     </div>
 
     <!-- REVIEWS PANEL -->
@@ -1953,11 +2141,11 @@ function render() {
   document.getElementById("thought-source").textContent = `— ${th.s}`;
   document.getElementById("thought-prompt").textContent = `💭 ${th.p}`;
 
-  // Stats
+  // Stats (kept for backward compat — elements may not exist in new tab layout)
   const vLeft = ACFG.vocabTotal - ACFG.vocabDone;
-  document.getElementById("stat-vocab").textContent   = ACFG.vocabDone.toLocaleString();
-  document.getElementById("stat-left").textContent    = vLeft.toLocaleString();
-  document.getElementById("stat-books").textContent = ACFG.booksRead ?? 0;
+  const _sv = document.getElementById("stat-vocab"); if (_sv) _sv.textContent = ACFG.vocabDone.toLocaleString();
+  const _sl = document.getElementById("stat-left");  if (_sl) _sl.textContent = vLeft.toLocaleString();
+  const _sb = document.getElementById("stat-books"); if (_sb) _sb.textContent = ACFG.booksRead ?? 0;
 
   // Vocab bar
   const pct = Math.round((ACFG.vocabDone/ACFG.vocabTotal)*100);
@@ -2038,7 +2226,7 @@ function render() {
     </div>`;
 
   document.getElementById("plan-content").innerHTML = planHTML;
-  document.getElementById("stat-tasks").textContent = total;
+  const _st = document.getElementById("stat-tasks"); if (_st) _st.textContent = total;
   refreshBanner(done, total);
   restoreTimerDisplays();
   renderEndOfDayCard();
@@ -2078,6 +2266,23 @@ function render() {
 
   // Rewards / savings account card
   renderRewardsCard();
+  renderRewardsBreakdown();
+  renderRewardsStreaks();
+
+  // Reports tab — live progress
+  renderReportsProgress();
+
+  // Daily Story tab
+  renderDailyStory();
+
+  // Restore daily action checkboxes
+  const dailyActions = load('daily_actions') || {};
+  const todayISO_ = new Date().toISOString().split('T')[0];
+  const todayActions = dailyActions[todayISO_] || {};
+  ['prayer','news','reflection','thought','story','social'].forEach(a => {
+    const cb = document.getElementById('action-' + a);
+    if (cb) cb.checked = !!todayActions[a];
+  });
 }
 
 const EOD_MOTIVATE = [
@@ -2287,7 +2492,8 @@ function renderWins(yestKey, yestDow, PLAN, ACFG) {
     html+=`</div>`;
   }
 
-  document.getElementById("wins-content").innerHTML=html;
+  const winsContent = document.getElementById("gm-wins-content");
+  if (winsContent) winsContent.innerHTML = html;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3001,7 +3207,7 @@ function retakePhoto() {
 // ── PARENT REVIEW FUNCTIONS ──
 function switchPanelTab(tab) {
   const panels = { config: 'panel-config', reviews: 'panel-reviews', rewards: 'panel-rewards' };
-  const tabs   = { config: 'tab-config',   reviews: 'tab-reviews',   rewards: 'tab-rewards'  };
+  const tabs   = { config: 'tab-config',   reviews: 'tab-reviews',   rewards: 'panel-tab-rewards'  };
   Object.entries(panels).forEach(([k, id]) => {
     const el = document.getElementById(id); if (el) el.style.display = k === tab ? 'block' : 'none';
   });
@@ -3257,6 +3463,320 @@ function switchView(v) {
   document.getElementById('tab-sarah').classList.toggle('active', isSarah);
   document.getElementById('tab-parent').classList.toggle('active', !isSarah);
   if (!isSarah) { renderParentView(); renderNotionSyncCard(); }
+}
+
+function switchSarahTab(tabName) {
+  // Hide all tab contents
+  const tabs = document.querySelectorAll('.sarah-tab-content');
+  tabs.forEach(t => t.classList.remove('active'));
+
+  // Remove active from all buttons
+  const buttons = document.querySelectorAll('.sarah-tab');
+  buttons.forEach(b => b.classList.remove('active'));
+
+  // Show selected tab
+  const selectedTab = document.getElementById('tab-' + tabName);
+  if (selectedTab) {
+    selectedTab.classList.add('active');
+  }
+
+  // Activate corresponding button
+  const activeBtn = Array.from(buttons).find(b => b.textContent.includes(tabName.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')) ||
+    (tabName === 'good-morning' && b.textContent.includes('Good')) ||
+    (tabName === 'spelling-bee' && b.textContent.includes('Spelling')) ||
+    (tabName === 'todo' && b.textContent.includes('To Do')) ||
+    (tabName === 'news' && b.textContent.includes('News')) ||
+    (tabName === 'reports' && b.textContent.includes('Reports')) ||
+    (tabName === 'rewards' && b.textContent.includes('Rewards'))
+  );
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
+let _reportsMode = 'today';
+function reportToggleMode(mode) {
+  _reportsMode = mode;
+  const todayBtn = document.getElementById('reports-toggle-today');
+  const weekBtn = document.getElementById('reports-toggle-week');
+  const actStyle = 'padding:6px 16px;border:none;border-radius:8px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;background:#1e1b4b;color:white;';
+  const offStyle = 'padding:6px 16px;border:none;border-radius:8px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;background:transparent;color:#6B7280;';
+  todayBtn.style.cssText = mode === 'today' ? actStyle : offStyle;
+  weekBtn.style.cssText  = mode === 'week'  ? actStyle : offStyle;
+  renderReportsProgress();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  REPORTS TAB — live today / this week progress
+// ═══════════════════════════════════════════════════════════
+
+function _getTimeForDate(d) {
+  const tk = `hs-time-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const log = load(tk) || {};
+  const bySubject = {};
+  let total = 0;
+  for (const [k, v] of Object.entries(log)) {
+    if (k.endsWith('__text')) continue;
+    const mins = parseInt(v) || 0;
+    total += mins;
+    // Subject is in the key format "Subject-N"
+    const sub = k.replace(/-\d+$/, '');
+    bySubject[sub] = (bySubject[sub] || 0) + mins;
+  }
+  return { total, bySubject };
+}
+
+function _getTasksForDate(d) {
+  const dk = `hs-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const state = load(dk) || {};
+  let done = 0, total = 0;
+  for (const [k, v] of Object.entries(state)) {
+    total++;
+    if (v === true) done++;
+  }
+  return { done, total };
+}
+
+function _getVocabWordsForDate(d) {
+  const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  const words = load('hs-vocab-words') || [];
+  return words.filter(w => w.date === dateStr).length;
+}
+
+function _getDailyActionsForDate(d) {
+  const iso = d.toISOString().split('T')[0];
+  const all = load('daily_actions') || {};
+  const dayActions = all[iso] || {};
+  let done = 0, total = 0;
+  for (const v of Object.values(dayActions)) { total++; if (v) done++; }
+  return { done, total };
+}
+
+function _getWeekDays() {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const dow = now.getDay();
+  const monOff = dow === 0 ? -6 : 1 - dow;
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() + monOff + i);
+    if (d <= now) days.push(d);
+  }
+  return days;
+}
+
+function renderReportsProgress() {
+  const el = document.getElementById('reports-progress-content');
+  if (!el) return;
+  const mode = _reportsMode;
+
+  let totalMins = 0, bySubject = {}, tasksDone = 0, tasksTotal = 0, vocabWords = 0, actionsDone = 0, actionsTotal = 0;
+
+  if (mode === 'today') {
+    const now = new Date();
+    const t = _getTimeForDate(now);
+    totalMins = t.total; bySubject = t.bySubject;
+    const tk = _getTasksForDate(now);
+    tasksDone = tk.done; tasksTotal = tk.total;
+    vocabWords = _getVocabWordsForDate(now);
+    const da = _getDailyActionsForDate(now);
+    actionsDone = da.done; actionsTotal = da.total;
+  } else {
+    const days = _getWeekDays();
+    days.forEach(d => {
+      const t = _getTimeForDate(d);
+      totalMins += t.total;
+      for (const [s, m] of Object.entries(t.bySubject)) bySubject[s] = (bySubject[s] || 0) + m;
+      const tk = _getTasksForDate(d);
+      tasksDone += tk.done; tasksTotal += tk.total;
+      vocabWords += _getVocabWordsForDate(d);
+      const da = _getDailyActionsForDate(d);
+      actionsDone += da.done; actionsTotal += da.total;
+    });
+  }
+
+  const fmtMins = m => m < 60 ? `${m}m` : `${Math.floor(m/60)}h ${m%60}m`;
+  const label = mode === 'today' ? "Today's" : "This Week's";
+
+  // Pull platform stats from sync
+  const plat = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
+  const cfg = typeof getActiveCFG === 'function' ? getActiveCFG() : {};
+  const ba = plat.beastAcademy || {};
+  const baDone = cfg.week?.ba?.chaptersDone ?? ba.chaptersComplete ?? 0;
+  const baTotal = cfg.week?.ba?.chaptersTotal ?? ba.totalChapters ?? 0;
+  const smChapter = cfg.week?.sm?.chapter || '—';
+
+  // Stat cards at top
+  let html = `<div style="font-size:.85rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 ${label} Progress</div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
+    <div class="stat-card">
+      <div class="stat-emoji">⏱️</div>
+      <div class="stat-value">${totalMins > 0 ? fmtMins(totalMins) : '0m'}</div>
+      <div class="stat-label">Time logged</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-emoji">✅</div>
+      <div class="stat-value">${tasksDone}/${tasksTotal || '—'}</div>
+      <div class="stat-label">Tasks done</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-emoji">📋</div>
+      <div class="stat-value">${actionsDone}/${actionsTotal || 6}</div>
+      <div class="stat-label">Daily actions</div>
+    </div>
+  </div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+    <div class="stat-card">
+      <div class="stat-emoji">📝</div>
+      <div class="stat-value">${vocabWords}</div>
+      <div class="stat-label">Words logged</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-emoji">🐉</div>
+      <div class="stat-value">${baDone}/${baTotal}</div>
+      <div class="stat-label">BA chapters</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-emoji">📘</div>
+      <div class="stat-value" style="font-size:1rem;">${smChapter}</div>
+      <div class="stat-label">SM chapter</div>
+    </div>
+  </div>`;
+
+  // Time by subject breakdown
+  const subjectEntries = Object.entries(bySubject).sort((a,b) => b[1] - a[1]);
+  if (subjectEntries.length > 0) {
+    html += `<div class="card" style="margin-bottom:16px;">
+      <div class="card-title">⏱️ Time by Subject</div>`;
+    const maxMins = Math.max(...subjectEntries.map(e => e[1]), 1);
+    subjectEntries.forEach(([sub, mins]) => {
+      const pct = Math.round(mins / maxMins * 100);
+      const color = ({'Math':'#EF4444','Science':'#10B981','English':'#3B82F6','Vocabulary':'#8B5CF6','History':'#F59E0B','Chess':'#374151','Reading':'#EC4899','Debate':'#7C3AED','Current Affairs':'#0EA5E9'})[sub] || '#6B7280';
+      html += `<div style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:#374151;margin-bottom:3px;">
+          <span>${sub}</span><span>${fmtMins(mins)}</span>
+        </div>
+        <div style="height:8px;background:#F3F4F6;border-radius:99px;overflow:hidden;">
+          <div style="height:8px;background:${color};border-radius:99px;width:${pct}%;transition:width .4s;"></div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `<div class="card" style="margin-bottom:16px;text-align:center;padding:20px;">
+      <div style="font-size:1.8rem;margin-bottom:8px;">📊</div>
+      <div style="font-size:.9rem;font-weight:700;color:#9CA3AF;">No time logged ${mode === 'today' ? 'today' : 'this week'} yet.</div>
+      <div style="font-size:.82rem;font-weight:600;color:#D1D5DB;margin-top:4px;">Start a timer on any task to see your progress here!</div>
+    </div>`;
+  }
+
+  // EOD summary
+  html += `<div class="eod-card" id="eod-card" style="margin-bottom:16px;">
+    <div class="card-title">🌟 Great work${mode === 'today' ? ' today' : ' this week'}, Sarah!</div>
+    <div id="eod-content"></div>
+  </div>`;
+
+  el.innerHTML = html;
+  renderEndOfDayCard();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  DAILY STORY TAB — loads from news-content.json
+// ═══════════════════════════════════════════════════════════
+let _storyData = null;
+let _storyIdx = 0;
+
+function renderDailyStory() {
+  const el = document.getElementById('daily-story-container');
+  if (!el) return;
+
+  if (_storyData && _storyData.stories && _storyData.stories.length > 0) {
+    _renderStoryCard(el);
+    return;
+  }
+
+  // Try localStorage first (from News App)
+  const now = new Date();
+  const newsKey = `news-all-stories-${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+  const cached = localStorage.getItem(newsKey);
+  if (cached) {
+    try {
+      _storyData = { stories: JSON.parse(cached) };
+      _renderStoryCard(el);
+      return;
+    } catch {}
+  }
+
+  // Fetch from news-content.json
+  const base = window.location.href.split('?')[0].split('#')[0].replace(/dashboard\.html$/, '');
+  fetch(base + 'news-content.json')
+    .then(r => r.json())
+    .then(data => {
+      _storyData = data;
+      _storyIdx = 0;
+      _renderStoryCard(el);
+    })
+    .catch(() => {
+      el.innerHTML = `<div class="card" style="text-align:center;padding:30px;">
+        <div style="font-size:2rem;margin-bottom:8px;">📖</div>
+        <div style="font-size:.9rem;font-weight:700;color:#9CA3AF;">No stories available right now.</div>
+        <div style="font-size:.82rem;font-weight:600;color:#D1D5DB;margin-top:4px;">Stories are generated daily — check back later!</div>
+      </div>`;
+    });
+}
+
+function _renderStoryCard(el) {
+  const stories = _storyData.stories || [];
+  if (!stories.length) { el.innerHTML = '<div class="card" style="text-align:center;padding:20px;color:#9CA3AF;font-weight:700;">No stories today.</div>'; return; }
+  const s = stories[_storyIdx % stories.length];
+  const total = stories.length;
+  const idx = _storyIdx % total;
+  const responseKey = `story-response-${todayISO()}-${idx}`;
+  const savedResponse = localStorage.getItem(responseKey) || '';
+
+  el.innerHTML = `
+    ${total > 1 ? `<div class="story-nav">
+      <button class="story-nav-btn" onclick="storyNav(-1)">◀ Previous</button>
+      <span class="story-counter">${idx + 1} of ${total}</span>
+      <button class="story-nav-btn" onclick="storyNav(1)">Next ▶</button>
+    </div>` : ''}
+    <div class="story-card">
+      <div class="story-headline">${s.headline}</div>
+      <div class="story-body">${s.summary}</div>
+      ${s.bigWord ? `<div class="story-bigword">
+        <div class="story-bigword-term">📚 Word of the Day: ${s.bigWord}</div>
+        <div class="story-bigword-def">${s.bigWordDef || ''}</div>
+      </div>` : ''}
+      ${s.thinkQuestion ? `<div class="story-think">
+        <div class="story-think-label">💭 Think About It</div>
+        <div class="story-think-q">${s.thinkQuestion}</div>
+        <div class="story-response-area">
+          <textarea class="journal-input" rows="3" placeholder="What do you think? Write your thoughts…"
+            oninput="localStorage.setItem('${responseKey}',this.value)">${savedResponse}</textarea>
+        </div>
+      </div>` : ''}
+      ${s.videoQuery ? `<div style="margin-top:8px;">
+        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(s.videoQuery)}" target="_blank"
+          style="display:inline-flex;align-items:center;gap:8px;background:#FF0000;color:white;border-radius:12px;padding:10px 18px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;text-decoration:none;">
+          ▶ Watch a Video About This
+        </a>
+      </div>` : ''}
+    </div>`;
+}
+
+function storyNav(dir) {
+  const total = (_storyData?.stories || []).length;
+  if (total === 0) return;
+  _storyIdx = ((_storyIdx + dir) % total + total) % total;
+  const el = document.getElementById('daily-story-container');
+  if (el) _renderStoryCard(el);
+}
+
+function saveDailyAction(action, checked) {
+  // Save daily action completion status
+  const actions = load('daily_actions') || {};
+  const today = new Date().toISOString().split('T')[0];
+  actions[today] = actions[today] || {};
+  actions[today][action] = checked;
+  save('daily_actions', actions);
 }
 
 function pvSetMode(m) {
@@ -4551,6 +5071,146 @@ function renderRewardsCard() {
           <span class="rewards-feed-amount">+${Math.round(e.rupees)} pts</span>
         </div>`).join('')}
       </div>` : `<div class="rewards-empty">Complete tasks to start earning! 🌟</div>`}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  REWARDS BREAKDOWN (Today / This Week / Lifetime) + STREAKS
+// ═══════════════════════════════════════════════════════════
+function _getWeekISOs() {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const dow = now.getDay();
+  const monOff = dow === 0 ? -6 : 1 - dow;
+  const isos = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now); d.setDate(now.getDate() + monOff + i);
+    if (d <= now) isos.push(d.toISOString().split('T')[0]);
+  }
+  return isos;
+}
+
+function renderRewardsBreakdown() {
+  const el = document.getElementById('rewards-breakdown-container');
+  if (!el) return;
+  const log = JSON.parse(localStorage.getItem(REWARDS_LOG_KEY) || '[]');
+  const today = todayISO();
+  const weekISOs = new Set(_getWeekISOs());
+
+  let todayEarned = 0, weekEarned = 0, lifetime = 0;
+  log.forEach(e => {
+    const pts = parseFloat(e.rupees) || 0;
+    if (pts > 0) {
+      lifetime += pts;
+      if (e.date === today) todayEarned += pts;
+      if (weekISOs.has(e.date)) weekEarned += pts;
+    }
+  });
+
+  el.innerHTML = `<div class="card" style="margin-bottom:16px;">
+    <div class="card-title">💰 Points Earned</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div style="background:#F0FDF4;border-radius:14px;padding:14px 10px;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:900;color:#166534;">${Math.round(todayEarned)}</div>
+        <div style="font-size:.72rem;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;">Today</div>
+      </div>
+      <div style="background:#EFF6FF;border-radius:14px;padding:14px 10px;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:900;color:#1E40AF;">${Math.round(weekEarned)}</div>
+        <div style="font-size:.72rem;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;">This Week</div>
+      </div>
+      <div style="background:#FDF4FF;border-radius:14px;padding:14px 10px;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:900;color:#7C3AED;">${Math.round(lifetime)}</div>
+        <div style="font-size:.72rem;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;">Lifetime</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderRewardsStreaks() {
+  const el = document.getElementById('rewards-streaks-container');
+  if (!el) return;
+
+  const now = new Date(); now.setHours(0,0,0,0);
+
+  // Task completion streak: consecutive days with at least 1 task done
+  let taskStreak = 0;
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(now); d.setDate(now.getDate() - i);
+    const dk = `hs-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    const state = load(dk) || {};
+    if (Object.values(state).some(v => v === true)) taskStreak++;
+    else if (i > 0) break; // don't break on today if nothing yet
+    else break;
+  }
+
+  // Daily actions streak: consecutive days with all 6 actions done
+  const allActions = load('daily_actions') || {};
+  let actionsStreak = 0;
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(now); d.setDate(now.getDate() - i);
+    const iso = d.toISOString().split('T')[0];
+    const dayA = allActions[iso] || {};
+    const doneCount = Object.values(dayA).filter(v => v).length;
+    if (doneCount >= 6) actionsStreak++;
+    else if (i > 0) break;
+    else break;
+  }
+
+  // Prayer streak: consecutive days with prayer action done
+  let prayerStreak = 0;
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(now); d.setDate(now.getDate() - i);
+    const iso = d.toISOString().split('T')[0];
+    const dayA = (allActions[iso] || {});
+    if (dayA.prayer) prayerStreak++;
+    else if (i > 0) break;
+    else break;
+  }
+
+  // Social challenge streak
+  const socialLog = load('hs-social-log') || {};
+  let socialStreak = 0;
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(now); d.setDate(now.getDate() - i);
+    const iso = d.toISOString().split('T')[0];
+    if (socialLog[iso]?.done) socialStreak++;
+    else if (i > 0) break;
+    else break;
+  }
+
+  // Study time streak: consecutive days with >0 minutes logged
+  let studyStreak = 0;
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(now); d.setDate(now.getDate() - i);
+    const t = _getTimeForDate(d);
+    if (t.total > 0) studyStreak++;
+    else if (i > 0) break;
+    else break;
+  }
+
+  const streaks = [
+    { emoji: '🔥', name: 'Task Streak', val: taskStreak, unit: 'days', desc: 'Consecutive days completing tasks' },
+    { emoji: '⏱️', name: 'Study Streak', val: studyStreak, unit: 'days', desc: 'Consecutive days logging study time' },
+    { emoji: '🙏', name: 'Prayer Streak', val: prayerStreak, unit: 'days', desc: 'Consecutive days of morning prayer' },
+    { emoji: '💫', name: 'Social Streak', val: socialStreak, unit: 'days', desc: 'Consecutive days completing social challenge' },
+    { emoji: '⭐', name: 'Full Day Streak', val: actionsStreak, unit: 'days', desc: 'Consecutive days with ALL daily actions done' },
+  ];
+
+  el.innerHTML = `<div class="card" style="margin-bottom:16px;">
+    <div class="card-title">🔥 Streaks</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${streaks.map(s => `
+        <div style="display:flex;align-items:center;gap:12px;background:${s.val > 0 ? '#FFFBEB' : '#F9FAFB'};border-radius:12px;padding:12px 14px;border:1.5px solid ${s.val > 0 ? '#FDE68A' : '#E5E7EB'};">
+          <div style="font-size:1.5rem;flex-shrink:0;">${s.emoji}</div>
+          <div style="flex:1;">
+            <div style="font-size:.88rem;font-weight:800;color:#1e1b4b;">${s.name}</div>
+            <div style="font-size:.75rem;font-weight:600;color:#9CA3AF;">${s.desc}</div>
+          </div>
+          <div style="text-align:center;flex-shrink:0;">
+            <div style="font-size:1.3rem;font-weight:900;color:${s.val > 0 ? '#D97706' : '#D1D5DB'};">${s.val}</div>
+            <div style="font-size:.65rem;font-weight:700;color:#9CA3AF;text-transform:uppercase;">${s.unit}</div>
+          </div>
+        </div>`).join('')}
+    </div>
   </div>`;
 }
 
