@@ -321,13 +321,18 @@
   async function loadData() {
     let subs = [];
 
-    // Try Firebase first
+    // Try Firebase first — DataSync stores at homeschool/shared/<key> with { value, updatedAt } envelope
     if (db) {
       try {
-        const snap = await db.ref('hs-submissions').once('value');
-        const val  = snap.val();
-        if (val) subs = Array.isArray(val) ? val.filter(Boolean) : Object.values(val).filter(Boolean);
-      } catch(e) {}
+        const snap = await db.ref('homeschool/shared/hs-submissions').once('value');
+        const raw  = snap.val();
+        if (raw) {
+          const jsonStr = (typeof raw === 'object' && raw.value !== undefined) ? raw.value : raw;
+          const parsed  = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+          if (Array.isArray(parsed)) subs = parsed.filter(Boolean);
+          else if (parsed && typeof parsed === 'object') subs = Object.values(parsed).filter(Boolean);
+        }
+      } catch(e) { console.warn('[Corrections] Firebase load error:', e); }
     }
 
     // Supplement / fallback with localStorage
@@ -345,14 +350,18 @@
 
     // Real-time listener for new submissions
     if (db) {
-      db.ref('hs-submissions').on('value', snap => {
-        const val = snap.val();
-        if (!val) return;
-        const fresh = Array.isArray(val) ? val.filter(Boolean) : Object.values(val).filter(Boolean);
-        _allSubs = fresh.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
-        _graded  = _allSubs.filter(s => s.status === 'assessed');
-        _pending = _allSubs.filter(s => s.status !== 'assessed');
-        renderAll();
+      db.ref('homeschool/shared/hs-submissions').on('value', snap => {
+        const raw = snap.val();
+        if (!raw) return;
+        try {
+          const jsonStr = (typeof raw === 'object' && raw.value !== undefined) ? raw.value : raw;
+          const parsed  = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+          const fresh   = Array.isArray(parsed) ? parsed.filter(Boolean) : Object.values(parsed||{}).filter(Boolean);
+          _allSubs = fresh.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
+          _graded  = _allSubs.filter(s => s.status === 'assessed');
+          _pending = _allSubs.filter(s => s.status !== 'assessed');
+          renderAll();
+        } catch(e) {}
       });
     }
 

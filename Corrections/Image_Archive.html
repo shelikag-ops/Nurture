@@ -225,15 +225,23 @@
     }
 
     try {
-      const snap = await db.ref('hs-submissions').once('value');
-      const val  = snap.val();
+      // DataSync stores data at homeschool/shared/<key> wrapped as { value: "...", updatedAt, updatedBy }
+      const snap = await db.ref('homeschool/shared/hs-submissions').once('value');
+      const raw  = snap.val();
 
-      if (!val) {
+      let parsed = null;
+      if (raw) {
+        // Unwrap DataSync envelope
+        const jsonStr = (typeof raw === 'object' && raw.value !== undefined) ? raw.value : raw;
+        try { parsed = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr; } catch(e) {}
+      }
+
+      if (!parsed) {
         _allSubs = [];
-      } else if (Array.isArray(val)) {
-        _allSubs = val.filter(Boolean);
-      } else if (typeof val === 'object') {
-        _allSubs = Object.values(val).filter(Boolean);
+      } else if (Array.isArray(parsed)) {
+        _allSubs = parsed.filter(Boolean);
+      } else if (typeof parsed === 'object') {
+        _allSubs = Object.values(parsed).filter(Boolean);
       }
 
       // Also check localStorage as fallback / supplement
@@ -420,8 +428,8 @@
     closeClearModal();
     document.getElementById('status-msg').textContent = '🗑 Clearing all submissions…';
     try {
-      // Clear Firebase
-      if (db) await db.ref('hs-submissions').remove();
+      // Clear Firebase (DataSync path)
+      if (db) await db.ref('homeschool/shared/hs-submissions').remove();
       // Clear localStorage
       localStorage.removeItem('hs-submissions');
       localStorage.removeItem('hs-wg-pending-sub');
