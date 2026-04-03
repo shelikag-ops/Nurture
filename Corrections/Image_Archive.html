@@ -211,52 +211,31 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="../js/firebase-config.js"></script>
+<script src="../js/data-sync.js"></script>
 <script>
   let _allSubs = [];
   let _lightboxCurrent = null;
 
-  // ── Load submissions ──
-  // firebase-config.js (loaded above) already initialises Firebase and
-  // exposes a global `db` reference — use it directly.
+  // ── Load submissions via DataSync (same path + auth as dashboard) ──
   async function loadSubmissions() {
-    if (typeof db === 'undefined') {
-      showError('Firebase not initialised. Check that firebase-config.js loaded correctly.');
-      return;
-    }
-
     try {
-      // DataSync stores data at homeschool/shared/<key> wrapped as { value: "...", updatedAt, updatedBy }
-      const snap = await db.ref('homeschool/shared/hs-submissions').once('value');
-      const raw  = snap.val();
-
-      let parsed = null;
+      const raw = await DataSync.getItem('hs-submissions', { shared: true });
+      let subs = [];
       if (raw) {
-        // Unwrap DataSync envelope
-        const jsonStr = (typeof raw === 'object' && raw.value !== undefined) ? raw.value : raw;
-        try { parsed = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr; } catch(e) {}
+        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        subs = Array.isArray(parsed) ? parsed.filter(Boolean) : Object.values(parsed || {}).filter(Boolean);
       }
-
-      if (!parsed) {
-        _allSubs = [];
-      } else if (Array.isArray(parsed)) {
-        _allSubs = parsed.filter(Boolean);
-      } else if (typeof parsed === 'object') {
-        _allSubs = Object.values(parsed).filter(Boolean);
-      }
-
-      // Also check localStorage as fallback / supplement
+      // Supplement with localStorage cache
       try {
         const local = JSON.parse(localStorage.getItem('hs-submissions') || '[]');
-        if (local.length > 0) {
-          const firebaseIds = new Set(_allSubs.map(s => s.id));
-          const localOnly = local.filter(s => s && s.id && !firebaseIds.has(s.id));
-          _allSubs = [..._allSubs, ...localOnly];
-        }
+        const ids = new Set(subs.map(s => s.id));
+        subs = [...subs, ...local.filter(s => s && s.id && !ids.has(s.id))];
       } catch(e) {}
 
+      _allSubs = subs;
       renderArchive(_allSubs);
     } catch(e) {
-      showError('Error loading from Firebase: ' + e.message);
+      showError('Error loading submissions: ' + e.message);
     }
   }
 
@@ -428,9 +407,8 @@
     closeClearModal();
     document.getElementById('status-msg').textContent = '🗑 Clearing all submissions…';
     try {
-      // Clear Firebase (DataSync path)
-      if (db) await db.ref('homeschool/shared/hs-submissions').remove();
-      // Clear localStorage
+      // Clear via DataSync (handles correct path) + localStorage
+      await DataSync.removeItem('hs-submissions', { shared: true });
       localStorage.removeItem('hs-submissions');
       localStorage.removeItem('hs-wg-pending-sub');
       localStorage.removeItem('hs-wg-batch-queue');

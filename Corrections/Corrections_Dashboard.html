@@ -307,6 +307,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="../js/firebase-config.js"></script>
+<script src="../js/data-sync.js"></script>
 <script>
   let _allSubs   = [];
   let _graded    = [];
@@ -316,54 +317,40 @@
   // ════════════════════════════════
   //  FIREBASE LOAD
   // ════════════════════════════════
-  // firebase-config.js (loaded above) already initialises Firebase and
-  // exposes a global `db` reference — use it directly.
   async function loadData() {
-    let subs = [];
-
-    // Try Firebase first — DataSync stores at homeschool/shared/<key> with { value, updatedAt } envelope
-    if (db) {
-      try {
-        const snap = await db.ref('homeschool/shared/hs-submissions').once('value');
-        const raw  = snap.val();
-        if (raw) {
-          const jsonStr = (typeof raw === 'object' && raw.value !== undefined) ? raw.value : raw;
-          const parsed  = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
-          if (Array.isArray(parsed)) subs = parsed.filter(Boolean);
-          else if (parsed && typeof parsed === 'object') subs = Object.values(parsed).filter(Boolean);
-        }
-      } catch(e) { console.warn('[Corrections] Firebase load error:', e); }
-    }
-
-    // Supplement / fallback with localStorage
+    // Load via DataSync — same path + auth as the main dashboard
     try {
-      const local = JSON.parse(localStorage.getItem('hs-submissions') || '[]');
-      if (local.length) {
+      const raw = await DataSync.getItem('hs-submissions', { shared: true });
+      let subs = [];
+      if (raw) {
+        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        subs = Array.isArray(parsed) ? parsed.filter(Boolean) : Object.values(parsed || {}).filter(Boolean);
+      }
+      // Supplement with localStorage cache
+      try {
+        const local = JSON.parse(localStorage.getItem('hs-submissions') || '[]');
         const ids = new Set(subs.map(s => s.id));
         subs = [...subs, ...local.filter(s => s && s.id && !ids.has(s.id))];
-      }
-    } catch(e) {}
+      } catch(e) {}
 
-    _allSubs = subs.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
-    _graded  = _allSubs.filter(s => s.status === 'assessed');
-    _pending = _allSubs.filter(s => s.status !== 'assessed');
-
-    // Real-time listener for new submissions
-    if (db) {
-      db.ref('homeschool/shared/hs-submissions').on('value', snap => {
-        const raw = snap.val();
-        if (!raw) return;
-        try {
-          const jsonStr = (typeof raw === 'object' && raw.value !== undefined) ? raw.value : raw;
-          const parsed  = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
-          const fresh   = Array.isArray(parsed) ? parsed.filter(Boolean) : Object.values(parsed||{}).filter(Boolean);
-          _allSubs = fresh.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
-          _graded  = _allSubs.filter(s => s.status === 'assessed');
-          _pending = _allSubs.filter(s => s.status !== 'assessed');
-          renderAll();
-        } catch(e) {}
-      });
+      _allSubs = subs.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
+      _graded  = _allSubs.filter(s => s.status === 'assessed');
+      _pending = _allSubs.filter(s => s.status !== 'assessed');
+    } catch(e) {
+      console.warn('[Corrections] Load error:', e);
     }
+
+    // Real-time listener via DataSync
+    DataSync.onUpdate('hs-submissions', (newVal) => {
+      try {
+        const parsed = typeof newVal === 'string' ? JSON.parse(newVal) : newVal;
+        const fresh  = Array.isArray(parsed) ? parsed.filter(Boolean) : Object.values(parsed || {}).filter(Boolean);
+        _allSubs = fresh.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
+        _graded  = _allSubs.filter(s => s.status === 'assessed');
+        _pending = _allSubs.filter(s => s.status !== 'assessed');
+        renderAll();
+      } catch(e) {}
+    }, { shared: true });
 
     renderAll();
   }
