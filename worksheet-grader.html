@@ -1679,14 +1679,42 @@ IMPORTANT: I am also sending you the original page IMAGES so you can visually in
           plog('Q' + item.q + ' Claude overriding parser answer "' + q.student_answer + '" → "' + item.answer + '"');
         }
         q.student_answer = item.answer;
+        q._extraction_confidence = item.confidence;
+        q._extraction_method = item.method || '';
         matched++;
         plog('Q' + item.q + ' ✓ answer: "' + item.answer + '" (method: ' + item.method + ', confidence: ' + item.confidence + ')');
-      } else if (item.confidence === 'low' && parserHadAnswer) {
-        // Claude is unsure but parser found something — keep parser answer, just note Claude's assessment
-        plog('Q' + item.q + ' keeping parser answer "' + q.student_answer + '" — Claude unsure: ' + (item.method || ''));
+      } else if (item.confidence === 'low') {
+        // Claude is unsure — check if parser answer is just a given number from the question
+        // Given numbers appear in the problem text and are NOT the student's computed answer
+        const givenNums = (q.problem_text.match(/\d+/g) || []).map(String);
+        const parserAns = (q.student_answer || '').trim();
+        const parserIsGivenNum = givenNums.includes(parserAns);
+
+        if (parserHadAnswer && !parserIsGivenNum) {
+          // Parser has a plausible answer that's not just a given number — keep but flag for review
+          q._extraction_confidence = 'low';
+          q._extraction_method = item.method || '';
+          q.flagged = true;
+          q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') +
+            'Low confidence — verify answer "' + parserAns + '"';
+          flagged++;
+          plog('Q' + item.q + ' ⚠ parser answer "' + parserAns + '" kept but flagged — Claude unsure: ' + (item.method || ''));
+        } else {
+          // Parser answer is a given number or empty — clear it and flag for manual entry
+          q.student_answer = '';
+          q._extraction_confidence = 'low';
+          q._extraction_method = item.method || '';
+          q.flagged = true;
+          q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') +
+            'Needs manual answer — ' + (item.method || 'could not extract');
+          flagged++;
+          plog('Q' + item.q + ' ⚠ cleared parser answer "' + parserAns + '" (given number) — flagged for manual entry');
+        }
       } else {
         // Neither Claude nor parser has an answer — flag for manual entry
         q.student_answer = '';
+        q._extraction_confidence = 'low';
+        q._extraction_method = item.method || '';
         q.flagged = true;
         q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') +
           'Needs manual answer — ' + (item.method || 'could not extract');
