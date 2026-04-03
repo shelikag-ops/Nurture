@@ -2045,6 +2045,23 @@ function parseQuestions(md, rawData) {
     applyConfidenceScores(deduped, rawData);
   }
 
+  // ── Post-parse sanity: clear answers that are just given numbers from the question ──
+  // This catches cases the parser grabs (e.g., "26" from "total of 26 vehicles")
+  // before Claude extraction even runs.
+  for (const q of deduped) {
+    if (q.student_answer && q.student_answer.trim()) {
+      const givenNums = (q.problem_text.match(/\d+/g) || []).map(String);
+      const ans = q.student_answer.trim();
+      if (givenNums.includes(ans)) {
+        plog('Q' + q.question_number + ' clearing given-number answer "' + ans + '" (appears in question text)');
+        q.student_answer = '';
+        q.flagged = true;
+        q.flag_reason = (q.flag_reason ? q.flag_reason + '; ' : '') +
+          'Answer was a given number from the question — needs manual entry';
+      }
+    }
+  }
+
   return { questions: deduped, examples, detectedChapter: foundChapter };
 }
 
@@ -2796,6 +2813,7 @@ function renderReview() {
         ${escHtml(q.student_answer || '—')}
         ${q._extraction_method ? '<div style="font-size:0.7em;color:#888;margin-top:2px;">' + escHtml(q._extraction_method) + '</div>' : ''}
         <button class="quick-answer-btn" onclick="quickEditAnswer(${i})">${q.student_answer ? '✎ Edit answer' : '+ Enter answer'}</button>
+        ${(!q.student_answer || !q.student_answer.trim()) && correctAnswer ? '<button class="quick-answer-btn" style="border-color:#2e7d32;color:#2e7d32;margin-left:4px;" onclick="useAnswerKey('+i+','+qNum+')" title="Fill from answer key">📋 Use answer key</button>' : ''}
       </td>
       ${answerKeyCell}
       <td>${statusHtml}</td>
@@ -2901,6 +2919,18 @@ function quickEditAnswer(idx) {
     }
     renderReview();
   }
+}
+
+function useAnswerKey(idx, qNum) {
+  const correct = answerKeyMap[qNum];
+  if (!correct) return;
+  const q = parsedQuestions[idx];
+  q.student_answer = correct;
+  q._edited = true;
+  q._extraction_method = 'filled from answer key';
+  q._extraction_confidence = 'high';
+  if (q.flagged && q.student_answer) q.resolved = true;
+  renderReview();
 }
 
 function editQNum(idx) {
