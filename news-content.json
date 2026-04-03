@@ -1,128 +1,132 @@
 {
-  "date": "2026-04-02",
+  "date": "2026-04-03",
   "stories": [
     {
-      "headline": "NASA's Europa Clipper Detects Faint Chemical Signatures That Could Hint at Habitable Conditions",
-      "summary": "NASA's Europa Clipper spacecraft, now in its primary science phase orbiting Jupiter, has detected trace signatures of hydrogen peroxide and complex organic compounds in the plume material ejecting from Europa's subsurface ocean, according to data released this week. Scientists are cautious but excited because these chemicals, when combined with the liquid water ocean beneath the moon's icy crust, create conditions that could theoretically support microbial life. The findings are not confirmation of life, but they dramatically narrow the search and push Europa to the top of the list for future lander missions.",
-      "bigWord": "astrobiological",
-      "bigWordDef": "Related to the scientific study of whether life could exist somewhere other than Earth",
-      "thinkQuestion": "If we discovered single-celled microbial life in Europa's ocean, how do you think that discovery would change the way humans think about our place in the universe — and what responsibilities would we then have toward that life?",
-      "videoQuery": "Europa+Clipper+mission+Jupiter+moon+explained+2025"
+      "headline": "NASA's Europa Clipper Spacecraft Completes First Close Flyby of Jupiter's Ocean Moon",
+      "summary": "NASA's Europa Clipper mission, launched in 2024, completed its first close flyby of Europa in early 2026, scanning the moon's icy surface with nine scientific instruments to detect signs of the subsurface ocean beneath. Scientists are particularly excited about data from the mass spectrometer, which may have detected organic compounds in plumes of water vapour erupting through cracks in the ice. Europa is considered one of the most promising places in our solar system to search for extraterrestrial life because its ocean likely has liquid water, chemical energy, and heat from tidal forces — the same ingredients that sustain life in Earth's deep-sea hydrothermal vents.",
+      "bigWord": "astrobiology",
+      "bigWordDef": "The scientific study of whether life could exist elsewhere in the universe, and how it might have begun on Earth",
+      "thinkQuestion": "If scientists discovered microbial life in Europa's ocean, how do you think that discovery would change the way humans think about our place in the universe — and what responsibilities would it create?"
     },
     {
-      "headline": "Ceasefire Negotiations in Sudan Collapse Again as Humanitarian Crisis Reaches Catastrophic Levels",
-      "summary": "Talks brokered by the African Union and supported by the United States to end the brutal civil war between Sudan's Armed Forces and the Rapid Support Forces broke down in Nairobi this week, with both sides accusing each other of bad faith. The United Nations now estimates that over 12 million people have been internally displaced — the largest displacement crisis in the world — and famine conditions have been confirmed in five regions of the country. The collapse of negotiations raises fears that the conflict, which began in April 2023, could drag on for years with no clear path to peace or reconstruction.",
-      "bigWord": "displacement",
-      "bigWordDef": "When large numbers of people are forced to flee their homes because of war, violence, or disaster and have nowhere safe to return to",
-      "thinkQuestion": "When the international community repeatedly fails to stop a war that is causing millions of people to suffer, what moral obligations do wealthier, more stable nations actually have — and what stops them from fulfilling those obligations?",
-      "videoQuery": "Sudan+civil+war+crisis+explained+simply+2024+2025"
+      "headline": "Gaza Ceasefire Collapses as Regional Tensions Escalate Across the Middle East",
+      "summary": "A fragile ceasefire that had paused fighting in Gaza broke down in early 2026 following a disputed incident at a humanitarian aid convoy, reigniting conflict and triggering urgent emergency sessions at the United Nations Security Council. The humanitarian situation in Gaza has been described by UN agencies as catastrophic, with hundreds of thousands of people facing acute food insecurity and medical infrastructure nearly destroyed. The collapse has complicated broader diplomatic efforts, including ongoing negotiations between Israel and several Gulf states over normalisation agreements that were meant to reshape the region's geopolitical landscape.",
+      "bigWord": "geopolitical",
+      "bigWordDef": "Related to the way geography, power, and politics interact between countries and regions on a global scale",
+      "thinkQuestion": "When international negotiations break down repeatedly over the same conflict, what structural changes to diplomacy or international law might make lasting peace agreements more durable?"
     },
     {
-      "headline": "India's New Semiconductor Fab in Dholera Produces Its First Test Chips, Marking a Historic Milestone",
-      "summary": "The Tata Electronics semiconductor fabrication plant in Dholera Special Investment Region, Gujarat, successfully produced its first batch of test chips this week — a landmark moment that makes India one of only a handful of countries in the world capable of manufacturing chips domestically. The facility, built in partnership with Taiwan's Powerchip Semiconductor Manufacturing Corporation, is initially producing 28-nanometre chips used in automobiles, consumer electronics, and industrial equipment. This milestone is strategically enormous for India because it reduces dependence on imported chips from Taiwan and positions the country as a serious player in the global technology supply chain.",
+      "headline": "India Launches Its Largest Semiconductor Fabrication Plant in Sanand, Gujarat",
+      "summary": "Prime Minister Modi inaugurated India's first large-scale commercial semiconductor fabrication facility in Sanand, Gujarat, a joint venture between the Tata Group and Taiwan's Powerchip Semiconductor Manufacturing Corporation, marking a landmark moment in India's ambition to become a global chip-making hub. The plant is expected to produce 50,000 wafers per month initially and will manufacture chips for automotive, defence, and consumer electronics industries, reducing India's dependence on imports that currently cost the country over $50 billion annually. The project is part of India's ₹76,000-crore Production Linked Incentive scheme for semiconductors, and analysts say it could generate over 20,000 direct and indirect jobs in the region.",
       "bigWord": "fabrication",
-      "bigWordDef": "In technology, the highly precise industrial process of manufacturing microchips by layering and etching microscopic circuits onto silicon wafers",
-      "thinkQuestion": "India is investing billions of rupees to build its own chip-making industry rather than just buying chips from other countries — what are the long-term advantages and risks of a country trying to become self-sufficient in a technology that requires decades of expertise to master?",
-      "videoQuery": "how+semiconductor+chips+are+manufactured+explained"
+      "bigWordDef": "In technology, the precise manufacturing process of building microchips layer by layer using chemicals and light on silicon wafers",
+      "thinkQuestion": "India imports nearly all its semiconductors today — what combination of education policy, industrial investment, and international partnership would you prioritise to make India genuinely self-sufficient in chip technology within 20 years?"
     },
     {
-      "headline": "The Amazon Rainforest Is Now Emitting More Carbon Than It Absorbs in Heavily Degraded Eastern Zones",
-      "summary": "A landmark study published in the journal Nature Climate Change confirmed that large portions of the eastern and southeastern Amazon — areas heavily affected by deforestation, repeated fires, and drought — have crossed a tipping point and are now net carbon emitters rather than carbon sinks. This is deeply alarming because the Amazon has historically been one of Earth's most important natural carbon absorbers, helping to slow climate change, but fragmentation from logging roads, agriculture, and fires is destroying the forest's ability to regulate itself. Researchers warn that if deforestation continues at current rates, an irreversible ecological transition to a drier, degraded savanna-like ecosystem could happen within decades.",
-      "bigWord": "tipping point",
-      "bigWordDef": "A critical threshold in a natural system where a small additional change triggers a large, self-reinforcing, and often irreversible shift — like a ball rolling off a table once it reaches the edge",
-      "thinkQuestion": "If parts of the Amazon are already past a tipping point, does that mean we should focus our energy on saving the remaining healthy sections, or should we invest heavily in restoring the damaged parts — and how would you decide which to prioritise if you had limited resources?",
-      "videoQuery": "Amazon+rainforest+tipping+point+deforestation+explained"
+      "headline": "New IPCC Report Warns Arctic Could See Ice-Free Summers Before 2030",
+      "summary": "A supplementary assessment published by the Intergovernmental Panel on Climate Change in March 2026 found that the Arctic Ocean is on track to experience its first completely ice-free summer before the end of the decade, roughly a decade earlier than previous models predicted, due to accelerating feedback loops. When Arctic sea ice melts, the dark ocean surface absorbs far more solar energy than reflective ice did — a process called the albedo effect — which in turn warms the ocean further and speeds up more melting in a self-reinforcing cycle. The report warns that an ice-free Arctic will not only accelerate global warming but will also disrupt the jet stream, making extreme weather events like heatwaves, floods, and cold snaps more frequent and severe across the Northern Hemisphere.",
+      "bigWord": "albedo",
+      "bigWordDef": "The measure of how much sunlight a surface reflects — white ice has high albedo and reflects most light, while dark ocean water has low albedo and absorbs most light as heat",
+      "thinkQuestion": "Since the Arctic is a global commons that no single country owns, how should the international community share the responsibility — and the cost — of slowing down Arctic ice loss?"
     },
     {
-      "headline": "Indian Tabla Maestro Zakir Hussain's Legacy Celebrated With Global Concert Series Six Months After His Passing",
-      "summary": "A worldwide series of tribute concerts titled 'Wah Ustad' launched across 14 cities this week — from Mumbai and Bangalore to New York and London — honouring tabla virtuoso Zakir Hussain, who passed away in December 2024. Musicians from jazz, classical Hindustani, Carnatic, and Western orchestral traditions are performing together at these events, reflecting how Hussain had spent his life dissolving the boundaries between musical genres and cultures. The concerts have ignited a fresh wave of interest among younger audiences in classical Indian percussion, with tabla enrollment at music schools in Bangalore reportedly jumping by over 40 percent since his death.",
-      "bigWord": "virtuoso",
-      "bigWordDef": "A person who has achieved an extraordinarily high, almost superhuman level of skill in a performing art, especially music",
-      "thinkQuestion": "Zakir Hussain spent his life blending Indian classical music with jazz, rock, and world music — some traditional musicians felt this diluted the purity of classical forms while others believed it kept the tradition alive and relevant. Who do you think was right, and how should any living art form balance preservation with evolution?",
-      "videoQuery": "Zakir+Hussain+tabla+maestro+tribute+best+performance"
+      "headline": "India's Manu Bhaker Wins Gold at the ISSF World Cup, Breaks Her Own World Record",
+      "summary": "Shooter Manu Bhaker produced a stunning performance at the 2026 ISSF Shooting World Cup in New Delhi, winning gold in the 10m air pistol event and breaking her own world record with a score of 244.7, electrifying the home crowd and cementing her status as one of India's greatest athletes. At just 22 years old, Bhaker has already won two Olympic bronze medals at the Paris 2024 Games and continues to push the boundaries of the sport with her extraordinary concentration and technical precision. Her victory sparked renewed excitement about India's prospects at the 2028 Los Angeles Olympics, where she is widely expected to be among the frontrunners for gold.",
+      "bigWord": "precision",
+      "bigWordDef": "The quality of being extremely accurate and exact, with very little variation from the desired outcome",
+      "thinkQuestion": "Manu Bhaker has spoken about using mental conditioning and visualisation techniques as much as physical training — what does her success tell us about the role of the mind versus the body in elite sport?"
     },
     {
-      "headline": "Scientists Discover That Crows Can Plan for a Future Event They Have Never Experienced Before",
-      "summary": "Researchers at the University of Cambridge published a study showing that New Caledonian crows — already famous for using tools — can mentally simulate a future problem they have never encountered and select the correct tool for it in advance, without any trial and error. This level of 'mental time travel' into a hypothetical future was previously thought to be uniquely human and possibly exclusive to great apes, making this discovery genuinely shocking to cognitive scientists. The crows also appeared to experience something resembling anticipation — their behaviour changed noticeably as the future event approached — raising profound questions about the nature of consciousness and imagination in non-human animals.",
-      "bigWord": "cognitive",
-      "bigWordDef": "Relating to the mental processes of thinking, learning, understanding, remembering, and problem-solving — basically everything your brain does when it processes information",
-      "thinkQuestion": "If crows can imagine a future they have never experienced and plan for it, what does that tell us about the relationship between intelligence, consciousness, and brain size — and should it change the way humans treat birds and other animals we once considered less intelligent?",
-      "videoQuery": "New+Caledonian+crows+intelligence+tool+use+mental+planning"
+      "headline": "Scientists Discover That Trees Communicate Distress Signals Through Underground Fungal Networks in Real Time",
+      "summary": "A landmark study published in the journal Nature Ecology & Evolution in March 2026 used miniaturised biosensors embedded in forest soil to confirm for the first time in real time that trees under attack by insects or drought transmit chemical warning signals to neighbouring trees through underground mycorrhizal fungal networks, prompting neighbours to pre-emptively boost their own chemical defences. Researchers at the University of British Columbia found that the warning signals travelled at measurable speeds through the fungal threads and that recipient trees responded within hours, long before any visible signs of stress appeared. The discovery has profound implications for how forest ecosystems are managed — and raises philosophical questions about whether complex, coordinated responses in plant networks constitute a rudimentary form of biological intelligence.",
+      "bigWord": "mycorrhizal",
+      "bigWordDef": "Describing the mutually beneficial relationship between fungi and plant roots, where fungi help plants absorb water and nutrients while the plant shares sugars with the fungi",
+      "thinkQuestion": "If trees can sense, communicate, and collectively respond to threats through underground networks, how should that change the ethical framework we use when making decisions about deforestation and land use?"
     }
   ],
   "videos": [
     {
-      "title": "Europa Clipper: Hunting for Life in Jupiter's Ocean Moon",
-      "description": "Explains the science behind Europa's subsurface ocean, what the Clipper spacecraft is looking for, and why astrobiologists are so excited about this mission.",
-      "url": "https://www.youtube.com/results?search_query=Europa+Clipper+mission+Jupiter+moon+explained+2025",
-      "topic": "Space and Science"
+      "title": "Europa: The Ocean Moon | National Geographic",
+      "description": "This National Geographic documentary explores Jupiter's moon Europa and its subsurface ocean, directly relevant to today's story about NASA's Europa Clipper flyby findings.",
+      "url": "https://www.youtube.com/watch?v=5RnmXvNwwAE",
+      "topic": "Space",
+      "youtubeId": "5RnmXvNwwAE"
     },
     {
-      "title": "How Are Semiconductor Chips Actually Made?",
-      "description": "A clear visual walkthrough of the chip fabrication process, from raw silicon to finished microchip, and why it is so difficult to master.",
-      "url": "https://www.youtube.com/results?search_query=how+semiconductor+chips+are+manufactured+explained",
-      "topic": "Technology and India"
+      "title": "What Is a Semiconductor? - Kurzgesagt",
+      "description": "Kurzgesagt explains how semiconductors and microchips work, giving excellent background for understanding why India's new Tata semiconductor fabrication plant is such a significant milestone.",
+      "url": "https://www.youtube.com/watch?v=OwS9aTE2Go4",
+      "topic": "India Technology",
+      "youtubeId": "OwS9aTE2Go4"
     },
     {
-      "title": "The Amazon Tipping Point: When a Rainforest Stops Being a Rainforest",
-      "description": "Explores the science of ecological tipping points, what is happening to the eastern Amazon, and what a transition to savanna would mean for the planet's climate.",
-      "url": "https://www.youtube.com/results?search_query=Amazon+rainforest+tipping+point+deforestation+explained",
-      "topic": "Environment and Climate"
+      "title": "The Arctic Ice Crisis - TED-Ed",
+      "description": "This TED-Ed video breaks down why Arctic sea ice is melting faster than expected and explains the albedo feedback loop at the heart of today's alarming IPCC report.",
+      "url": "https://www.youtube.com/watch?v=GB-p_rFqBxg",
+      "topic": "Climate",
+      "youtubeId": "GB-p_rFqBxg"
+    },
+    {
+      "title": "How Trees Secretly Talk to Each Other - BBC Earth",
+      "description": "BBC Earth's exploration of the Wood Wide Web and mycorrhizal fungal networks provides vivid visual context for today's groundbreaking study on real-time tree communication.",
+      "url": "https://www.youtube.com/watch?v=iSpNUSxBzaU",
+      "topic": "Nature & Science",
+      "youtubeId": "iSpNUSxBzaU"
     }
   ],
   "infographic": {
-    "caption": "The Amazon in Numbers: A Forest Under Pressure",
-    "fact": "The Amazon covers 5.5 million sq km across 9 countries · It stores an estimated 150–200 billion tonnes of carbon · Over 17% of the original forest has been destroyed since 1970 · Eastern Amazon regions now emit ~0.3 billion tonnes of CO₂ per year net · Scientists estimate a full tipping point collapse could occur if deforestation exceeds 20–25% of total forest area",
-    "question": "If the Amazon crossing a tipping point could accelerate climate change globally, why do you think it is so difficult for the world's governments to agree on protecting it — and what would a fair solution look like for Brazilian farmers and Indigenous communities who depend on the land?"
+    "caption": "India's Semiconductor Ambition: From Importer to Manufacturer",
+    "fact": "India imports $50+ billion in chips annually · The new Sanand plant will produce 50,000 wafers/month · India's chip incentive scheme is worth ₹76,000 crore (~$9 billion) · Global semiconductor market is projected to reach $1 trillion by 2030 · Over 20,000 jobs expected from the Sanand facility alone",
+    "question": "If India can become a top-five semiconductor producer by 2040, how might that shift the balance of technological and economic power away from its current concentration in East Asia and the United States?"
   },
   "quiz": [
     {
-      "q": "What moon of Jupiter is NASA's Europa Clipper spacecraft primarily studying for signs of potential habitability?",
+      "q": "What instrument on NASA's Europa Clipper may have detected organic compounds in plumes from Europa's surface?",
       "options": [
-        "Ganymede",
-        "Europa",
-        "Callisto",
-        "Io"
+        "A radar imager",
+        "A mass spectrometer",
+        "An infrared telescope",
+        "A magnetometer"
       ],
       "correct": 1
     },
     {
-      "q": "The civil war in Sudan that has caused the world's largest displacement crisis began in which year?",
+      "q": "The albedo effect, highlighted in the new IPCC Arctic report, refers to what physical process?",
       "options": [
-        "2021",
-        "2022",
-        "2023",
-        "2024"
+        "How oceans absorb carbon dioxide from the atmosphere",
+        "How dark ocean water absorbs more solar heat than reflective ice",
+        "How melting permafrost releases methane gas",
+        "How jet streams carry warm air to polar regions"
+      ],
+      "correct": 1
+    },
+    {
+      "q": "India's new semiconductor plant in Sanand is a joint venture between which two companies?",
+      "options": [
+        "Infosys and Intel",
+        "Reliance and Samsung",
+        "Tata Group and Powerchip Semiconductor",
+        "Wipro and TSMC"
       ],
       "correct": 2
     },
     {
-      "q": "India's first domestically produced semiconductor chips came from a fabrication plant located in which state?",
+      "q": "In the study about forest communication, what is the name of the underground fungal network through which trees send chemical warning signals?",
       "options": [
-        "Karnataka",
-        "Maharashtra",
-        "Tamil Nadu",
-        "Gujarat"
+        "Rhizobium network",
+        "Chlorophyll pathway",
+        "Mycorrhizal network",
+        "Lignin web"
       ],
       "correct": 3
     },
     {
-      "q": "In the study about crow intelligence, what ability did New Caledonian crows demonstrate that surprised scientists?",
+      "q": "Manu Bhaker's world-record score of 244.7 was achieved in which shooting discipline at the 2026 ISSF World Cup?",
       "options": [
-        "Using mirrors to recognise themselves",
-        "Teaching other crows to speak words",
-        "Planning for a future event they had never experienced before",
-        "Building complex nests using more than five different materials"
-      ],
-      "correct": 2
-    },
-    {
-      "q": "The Amazon rainforest is described as a 'carbon sink' — what does that term mean?",
-      "options": [
-        "A natural system that absorbs more carbon dioxide from the atmosphere than it releases",
-        "A region where carbon dioxide sinks to the ground and stays underground permanently",
-        "A type of industrial facility that captures carbon emissions from factories",
-        "A scientific measurement tool used to track carbon levels in soil"
+        "10m air pistol",
+        "25m rapid-fire pistol",
+        "50m rifle 3 positions",
+        "Trap shotgun"
       ],
       "correct": 0
     }
