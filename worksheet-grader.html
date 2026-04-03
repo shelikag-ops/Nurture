@@ -288,6 +288,34 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
 .review-table tr.row-needs-answer td:last-child { border-radius:0 var(--radius-sm) var(--radius-sm) 0; }
 .quick-answer-btn { display:inline-block; margin-top:4px; padding:2px 8px; font-size:0.78em; border-radius:4px; border:1px solid #c62828; color:#c62828; background:#fff; cursor:pointer; }
 .quick-answer-btn:hover { background:#fce4ec; }
+.review-table tr.row-approved td { background:#D1FAE5; }
+.review-table tr.row-approved td:first-child { border-radius:var(--radius-sm) 0 0 var(--radius-sm); }
+.review-table tr.row-approved td:last-child { border-radius:0 var(--radius-sm) var(--radius-sm) 0; }
+.review-table tr.row-rejected td { background:#FEE2E2; }
+.review-table tr.row-rejected td:first-child { border-radius:var(--radius-sm) 0 0 var(--radius-sm); }
+.review-table tr.row-rejected td:last-child { border-radius:0 var(--radius-sm) var(--radius-sm) 0; }
+.match-correct { color:#2E7D32; font-weight:800; font-size:.78rem; }
+.match-incorrect { color:#C62828; font-weight:800; font-size:.78rem; }
+.match-unknown { color:#9CA3AF; font-weight:700; font-size:.78rem; }
+.ak-edit-input { width:80px; padding:3px 6px; border:1.5px solid #D1D5DB; border-radius:6px; font-family:inherit; font-size:.82rem; font-weight:700; color:#2D3047; outline:none; }
+.ak-edit-input:focus { border-color:#4F46E5; }
+.approve-btn, .reject-btn { border:none; border-radius:6px; padding:4px 10px; font-family:inherit; font-size:.72rem; font-weight:800; cursor:pointer; transition:all .15s; }
+.approve-btn { background:#D1FAE5; color:#065F46; }
+.approve-btn:hover { background:#A7F3D0; }
+.approve-btn.active { background:#059669; color:white; }
+.reject-btn { background:#FEE2E2; color:#991B1B; }
+.reject-btn:hover { background:#FECACA; }
+.reject-btn.active { background:#DC2626; color:white; }
+.bulk-actions { display:flex; gap:8px; align-items:center; margin-top:12px; padding:12px 16px; background:#F9FAFB; border-radius:12px; border:1.5px solid #E5E7EB; flex-wrap:wrap; }
+.bulk-actions .bulk-btn { border:none; border-radius:8px; padding:8px 16px; font-family:inherit; font-size:.82rem; font-weight:800; cursor:pointer; transition:all .2s; }
+.bulk-approve-all { background:#D1FAE5; color:#065F46; }
+.bulk-approve-all:hover { background:#A7F3D0; }
+.bulk-reject-all { background:#FEE2E2; color:#991B1B; }
+.bulk-reject-all:hover { background:#FECACA; }
+.bulk-log-btn { background:#2563EB; color:white; }
+.bulk-log-btn:hover { background:#1D4ED8; }
+.bulk-log-btn:disabled { background:#93C5FD; cursor:not-allowed; }
+.approval-count { font-size:.82rem; font-weight:700; color:#6B7280; }
 
 .flag-badge {
   display:inline-flex;
@@ -824,8 +852,10 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
             <th>Q#</th>
             <th>Problem</th>
             <th>Student Answer</th>
-            <th id="th-answer-key" style="display:none;">Answer Key ✓</th>
+            <th id="th-answer-key">Answer Key</th>
+            <th>Match</th>
             <th>Status</th>
+            <th>Verdict</th>
             <th>Actions</th>
           </tr></thead>
           <tbody id="review-body"></tbody>
@@ -840,6 +870,13 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
         </label>
         <button class="btn btn-secondary btn-sm" onclick="toggleRawOCR()">Show Raw OCR</button>
         <button class="btn btn-secondary btn-sm" onclick="toggleParserLog()">Parser Log</button>
+      </div>
+      <div class="bulk-actions" id="bulk-actions">
+        <button class="bulk-btn bulk-approve-all" onclick="approveAll()">✓ Approve All</button>
+        <button class="bulk-btn bulk-reject-all" onclick="rejectAll()">✕ Reject All</button>
+        <span class="approval-count" id="approval-count"></span>
+        <div style="flex:1;"></div>
+        <button class="bulk-btn bulk-log-btn" id="btn-approve-log" onclick="approveAndLog()" disabled>✓ Approve & Log to Dashboard</button>
       </div>
       <div id="ak-drop-zone" style="border:2.5px dashed #C8E6C9;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;margin:10px 0;">
         <div style="font-size:1.3rem;margin-bottom:2px;">📋</div>
@@ -2726,9 +2763,7 @@ function dismissMissing() {
 //  RENDER REVIEW TABLE
 // ═══════════════════════════════════════════
 function renderReview() {
-  // Show/hide answer key column header based on whether key is loaded
-  const thAK = document.getElementById('th-answer-key');
-  if (thAK) thAK.style.display = Object.keys(answerKeyMap).length > 0 ? '' : 'none';
+  // Answer key column is always visible now (editable inline)
 
   // Show book/chapter badge
   const badge = document.getElementById('review-chapter-badge');
@@ -2851,23 +2886,36 @@ function renderReview() {
       </div>`;
     }
 
-    // Answer key cell — only if answer key is loaded
-    const hasAnswerKey = Object.keys(answerKeyMap).length > 0;
+    // Answer key cell — always shown, editable
     const qNum = Math.floor(q.question_number);
     const correctAnswer = answerKeyMap[qNum] || '';
-    let answerKeyCell = '';
-    if (hasAnswerKey) {
-      if (correctAnswer) {
-        // Compare with student answer if both exist
-        const studentHasAnswer = q.student_answer && q.student_answer.trim();
-        const matchStyle = studentHasAnswer ?
-          (q.student_answer.trim().toLowerCase() === correctAnswer.trim().toLowerCase()
-            ? 'color:#2e7d32;' : 'color:#c62828;') : '';
-        answerKeyCell = `<td style="font-size:0.9em;${matchStyle}">${escHtml(correctAnswer)}</td>`;
-      } else {
-        answerKeyCell = '<td style="color:#aaa;font-size:0.85em;">—</td>';
-      }
+    const answerKeyCell = `<td>
+      <input class="ak-edit-input" value="${escAttr(correctAnswer)}" placeholder="—"
+        onchange="updateAnswerKey(${qNum}, this.value)" title="Edit answer key for Q${qNum}">
+    </td>`;
+
+    // Match cell — compare student answer with answer key
+    let matchCell = '';
+    const studentAns = (q.student_answer || '').trim();
+    if (correctAnswer && studentAns) {
+      const isMatch = compareAnswers(studentAns, correctAnswer);
+      matchCell = isMatch
+        ? '<td><span class="match-correct">✓ Correct</span></td>'
+        : '<td><span class="match-incorrect">✕ Incorrect</span></td>';
+    } else {
+      matchCell = '<td><span class="match-unknown">—</span></td>';
     }
+
+    // Verdict cell — approve / reject
+    const verdict = q._verdict || '';  // 'approved', 'rejected', or ''
+    const verdictCell = `<td style="white-space:nowrap;">
+      <button class="approve-btn${verdict === 'approved' ? ' active' : ''}" onclick="setVerdict(${i},'approved')" title="Approve">✓</button>
+      <button class="reject-btn${verdict === 'rejected' ? ' active' : ''}" onclick="setVerdict(${i},'rejected')" title="Reject">✕</button>
+    </td>`;
+
+    // Row color: verdict overrides other styling
+    if (verdict === 'approved') tr.className = 'row-approved';
+    else if (verdict === 'rejected') tr.className = 'row-rejected';
 
     tr.innerHTML = `
       <td>${pageHtml}</td>
@@ -2879,13 +2927,16 @@ function renderReview() {
         <button class="quick-answer-btn" onclick="quickEditAnswer(${i})">${q.student_answer ? '✎ Edit answer' : '+ Enter answer'}</button>
       </td>
       ${answerKeyCell}
+      ${matchCell}
       <td>${statusHtml}</td>
+      ${verdictCell}
       <td>${actionsHtml}</td>
     `;
     tbody.appendChild(tr);
   }
 
   checkAllResolved();
+  updateApprovalCount();
 
   // Set up drag-and-drop on the review panel answer key drop zone
   const akDrop = document.getElementById('ak-drop-zone');
@@ -3010,6 +3061,134 @@ function editQNum(idx) {
       renderReview();
     }
   }
+}
+
+// ── Answer comparison (flexible: normalize whitespace, commas, case) ──
+function compareAnswers(studentAns, correctAns) {
+  const normalize = s => s.replace(/[,\s]+/g, ' ').trim().toLowerCase();
+  if (normalize(studentAns) === normalize(correctAns)) return true;
+  // Try numeric comparison (e.g., "5.0" == "5", "$5" == "5")
+  const sNums = (studentAns.match(/[-]?\d[\d,.]*/g) || []).map(n => parseFloat(n.replace(/,/g, '')));
+  const cNums = (correctAns.match(/[-]?\d[\d,.]*/g) || []).map(n => parseFloat(n.replace(/,/g, '')));
+  if (sNums.length > 0 && sNums.length === cNums.length && sNums.every((n, i) => n === cNums[i])) return true;
+  return false;
+}
+
+// ── Answer key inline edit ──
+function updateAnswerKey(qNum, value) {
+  if (value && value.trim()) {
+    answerKeyMap[qNum] = value.trim();
+  } else {
+    delete answerKeyMap[qNum];
+  }
+  // Save to localStorage
+  const bookKey = (bookName || 'unknown').replace(/\s+/g, '_').toLowerCase();
+  const chapKey = chapterNumber || '0';
+  const storageKey = 'wg-ak-' + bookKey + '-ch' + chapKey;
+  localStorage.setItem(storageKey, JSON.stringify(answerKeyMap));
+  renderReview();
+}
+
+// ── Per-question verdict (approve / reject) ──
+function setVerdict(idx, verdict) {
+  const q = parsedQuestions[idx];
+  // Toggle off if clicking the same verdict
+  q._verdict = q._verdict === verdict ? '' : verdict;
+  renderReview();
+}
+
+// ── Bulk approve / reject ──
+function approveAll() {
+  for (const q of parsedQuestions) {
+    if (q.student_answer && q.student_answer.trim()) q._verdict = 'approved';
+  }
+  renderReview();
+}
+
+function rejectAll() {
+  for (const q of parsedQuestions) {
+    q._verdict = 'rejected';
+  }
+  renderReview();
+}
+
+// ── Approval count and Log button state ──
+function updateApprovalCount() {
+  const approved = parsedQuestions.filter(q => q._verdict === 'approved').length;
+  const rejected = parsedQuestions.filter(q => q._verdict === 'rejected').length;
+  const total = parsedQuestions.length;
+  const decided = approved + rejected;
+  const el = document.getElementById('approval-count');
+  if (el) el.textContent = decided + ' / ' + total + ' reviewed (' + approved + ' approved, ' + rejected + ' rejected)';
+  const btn = document.getElementById('btn-approve-log');
+  if (btn) btn.disabled = decided < total;
+}
+
+// ── Approve & Log to Dashboard ──
+function approveAndLog() {
+  const approved = parsedQuestions.filter(q => q._verdict === 'approved');
+  const rejected = parsedQuestions.filter(q => q._verdict === 'rejected');
+  const total = parsedQuestions.length;
+
+  // Build grading results from answer key comparison (no Claude API needed)
+  gradingResults = parsedQuestions.map(q => {
+    const qNum = Math.floor(q.question_number);
+    const correctAnswer = answerKeyMap[qNum] || '';
+    const studentAns = (q.student_answer || '').trim();
+    const isCorrect = correctAnswer && studentAns ? compareAnswers(studentAns, correctAnswer) : null;
+
+    return {
+      ...q,
+      correct_answer: correctAnswer || null,
+      student_correct: q._verdict === 'approved' ? (isCorrect !== null ? isCorrect : true) :
+                       q._verdict === 'rejected' ? false : null,
+      error_type: q._verdict === 'rejected' ? 'needs_review' : null,
+      brief_note: q._verdict === 'approved' ? (isCorrect === false ? 'Approved by parent (answer key mismatch)' : 'Correct') :
+                  q._verdict === 'rejected' ? 'Rejected by parent — needs rework' : 'Not reviewed'
+    };
+  });
+
+  // If opened from dashboard, send via existing mechanism
+  if (_dashboardSubId) {
+    sendToDashboard(false);
+  } else {
+    // Store standalone results in localStorage for the dashboard to pick up
+    const SUBS_KEY = 'hs-submissions';
+    const subs = JSON.parse(localStorage.getItem(SUBS_KEY) || '[]');
+    const correct = gradingResults.filter(r => r.student_correct === true).length;
+    const pct = total > 0 ? Math.round(correct / total * 100) : 0;
+
+    subs.push({
+      id: 'wg-' + Date.now(),
+      subject: subject || 'math',
+      book: bookName || '',
+      chapter: chapterNumber || '',
+      status: 'assessed',
+      score: pct,
+      date: new Date().toISOString().split('T')[0],
+      assessment: {
+        correct, total,
+        results: gradingResults,
+        approvedCount: approved.length,
+        rejectedCount: rejected.length,
+        observations: '',
+        gradedAt: new Date().toISOString()
+      }
+    });
+    localStorage.setItem(SUBS_KEY, JSON.stringify(subs));
+  }
+
+  // Show confirmation
+  const btn = document.getElementById('btn-approve-log');
+  if (btn) {
+    btn.textContent = '✅ Logged! ' + approved.length + ' approved, ' + rejected.length + ' rejected';
+    btn.disabled = true;
+    btn.style.background = '#10B981';
+  }
+
+  // Render the report for reference
+  renderReport();
+  goTo('report');
 }
 
 function checkAllResolved() {
