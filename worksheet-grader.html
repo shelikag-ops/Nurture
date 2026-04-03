@@ -1537,6 +1537,21 @@ async function extractAnswersWithClaude(apiKey, ocrText, questions, examples) {
       examples.map(ex => ex.label + ': ' + ex.text + (ex.answer ? ' → Answer: ' + ex.answer : '')).join('\n') + '\n\n'
     : '';
 
+  // Build answer key context — helps Claude locate the student's answer
+  // by knowing what the correct answer looks like
+  const hasAK = Object.keys(answerKeyMap).length > 0;
+  const answerKeyContext = hasAK
+    ? 'ANSWER KEY (correct answers — use these to LOCATE the student\'s work, NOT as the student\'s answer):\n' +
+      questions.map(q => {
+        const qNum = Math.floor(q.question_number);
+        const correct = answerKeyMap[qNum];
+        return correct ? 'Q' + qNum + ' correct answer: ' + correct : null;
+      }).filter(Boolean).join('\n') + '\n\n' +
+      'USE THE ANSWER KEY TO HELP LOCATE: If the student has a table, the correct answer tells you which row to look for. ' +
+      'For example, if the correct answer is "5 cars, 3 motorcycles", find the table row with 5 and 3 in the appropriate columns. ' +
+      'The student\'s answer is what they WROTE — which may or may not match the correct answer. Report what you SEE, not what the key says.\n\n'
+    : '';
+
   // Build question list for Claude to extract answers from
   const qList = questions.map(q =>
     'Q' + q.question_number + ' (page ' + q.page + '): ' + q.problem_text.slice(0, 200)
@@ -1585,7 +1600,7 @@ STEP 5 — ACCURACY OVER COVERAGE:
 
 IGNORE: Teacher feedback ("good job", stamps), method headers, publisher text, ISBN numbers.
 
-${exampleContext}FULL OCR TEXT:
+${exampleContext}${answerKeyContext}FULL OCR TEXT:
 <ocr>
 ${ocrText}
 </ocr>
@@ -1834,7 +1849,7 @@ function parseQuestions(md, rawData) {
         // Save previous items — extract table answers before flushing
         if (currentQ) {
           if (currentQ._hasTable && !currentQ.student_answer) {
-            const _te = extractAnswerFromCompleteTable(currentQ.problem_text);
+            const _te = extractAnswerFromCompleteTable(currentQ.problem_text, currentQ.question_number);
             currentQ.student_answer = _te.answer;
             if (_te.confidence === 'low') { currentQ.flagged = true; currentQ.flag_reason = (currentQ.flag_reason ? currentQ.flag_reason + '; ' : '') + 'Table answer needs manual check'; }
             else if (_te.confidence === 'medium') { currentQ._extraction_confidence = 'medium'; }
@@ -1875,7 +1890,7 @@ function parseQuestions(md, rawData) {
         }
         if (currentQ) {
           if (currentQ._hasTable && !currentQ.student_answer) {
-            const _te = extractAnswerFromCompleteTable(currentQ.problem_text);
+            const _te = extractAnswerFromCompleteTable(currentQ.problem_text, currentQ.question_number);
             currentQ.student_answer = _te.answer;
             if (_te.confidence === 'low') { currentQ.flagged = true; currentQ.flag_reason = (currentQ.flag_reason ? currentQ.flag_reason + '; ' : '') + 'Table answer needs manual check'; }
             else if (_te.confidence === 'medium') { currentQ._extraction_confidence = 'medium'; }
@@ -1990,7 +2005,7 @@ function parseQuestions(md, rawData) {
     }
     if (currentQ) {
       if (currentQ._hasTable && !currentQ.student_answer) {
-        const _te = extractAnswerFromCompleteTable(currentQ.problem_text);
+        const _te = extractAnswerFromCompleteTable(currentQ.problem_text, currentQ.question_number);
         currentQ.student_answer = _te.answer;
         if (_te.confidence === 'low') { currentQ.flagged = true; currentQ.flag_reason = (currentQ.flag_reason ? currentQ.flag_reason + '; ' : '') + 'Table answer needs manual check'; }
         else if (_te.confidence === 'medium') { currentQ._extraction_confidence = 'medium'; }
@@ -2205,8 +2220,12 @@ function extractFromTable(text) {
 // Extract the student's answer from a complete multi-line table embedded in problem text.
 // For "guess and check" problems (Singapore Math), students fill rows trying combinations.
 // The correct row is the one whose values satisfy ALL constraints from the question.
+// If qNum is provided and answerKeyMap has a correct answer, uses it to help locate the row.
 // Returns { answer, confidence } — confidence is 'low' if no constraint match found.
-function extractAnswerFromCompleteTable(text) {
+function extractAnswerFromCompleteTable(text, qNum) {
+  // If answer key is available, extract numbers from the correct answer to help match rows
+  const correctAnswer = (qNum && answerKeyMap[qNum]) || '';
+  const correctNums = correctAnswer ? (correctAnswer.match(/\d+/g) || []).map(Number) : [];
   const lines = text.split('\n');
   const dataRows = [];     // arrays of numeric strings
   const rawDataLines = [];  // original line text for tick mark scanning
@@ -2285,6 +2304,27 @@ function extractAnswerFromCompleteTable(text) {
     }
   }
 
+  // ── Use answer key to locate the row (if available) ──
+  // The correct answer's numbers help us find which row the student was working on
+  if (correctNums.length > 0) {
+    let bestRow = null;
+    let bestMatches = 0;
+    for (const row of dataRows) {
+      const nums = row.map(Number);
+      let matches = 0;
+      for (const cn of correctNums) {
+        if (nums.includes(cn)) matches++;
+      }
+      if (matches > bestMatches) {
+        bestMatches = matches;
+        bestRow = row;
+      }
+    }
+    if (bestRow && bestMatches >= 1) {
+      return { answer: bestRow.join(', '), confidence: 'medium' };
+    }
+  }
+
   // ── Look for tick marks / checkmarks indicating the student's chosen row ──
   for (let i = 0; i < rawDataLines.length; i++) {
     if (/[✓✔☑✗✘×]/.test(rawDataLines[i])) {
@@ -2292,7 +2332,7 @@ function extractAnswerFromCompleteTable(text) {
     }
   }
 
-  // ── No constraint match, no tick mark — flag as low confidence ──
+  // ── No constraint match, no answer key match, no tick mark — flag as low confidence ──
   // Do NOT silently pick the last row; let the parent review it.
   return { answer: '', confidence: 'low' };
 }
@@ -2813,7 +2853,6 @@ function renderReview() {
         ${escHtml(q.student_answer || '—')}
         ${q._extraction_method ? '<div style="font-size:0.7em;color:#888;margin-top:2px;">' + escHtml(q._extraction_method) + '</div>' : ''}
         <button class="quick-answer-btn" onclick="quickEditAnswer(${i})">${q.student_answer ? '✎ Edit answer' : '+ Enter answer'}</button>
-        ${(!q.student_answer || !q.student_answer.trim()) && correctAnswer ? '<button class="quick-answer-btn" style="border-color:#2e7d32;color:#2e7d32;margin-left:4px;" onclick="useAnswerKey('+i+','+qNum+')" title="Fill from answer key">📋 Use answer key</button>' : ''}
       </td>
       ${answerKeyCell}
       <td>${statusHtml}</td>
@@ -2919,18 +2958,6 @@ function quickEditAnswer(idx) {
     }
     renderReview();
   }
-}
-
-function useAnswerKey(idx, qNum) {
-  const correct = answerKeyMap[qNum];
-  if (!correct) return;
-  const q = parsedQuestions[idx];
-  q.student_answer = correct;
-  q._edited = true;
-  q._extraction_method = 'filled from answer key';
-  q._extraction_confidence = 'high';
-  if (q.flagged && q.student_answer) q.resolved = true;
-  renderReview();
 }
 
 function editQNum(idx) {
