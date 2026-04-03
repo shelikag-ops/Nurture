@@ -26,6 +26,11 @@
 
 const DataSync = (() => {
 
+  // Capture native localStorage methods NOW (before any page proxy is installed)
+  // so DataSync internal calls never trigger the dashboard's sync proxy.
+  const _nativeSet    = localStorage.setItem.bind(localStorage);
+  const _nativeRemove = localStorage.removeItem.bind(localStorage);
+
   // ── Helpers ──
 
   /** Sanitize localStorage keys for use as Firebase paths */
@@ -59,7 +64,7 @@ const DataSync = (() => {
    */
   async function setItem(key, value, options = {}) {
     // Always write to localStorage first (instant, works offline)
-    try { localStorage.setItem(key, value); } catch(e) { /* quota */ }
+    try { _nativeSet(key, value); } catch(e) { /* quota */ }
 
     // Then sync to Firebase
     if (isFirebaseConfigured()) {
@@ -89,7 +94,7 @@ const DataSync = (() => {
           const data = snap.val();
           const val = typeof data === 'object' && data.value !== undefined ? data.value : data;
           // Update localStorage cache
-          try { localStorage.setItem(key, val); } catch(e) {}
+          try { _nativeSet(key, val); } catch(e) {}
           return val;
         }
       } catch (err) {
@@ -104,7 +109,7 @@ const DataSync = (() => {
    * Remove a value from both localStorage and Firebase.
    */
   async function removeItem(key, options = {}) {
-    localStorage.removeItem(key);
+    _nativeRemove(key);
     if (isFirebaseConfigured()) {
       try { await getRef(key, options).remove(); } catch(e) {}
     }
@@ -126,8 +131,8 @@ const DataSync = (() => {
       if (snap.exists()) {
         const data = snap.val();
         const val = typeof data === 'object' && data.value !== undefined ? data.value : data;
-        // Update local cache
-        try { localStorage.setItem(key, val); } catch(e) {}
+        // Update local cache (use native to avoid triggering proxy)
+        try { _nativeSet(key, val); } catch(e) {}
         callback(val);
       }
     });
@@ -191,7 +196,7 @@ const DataSync = (() => {
           if (record && record.value !== undefined) {
             // Reverse the path sanitization for localStorage key
             // (best-effort — the original key is the canonical form)
-            try { localStorage.setItem(path, record.value); } catch(e) {}
+            try { _nativeSet(path, record.value); } catch(e) {}
             synced++;
           }
         }
