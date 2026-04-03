@@ -1696,6 +1696,9 @@ IMPORTANT: I am also sending you the original page IMAGES so you can visually in
         q.student_answer = item.answer;
         q._extraction_confidence = item.confidence;
         q._extraction_method = item.method || '';
+        // Clear any flags from parser sanity checks — Claude's confident answer supersedes
+        q.flagged = false;
+        q.flag_reason = '';
         matched++;
         plog('Q' + item.q + ' ✓ answer: "' + item.answer + '" (method: ' + item.method + ', confidence: ' + item.confidence + ')');
       } else if (item.confidence === 'low') {
