@@ -657,6 +657,31 @@
     .rev-send-btn { margin-top:6px; background:#06D6A0; color:white; border:none; border-radius:8px; padding:7px 16px; font-family:'Nunito',sans-serif; font-size:.8rem; font-weight:800; cursor:pointer; display:none; }
     .review-empty { font-size:.88rem; color:#9CA3AF; font-weight:600; text-align:center; padding:20px 0; }
 
+    /* suggestions panel */
+    .suggestions-container { display:flex; flex-direction:column; gap:12px; }
+    .suggestion-card { background:#F9FAFB; border:1.5px solid #E5E7EB; border-radius:14px; padding:14px 16px; }
+    .suggestion-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .suggestion-emoji { font-size:1.3rem; }
+    .suggestion-subject { font-size:.9rem; font-weight:800; color:#2D3047; }
+    .suggestion-change { font-size:.82rem; color:#6B7280; margin-bottom:10px; line-height:1.4; }
+    .suggestion-change-current { font-family:monospace; color:#D97706; font-weight:700; }
+    .suggestion-change-arrow { color:#9CA3AF; }
+    .suggestion-change-suggested { font-family:monospace; color:#059669; font-weight:700; }
+    .suggestion-reason { font-size:.8rem; color:#6B7280; font-weight:600; line-height:1.4; margin-bottom:10px; }
+    .suggestion-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .suggestion-btn { border:none; border-radius:10px; padding:8px 14px; font-family:'Nunito',sans-serif; font-size:.8rem; font-weight:800; cursor:pointer; transition:all .2s; }
+    .suggestion-btn-approve { background:#D1FAE5; color:#065F46; }
+    .suggestion-btn-approve:hover { background:#A7F3D0; }
+    .suggestion-btn-edit { background:#DBEAFE; color:#1E40AF; }
+    .suggestion-btn-edit:hover { background:#BFDBFE; }
+    .suggestion-btn-reject { background:#FEE2E2; color:#991B1B; }
+    .suggestion-btn-reject:hover { background:#FECACA; }
+    .suggestion-edit-row { display:flex; gap:8px; align-items:center; margin-top:8px; }
+    .suggestion-edit-input { flex:1; background:white; border:2px solid #DBEAFE; border-radius:8px; padding:8px 11px; font-family:'Nunito',sans-serif; font-size:.85rem; font-weight:600; color:#2D3047; outline:none; }
+    .suggestion-edit-input:focus { border-color:#1E40AF; }
+    .suggestion-edit-confirm { background:#10B981; color:white; padding:8px 14px; border:none; border-radius:8px; font-family:'Nunito',sans-serif; font-size:.8rem; font-weight:800; cursor:pointer; }
+    .suggestions-empty { font-size:.88rem; color:#9CA3AF; font-weight:600; text-align:center; padding:20px 0; }
+
     /* lightbox for full image */
     .lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:3000; align-items:center; justify-content:center; cursor:zoom-out; }
     .lightbox.open { display:flex; }
@@ -1385,6 +1410,7 @@
     <div class="panel-tabs">
       <button class="panel-tab active" id="tab-config"  onclick="switchPanelTab('config')">⚙️ Plan Config</button>
       <button class="panel-tab"        id="tab-reviews" onclick="switchPanelTab('reviews')">📬 Work Reviews <span class="panel-tab-badge" id="review-badge" style="display:none">0</span></button>
+      <button class="panel-tab"        id="tab-suggestions" onclick="switchPanelTab('suggestions')">💡 Suggestions <span class="panel-tab-badge" id="suggestions-badge" style="display:none">0</span></button>
       <button class="panel-tab"        id="panel-tab-rewards" onclick="switchPanelTab('rewards')">🎁 Rewards</button>
     </div>
 
@@ -1467,6 +1493,12 @@
       <!-- Recent redemptions -->
       <div style="margin-top:14px;" id="prw-recent-redemptions"></div>
 
+    </div>
+
+    <!-- SUGGESTIONS PANEL -->
+    <div id="panel-suggestions" style="display:none;">
+      <div style="font-size:.8rem;color:#6B7280;font-weight:600;line-height:1.4;margin-bottom:12px;">The system detected changes in Sarah's progress across platforms. Review and approve updates to her weekly plan below.</div>
+      <div id="suggestions-list" class="suggestions-container"></div>
     </div>
 
     <!-- CONFIG PANEL -->
@@ -2147,9 +2179,11 @@ function render() {
   const _sl = document.getElementById("stat-left");  if (_sl) _sl.textContent = vLeft.toLocaleString();
   const _sb = document.getElementById("stat-books"); if (_sb) _sb.textContent = ACFG.booksRead ?? 0;
 
-  // Vocab bar
-  const pct = Math.round((ACFG.vocabDone/ACFG.vocabTotal)*100);
-  document.getElementById("vocab-lbl").textContent   = `${ACFG.vocabDone.toLocaleString()} words done`;
+  // Vocab bar (includes Spelling Bee if available)
+  const sbProg = load('sb-progress') || {};
+  const vocabWithSB = Math.max(ACFG.vocabDone, sbProg.reviewed || 0);
+  const pct = Math.round((vocabWithSB/ACFG.vocabTotal)*100);
+  document.getElementById("vocab-lbl").textContent   = `${vocabWithSB.toLocaleString()} words done`;
   document.getElementById("vocab-pct").textContent   = pct+"%";
   document.getElementById("vocab-note-txt").innerHTML = ACFG.week.vocabNote || "";
   setTimeout(()=>{ document.getElementById("vocab-bar").style.width=pct+"%"; }, 400);
@@ -3206,8 +3240,8 @@ function retakePhoto() {
 
 // ── PARENT REVIEW FUNCTIONS ──
 function switchPanelTab(tab) {
-  const panels = { config: 'panel-config', reviews: 'panel-reviews', rewards: 'panel-rewards' };
-  const tabs   = { config: 'tab-config',   reviews: 'tab-reviews',   rewards: 'panel-tab-rewards'  };
+  const panels = { config: 'panel-config', reviews: 'panel-reviews', suggestions: 'panel-suggestions', rewards: 'panel-rewards' };
+  const tabs   = { config: 'tab-config',   reviews: 'tab-reviews',   suggestions: 'tab-suggestions',   rewards: 'panel-tab-rewards'  };
   Object.entries(panels).forEach(([k, id]) => {
     const el = document.getElementById(id); if (el) el.style.display = k === tab ? 'block' : 'none';
   });
@@ -3215,6 +3249,7 @@ function switchPanelTab(tab) {
     const el = document.getElementById(id); if (el) el.classList.toggle('active', k === tab);
   });
   if (tab === 'reviews') renderReviewList();
+  if (tab === 'suggestions') renderSuggestionsTab();
   if (tab === 'rewards') renderPanelRewards();
 }
 
@@ -3592,6 +3627,11 @@ function renderReportsProgress() {
       actionsDone += da.done; actionsTotal += da.total;
     });
   }
+
+  // Include Spelling Bee vocab if available
+  const sbProg = load('sb-progress') || {};
+  const sbReviewed = sbProg.reviewed || 0;
+  vocabWords = Math.max(vocabWords, sbReviewed);
 
   const fmtMins = m => m < 60 ? `${m}m` : `${Math.floor(m/60)}h ${m%60}m`;
   const label = mode === 'today' ? "Today's" : "This Week's";
@@ -6324,6 +6364,235 @@ function vaSpeakText(text, onDone) {
   utt.onend = () => { VA.speaking = false; onDone?.(); };
   VA.speaking = true;
   VA.synth.speak(utt);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PLAN SUGGESTIONS ENGINE
+// ═══════════════════════════════════════════════════════════
+
+function generatePlanSuggestions() {
+  const suggestions = [];
+  const SUGG_KEY = 'hs-plan-suggestions';
+  const saved = load(SUGG_KEY) || {};
+
+  const plat = load('hs-platform-stats') || {};
+  const sbProg = load('sb-progress') || {};
+  const cfg = getActiveCFG();
+  const w = cfg.week || {};
+
+  // BA progress detection
+  const ba = plat.beastAcademy || {};
+  const baChaptersComplete = ba.chaptersComplete || 0;
+  const baCfgChaptersDone = w.ba?.chaptersDone ?? 0;
+
+  if (baChaptersComplete > baCfgChaptersDone && !saved[`ba-chapters-${baChaptersComplete}`]) {
+    suggestions.push({
+      id: `ba-chapters-${baChaptersComplete}`,
+      subject: 'Beast Academy',
+      type: 'weekly',
+      field: 'w.ba.chaptersDone',
+      currentValue: baCfgChaptersDone,
+      suggestedValue: baChaptersComplete,
+      reason: `Sarah has completed ${baChaptersComplete} chapter${baChaptersComplete !== 1 ? 's' : ''} (sync shows progress beyond current plan).`,
+      status: 'pending',
+      emoji: '🐉'
+    });
+  }
+
+  // Check if BA book is complete and suggest next
+  const baTotal = ba.totalChapters || 0;
+  if (baTotal > 0 && baChaptersComplete >= baTotal && !saved[`ba-book-complete-${ba.currentBook}`]) {
+    suggestions.push({
+      id: `ba-book-complete-${ba.currentBook}`,
+      subject: 'Beast Academy',
+      type: 'weekly',
+      field: 'w.ba.book',
+      currentValue: w.ba?.book || '—',
+      suggestedValue: `${ba.currentBook} (ready for next)`,
+      reason: `Current BA book (${ba.currentBook}) is complete! Consider moving to the next book.`,
+      status: 'pending',
+      emoji: '🐉'
+    });
+  }
+
+  // IXL skills mastered
+  const ixl = plat.ixl || {};
+  const ixlMastered = ixl.skillsMastered || 0;
+  if (ixlMastered > 0 && !saved[`ixl-mastered-${ixlMastered}`]) {
+    suggestions.push({
+      id: `ixl-mastered-${ixlMastered}`,
+      subject: 'IXL',
+      type: 'weekly',
+      field: 'w.ixl.skill',
+      currentValue: w.ixl?.skill || '—',
+      suggestedValue: `${ixlMastered} skill${ixlMastered !== 1 ? 's' : ''} mastered`,
+      reason: `Sarah has mastered ${ixlMastered} new IXL skill${ixlMastered !== 1 ? 's' : ''}. Consider updating target skill.`,
+      status: 'pending',
+      emoji: '📊'
+    });
+  }
+
+  // Spelling Bee progress
+  const sbReviewed = sbProg.reviewed || 0;
+  const vocabDone = cfg.vocabDone || 0;
+  if (sbReviewed > 0 && sbReviewed > vocabDone && !saved[`sb-reviewed-${sbReviewed}`]) {
+    suggestions.push({
+      id: `sb-reviewed-${sbReviewed}`,
+      subject: 'Vocabulary',
+      type: 'weekly',
+      field: 'vocabDone',
+      currentValue: vocabDone,
+      suggestedValue: sbReviewed,
+      reason: `Spelling Bee shows ${sbReviewed} words reviewed. Consider updating vocab progress count.`,
+      status: 'pending',
+      emoji: '📝'
+    });
+  }
+
+  return suggestions;
+}
+
+function renderSuggestionsTab() {
+  const el = document.getElementById('suggestions-list');
+  if (!el) return;
+
+  const suggestions = generatePlanSuggestions();
+  const badge = document.getElementById('suggestions-badge');
+
+  if (!suggestions.length) {
+    el.innerHTML = '<div class="suggestions-empty">✨ No new suggestions — Sarah is right on track!</div>';
+    if (badge) badge.style.display = 'none';
+    return;
+  }
+
+  if (badge) {
+    badge.textContent = suggestions.length;
+    badge.style.display = 'inline-block';
+  }
+
+  el.innerHTML = suggestions.map(s => {
+    const currentStr = typeof s.currentValue === 'number' ? s.currentValue : `"${s.currentValue}"`;
+    const suggestedStr = typeof s.suggestedValue === 'number' ? s.suggestedValue : `"${s.suggestedValue}"`;
+
+    return `<div class="suggestion-card">
+      <div class="suggestion-header">
+        <span class="suggestion-emoji">${s.emoji}</span>
+        <span class="suggestion-subject">${s.subject}</span>
+      </div>
+      <div class="suggestion-change">
+        <span class="suggestion-change-current">${currentStr}</span>
+        <span class="suggestion-change-arrow"> → </span>
+        <span class="suggestion-change-suggested">${suggestedStr}</span>
+      </div>
+      <div class="suggestion-reason">💡 ${s.reason}</div>
+      <div class="suggestion-actions">
+        <button class="suggestion-btn suggestion-btn-approve" onclick="approveSuggestion('${s.id}')">✅ Approve</button>
+        <button class="suggestion-btn suggestion-btn-edit" onclick="editSuggestion('${s.id}')">✏️ Edit</button>
+        <button class="suggestion-btn suggestion-btn-reject" onclick="rejectSuggestion('${s.id}')">❌ Reject</button>
+      </div>
+      <div class="suggestion-edit-row" id="edit-${s.id}" style="display:none;">
+        <input class="suggestion-edit-input" id="edit-input-${s.id}" type="text" placeholder="New value" value="${s.suggestedValue}">
+        <button class="suggestion-edit-confirm" onclick="confirmEditSuggestion('${s.id}')">Confirm</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function approveSuggestion(id) {
+  const suggestions = generatePlanSuggestions();
+  const s = suggestions.find(x => x.id === id);
+  if (!s) return;
+
+  const ov = load('hs-cfg-override') || {};
+  if (!ov.week) ov.week = {};
+
+  // Map field to override structure
+  if (s.subject === 'Beast Academy') {
+    if (s.field === 'w.ba.chaptersDone') {
+      if (!ov.week.ba) ov.week.ba = {};
+      ov.week.ba.chaptersDone = s.suggestedValue;
+    } else if (s.field === 'w.ba.book') {
+      if (!ov.week.ba) ov.week.ba = {};
+      ov.week.ba.book = s.suggestedValue;
+    }
+  } else if (s.subject === 'IXL') {
+    if (!ov.week.ixl) ov.week.ixl = {};
+    ov.week.ixl.skill = s.suggestedValue;
+  } else if (s.subject === 'Vocabulary') {
+    ov.vocabDone = s.suggestedValue;
+  }
+
+  save('hs-cfg-override', ov);
+
+  // Mark as dismissed
+  const sugg = load('hs-plan-suggestions') || {};
+  sugg[id] = 'approved';
+  save('hs-plan-suggestions', sugg);
+
+  renderSuggestionsTab();
+  render(); // Re-render plan with new values
+}
+
+function rejectSuggestion(id) {
+  const sugg = load('hs-plan-suggestions') || {};
+  sugg[id] = 'rejected';
+  save('hs-plan-suggestions', sugg);
+  renderSuggestionsTab();
+}
+
+function editSuggestion(id) {
+  const editRow = document.getElementById(`edit-${id}`);
+  const input = document.getElementById(`edit-input-${id}`);
+  if (editRow) {
+    editRow.style.display = 'flex';
+    if (input) input.focus();
+  }
+}
+
+function confirmEditSuggestion(id) {
+  const input = document.getElementById(`edit-input-${id}`);
+  if (!input) return;
+  const newValue = input.value.trim();
+  const suggestions = generatePlanSuggestions();
+  const s = suggestions.find(x => x.id === id);
+  if (!s) return;
+
+  // Convert to number if original was number
+  let finalValue = newValue;
+  if (typeof s.suggestedValue === 'number') {
+    finalValue = parseInt(newValue, 10);
+    if (isNaN(finalValue)) {
+      alert('Please enter a valid number');
+      return;
+    }
+  }
+
+  const ov = load('hs-cfg-override') || {};
+  if (!ov.week) ov.week = {};
+
+  if (s.subject === 'Beast Academy') {
+    if (s.field === 'w.ba.chaptersDone') {
+      if (!ov.week.ba) ov.week.ba = {};
+      ov.week.ba.chaptersDone = finalValue;
+    } else if (s.field === 'w.ba.book') {
+      if (!ov.week.ba) ov.week.ba = {};
+      ov.week.ba.book = finalValue;
+    }
+  } else if (s.subject === 'IXL') {
+    if (!ov.week.ixl) ov.week.ixl = {};
+    ov.week.ixl.skill = finalValue;
+  } else if (s.subject === 'Vocabulary') {
+    ov.vocabDone = finalValue;
+  }
+
+  save('hs-cfg-override', ov);
+
+  const sugg = load('hs-plan-suggestions') || {};
+  sugg[id] = 'approved-edited';
+  save('hs-plan-suggestions', sugg);
+
+  renderSuggestionsTab();
+  render();
 }
 
 // ── Restore timer on page load (if Sarah refreshed mid-session) ──
