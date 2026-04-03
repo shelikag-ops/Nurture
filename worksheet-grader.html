@@ -1114,8 +1114,15 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ── Batch mode ──
+  // ── Resume draft from dashboard ──
   const params = new URLSearchParams(window.location.search);
+  const resumeId = params.get('resume') || localStorage.getItem('hs-wg-resume-draft');
+  if (resumeId) {
+    localStorage.removeItem('hs-wg-resume-draft'); // consume the key
+    loadDraft(resumeId);
+  }
+
+  // ── Batch mode ──
   if (params.get('batch') === 'true') {
     _batchQueue = JSON.parse(localStorage.getItem('hs-wg-batch-queue') || '[]');
     _batchIndex = 0;

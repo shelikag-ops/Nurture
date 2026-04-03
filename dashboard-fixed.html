@@ -249,7 +249,6 @@
     .eod-stat-chip.green { background:#D1FAE5; color:#065F46; }
     .eod-stat-chip.blue  { background:#DBEAFE; color:#1E40AF; }
     .eod-stat-chip.amber { background:#FEF3C7; color:#92400E; }
-    .eod-stat-chip.red   { background:#FEE2E2; color:#991B1B; }
     .eod-motivate { font-size:.92rem; font-weight:700; color:#7C3AED; margin-top:12px; padding:10px 14px; background:rgba(237,233,254,.5); border-radius:12px; border-left:3px solid #7C3AED; line-height:1.4; }
     .eod-closing-line { font-size:.88rem; font-weight:600; color:#6B7280; margin-top:10px; text-align:center; }
     /* parent day summary */
@@ -925,25 +924,6 @@
   <!-- ═══ TAB: TO DO ═══ -->
   <div id="tab-todo" class="sarah-tab-content">
 
-  <!-- QUICK ADD TASK (prominent at top) -->
-  <div class="card" style="margin-bottom:14px;background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:2px solid #FCD34D;">
-    <div class="card-title" style="color:#92400E;">✨ Add a Task</div>
-    <div style="display:flex;gap:8px;">
-      <select id="quick-task-subject" style="padding:10px 12px;border:2px solid #FCD34D;border-radius:10px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;background:white;color:#374151;cursor:pointer;">
-        <option value="Math">🔢 Math</option>
-        <option value="Science">🔬 Science</option>
-        <option value="English">📖 English</option>
-        <option value="Vocabulary">📝 Vocab</option>
-        <option value="Chess">♟️ Chess</option>
-        <option value="History">🏛️ History</option>
-        <option value="Reading">📚 Reading</option>
-        <option value="Other">📌 Other</option>
-      </select>
-      <input id="quick-task-input" class="add-custom-input" style="flex:1;border-color:#FCD34D;" placeholder="What are you working on?" onkeydown="if(event.key==='Enter')quickAddTask()">
-      <button onclick="quickAddTask()" style="background:#D97706;color:white;border:none;border-radius:10px;padding:10px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;white-space:nowrap;">+ Add</button>
-    </div>
-  </div>
-
   <!-- TODAY'S SCHEDULE -->
   <div class="schedule-card" id="schedule-card">
     <div class="card-title">🗓️ Today's Schedule</div>
@@ -1547,14 +1527,6 @@
       <div class="panel-field"><label class="panel-label">Vocab target this week</label><input class="panel-input" id="p-vocab-target" type="number"></div>
       <div class="panel-field"><label class="panel-label">Vocab daily note</label><input class="panel-input" id="p-vocab-note"></div>
     </div>
-    <div class="panel-row">
-      <div class="panel-field"><label class="panel-label">New words learned (today/week)</label><input class="panel-input" id="p-vocab-new" type="number" min="0" placeholder="0"></div>
-      <div class="panel-field"><label class="panel-label">Words revised</label><input class="panel-input" id="p-vocab-revised" type="number" min="0" placeholder="0"></div>
-    </div>
-    <div class="panel-row">
-      <div class="panel-field"><label class="panel-label">vocab.com time spent</label><input class="panel-input" id="p-vocab-com-time" placeholder="e.g. 30min"></div>
-      <div class="panel-field"><label class="panel-label">Words mastered (total)</label><input class="panel-input" id="p-vocab-mastered" type="number" min="0" placeholder="0"></div>
-    </div>
 
     <div class="panel-section">🐉 Beast Academy</div>
     <div class="panel-row">
@@ -1565,10 +1537,6 @@
       <div class="panel-field"><label class="panel-label">Chapters completed (e.g. 10)</label><input class="panel-input" id="p-ba-chapters-done" type="number" min="0" step="1" placeholder="0"></div>
       <div class="panel-field"><label class="panel-label">Total chapters in book (e.g. 12)</label><input class="panel-input" id="p-ba-chapters-total" type="number" min="1" step="1" placeholder="12"></div>
     </div>
-    <div class="panel-row">
-      <div class="panel-field"><label class="panel-label">Chapters worked on this week</label><input class="panel-input" id="p-ba-weekly-chapters" type="number" min="0" step="1" placeholder="0"></div>
-      <div class="panel-field"><label class="panel-label">Questions attempted this week</label><input class="panel-input" id="p-ba-weekly-questions" type="number" min="0" step="1" placeholder="0"></div>
-    </div>
     <div class="panel-field"><label class="panel-label">Detail / lessons remaining note</label><input class="panel-input" id="p-ba-detail"></div>
 
     <div class="panel-section">📘 Singapore Math</div>
@@ -1577,20 +1545,11 @@
       <div class="panel-field"><label class="panel-label">Topic name</label><input class="panel-input" id="p-sm-topic"></div>
     </div>
     <div class="panel-field"><label class="panel-label">Detail</label><input class="panel-input" id="p-sm-detail"></div>
-    <div class="panel-field"><label class="panel-label">Individual chapters (one per line — each becomes a separate to-do item)</label><textarea class="panel-input" id="p-sm-chapters" rows="4" placeholder="Book 2, Ch 12: Review&#10;Book 2, Ch 13: Review&#10;Book 2, Ch 14: Review" style="resize:vertical;font-family:'Nunito',sans-serif;"></textarea></div>
 
     <div class="panel-section">📊 IXL</div>
     <div class="panel-row">
       <div class="panel-field"><label class="panel-label">Skill area</label><input class="panel-input" id="p-ixl-skill"></div>
       <div class="panel-field"><label class="panel-label">Detail / instructions</label><input class="panel-input" id="p-ixl-detail"></div>
-    </div>
-    <div class="panel-row">
-      <div class="panel-field"><label class="panel-label">Time spent (e.g. 2h 15min)</label><input class="panel-input" id="p-ixl-time" placeholder="0h 0min"></div>
-      <div class="panel-field"><label class="panel-label">Questions attempted</label><input class="panel-input" id="p-ixl-questions" type="number" min="0" step="1" placeholder="0"></div>
-    </div>
-    <div class="panel-row">
-      <div class="panel-field"><label class="panel-label">Questions correct</label><input class="panel-input" id="p-ixl-correct" type="number" min="0" step="1" placeholder="0"></div>
-      <div class="panel-field"><label class="panel-label">Skills worked on (count)</label><input class="panel-input" id="p-ixl-skills-count" type="number" min="0" step="1" placeholder="0"></div>
     </div>
 
     <div class="panel-section">🔬 Science</div>
@@ -1720,9 +1679,9 @@ const CFG = {
   week: {
     num:  1,
     note: "NSF Sprint — target 1,100 vocabulary words by Saturday. Final push on BA 3D.",
-    ba:   { book:"3D", chapter:"Ch 11: Estimation", detail:"Rounding, computing estimates, over/under-estimating, Fermi problems", chaptersDone:10, chaptersTotal:12, weeklyChapters:0, weeklyQuestions:0 },
-    sm:   { chapter:"Book 2, Ch 12–14", topic:"Review Questions", detail:"One review chapter per session (30 min each) — 3 sessions total to close out Book 2", chapters:"Book 2, Ch 12: Review\nBook 2, Ch 13: Review\nBook 2, Ch 14: Review" },
-    ixl:  { skill:"Estimation & Rounding", detail:"IXL Grade 3 › Rounding › Estimation skills — match BA 3D Ch 2 topic", time:"", questionsAttempted:0, questionsCorrect:0, skillsWorkedOn:0 },
+    ba:   { book:"3D", chapter:"Ch 11: Estimation", detail:"Rounding, computing estimates, over/under-estimating, Fermi problems", chaptersDone:10, chaptersTotal:12 },
+    sm:   { chapter:"Book 2, Ch 12–14", topic:"Review Questions", detail:"One review chapter per session (30 min each) — 3 sessions total to close out Book 2" },
+    ixl:  { skill:"Estimation & Rounding", detail:"IXL Grade 3 › Rounding › Estimation skills — match BA 3D Ch 2 topic" },
     science: { chapter:"Ch 1: Baloney Detection Kit", part:"Part 2" },
     english: { program:"Editor-in-Chief Book 1", task:"Awaiting photo upload for correction — review previous exercises or start Mosdos Opal Unit 1 intro" },
     history: { topic:"Ancient Egypt wrap-up → Indus Valley introduction", source:"Britannica for Kids" },
@@ -1731,10 +1690,6 @@ const CFG = {
     debateTheme: "Thursday group — check with group for this week's topic",
     vocabTarget: 1100,
     vocabNote:   "VocabularyStars: 40–60 new words today + previous day revision. Then 30 min vocab.com.",
-    vocabNew: 0,
-    vocabRevised: 0,
-    vocabComTime: "",
-    vocabMastered: 0,
     // Today's classes — shown in schedule card when no Google Calendar URL is set
     // Format: "HH:MM | Class name | tag-color"  e.g. "10:00 | Piano | #9333EA"
     // Separate multiple classes with a newline character \n
@@ -1762,10 +1717,6 @@ function getActiveCFG() {
   if (w.note        !== undefined) m.week.note        = w.note;
   if (w.vocabTarget !== undefined) m.week.vocabTarget = w.vocabTarget;
   if (w.vocabNote)                 m.week.vocabNote   = w.vocabNote;
-  if (w.vocabNew      !== undefined) m.week.vocabNew      = w.vocabNew;
-  if (w.vocabRevised  !== undefined) m.week.vocabRevised  = w.vocabRevised;
-  if (w.vocabComTime)                m.week.vocabComTime  = w.vocabComTime;
-  if (w.vocabMastered !== undefined) m.week.vocabMastered = w.vocabMastered;
   if (w.book)                      m.week.book        = w.book;
   if (w.bookNote)                  m.week.bookNote    = w.bookNote;
   if (w.debateTheme)               m.week.debateTheme = w.debateTheme;
@@ -1789,27 +1740,16 @@ function openPanel() {
   document.getElementById('p-vocab-done').value     = ac.vocabDone       || '';
   document.getElementById('p-vocab-target').value   = w.vocabTarget      || '';
   document.getElementById('p-vocab-note').value     = w.vocabNote        || '';
-  document.getElementById('p-vocab-new').value      = w.vocabNew    != null ? w.vocabNew    : '';
-  document.getElementById('p-vocab-revised').value  = w.vocabRevised != null ? w.vocabRevised : '';
-  document.getElementById('p-vocab-com-time').value = w.vocabComTime || '';
-  document.getElementById('p-vocab-mastered').value = w.vocabMastered != null ? w.vocabMastered : '';
   document.getElementById('p-ba-book').value          = w.ba.book              || '';
   document.getElementById('p-ba-chapter').value       = w.ba.chapter           || '';
   document.getElementById('p-ba-chapters-done').value = w.ba.chaptersDone  != null ? w.ba.chaptersDone  : '';
   document.getElementById('p-ba-chapters-total').value= w.ba.chaptersTotal != null ? w.ba.chaptersTotal : '';
-  document.getElementById('p-ba-weekly-chapters').value = w.ba.weeklyChapters != null ? w.ba.weeklyChapters : '';
-  document.getElementById('p-ba-weekly-questions').value = w.ba.weeklyQuestions != null ? w.ba.weeklyQuestions : '';
   document.getElementById('p-ba-detail').value        = w.ba.detail            || '';
   document.getElementById('p-sm-chapter').value     = w.sm.chapter       || '';
   document.getElementById('p-sm-topic').value       = w.sm.topic         || '';
   document.getElementById('p-sm-detail').value      = w.sm.detail        || '';
-  document.getElementById('p-sm-chapters').value    = w.sm.chapters      || '';
   document.getElementById('p-ixl-skill').value      = w.ixl.skill        || '';
   document.getElementById('p-ixl-detail').value     = w.ixl.detail       || '';
-  document.getElementById('p-ixl-time').value       = w.ixl.time         || '';
-  document.getElementById('p-ixl-questions').value  = w.ixl.questionsAttempted != null ? w.ixl.questionsAttempted : '';
-  document.getElementById('p-ixl-correct').value    = w.ixl.questionsCorrect != null ? w.ixl.questionsCorrect : '';
-  document.getElementById('p-ixl-skills-count').value = w.ixl.skillsWorkedOn != null ? w.ixl.skillsWorkedOn : '';
   document.getElementById('p-sci-chapter').value    = w.science.chapter  || '';
   document.getElementById('p-sci-part').value       = w.science.part     || '';
   document.getElementById('p-sci-complete').value   = ac.scienceComplete || '';
@@ -1889,25 +1829,15 @@ function saveConfig() {
       note:        v('p-week-note'),
       vocabTarget: n('p-vocab-target'),
       vocabNote:   v('p-vocab-note'),
-      vocabNew:      n('p-vocab-new') ?? undefined,
-      vocabRevised:  n('p-vocab-revised') ?? undefined,
-      vocabComTime:  v('p-vocab-com-time'),
-      vocabMastered: n('p-vocab-mastered') ?? undefined,
       book:        v('p-book'),
       bookNote:    v('p-book-note'),
       debateTheme: v('p-debate'),
       classes:     v('p-classes'),
       ba:      { book:v('p-ba-book'), chapter:v('p-ba-chapter'), detail:v('p-ba-detail'),
                  chaptersDone:  n('p-ba-chapters-done')  ?? undefined,
-                 chaptersTotal: n('p-ba-chapters-total') ?? undefined,
-                 weeklyChapters: n('p-ba-weekly-chapters') ?? undefined,
-                 weeklyQuestions: n('p-ba-weekly-questions') ?? undefined },
-      sm:      { chapter:v('p-sm-chapter'),topic:v('p-sm-topic'), detail:v('p-sm-detail'), chapters:v('p-sm-chapters') },
-      ixl:     { skill:v('p-ixl-skill'), detail:v('p-ixl-detail'),
-                 time:v('p-ixl-time'),
-                 questionsAttempted: n('p-ixl-questions') ?? undefined,
-                 questionsCorrect:   n('p-ixl-correct') ?? undefined,
-                 skillsWorkedOn:     n('p-ixl-skills-count') ?? undefined },
+                 chaptersTotal: n('p-ba-chapters-total') ?? undefined },
+      sm:      { chapter:v('p-sm-chapter'),topic:v('p-sm-topic'),      detail:v('p-sm-detail')  },
+      ixl:     { skill:v('p-ixl-skill'),   detail:v('p-ixl-detail')                              },
       science: { chapter:v('p-sci-chapter'),part:v('p-sci-part')                                 },
       english: { program:v('p-eng-program'),task:v('p-eng-task')                                 },
       history: { topic:v('p-hist-topic'),  source:v('p-hist-source')                             },
@@ -2097,39 +2027,13 @@ const VALUES_PROMPTS = [
   ]},
 ];
 
-function parseSMChapterTasks(w) {
-  // If individual chapters are specified (one per line), use those
-  const chaptersRaw = (w.sm.chapters || '').trim();
-  if (chaptersRaw) {
-    return chaptersRaw.split('\n').map(l => l.trim()).filter(Boolean).map(ch =>
-      `Singapore Math — ${ch} — 30 min`
-    );
-  }
-  // Fallback: parse range from chapter field (e.g. "Book 2, Ch 12–14")
-  const rangeMatch = (w.sm.chapter || '').match(/Ch\s*(\d+)\s*[–\-]\s*(\d+)/i);
-  if (rangeMatch) {
-    const start = parseInt(rangeMatch[1]);
-    const end   = parseInt(rangeMatch[2]);
-    const bookMatch = (w.sm.chapter || '').match(/(Book\s*\d+)/i);
-    const bookPfx = bookMatch ? bookMatch[1] + ', ' : '';
-    const tasks = [];
-    for (let i = start; i <= end; i++) {
-      tasks.push(`Singapore Math — ${bookPfx}Ch ${i}: ${w.sm.topic} — 30 min`);
-    }
-    return tasks;
-  }
-  // Single chapter fallback
-  return [`Singapore Math ${w.sm.chapter}: ${w.sm.topic} — 30 min`];
-}
-
 function buildPlan(ac) {
   const w = ac.week;
-  const smTasks = parseSMChapterTasks(w);
   return {
     1: [ // Monday
       { s:"Math", detail:`BA ${w.ba.book} ${w.ba.chapter} · ${w.ba.detail}`, t:[
         `Beast Academy ${w.ba.book} — ${w.ba.chapter} — 45 min`,
-        ...smTasks,
+        `Singapore Math ${w.sm.chapter}: ${w.sm.topic} — 30 min  (${w.sm.detail})`,
         `IXL Grade 3 — ${w.ixl.skill} — 30 min  (${w.ixl.detail})`,
       ]},
       { s:"Science", detail:`${w.science.chapter} — ${w.science.part}`, t:[`BFSU ${w.science.chapter} — ${w.science.part} — 50 min`] },
@@ -2140,7 +2044,7 @@ function buildPlan(ac) {
     2: [ // Tuesday
       { s:"Math", detail:`BA ${w.ba.book} ${w.ba.chapter} · ${w.ba.detail}`, t:[
         `Beast Academy ${w.ba.book} — ${w.ba.chapter} — 45 min`,
-        ...smTasks,
+        `Singapore Math ${w.sm.chapter}: ${w.sm.topic} — 30 min`,
         `IXL Grade 3 — ${w.ixl.skill} — 30 min`,
       ]},
       { s:"English", detail:w.english.program, t:[w.english.task + " — 40 min"] },
@@ -2152,7 +2056,7 @@ function buildPlan(ac) {
     3: [ // Wednesday
       { s:"Math", detail:`BA ${w.ba.book} ${w.ba.chapter} · ${w.ba.detail}`, t:[
         `Beast Academy ${w.ba.book} — ${w.ba.chapter} — 45 min`,
-        ...smTasks,
+        `Singapore Math ${w.sm.chapter}: ${w.sm.topic} — 30 min`,
         `IXL Grade 3 — ${w.ixl.skill} — 30 min`,
       ]},
       { s:"Science", detail:`${w.science.chapter} continues`, t:[`BFSU ${w.science.chapter} — 50 min`] },
@@ -2162,7 +2066,7 @@ function buildPlan(ac) {
     4: [ // Thursday
       { s:"Math", detail:`BA ${w.ba.book} ${w.ba.chapter} · ${w.ba.detail}`, t:[
         `Beast Academy ${w.ba.book} — ${w.ba.chapter} — 45 min`,
-        ...smTasks,
+        `Singapore Math ${w.sm.chapter}: ${w.sm.topic} — 30 min`,
         `IXL Grade 3 — ${w.ixl.skill} — 30 min`,
       ]},
       { s:"English", detail:w.english.program, t:[w.english.task + " — 40 min"] },
@@ -2174,7 +2078,7 @@ function buildPlan(ac) {
     5: [ // Friday
       { s:"Math", detail:`BA ${w.ba.book} ${w.ba.chapter} · ${w.ba.detail}`, t:[
         `Beast Academy ${w.ba.book} — ${w.ba.chapter} — 45 min`,
-        ...smTasks,
+        `Singapore Math ${w.sm.chapter}: ${w.sm.topic} — 30 min`,
         `IXL Grade 3 — ${w.ixl.skill} — 30 min`,
       ]},
       { s:"Science", detail:`${w.science.chapter} continues`, t:[`BFSU ${w.science.chapter} — 50 min`] },
@@ -2338,24 +2242,6 @@ function render() {
       if (s === "Debate") {
         planHTML += renderDebatePrepHTML(detail || ACFG.week.debateTheme || "");
       }
-      if (s === "Reading") {
-        const bookLog = load('hs-book-log') || [];
-        const currentBook = ACFG.week.book || '';
-        const alreadyFinished = bookLog.some(b => b.title === currentBook && b.status === 'finished');
-        planHTML += `<div style="margin:8px 0 4px;padding:10px 14px;background:#FDF2F8;border-radius:11px;border:1.5px dashed #F9A8D4;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="flex:1;">
-              <div style="font-size:.82rem;font-weight:800;color:#BE185D;">📖 Currently reading</div>
-              <div style="font-size:.9rem;font-weight:700;color:#374151;margin-top:2px;">${currentBook || 'No book set'}</div>
-            </div>
-            ${alreadyFinished
-              ? `<span style="background:#D1FAE5;color:#065F46;font-size:.78rem;font-weight:800;padding:6px 14px;border-radius:8px;">✅ Finished!</span>`
-              : `<button onclick="event.stopPropagation();finishBook()" style="background:linear-gradient(135deg,#EC4899,#F43F5E);color:white;border:none;border-radius:10px;padding:8px 16px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap;">📚 I finished it!</button>`
-            }
-          </div>
-          <div id="book-log-recent" style="margin-top:8px;"></div>
-        </div>`;
-      }
       planHTML+=`</div>`;
     });
   }
@@ -2409,9 +2295,6 @@ function render() {
   renderWeeklyHomework();
   renderDueTodayInject();
   updateDueDateUI();
-
-  // Book log
-  renderBookLogRecent();
 
   // Values check-in prompt
   const vp = VALUES_PROMPTS[dow] || VALUES_PROMPTS[0];
@@ -2517,66 +2400,24 @@ function renderEndOfDayCard() {
   const dayIdx = now.getDate() % EOD_MOTIVATE.length;
   const motivate = EOD_MOTIVATE[dayIdx];
 
-  // Build honest title based on actual progress
+  // Build title based on progress
   const allTasks = document.querySelectorAll('.task-item');
   const doneTasks = document.querySelectorAll('.task-item.done');
-  const totalCount = allTasks.length;
-  const doneCount = doneTasks.length;
-  const pct = totalCount > 0 ? Math.round(doneCount / totalCount * 100) : 0;
-  const isAfternoon = now.getHours() >= 14;
-  const isEvening = now.getHours() >= 18;
-
-  let titleEmoji, titleText;
-  if (totalCount > 0 && doneCount === totalCount) {
-    titleEmoji = '🎉'; titleText = 'Everything done — you are incredible!';
-  } else if (pct >= 80) {
-    titleEmoji = '⭐'; titleText = 'Almost there — strong finish today!';
-  } else if (pct >= 50) {
-    titleEmoji = '👍'; titleText = `${doneCount}/${totalCount} tasks done — good progress, keep going!`;
-  } else if (pct > 0 && isEvening) {
-    titleEmoji = '⚠️'; titleText = `Only ${doneCount}/${totalCount} done — we fell behind today. Let's catch up!`;
-  } else if (pct > 0 && isAfternoon) {
-    titleEmoji = '📋'; titleText = `${doneCount}/${totalCount} done so far — time to pick up the pace!`;
-  } else if (pct > 0) {
-    titleEmoji = '🌟'; titleText = `Off to a start — ${doneCount} task${doneCount>1?'s':''} down!`;
-  } else if (isAfternoon) {
-    titleEmoji = '⏰'; titleText = `No tasks done yet — let's get moving, Sarah!`;
-  } else {
-    titleEmoji = '🌅'; titleText = `Good morning, Sarah! Ready to start? ☀️`;
-  }
+  const allDone = allTasks.length > 0 && doneTasks.length === allTasks.length;
+  const titleEmoji = allDone ? '🎉' : wins.length > 0 ? '⭐' : '🌅';
+  const titleText = allDone
+    ? 'Everything done — you are incredible!'
+    : wins.length > 0
+      ? `Great work today, Sarah!`
+      : `Good morning, Sarah! Ready to shine? ☀️`;
 
   document.querySelector('#eod-card .card-title').textContent = `${titleEmoji} ${titleText}`;
 
   let html = '';
 
-  // Show remaining tasks if behind schedule
-  const remaining = totalCount - doneCount;
-  if (remaining > 0 && isAfternoon && pct < 60) {
-    const remainingTasks = [];
-    allTasks.forEach(el => {
-      if (!el.classList.contains('done')) {
-        const textEl = el.querySelector('.task-text');
-        if (textEl) remainingTasks.push(textEl.textContent.replace(/\s*—\s*\d+\s*min.*/i, '').trim());
-      }
-    });
-    if (remainingTasks.length) {
-      html += `<div style="background:#FEF2F2;border-radius:10px;padding:10px 12px;margin-bottom:10px;">
-        <div style="font-size:.78rem;font-weight:800;color:#DC2626;margin-bottom:6px;">📋 Still to do (${remaining} remaining):</div>`;
-      remainingTasks.slice(0, 5).forEach(t => {
-        html += `<div style="font-size:.8rem;color:#7F1D1D;padding:2px 0;">• ${t}</div>`;
-      });
-      if (remainingTasks.length > 5) html += `<div style="font-size:.75rem;color:#9CA3AF;">…and ${remainingTasks.length - 5} more</div>`;
-      html += `</div>`;
-    }
-  }
-
-  // No progress yet — no sugar-coating
+  // No progress yet — show encouragement
   if (wins.length === 0 && totalMins === 0) {
-    if (isAfternoon) {
-      html += `<div class="eod-empty-msg" style="color:#DC2626;font-weight:700;">No tasks completed yet today. Let's get at least a few done! 💪</div>`;
-    } else {
-      html += `<div class="eod-empty-msg">Your day's wins will show up here as you go. Let's get started!</div>`;
-    }
+    html += `<div class="eod-empty-msg">Your day's wins will show up here as you go! 🌟 Let's get started!</div>`;
   } else {
     // Wins list (last 5 to keep it tidy)
     const showWins = wins.slice(-5);
@@ -2589,12 +2430,8 @@ function renderEndOfDayCard() {
     }
   }
 
-  // Stats chips — include honest pct
+  // Stats chips
   const chips = [];
-  if (totalCount > 0) {
-    const pctColor = pct >= 80 ? 'green' : pct >= 50 ? 'amber' : 'red';
-    chips.push({ cls: pctColor, icon:'📊', val: `${pct}%`, lbl:'complete' });
-  }
   if (totalMins > 0) chips.push({ cls:'green', icon:'⏱️', val: totalMins < 60 ? `${totalMins}m` : `${Math.floor(totalMins/60)}h ${totalMins%60}m`, lbl:'studied' });
   if (streak >= 1)   chips.push({ cls:'amber', icon:'🔥', val: streak, lbl: streak===1 ? 'day started' : 'day streak' });
   if (todayPts > 0)  chips.push({ cls:'blue',  icon:'⭐', val: `+${todayPts}`, lbl:'pts today' });
@@ -2608,13 +2445,8 @@ function renderEndOfDayCard() {
     html += `</div>`;
   }
 
-  // Honest motivational message based on progress
-  const honestMsg = pct >= 80 ? motivate
-    : pct >= 50 ? `You're at ${pct}% — solid progress but there's more to do. Push through the rest! 💪`
-    : pct > 0 && isEvening ? `Only ${pct}% done today. Tomorrow is a fresh start — let's aim for at least 70%.`
-    : pct > 0 ? `${pct}% so far. There's still time to catch up — let's focus! 🎯`
-    : motivate;
-  html += `<div class="eod-motivate">${honestMsg}</div>`;
+  // Motivational message (always)
+  html += `<div class="eod-motivate">${motivate}</div>`;
 
   content.innerHTML = html;
 }
@@ -3864,7 +3696,6 @@ function reportToggleMode(mode) {
   todayBtn.style.cssText = mode === 'today' ? actStyle : offStyle;
   weekBtn.style.cssText  = mode === 'week'  ? actStyle : offStyle;
   renderReportsProgress();
-  renderProgressCard();  // re-render with new time period
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3968,26 +3799,21 @@ function renderReportsProgress() {
   const plat = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
   const cfg = typeof getActiveCFG === 'function' ? getActiveCFG() : {};
   const ba = plat.beastAcademy || {};
-  const ixlCfg = cfg.week?.ixl || {};
+  const baDone = cfg.week?.ba?.chaptersDone ?? ba.chaptersComplete ?? 0;
+  const baTotal = cfg.week?.ba?.chaptersTotal ?? ba.totalChapters ?? 0;
+  const smChapter = cfg.week?.sm?.chapter || '—';
 
-  // Pull chess daily stats
-  const chessPlat = plat.lichessDaily || {};
-  const chessPlatCK = plat.chesskidDaily || {};
-  const li = plat.lichess || {};
-  const ck = plat.chesskid || {};
-  const chessTimeMins = bySubject['Chess'] || 0;
-  const chessGamesToday = (chessPlat.gamesPlayed || 0) + (chessPlatCK.gamesPlayed || 0);
-  const chessPuzzlesToday = chessPlat.puzzlesSolved || 0;
-
-  // Task completion percentage for honest assessment
-  const taskPct = tasksTotal > 0 ? Math.round(tasksDone / tasksTotal * 100) : 0;
-
-  // Stat cards at top — one row for overview
+  // Stat cards at top
   let html = `<div style="font-size:.85rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 ${label} Progress</div>`;
   html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
     <div class="stat-card">
+      <div class="stat-emoji">⏱️</div>
+      <div class="stat-value">${totalMins > 0 ? fmtMins(totalMins) : '0m'}</div>
+      <div class="stat-label">Time logged</div>
+    </div>
+    <div class="stat-card">
       <div class="stat-emoji">✅</div>
-      <div class="stat-value" style="color:${taskPct>=80?'#06D6A0':taskPct>=50?'#F59E0B':'#EF4444'}">${tasksDone}/${tasksTotal || '—'}</div>
+      <div class="stat-value">${tasksDone}/${tasksTotal || '—'}</div>
       <div class="stat-label">Tasks done</div>
     </div>
     <div class="stat-card">
@@ -3995,96 +3821,22 @@ function renderReportsProgress() {
       <div class="stat-value">${actionsDone}/${actionsTotal || 6}</div>
       <div class="stat-label">Daily actions</div>
     </div>
+  </div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
     <div class="stat-card">
-      <div class="stat-emoji">⏱️</div>
-      <div class="stat-value">${totalMins > 0 ? fmtMins(totalMins) : '0m'}</div>
-      <div class="stat-label">Total time</div>
+      <div class="stat-emoji">📝</div>
+      <div class="stat-value">${vocabWords}</div>
+      <div class="stat-label">Words logged</div>
     </div>
-  </div>`;
-
-  // ── Beast Academy card (single card: chapters + questions) ──
-  html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.2rem;">🐉</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Beast Academy</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div style="text-align:center;background:#FEF3C7;border-radius:10px;padding:10px 6px;">
-        <div style="font-size:1.3rem;font-weight:900;color:#D97706;">${cfg.week?.ba?.weeklyChapters ?? 0}</div>
-        <div style="font-size:.72rem;font-weight:700;color:#92400E;">chapters this week</div>
-      </div>
-      <div style="text-align:center;background:#FEF3C7;border-radius:10px;padding:10px 6px;">
-        <div style="font-size:1.3rem;font-weight:900;color:#D97706;">${cfg.week?.ba?.weeklyQuestions ?? 0}</div>
-        <div style="font-size:.72rem;font-weight:700;color:#92400E;">questions attempted</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-emoji">🐉</div>
+      <div class="stat-value">${baDone}/${baTotal}</div>
+      <div class="stat-label">BA chapters</div>
     </div>
-  </div>`;
-
-  // ── IXL card (single card: time, attempted, correct, skills) ──
-  html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.2rem;">📊</span><span style="font-size:.85rem;font-weight:800;color:#374151;">IXL</span></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-      <div style="text-align:center;background:#EFF6FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#1D4ED8;">${ixlCfg.time || '0h'}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#1E40AF;">time</div>
-      </div>
-      <div style="text-align:center;background:#EFF6FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#1D4ED8;">${ixlCfg.questionsAttempted ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#1E40AF;">attempted</div>
-      </div>
-      <div style="text-align:center;background:#F0FDF4;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#059669;">${ixlCfg.questionsCorrect ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#065F46;">correct</div>
-      </div>
-      <div style="text-align:center;background:#F5F3FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#7C3AED;">${ixlCfg.skillsWorkedOn ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#5B21B6;">skills</div>
-      </div>
-    </div>
-  </div>`;
-
-  // ── Vocabulary card (single card: new words, revised, vocab.com time, mastered) ──
-  const vocW = cfg.week || {};
-  html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.2rem;">📝</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Vocabulary</span></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-      <div style="text-align:center;background:#F0FDF4;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#059669;">${vocW.vocabNew ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#065F46;">new words</div>
-      </div>
-      <div style="text-align:center;background:#EFF6FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#1D4ED8;">${vocW.vocabRevised ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#1E40AF;">revised</div>
-      </div>
-      <div style="text-align:center;background:#FEF3C7;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#D97706;">${vocW.vocabComTime || '0m'}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#92400E;">vocab.com</div>
-      </div>
-      <div style="text-align:center;background:#F5F3FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#7C3AED;">${vocW.vocabMastered ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#5B21B6;">mastered</div>
-      </div>
-    </div>
-  </div>`;
-
-  // ── Chess card (time spent, games played, puzzles solved) ──
-  html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.2rem;">♟️</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Chess</span></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-      <div style="text-align:center;background:#F3F4F6;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#374151;">${chessTimeMins > 0 ? fmtMins(chessTimeMins) : (chessPlat.timeSpent || '0m')}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#6B7280;">time spent</div>
-      </div>
-      <div style="text-align:center;background:#F3F4F6;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#374151;">${chessGamesToday}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#6B7280;">games played</div>
-      </div>
-      <div style="text-align:center;background:#F5F3FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#7C3AED;">${chessPuzzlesToday}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#5B21B6;">puzzles solved</div>
-      </div>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
-      ${ck.rapid?`<span class="pv-tag" style="background:#22C55E22;color:#15803D;">CK Rapid ${ck.rapid}</span>`:''}
-      ${li.classical?`<span class="pv-tag" style="background:#1e1b4b22;color:#1e1b4b;">Lichess ${li.classical}</span>`:''}
-      ${li.puzzleRating?`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">Puzzle rating ${li.puzzleRating}</span>`:''}
+    <div class="stat-card">
+      <div class="stat-emoji">📘</div>
+      <div class="stat-value" style="font-size:1rem;">${smChapter}</div>
+      <div class="stat-label">SM chapter</div>
     </div>
   </div>`;
 
@@ -4115,17 +3867,9 @@ function renderReportsProgress() {
     </div>`;
   }
 
-  // EOD summary — honest assessment
-  const eodTaskPct = tasksTotal > 0 ? Math.round(tasksDone / tasksTotal * 100) : 0;
-  const eodTitle = eodTaskPct >= 80
-    ? `🌟 Great work${mode === 'today' ? ' today' : ' this week'}, Sarah!`
-    : eodTaskPct >= 50
-    ? `👍 Good progress${mode === 'today' ? ' today' : ' this week'} — keep going!`
-    : eodTaskPct > 0
-    ? `⚠️ ${tasksDone}/${tasksTotal} tasks done — we need to catch up!`
-    : `📋 No tasks completed ${mode === 'today' ? 'today' : 'this week'} yet.`;
+  // EOD summary
   html += `<div class="eod-card" id="eod-card" style="margin-bottom:16px;">
-    <div class="card-title">${eodTitle}</div>
+    <div class="card-title">🌟 Great work${mode === 'today' ? ' today' : ' this week'}, Sarah!</div>
     <div id="eod-content"></div>
   </div>`;
 
@@ -4271,7 +4015,7 @@ function renderParentView() {
   // ── Resolve selected date range from pv state ──
   const range   = pvGetRange();
   const rangeDays = range.days;
-  const dayKey  = d => `hs-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const dayKey  = d => `hs-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
   const isDaily = range.isDaily;
 
   // Update range label and card titles
@@ -4503,20 +4247,10 @@ function renderParentView() {
     let html = '';
 
     // ── ChessKid ──
-    const ckDaily = plat.chesskidDaily || {};
-    if (ck.rating || ck.gamesWon || ckDaily.gamesPlayed) {
+    if (ck.rating || ck.gamesWon) {
       const ckTotal = (ck.gamesWon||0) + (ck.gamesLost||0) + (ck.gamesDrawn||0);
       const ckWr = ckTotal ? Math.round((ck.gamesWon||0)/ckTotal*100) : null;
-      html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">ChessKid (NewSoreNight)</div>`;
-      // Today's stats first
-      if (ckDaily.gamesPlayed) {
-        html += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;">
-          <span class="pv-tag" style="background:#3B82F622;color:#1D4ED8;">🎮 ${ckDaily.gamesPlayed} games today</span>
-          ${ckDaily.puzzlesSolved?`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">🧩 ${ckDaily.puzzlesSolved} puzzles today</span>`:''}
-          ${ckDaily.timeSpent?`<span class="pv-tag" style="background:#06D6A022;color:#059669;">⏱ ${ckDaily.timeSpent}</span>`:''}
-        </div>`;
-      }
-      html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">
+      html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">ChessKid (NewSoreNight)</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
         ${ck.rapid?`<span class="pv-tag" style="background:#22C55E22;color:#15803D;">Rapid ${ck.rapid}</span>`:''}
         ${ck.puzzleRating?`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">Puzzles ${ck.puzzleRating}</span>`:''}
         ${ckTotal?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">${ck.gamesWon}W · ${ck.gamesLost}L${ckWr?' · '+ckWr+'% wins':''}</span>`:''}
@@ -4524,49 +4258,28 @@ function renderParentView() {
     }
 
     // ── Lichess ──
-    const liDaily = plat.lichessDaily || {};
-    if (li.rating || li.gamesPlayed || liDaily.gamesPlayed) {
+    if (li.rating || li.gamesPlayed) {
       const wr = li.gamesPlayed ? Math.round((li.gamesWon||0)/li.gamesPlayed*100) : null;
-      html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Lichess (Sarahbh)</div>`;
-      // Today's stats first
-      if (liDaily.gamesPlayed || liDaily.puzzlesSolved || liDaily.timeSpent) {
-        html += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;">
-          ${liDaily.timeSpent?`<span class="pv-tag" style="background:#06D6A022;color:#059669;">⏱ ${liDaily.timeSpent} today</span>`:''}
-          ${liDaily.gamesPlayed?`<span class="pv-tag" style="background:#3B82F622;color:#1D4ED8;">🎮 ${liDaily.gamesPlayed} games today</span>`:''}
-          ${liDaily.puzzlesSolved?`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">🧩 ${liDaily.puzzlesSolved} puzzles today</span>`:''}
-        </div>`;
-      }
-      html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">
+      html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Lichess (Sarahbh)</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
         ${li.classical?`<span class="pv-tag" style="background:#1e1b4b22;color:#1e1b4b;">Classical ${li.classical}</span>`:''}
         ${li.puzzleRating?`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">Puzzles ${li.puzzleRating}</span>`:''}
         ${li.puzzlesSolved?`<span class="pv-tag" style="background:#06D6A022;color:#059669;">${(li.puzzlesSolved||0).toLocaleString()} puzzles</span>`:''}
         ${li.gamesPlayed?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">${li.gamesPlayed} games${wr?' · '+wr+'% wins':''}</span>`:''}
       </div></div>`;
     }
-    {
-      const ixlCfg = cfg.week?.ixl || {};
-      const ixlTime = ixlCfg.time || ixl.timeLast30d || '';
-      const ixlQA   = ixlCfg.questionsAttempted ?? ixl.questionsLast30d ?? 0;
-      const ixlQC   = ixlCfg.questionsCorrect ?? 0;
-      const ixlSW   = ixlCfg.skillsWorkedOn ?? ixl.skillsProgressed ?? 0;
-      const ixlAccPct = ixlQA > 0 ? Math.round(ixlQC / ixlQA * 100) : null;
-      if (ixlTime || ixlQA > 0 || ixlSW > 0 || ixl.skillsMastered || ixl.lastSkill) {
-        html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">IXL</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
-          ${ixlTime?`<span class="pv-tag" style="background:#0EA5E922;color:#0284C7;">⏱ ${ixlTime}</span>`:''}
-          ${ixlQA>0?`<span class="pv-tag" style="background:#6366F122;color:#4F46E5;">${ixlQA} questions attempted</span>`:''}
-          ${ixlQC>0?`<span class="pv-tag" style="background:#06D6A022;color:#059669;">${ixlQC} correct${ixlAccPct?' ('+ixlAccPct+'%)':''}</span>`:''}
-          ${ixlSW>0?`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">${ixlSW} skills worked on</span>`:''}
-          ${ixl.skillsMastered?`<span class="pv-tag" style="background:#06D6A022;color:#059669;">${ixl.skillsMastered} skills mastered</span>`:''}
-          ${ixl.lastSkill?`<span class="pv-tag" style="background:#6366F122;color:#4F46E5;">Last: ${ixl.lastSkill}${ixl.smartScore?' · SS '+ixl.smartScore:''}</span>`:''}
-        </div></div>`;
-      }
+    if (ixl.skillsMastered || ixl.lastSkill) {
+      html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">IXL</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${ixl.skillsMastered?`<span class="pv-tag" style="background:#06D6A022;color:#059669;">${ixl.skillsMastered} skills mastered</span>`:''}
+        ${ixl.lastSkill?`<span class="pv-tag" style="background:#6366F122;color:#4F46E5;">Last: ${ixl.lastSkill}${ixl.smartScore?' · SS '+ixl.smartScore:''}</span>`:''}
+      </div></div>`;
     }
     {
+      const pvBaDone  = cfg.week?.ba?.chaptersDone  != null ? cfg.week.ba.chaptersDone  : (ba.chaptersComplete ?? null);
+      const pvBaTotal = cfg.week?.ba?.chaptersTotal != null ? cfg.week.ba.chaptersTotal : (ba.totalChapters   ?? null);
       const pvBaBook  = cfg.week?.ba?.book || ba.currentBook || null;
       const pvBaChap  = cfg.week?.ba?.chapter || ba.currentChapter || null;
-      const pvBaWeekCh = cfg.week?.ba?.weeklyChapters ?? 0;
-      const pvBaWeekQ  = cfg.week?.ba?.weeklyQuestions ?? 0;
-      if (pvBaBook || pvBaWeekCh > 0) {
+      const pvBaPct   = pvBaDone != null && pvBaTotal ? Math.round(pvBaDone/pvBaTotal*100) : null;
+      if (pvBaBook || pvBaDone != null) {
         // BA daily activity minutes for current month
         const now = new Date();
         const baMinKey = `hs-ba-activity-${now.getFullYear()}-${now.getMonth()+1}`;
@@ -4582,15 +4295,14 @@ function renderParentView() {
             const h = Math.max(2, Math.round((mins/maxMin)*28));
             const isToday = day === now.getDate();
             const bg = mins===0 ? '#F3F4F6' : isToday ? '#F59E0B' : '#FCD34D';
-            return `<div title="Day ${day}: ${mins} min" style="display:inline-block;width:6px;height:${h}px;background:${bg};border-radius:2px;margin-right:1px;vertical-align:bottom;"></div>`;
+            return `<div title="Mar ${day}: ${mins} min" style="display:inline-block;width:6px;height:${h}px;background:${bg};border-radius:2px;margin-right:1px;vertical-align:bottom;"></div>`;
           }).join('');
           miniChart = `<div style="margin-top:6px;"><div style="font-size:.67rem;color:#9CA3AF;margin-bottom:3px;">Activity this month · ${totalMin} min total</div><div style="line-height:0;padding:4px 0;">${bars}</div></div>`;
         }
         html += `<div style="margin-bottom:10px;"><div style="font-size:.73rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Beast Academy</div><div style="display:flex;flex-wrap:wrap;gap:6px;">
           ${pvBaBook?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">Book ${pvBaBook}</span>`:''}
-          <span class="pv-tag" style="background:#F59E0B22;color:#D97706;">${pvBaWeekCh} chapter${pvBaWeekCh!==1?'s':''} this week</span>
-          <span class="pv-tag" style="background:#F59E0B22;color:#D97706;">${pvBaWeekQ} questions attempted</span>
-          ${pvBaChap?`<span style="font-size:.76rem;color:#6B7280;align-self:center;">Current: ${pvBaChap}</span>`:''}
+          ${pvBaDone!=null?`<span class="pv-tag" style="background:#F59E0B22;color:#D97706;">${pvBaDone}/${pvBaTotal||'?'} chapters done${pvBaPct?' ('+pvBaPct+'%)':''}</span>`:''}
+          ${pvBaChap?`<span style="font-size:.76rem;color:#6B7280;align-self:center;">In progress: ${pvBaChap}</span>`:''}
         </div>${miniChart}</div>`;
       }
     }
@@ -5483,68 +5195,6 @@ function deleteCustomTask(id) {
   render();
 }
 
-// ── Book completion tracking ────────────────────────────────
-function finishBook() {
-  const cfg = getActiveCFG();
-  const title = cfg.week?.book || '';
-  if (!title) return;
-  if (!confirm(`You finished "${title}"? That's amazing! 🎉`)) return;
-
-  // Add to book log
-  const log = load('hs-book-log') || [];
-  const already = log.find(b => b.title === title && b.status === 'finished');
-  if (!already) {
-    log.unshift({ title, status: 'finished', date: new Date().toISOString().split('T')[0] });
-    save('hs-book-log', log);
-  }
-
-  // Increment booksRead counter in config
-  const ov = load(CFG_KEY) || {};
-  ov.booksRead = (ov.booksRead || cfg.booksRead || 0) + 1;
-  save(CFG_KEY, ov);
-
-  // Award points if reward system exists
-  if (typeof awardRupees === 'function') {
-    awardRupees(10, 'Finished a book: ' + title, 'badge');
-  }
-
-  // Sync to Notion Reading Log (fire-and-forget)
-  syncBookFinishToNotion(title).then(ok => {
-    if (ok) console.log('[Notion] Book marked finished:', title);
-    else    console.warn('[Notion] Could not sync book finish for:', title);
-  });
-
-  // Celebrate and re-render
-  if (typeof celebrate === 'function') celebrate();
-  render();
-  renderBookLogRecent();
-}
-
-function renderBookLogRecent() {
-  const el = document.getElementById('book-log-recent');
-  if (!el) return;
-  const log = load('hs-book-log') || [];
-  const finished = log.filter(b => b.status === 'finished').slice(0, 5);
-  if (!finished.length) { el.innerHTML = ''; return; }
-  el.innerHTML = `<div style="font-size:.72rem;font-weight:700;color:#9CA3AF;margin-bottom:4px;">📚 Books finished:</div>` +
-    finished.map(b => `<div style="font-size:.78rem;color:#374151;padding:2px 0;">✅ ${b.title} <span style="color:#9CA3AF;">(${b.date})</span></div>`).join('');
-}
-
-// Quick Add Task from the prominent card at top of To Do tab
-function quickAddTask() {
-  const input = document.getElementById('quick-task-input');
-  const subject = document.getElementById('quick-task-subject');
-  const text = (input?.value || '').trim();
-  if (!text) { input?.focus(); return; }
-  const subj = subject?.value || 'Other';
-  const emoji = ({'Math':'🔢','Science':'🔬','English':'📖','Vocabulary':'📝','Chess':'♟️','History':'🏛️','Reading':'📚','Other':'📌'})[subj] || '📌';
-  const tasks = loadCustomTasks();
-  tasks.push({ id: `custom-${Date.now()}`, text: `${emoji} ${subj}: ${text}`, subject: subj });
-  saveCustomTasks(tasks);
-  input.value = '';
-  render();
-}
-
 // ═══════════════════════════════════════════════════════════
 //  REWARDS / SAVINGS ACCOUNT
 // ═══════════════════════════════════════════════════════════
@@ -5878,7 +5528,7 @@ function renderParentDaySummary() {
   const todayISO_ = now.toISOString().split('T')[0];
 
   // ── Task completions today ──
-  const dayKey  = `hs-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const dayKey  = `hs-${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
   const todayState = JSON.parse(localStorage.getItem(dayKey) || 'null') || {};
   const todayDone  = Object.keys(todayState).filter(k => todayState[k]).length;
   const todayTotal = Object.keys(todayState).length;
@@ -6012,38 +5662,8 @@ function renderProgressCard() {
   const cfg  = getActiveCFG();
   const w    = cfg.week;
   const plat = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
-  const mode = _reportsMode; // 'today' or 'week'
-  const fmtM = m => m < 60 ? `${m}m` : `${Math.floor(m/60)}h ${m%60}m`;
 
-  // ── Gather time-by-subject for the current period ──
-  const periodSubjectMins = {};
-  if (mode === 'today') {
-    const now = new Date();
-    const t = _getTimeForDate(now);
-    Object.assign(periodSubjectMins, t.bySubject);
-  } else {
-    const days = _getWeekDays();
-    days.forEach(d => {
-      const t = _getTimeForDate(d);
-      for (const [s, m] of Object.entries(t.bySubject)) periodSubjectMins[s] = (periodSubjectMins[s] || 0) + m;
-    });
-  }
-
-  // ── Gather task completion for the current period ──
-  const periodTaskState = {};
-  if (mode === 'today') {
-    const now = new Date();
-    const dk = `hs-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
-    Object.assign(periodTaskState, load(dk) || {});
-  } else {
-    const days = _getWeekDays();
-    days.forEach(d => {
-      const dk = `hs-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-      const st = load(dk) || {};
-      Object.assign(periodTaskState, st);
-    });
-  }
-
+  const sciPct    = Math.round((cfg.scienceComplete / cfg.scienceTotal) * 100);
   const vocPct    = Math.round((cfg.vocabDone / cfg.vocabTotal) * 100);
 
   // Platform stats from sync
@@ -6057,59 +5677,28 @@ function renderProgressCard() {
   const ck          = plat.chesskid || {};
   const chessRating = li.rating || ck.rapid || null;
   const chessParts = [];
-  const chessDaily = plat.lichessDaily || {};
-  const chessDailyCK = plat.chesskidDaily || {};
-  if (mode === 'today') {
-    if (chessDaily.gamesPlayed) chessParts.push(`${chessDaily.gamesPlayed} games today`);
-    if (chessDaily.timeSpent) chessParts.push(`${chessDaily.timeSpent} played`);
-    if (chessDaily.puzzlesSolved) chessParts.push(`${chessDaily.puzzlesSolved} puzzles today`);
-    if (chessDailyCK.gamesPlayed) chessParts.push(`CK: ${chessDailyCK.gamesPlayed} games`);
-    if (chessDailyCK.puzzlesSolved) chessParts.push(`CK: ${chessDailyCK.puzzlesSolved} puzzles`);
-    if (!chessParts.length) {
-      const chessTime = periodSubjectMins['Chess'] || 0;
-      chessParts.push(chessTime > 0 ? `${fmtM(chessTime)} logged today` : 'No activity today');
-    }
-  } else {
-    if (ck.rapid)        chessParts.push(`CK Rapid ${ck.rapid}`);
-    if (ck.puzzleRating) chessParts.push(`CK Puzzles ${ck.puzzleRating}`);
-    if (li.classical)    chessParts.push(`Lichess Classical ${li.classical}`);
-    if (li.puzzleRating) chessParts.push(`Li Puzzles ${li.puzzleRating} (${(li.puzzlesSolved||0).toLocaleString()} solved)`);
-    if (li.gamesWon != null && li.gamesPlayed) chessParts.push(`${li.gamesWon}W · ${li.gamesPlayed - li.gamesWon}L`);
-  }
+  if (ck.rapid)        chessParts.push(`CK Rapid ${ck.rapid}`);
+  if (ck.puzzleRating) chessParts.push(`CK Puzzles ${ck.puzzleRating}`);
+  if (li.classical)    chessParts.push(`Lichess Classical ${li.classical}`);
+  if (li.puzzleRating) chessParts.push(`Li Puzzles ${li.puzzleRating} (${(li.puzzlesSolved||0).toLocaleString()} solved)`);
+  if (li.gamesWon != null && li.gamesPlayed) chessParts.push(`${li.gamesWon}W · ${li.gamesPlayed - li.gamesWon}L`);
   const chessDetail = chessParts.length ? chessParts.join(' · ') : 'Fetching ratings…';
   const chessBadge  = chessRating ? `⭐ ${chessRating}` : null;
 
-  // Beast Academy — time-aware
-  const baWeekCh = w.ba?.weeklyChapters ?? 0;
-  const baWeekQ  = w.ba?.weeklyQuestions ?? 0;
-  const mathTime = periodSubjectMins['Math'] || 0;
-  const baDetail = mode === 'today'
-    ? `${w.ba?.book || ''} · ${w.ba?.chapter || ''} · ${mathTime > 0 ? fmtM(mathTime) + ' Math time today' : 'No Math time yet'}`
-    : `${w.ba?.book || ''} · ${baWeekCh} chapter${baWeekCh!==1?'s':''} this week · ${baWeekQ} questions attempted`;
-  const baBadge  = mode === 'today'
-    ? (mathTime > 0 ? fmtM(mathTime) : null)
-    : (baWeekCh > 0 ? baWeekCh + ' ch' : null);
+  // Beast Academy — parent panel overrides take priority over sync data
+  const baDone   = w.ba?.chaptersDone  != null ? w.ba.chaptersDone  : (ba.chaptersComplete ?? null);
+  const baTotal  = w.ba?.chaptersTotal != null ? w.ba.chaptersTotal : (ba.totalChapters   ?? null);
+  const baPct    = baDone != null && baTotal ? Math.round(baDone / baTotal * 100) : null;
+  const baDetail = baDone != null
+    ? `${w.ba?.book || ba.currentBook || ''} · ${baDone}/${baTotal || '?'} chapters done · ${w.ba?.chapter || ba.currentChapter || ''}`
+    : (w.ba?.book ? `${w.ba.book} · ${w.ba.chapter || ''}` : '—');
+  const baBadge  = baPct != null ? baPct + '%' : null;
 
-  // IXL — time-aware
-  const ixlCfg = w.ixl || {};
-  const ixlDetailParts = [];
-  if (mode === 'today') {
-    // For daily, show any logged time and the configured stats
-    const ixlTimeToday = periodSubjectMins['Math'] ? 'Active today' : '';
-    if (ixlCfg.time) ixlDetailParts.push(`⏱ ${ixlCfg.time}`);
-    if (ixlCfg.questionsAttempted) ixlDetailParts.push(`${ixlCfg.questionsAttempted} attempted`);
-    if (ixlCfg.questionsCorrect) ixlDetailParts.push(`${ixlCfg.questionsCorrect} correct`);
-    if (ixlCfg.skillsWorkedOn) ixlDetailParts.push(`${ixlCfg.skillsWorkedOn} skills`);
-  } else {
-    if (ixlCfg.time) ixlDetailParts.push(`⏱ ${ixlCfg.time}`);
-    if (ixlCfg.questionsAttempted) ixlDetailParts.push(`${ixlCfg.questionsAttempted} attempted`);
-    if (ixlCfg.questionsCorrect) ixlDetailParts.push(`${ixlCfg.questionsCorrect} correct`);
-    if (ixlCfg.skillsWorkedOn) ixlDetailParts.push(`${ixlCfg.skillsWorkedOn} skills`);
-    if (ixl.skillsMastered) ixlDetailParts.push(`${ixl.skillsMastered} mastered`);
-  }
-  if (!ixlDetailParts.length) ixlDetailParts.push(w.ixl?.skill || 'No data yet');
-  const ixlDetail = ixlDetailParts.join(' · ');
-  const ixlBadge = ixlCfg.questionsCorrect ? ixlCfg.questionsCorrect + ' ✓' : (ixl.skillsMastered ? ixl.skillsMastered + ' ✓' : null);
+  // IXL
+  const ixlParts = [];
+  if (ixl.skillsMastered)  ixlParts.push(`${ixl.skillsMastered} skills mastered`);
+  if (ixl.lastSkill)       ixlParts.push(ixl.lastSkill + (ixl.smartScore ? ' · SS ' + ixl.smartScore : ''));
+  const ixlDetail = ixlParts.length ? ixlParts.join(' · ') : (w.ixl?.skill || 'No data yet — runs at 8pm sync');
 
   // Vocabulary — merge platform data with parent config
   const vocTotal   = vs.totalWords || cfg.vocabDone;
@@ -6123,26 +5712,17 @@ function renderProgressCard() {
   // Reading
   const currentBook = (w.book || '').replace(/\(.*\)/, '').trim() || 'No book set this week';
 
-  // Science — Sarah only sees current assignment from weekly plan, not chapter tracking
-  const sciAssignment = w.science?.chapter ? `${w.science.chapter}${w.science.part ? ' — ' + w.science.part : ''}` : 'Check your plan for today';
-  const sciTime = periodSubjectMins['Science'] || 0;
+  // Science in-progress label
+  const sciDetail = `${cfg.scienceComplete}/${cfg.scienceTotal} chapters · ${(cfg.scienceInProgress || '').replace(/—.*\(today\)/i, '').trim() || 'Ch ' + (cfg.scienceComplete + 1)}`;
 
-  const periodLabel = mode === 'today' ? 'Today' : 'This Week';
   const rows = [
-    { icon:'🔬', name:'Science',        detail: sciAssignment, pct: null,     color:'#10B981', badge: sciTime > 0 ? fmtM(sciTime) : null,
-      time: sciTime },
-    { icon:'🐉', name:'Beast Academy',  detail: baDetail,    pct: null,       color:'#F59E0B', badge: baBadge,
-      time: mathTime },
-    { icon:'📘', name:'Singapore Math', detail: w.sm?.chapter ? w.sm.chapter + (w.sm.topic ? ' · ' + w.sm.topic : '') : '—', pct: null, color:'#3B82F6', badge: null,
-      time: 0 },
-    { icon:'📊', name:'IXL',           detail: ixlDetail,   pct: null,       color:'#6366F1', badge: ixlBadge,
-      time: 0 },
-    { icon:'📝', name:'Vocabulary',    detail: vocDetail,   pct: vocPctFull, color:'#8B5CF6', badge: vocPctFull + '%',
-      time: periodSubjectMins['Vocabulary'] || 0 },
-    { icon:'♟️', name:'Chess',          detail: chessDetail, pct: null,       color:'#374151', badge: chessBadge,
-      time: periodSubjectMins['Chess'] || 0 },
-    { icon:'📖', name:'Reading',        detail: currentBook, pct: null,       color:'#EC4899', badge: null,
-      time: periodSubjectMins['Reading'] || 0 },
+    { icon:'🔬', name:'Science',        detail: sciDetail,   pct: sciPct,     color:'#10B981', badge: sciPct + '%' },
+    { icon:'🐉', name:'Beast Academy',  detail: baDetail,    pct: baPct,      color:'#F59E0B', badge: baBadge },
+    { icon:'📘', name:'Singapore Math', detail: w.sm?.chapter ? w.sm.chapter + (w.sm.topic ? ' · ' + w.sm.topic : '') : '—', pct: null, color:'#3B82F6', badge: null },
+    { icon:'📊', name:'IXL',           detail: ixlDetail,   pct: null,       color:'#6366F1', badge: ixl.skillsMastered ? ixl.skillsMastered + ' ✓' : null },
+    { icon:'📝', name:'Vocabulary',    detail: vocDetail,   pct: vocPctFull, color:'#8B5CF6', badge: vocPctFull + '%' },
+    { icon:'♟️', name:'Chess (Lichess)',detail: chessDetail, pct: null,       color:'#374151', badge: chessBadge },
+    { icon:'📖', name:'Reading',        detail: currentBook, pct: null,       color:'#EC4899', badge: null },
   ];
 
   const rowsHTML = rows.map((r, i) => `
@@ -6150,7 +5730,7 @@ function renderProgressCard() {
     <div class="prog-subject-row">
       <div class="prog-subject-icon">${r.icon}</div>
       <div class="prog-subject-info">
-        <div class="prog-subject-name">${r.name}${r.time > 0 ? ` <span style="font-size:.72rem;color:#9CA3AF;font-weight:600;">${fmtM(r.time)} ${periodLabel.toLowerCase()}</span>` : ''}</div>
+        <div class="prog-subject-name">${r.name}</div>
         <div class="prog-subject-detail" title="${r.detail}">${r.detail}</div>
         ${r.pct !== null ? `<div class="prog-mini-bar"><div class="prog-mini-fill" data-pct="${r.pct}" style="width:0%;background:${r.color};"></div></div>` : ''}
       </div>
@@ -6158,7 +5738,7 @@ function renderProgressCard() {
     </div>`).join('');
 
   el.innerHTML = `<div class="card progress-card">
-    <div class="card-title">📊 Curriculum Progress — ${periodLabel}</div>
+    <div class="card-title">📊 Curriculum Progress</div>
     <div class="progress-grid">${rowsHTML}</div>
   </div>`;
 
@@ -6180,7 +5760,6 @@ function renderProgressCard() {
 // ═══════════════════════════════════════════════════════════
 const NOTION_QUEUE_KEY  = 'hs-notion-queue';
 const NOTION_ACTIVITY_DB = 'a9d4bb9c-eb0c-4288-8cf5-7805a47f3139';
-const NOTION_READING_DB  = 'bf9b893a-a8f0-47a1-a91c-eb620fd0416c';
 
 function getNotionProxyUrl() {
   const proxy = (localStorage.getItem('hs-proxy-url') || '').replace(/\/$/, '');
@@ -6209,62 +5788,6 @@ async function syncEntryToNotion(entry) {
     });
     return resp.ok;
   } catch { return false; }
-}
-
-// ── Sync book completion to Notion Reading Log ──
-// Finds the book by title, updates Status → Finished and sets Date finished
-async function syncBookFinishToNotion(bookTitle) {
-  const base = getNotionProxyUrl();
-  if (!base || !bookTitle) return false;
-  const notionToken = localStorage.getItem('hs-notion-key') || '';
-  const headers = { 'Content-Type': 'application/json', ...(notionToken ? { 'x-notion-key': notionToken } : {}) };
-  try {
-    // Step 1: Query Reading Log for the book by title
-    const queryResp = await fetch(`${base}/v1/databases/${NOTION_READING_DB}/query`, {
-      method: 'POST', headers,
-      body: JSON.stringify({
-        filter: { property: 'Title', title: { equals: bookTitle } },
-        page_size: 1
-      })
-    });
-    if (!queryResp.ok) return false;
-    const queryData = await queryResp.json();
-    const today = new Date().toISOString().split('T')[0];
-
-    if (!queryData.results || queryData.results.length === 0) {
-      // Book not in Reading Log yet — create a new entry marked Finished
-      console.log('[Notion] Book not found, creating new entry:', bookTitle);
-      const createResp = await fetch(`${base}/v1/pages`, {
-        method: 'POST', headers,
-        body: JSON.stringify({
-          parent: { database_id: NOTION_READING_DB },
-          properties: {
-            'Title':         { title: [{ text: { content: bookTitle } }] },
-            'Status':        { select: { name: 'Finished' } },
-            'Date finished': { date:   { start: today } }
-          }
-        })
-      });
-      return createResp.ok;
-    }
-
-    const pageId = queryData.results[0].id;
-
-    // Step 2: Update existing page — Status → Finished, Date finished → today
-    const updateResp = await fetch(`${base}/v1/pages/${pageId}`, {
-      method: 'PATCH', headers,
-      body: JSON.stringify({
-        properties: {
-          'Status':        { select: { name: 'Finished' } },
-          'Date finished': { date:   { start: today } }
-        }
-      })
-    });
-    return updateResp.ok;
-  } catch(e) {
-    console.error('[Notion] Book finish sync failed:', e);
-    return false;
-  }
 }
 
 function notionQueueAdd(entry) {
@@ -6340,7 +5863,7 @@ async function fetchChessStats() {
   const chesskidDone  = plat.chesskid?.lastUpdated  === today;
   if (lichessDone && chesskidDone) return;
 
-  // ── Lichess (public API — profile + daily activity) ──
+  // ── Lichess (public API) ──
   if (!lichessDone) {
     try {
       const res = await fetch('https://lichess.org/api/user/Sarahbh', {
@@ -6359,48 +5882,10 @@ async function fetchChessStats() {
           puzzlesSolved: li.perfs?.puzzle?.games || 0,
           gamesPlayed:   li.count?.all  || 0,
           gamesWon:      li.count?.win  || 0,
-          playTimeTotal: li.playTime?.total || 0,   // total seconds
           lastUpdated:   today
         };
       }
     } catch(e) { /* offline */ }
-
-    // Lichess daily activity (games played today + puzzle activity)
-    try {
-      const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-      const sinceMs = todayStart.getTime();
-      const gRes = await fetch(`https://lichess.org/api/user/Sarahbh/activity`, {
-        headers: { Accept: 'application/json' }, cache: 'no-cache'
-      });
-      if (gRes.ok) {
-        const activities = await gRes.json();
-        // Lichess activity returns array of activity objects with interval.start/end
-        let dailyGames = 0, dailyPuzzles = 0, puzzleThemes = [];
-        if (Array.isArray(activities)) {
-          activities.forEach(act => {
-            // Only count activity from today
-            const actStart = act.interval?.start || 0;
-            if (actStart >= sinceMs || (act.interval?.end || 0) >= sinceMs) {
-              if (act.games) {
-                for (const [variant, data] of Object.entries(act.games)) {
-                  dailyGames += (data.win || 0) + (data.loss || 0) + (data.draw || 0);
-                }
-              }
-              if (act.puzzles) {
-                dailyPuzzles += (act.puzzles.score?.win || 0) + (act.puzzles.score?.loss || 0) + (act.puzzles.score?.draw || 0);
-              }
-            }
-          });
-        }
-        const chessTimeMins = periodChessTime(todayStart);
-        plat.lichessDaily = {
-          gamesPlayed: dailyGames,
-          puzzlesSolved: dailyPuzzles,
-          timeSpent: chessTimeMins > 0 ? (chessTimeMins < 60 ? chessTimeMins + 'm' : Math.floor(chessTimeMins/60) + 'h ' + (chessTimeMins%60) + 'm') : '',
-          lastUpdated: today
-        };
-      }
-    } catch(e) { /* activity fetch failed — non-critical */ }
   }
 
   // ── ChessKid via Chess.com public API (shared infrastructure) ──
@@ -6427,42 +5912,10 @@ async function fetchChessStats() {
         };
       }
     } catch(e) { /* CORS or offline — ChessKid data may not be available */ }
-
-    // ChessKid daily games (monthly archive filtered to today)
-    try {
-      const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm   = String(now.getMonth()+1).padStart(2,'0');
-      const archRes = await fetch(`https://api.chess.com/pub/player/newsorenight/games/${yyyy}/${mm}`, {
-        headers: { Accept: 'application/json' }, cache: 'no-cache'
-      });
-      if (archRes.ok) {
-        const arch = await archRes.json();
-        const games = arch.games || [];
-        const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-        const todayGames = games.filter(g => (g.end_time || 0) * 1000 >= todayStart.getTime());
-        plat.chesskidDaily = {
-          gamesPlayed: todayGames.length,
-          lastUpdated: today
-        };
-      }
-    } catch(e) { /* CORS or offline */ }
   }
 
   localStorage.setItem('hs-platform-stats', JSON.stringify(plat));
   renderProgressCard(); // refresh card with live ratings
-}
-
-// Helper: get Chess timer minutes for a date from timer logs
-function periodChessTime(fromDate) {
-  const tk = `hs-time-${fromDate.getFullYear()}-${fromDate.getMonth()}-${fromDate.getDate()}`;
-  const tlog = JSON.parse(localStorage.getItem(tk) || '{}');
-  let mins = 0;
-  for (const [k, v] of Object.entries(tlog)) {
-    if (k.endsWith('__text')) continue;
-    if (k.startsWith('Chess')) mins += parseInt(v) || 0;
-  }
-  return mins;
 }
 
 // ── INIT ──
