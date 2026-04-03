@@ -674,13 +674,13 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
         </select>
         <input id="kl-chapter" type="text" placeholder="Ch #" style="padding:8px 10px;border-radius:8px;border:1.5px solid #D1D5DB;font-family:inherit;font-size:.85rem;font-weight:700;">
       </div>
-      <div id="kl-drop-zone" style="border:2.5px dashed #D1D5DB;border-radius:12px;padding:20px 16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-top:8px;">
+      <div id="kl-drop-zone" style="border:2.5px dashed #D1D5DB;border-radius:12px;padding:20px 16px;text-align:center;cursor:pointer;transition:all .2s;margin-top:8px;">
         <div style="font-size:1.6rem;margin-bottom:4px;">📷</div>
         <div style="font-size:.85rem;font-weight:800;color:#4F46E5;">Drop answer key images here</div>
         <div style="font-size:.76rem;color:#9CA3AF;margin-top:4px;">or click to browse · JPG, PNG, or PDF</div>
-        <input id="kl-file-input" type="file" accept="image/jpeg,image/png,application/pdf" multiple
-          style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleKeyLibraryUpload(this.files)">
       </div>
+      <input id="kl-file-input" type="file" accept="image/jpeg,image/png,application/pdf" multiple
+        style="display:none;" onchange="handleKeyLibraryUpload(this.files)">
       <div id="kl-upload-status" style="font-size:.78rem;font-weight:700;color:#6B7280;margin-top:8px;min-height:18px;"></div>
     </div>
     <!-- Stored keys list -->
@@ -841,13 +841,13 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
         <button class="btn btn-secondary btn-sm" onclick="toggleRawOCR()">Show Raw OCR</button>
         <button class="btn btn-secondary btn-sm" onclick="toggleParserLog()">Parser Log</button>
       </div>
-      <div id="ak-drop-zone" style="border:2.5px dashed #C8E6C9;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin:10px 0;">
+      <div id="ak-drop-zone" style="border:2.5px dashed #C8E6C9;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;margin:10px 0;">
         <div style="font-size:1.3rem;margin-bottom:2px;">📋</div>
         <div style="font-size:.82rem;font-weight:800;color:#2E7D32;">Drop answer key pages here</div>
         <div style="font-size:.74rem;color:#9CA3AF;margin-top:3px;">or click to browse · JPG, PNG, or PDF</div>
-        <input id="ak-file-input" type="file" accept="image/jpeg,image/png,application/pdf" multiple
-          style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleAnswerKeyUpload(this.files)">
       </div>
+      <input id="ak-file-input" type="file" accept="image/jpeg,image/png,application/pdf" multiple
+        style="display:none;" onchange="handleAnswerKeyUpload(this.files)">
       <div class="raw-output" id="raw-ocr-review"></div>
       <div class="raw-output" id="parser-log" style="font-size:0.8em;white-space:pre-wrap;max-height:400px;overflow-y:auto;"></div>
     </div>
@@ -1133,6 +1133,10 @@ function goTo(sec) {
 // ═══════════════════════════════════════════
 //  FILE UPLOAD (multi-file + PDF support)
 // ═══════════════════════════════════════════
+// Prevent browser from opening dropped files outside drop zones
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => e.preventDefault());
+
 const uploadZone = document.getElementById('upload-zone');
 const fileInput = document.getElementById('file-input');
 
@@ -1268,10 +1272,11 @@ function openKeyLibrary() {
   // Set up drag-and-drop on the answer key drop zone
   const klDrop = document.getElementById('kl-drop-zone');
   if (klDrop && !klDrop._hasDropListeners) {
-    klDrop.addEventListener('dragover', e => { e.preventDefault(); klDrop.style.borderColor = '#4F46E5'; klDrop.style.background = '#EEF2FF'; });
+    klDrop.addEventListener('click', () => document.getElementById('kl-file-input').click());
+    klDrop.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); klDrop.style.borderColor = '#4F46E5'; klDrop.style.background = '#EEF2FF'; });
     klDrop.addEventListener('dragleave', () => { klDrop.style.borderColor = '#D1D5DB'; klDrop.style.background = ''; });
     klDrop.addEventListener('drop', e => {
-      e.preventDefault();
+      e.preventDefault(); e.stopPropagation();
       klDrop.style.borderColor = '#D1D5DB'; klDrop.style.background = '';
       if (e.dataTransfer.files.length) handleKeyLibraryUpload(e.dataTransfer.files);
     });
@@ -2885,10 +2890,11 @@ function renderReview() {
   // Set up drag-and-drop on the review panel answer key drop zone
   const akDrop = document.getElementById('ak-drop-zone');
   if (akDrop && !akDrop._hasDropListeners) {
-    akDrop.addEventListener('dragover', e => { e.preventDefault(); akDrop.style.borderColor = '#2E7D32'; akDrop.style.background = '#E8F5E9'; });
+    akDrop.addEventListener('click', () => document.getElementById('ak-file-input').click());
+    akDrop.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); akDrop.style.borderColor = '#2E7D32'; akDrop.style.background = '#E8F5E9'; });
     akDrop.addEventListener('dragleave', () => { akDrop.style.borderColor = '#C8E6C9'; akDrop.style.background = ''; });
     akDrop.addEventListener('drop', e => {
-      e.preventDefault();
+      e.preventDefault(); e.stopPropagation();
       akDrop.style.borderColor = '#C8E6C9'; akDrop.style.background = '';
       if (e.dataTransfer.files.length) handleAnswerKeyUpload(e.dataTransfer.files);
     });
