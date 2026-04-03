@@ -939,6 +939,14 @@ let uploadedFiles = [];          // array of { file, dataUrl, type: 'image'|'pdf
 let allOcrData = [];             // raw OCR responses per file/page
 
 // ═══════════════════════════════════════════
+//  API ENDPOINT (respects dashboard proxy)
+// ═══════════════════════════════════════════
+function getAnthropicEndpoint() {
+  const proxy = (localStorage.getItem('hs-proxy-url') || '').replace(/\/$/, '');
+  return proxy ? proxy : 'https://api.anthropic.com/v1/messages';
+}
+
+// ═══════════════════════════════════════════
 //  SETTINGS
 // ═══════════════════════════════════════════
 function loadSettings() {
@@ -1616,7 +1624,7 @@ IMPORTANT: I am also sending you the original page IMAGES so you can visually in
 
   plog('Sending ' + (contentBlocks.length - 1) + ' page images + prompt to Claude for extraction');
 
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+  const resp = await fetch(getAnthropicEndpoint(), {
     method: 'POST',
     headers: {
       'x-api-key': apiKey,
@@ -2455,7 +2463,7 @@ Include answers from ALL chapters present in the answer key, not just one. Tag e
 
 If the answer key uses a compact format (like "1. 5, 3  2. 2, 3"), expand the answers to be clear, using context from the question numbers and chapter topic if possible.`;
 
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(getAnthropicEndpoint(), {
       method: 'POST',
       headers: {
         'x-api-key': anthropicKey,
@@ -2930,7 +2938,7 @@ async function startGrading() {
 }
 
 async function callClaude(apiKey, systemPrompt, userPrompt) {
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+  const resp = await fetch(getAnthropicEndpoint(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -2988,7 +2996,7 @@ async function generateObservations(apiKey) {
 
   // Re-call without JSON expectation
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(getAnthropicEndpoint(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
