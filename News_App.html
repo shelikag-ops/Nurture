@@ -1440,14 +1440,11 @@
                     // Always refresh all-stories list from JSON
                     localStorage.setItem('news-all-stories-' + dateKey, JSON.stringify(data.stories));
                 }
-                // Store only curated videos with specific direct YouTube watch links
+                // Store curated videos — accept any YouTube URL (search or watch)
+                // Always overwrite to clear stale/broken cached links
                 {
-                    const curated = (data.videos || []).filter(v =>
-                        v.url && v.url.includes('youtube.com/watch?v=')
-                    );
-                    if (curated.length) {
-                        localStorage.setItem('news-videos-' + dateKey, JSON.stringify(curated));
-                    }
+                    const curated = (data.videos || []).filter(v => v.url);
+                    localStorage.setItem('news-videos-' + dateKey, JSON.stringify(curated));
                 }
                 if (data.infographic) {
                     // Always update infographic from fresh JSON (overwrite stale content)

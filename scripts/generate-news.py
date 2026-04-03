@@ -17,10 +17,10 @@ Return ONLY valid JSON with no markdown fencing, matching this exact schema:
     {{"headline": "...", "summary": "...", "bigWord": "...", "bigWordDef": "...", "thinkQuestion": "..."}}
   ],
   "videos": [
-    {{"title": "exact video title as it appears on YouTube", "description": "one sentence explaining what this video covers and why it is relevant to today's news", "url": "https://www.youtube.com/watch?v=VIDEO_ID", "topic": "subject category e.g. Space, Climate, India"}},
-    {{"title": "...", "description": "...", "url": "https://www.youtube.com/watch?v=VIDEO_ID", "topic": "..."}},
-    {{"title": "...", "description": "...", "url": "https://www.youtube.com/watch?v=VIDEO_ID", "topic": "..."}},
-    {{"title": "...", "description": "...", "url": "https://www.youtube.com/watch?v=VIDEO_ID", "topic": "..."}}
+    {{"title": "short descriptive title for the video topic", "description": "one sentence on what this video covers and why it relates to today's news", "searchQuery": "concise YouTube search terms to find a good educational video on this topic", "topic": "subject category e.g. Space, Climate, India"}},
+    {{"title": "...", "description": "...", "searchQuery": "...", "topic": "..."}},
+    {{"title": "...", "description": "...", "searchQuery": "...", "topic": "..."}},
+    {{"title": "...", "description": "...", "searchQuery": "...", "topic": "..."}}
   ],
   "infographic": {{
     "caption": "a short descriptive title for the infographic",
@@ -37,11 +37,10 @@ Return ONLY valid JSON with no markdown fencing, matching this exact schema:
 }}
 
 CRITICAL rules for the videos array:
-- Provide EXACTLY 4 videos, each a SPECIFIC YouTube video with a real video ID (not a search results page).
-- Use the format https://www.youtube.com/watch?v=VIDEO_ID replacing VIDEO_ID with an actual 11-character YouTube ID you are confident exists.
-- Choose videos from trusted educational channels appropriate for a 13-year-old: TED-Ed, National Geographic, Kurzgesagt, SciShow Kids, Crash Course, PBS Terra, Veritasium, or similar. Choose channels known to you.
-- Each video should be directly relevant to one of today's 6 stories.
-- Do NOT use YouTube search URLs (youtube.com/results). Only use direct watch URLs."""
+- Provide EXACTLY 4 videos with a searchQuery field (concise YouTube search keywords — NOT a URL).
+- Do NOT provide YouTube video IDs or watch URLs — LLMs cannot reliably produce valid video IDs.
+- Choose search terms that will surface results from trusted educational channels: TED-Ed, National Geographic, Kurzgesagt, SciShow, Crash Course, PBS Terra, Veritasium, BBC Earth, or similar.
+- Each video should be directly relevant to one of today's 6 stories."""
 
 payload = json.dumps({
     "model": "claude-sonnet-4-6",
@@ -59,11 +58,6 @@ req = urllib.request.Request(
     }
 )
 
-def extract_yt_id(url):
-    """Extract YouTube video ID from a watch URL."""
-    m = re.search(r'[?&]v=([a-zA-Z0-9_-]{11})', url or '')
-    return m.group(1) if m else None
-
 try:
     with urllib.request.urlopen(req, timeout=60) as resp:
         data = json.loads(resp.read())
@@ -74,15 +68,12 @@ try:
             text = text[4:]
         content = json.loads(text.strip())
 
-        # Enrich each video entry with its extracted YouTube ID
+        # Build YouTube search URLs from the searchQuery field
         for v in content.get("videos", []):
-            vid = extract_yt_id(v.get("url", ""))
-            if vid:
-                v["youtubeId"] = vid
-            # Reject any search-result URLs that slipped through
-            if "results?search_query" in v.get("url", ""):
-                v["url"] = ""
-                v["youtubeId"] = ""
+            query = v.pop("searchQuery", "") or v.get("title", "")
+            v["url"] = "https://www.youtube.com/results?search_query=" + urllib.parse.quote_plus(query)
+            # Remove any fabricated watch URLs or IDs the model may have included
+            v.pop("youtubeId", None)
 
         with open("news-content.json", "w") as f:
             json.dump(content, f, indent=2, ensure_ascii=False)

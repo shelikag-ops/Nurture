@@ -48,30 +48,26 @@
     {
       "title": "Europa: The Ocean Moon | National Geographic",
       "description": "This National Geographic documentary explores Jupiter's moon Europa and its subsurface ocean, directly relevant to today's story about NASA's Europa Clipper flyby findings.",
-      "url": "https://www.youtube.com/watch?v=5RnmXvNwwAE",
-      "topic": "Space",
-      "youtubeId": "5RnmXvNwwAE"
+      "url": "https://www.youtube.com/results?search_query=Europa+ocean+moon+NASA+Europa+Clipper+National+Geographic",
+      "topic": "Space"
     },
     {
-      "title": "What Is a Semiconductor? - Kurzgesagt",
-      "description": "Kurzgesagt explains how semiconductors and microchips work, giving excellent background for understanding why India's new Tata semiconductor fabrication plant is such a significant milestone.",
-      "url": "https://www.youtube.com/watch?v=OwS9aTE2Go4",
-      "topic": "India Technology",
-      "youtubeId": "OwS9aTE2Go4"
+      "title": "What Is a Semiconductor? — How Chips Are Made",
+      "description": "Learn how semiconductors and microchips work — great background for understanding why India's new Tata semiconductor fabrication plant is such a significant milestone.",
+      "url": "https://www.youtube.com/results?search_query=how+semiconductors+work+explained+microchips",
+      "topic": "India Technology"
     },
     {
-      "title": "The Arctic Ice Crisis - TED-Ed",
-      "description": "This TED-Ed video breaks down why Arctic sea ice is melting faster than expected and explains the albedo feedback loop at the heart of today's alarming IPCC report.",
-      "url": "https://www.youtube.com/watch?v=GB-p_rFqBxg",
-      "topic": "Climate",
-      "youtubeId": "GB-p_rFqBxg"
+      "title": "The Arctic Ice Crisis - Why Scientists Are Alarmed",
+      "description": "Why Arctic sea ice is melting faster than expected and what the albedo feedback loop means for our planet's future.",
+      "url": "https://www.youtube.com/results?search_query=Arctic+ice+crisis+melting+explained+TED-Ed+climate",
+      "topic": "Climate"
     },
     {
-      "title": "How Trees Secretly Talk to Each Other - BBC Earth",
-      "description": "BBC Earth's exploration of the Wood Wide Web and mycorrhizal fungal networks provides vivid visual context for today's groundbreaking study on real-time tree communication.",
-      "url": "https://www.youtube.com/watch?v=iSpNUSxBzaU",
-      "topic": "Nature & Science",
-      "youtubeId": "iSpNUSxBzaU"
+      "title": "How Trees Secretly Talk to Each Other",
+      "description": "Explore the Wood Wide Web — how trees communicate through underground fungal networks to share nutrients and warn each other of threats.",
+      "url": "https://www.youtube.com/results?search_query=how+trees+talk+to+each+other+wood+wide+web+BBC",
+      "topic": "Nature & Science"
     }
   ],
   "infographic": {
