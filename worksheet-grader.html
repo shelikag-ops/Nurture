@@ -838,13 +838,15 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
           <input type="file" accept="image/jpeg,image/png,application/pdf" multiple
             style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleMorePages(this.files)">
         </label>
-        <label class="btn btn-secondary btn-sm" style="cursor:pointer;position:relative;background:#e8f5e9;border-color:#4caf50;">
-          📋 Upload Answer Key
-          <input type="file" accept="image/jpeg,image/png,application/pdf" multiple
-            style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleAnswerKeyUpload(this.files)">
-        </label>
         <button class="btn btn-secondary btn-sm" onclick="toggleRawOCR()">Show Raw OCR</button>
         <button class="btn btn-secondary btn-sm" onclick="toggleParserLog()">Parser Log</button>
+      </div>
+      <div id="ak-drop-zone" style="border:2.5px dashed #C8E6C9;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin:10px 0;">
+        <div style="font-size:1.3rem;margin-bottom:2px;">📋</div>
+        <div style="font-size:.82rem;font-weight:800;color:#2E7D32;">Drop answer key pages here</div>
+        <div style="font-size:.74rem;color:#9CA3AF;margin-top:3px;">or click to browse · JPG, PNG, or PDF</div>
+        <input id="ak-file-input" type="file" accept="image/jpeg,image/png,application/pdf" multiple
+          style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleAnswerKeyUpload(this.files)">
       </div>
       <div class="raw-output" id="raw-ocr-review"></div>
       <div class="raw-output" id="parser-log" style="font-size:0.8em;white-space:pre-wrap;max-height:400px;overflow-y:auto;"></div>
@@ -2879,6 +2881,19 @@ function renderReview() {
   }
 
   checkAllResolved();
+
+  // Set up drag-and-drop on the review panel answer key drop zone
+  const akDrop = document.getElementById('ak-drop-zone');
+  if (akDrop && !akDrop._hasDropListeners) {
+    akDrop.addEventListener('dragover', e => { e.preventDefault(); akDrop.style.borderColor = '#2E7D32'; akDrop.style.background = '#E8F5E9'; });
+    akDrop.addEventListener('dragleave', () => { akDrop.style.borderColor = '#C8E6C9'; akDrop.style.background = ''; });
+    akDrop.addEventListener('drop', e => {
+      e.preventDefault();
+      akDrop.style.borderColor = '#C8E6C9'; akDrop.style.background = '';
+      if (e.dataTransfer.files.length) handleAnswerKeyUpload(e.dataTransfer.files);
+    });
+    akDrop._hasDropListeners = true;
+  }
 }
 
 // ── Edit any question (flagged or auto-accepted) ──
