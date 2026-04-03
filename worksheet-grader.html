@@ -871,7 +871,7 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
       </div>
       <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
         <button class="btn btn-green" id="btn-grade" disabled onclick="startGrading()">Confirm & Grade</button>
-        <button class="btn btn-secondary btn-sm" id="btn-ai-solve" onclick="computeAiAnswers()" style="background:#EDE9FE;border-color:#7C3AED;color:#5B21B6;font-weight:800;">🤖 Compute AI Answers</button>
+        <button class="btn btn-secondary btn-sm" id="btn-ai-solve" onclick="computeAiAnswers().then(()=>{autoSetVerdicts();renderReview();})" style="background:#EDE9FE;border-color:#7C3AED;color:#5B21B6;font-weight:800;">🤖 Recompute AI Answers</button>
         <label class="btn btn-secondary btn-sm" style="cursor:pointer;position:relative;">
           + Add more pages
           <input type="file" accept="image/jpeg,image/png,application/pdf" multiple
@@ -1583,15 +1583,27 @@ async function runOCRPipeline(mistralKey) {
     plog('No Anthropic key — skipping Claude answer extraction');
   }
 
-  fill.style.width = '100%';
-  label.textContent = '✓ Processing complete — ' + parsedQuestions.length + ' questions ready for review';
+  fill.style.width = '95%';
+  label.textContent = '✓ Answers extracted — now computing AI answers...';
 
   // Run sanity checks
   runSanityChecks(parsedQuestions);
 
-  // Move to review
+  // Move to review (show table while AI computes)
   renderReview();
   goTo('review');
+
+  // ── Step 2: Auto-compute AI answers (Claude solves each problem) ──
+  if (anthropicKey) {
+    // Don't await — let it run in background while user sees the review table
+    computeAiAnswers().then(() => {
+      // After AI answers arrive, auto-set verdicts based on comparison
+      autoSetVerdicts();
+      renderReview();
+    }).catch(e => {
+      plog('AI answer computation failed: ' + e.message);
+    });
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -2933,27 +2945,48 @@ function renderReview() {
     // Match cell — compare student answer: answer key takes precedence, then AI answer
     let matchCell = '';
     const studentAns = (q.student_answer || '').trim();
-    const referenceAnswer = correctAnswer || aiAnswer;  // answer key first, then AI
-    const referenceLabel = correctAnswer ? 'key' : (aiAnswer ? 'AI' : '');
-    if (referenceAnswer && studentAns) {
-      const isMatch = compareAnswers(studentAns, referenceAnswer);
-      matchCell = isMatch
-        ? `<td><span class="match-correct">✓ Correct</span><div style="font-size:.65rem;color:#9CA3AF;">vs ${referenceLabel}</div></td>`
-        : `<td><span class="match-incorrect">✕ Incorrect</span><div style="font-size:.65rem;color:#9CA3AF;">vs ${referenceLabel}</div></td>`;
+    const matchesKey = correctAnswer && studentAns ? compareAnswers(studentAns, correctAnswer) : null;
+    const matchesAI = aiAnswer && studentAns ? compareAnswers(studentAns, aiAnswer) : null;
+    // Determine match result: answer key takes precedence
+    const matchResult = matchesKey !== null ? matchesKey : matchesAI;
+    const matchSource = matchesKey !== null ? 'Answer Key' : (matchesAI !== null ? 'AI Answer' : '');
+
+    if (matchResult === true) {
+      matchCell = `<td><span class="match-correct">✓ Correct</span><div style="font-size:.65rem;color:#9CA3AF;">Matches ${matchSource}</div></td>`;
+    } else if (matchResult === false) {
+      matchCell = `<td><span class="match-incorrect">✕ Incorrect</span><div style="font-size:.65rem;color:#9CA3AF;">vs ${matchSource}</div></td>`;
+    } else if (aiSolving) {
+      matchCell = '<td><span class="match-unknown"><span class="ai-spinner" style="width:10px;height:10px;"></span></span></td>';
     } else {
       matchCell = '<td><span class="match-unknown">—</span></td>';
     }
 
-    // Verdict cell — approve / reject
-    const verdict = q._verdict || '';  // 'approved', 'rejected', or ''
-    const verdictCell = `<td style="white-space:nowrap;">
-      <button class="approve-btn${verdict === 'approved' ? ' active' : ''}" onclick="setVerdict(${i},'approved')" title="Approve">✓</button>
-      <button class="reject-btn${verdict === 'rejected' ? ' active' : ''}" onclick="setVerdict(${i},'rejected')" title="Reject">✕</button>
+    // Verdict cell — auto-populated from match, with Approve / Edit / Reject override
+    const verdict = q._verdict || '';  // 'approved', 'rejected', 'edited', or ''
+    // Auto-verdict label (what the system thinks)
+    let autoLabel = '';
+    if (matchResult === true) autoLabel = '✓ Correct';
+    else if (matchResult === false) autoLabel = '✕ Incorrect';
+    else if (!studentAns) autoLabel = '— No answer';
+    else autoLabel = '? Pending';
+
+    const isEdited = verdict === 'edited';
+    const editedAnswer = q._editedCorrectAnswer || '';
+
+    const verdictCell = `<td style="white-space:nowrap;min-width:120px;">
+      <div style="font-size:.75rem;font-weight:700;color:${matchResult === true ? '#2E7D32' : matchResult === false ? '#C62828' : '#9CA3AF'};margin-bottom:4px;">${autoLabel}</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button class="approve-btn${verdict === 'approved' ? ' active' : ''}" onclick="setVerdict(${i},'approved')" title="Approve as correct">✓ Approve</button>
+        <button class="approve-btn${verdict === 'edited' ? ' active' : ''}" onclick="editVerdict(${i})" title="Edit the correct answer" style="${verdict === 'edited' ? 'background:#1D4ED8;color:white;' : 'background:#DBEAFE;color:#1E40AF;'}">✎ Edit</button>
+        <button class="reject-btn${verdict === 'rejected' ? ' active' : ''}" onclick="setVerdict(${i},'rejected')" title="Reject as incorrect">✕ Reject</button>
+      </div>
+      ${isEdited ? '<div style="font-size:.7rem;color:#1E40AF;margin-top:3px;font-weight:700;">Corrected: ' + escHtml(editedAnswer) + '</div>' : ''}
     </td>`;
 
     // Row color: verdict overrides other styling
     if (verdict === 'approved') tr.className = 'row-approved';
     else if (verdict === 'rejected') tr.className = 'row-rejected';
+    else if (verdict === 'edited') tr.className = 'row-approved';
 
     tr.innerHTML = `
       <td>${pageHtml}</td>
@@ -3213,6 +3246,48 @@ function setVerdict(idx, verdict) {
   renderReview();
 }
 
+// ── Edit verdict: let parent enter the correct answer ──
+function editVerdict(idx) {
+  const q = parsedQuestions[idx];
+  const qNum = Math.floor(q.question_number);
+  const currentCorrect = answerKeyMap[qNum] || q._ai_answer || '';
+  const newAnswer = prompt(
+    'Q' + q.question_number + ': Enter the correct answer:\n\n' +
+    'Student answered: ' + (q.student_answer || '(none)') + '\n' +
+    'AI computed: ' + (q._ai_answer || '(none)') + '\n' +
+    'Answer key: ' + (answerKeyMap[qNum] || '(none)'),
+    currentCorrect
+  );
+  if (newAnswer !== null && newAnswer.trim()) {
+    q._verdict = 'edited';
+    q._editedCorrectAnswer = newAnswer.trim();
+    // Also update the answer key so it persists
+    answerKeyMap[qNum] = newAnswer.trim();
+    const bookKey = (bookName || 'unknown').replace(/\s+/g, '_').toLowerCase();
+    const chapKey = chapterNumber || '0';
+    localStorage.setItem('wg-ak-' + bookKey + '-ch' + chapKey, JSON.stringify(answerKeyMap));
+    renderReview();
+  }
+}
+
+// ── Auto-set verdicts based on match results ──
+function autoSetVerdicts() {
+  for (const q of parsedQuestions) {
+    if (q._verdict) continue;  // Don't override manual verdicts
+    const studentAns = (q.student_answer || '').trim();
+    if (!studentAns) continue;  // No answer to judge
+
+    const qNum = Math.floor(q.question_number);
+    const keyAns = answerKeyMap[qNum] || '';
+    const aiAns = q._ai_answer || '';
+    const ref = keyAns || aiAns;
+    if (!ref) continue;  // Nothing to compare against
+
+    const isMatch = compareAnswers(studentAns, ref);
+    q._verdict = isMatch ? 'approved' : 'rejected';
+  }
+}
+
 // ── Bulk approve / reject ──
 function approveAll() {
   for (const q of parsedQuestions) {
@@ -3230,7 +3305,7 @@ function rejectAll() {
 
 // ── Approval count and Log button state ──
 function updateApprovalCount() {
-  const approved = parsedQuestions.filter(q => q._verdict === 'approved').length;
+  const approved = parsedQuestions.filter(q => q._verdict === 'approved' || q._verdict === 'edited').length;
   const rejected = parsedQuestions.filter(q => q._verdict === 'rejected').length;
   const total = parsedQuestions.length;
   const decided = approved + rejected;
@@ -3242,7 +3317,7 @@ function updateApprovalCount() {
 
 // ── Approve & Log to Dashboard ──
 function approveAndLog() {
-  const approved = parsedQuestions.filter(q => q._verdict === 'approved');
+  const approved = parsedQuestions.filter(q => q._verdict === 'approved' || q._verdict === 'edited');
   const rejected = parsedQuestions.filter(q => q._verdict === 'rejected');
   const total = parsedQuestions.length;
 
@@ -3251,19 +3326,22 @@ function approveAndLog() {
     const qNum = Math.floor(q.question_number);
     const keyAnswer = answerKeyMap[qNum] || '';
     const aiAnswer = q._ai_answer || '';
-    const correctAnswer = keyAnswer || aiAnswer;  // key first, then AI
+    const editedAnswer = q._editedCorrectAnswer || '';
+    const correctAnswer = editedAnswer || keyAnswer || aiAnswer;  // edited first, then key, then AI
     const studentAns = (q.student_answer || '').trim();
     const isCorrect = correctAnswer && studentAns ? compareAnswers(studentAns, correctAnswer) : null;
 
+    const v = q._verdict || '';
     return {
       ...q,
       correct_answer: correctAnswer || null,
-      answer_source: keyAnswer ? 'answer_key' : (aiAnswer ? 'ai_computed' : 'none'),
-      student_correct: q._verdict === 'approved' ? (isCorrect !== null ? isCorrect : true) :
-                       q._verdict === 'rejected' ? false : null,
-      error_type: q._verdict === 'rejected' ? 'needs_review' : null,
-      brief_note: q._verdict === 'approved' ? (isCorrect === false ? 'Approved by parent (answer key mismatch)' : 'Correct') :
-                  q._verdict === 'rejected' ? 'Rejected by parent — needs rework' : 'Not reviewed'
+      answer_source: editedAnswer ? 'parent_edited' : (keyAnswer ? 'answer_key' : (aiAnswer ? 'ai_computed' : 'none')),
+      student_correct: (v === 'approved' || v === 'edited') ? (isCorrect !== null ? isCorrect : true) :
+                       v === 'rejected' ? false : null,
+      error_type: v === 'rejected' ? 'needs_review' : null,
+      brief_note: v === 'edited' ? 'Parent corrected answer to: ' + editedAnswer :
+                  v === 'approved' ? (isCorrect === false ? 'Approved by parent (answer mismatch)' : 'Correct') :
+                  v === 'rejected' ? 'Rejected — needs rework' : 'Not reviewed'
     };
   });
 
