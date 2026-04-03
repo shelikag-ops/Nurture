@@ -215,27 +215,12 @@
   let _allSubs = [];
   let _lightboxCurrent = null;
 
-  // ── Init Firebase ──
-  const FIREBASE_CONFIG = window.FIREBASE_CONFIG || {};
-  let db = null;
-
-  function initFirebase() {
-    try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(FIREBASE_CONFIG);
-      }
-      db = firebase.database();
-      return true;
-    } catch(e) {
-      console.error('Firebase init failed:', e);
-      return false;
-    }
-  }
-
   // ── Load submissions ──
+  // firebase-config.js (loaded above) already initialises Firebase and
+  // exposes a global `db` reference — use it directly.
   async function loadSubmissions() {
-    if (!initFirebase()) {
-      showError('Could not connect to Firebase. Check firebase-config.js.');
+    if (typeof db === 'undefined') {
+      showError('Firebase not initialised. Check that firebase-config.js loaded correctly.');
       return;
     }
 

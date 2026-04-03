@@ -316,13 +316,9 @@
   // ════════════════════════════════
   //  FIREBASE LOAD
   // ════════════════════════════════
+  // firebase-config.js (loaded above) already initialises Firebase and
+  // exposes a global `db` reference — use it directly.
   async function loadData() {
-    let db = null;
-    try {
-      if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG || {});
-      db = firebase.database();
-    } catch(e) {}
-
     let subs = [];
 
     // Try Firebase first
