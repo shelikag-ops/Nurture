@@ -316,6 +316,12 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
 .bulk-log-btn:hover { background:#1D4ED8; }
 .bulk-log-btn:disabled { background:#93C5FD; cursor:not-allowed; }
 .approval-count { font-size:.82rem; font-weight:700; color:#6B7280; }
+.ai-answer-cell { font-size:.85rem; font-weight:700; color:#5B21B6; }
+.ai-answer-cell .ai-spinner { display:inline-block; width:14px; height:14px; border:2px solid #D8B4FE; border-top-color:#7C3AED; border-radius:50%; animation:spin .6s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.ak-display { font-size:.85rem; font-weight:700; color:#2D3047; }
+.ak-edit-link { font-size:.7rem; color:#4F46E5; cursor:pointer; font-weight:700; margin-top:2px; display:inline-block; }
+.ak-edit-link:hover { text-decoration:underline; }
 
 .flag-badge {
   display:inline-flex;
@@ -852,6 +858,7 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
             <th>Q#</th>
             <th>Problem</th>
             <th>Student Answer</th>
+            <th>AI Answer</th>
             <th id="th-answer-key">Answer Key</th>
             <th>Match</th>
             <th>Status</th>
@@ -863,6 +870,7 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
       </div>
       <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
         <button class="btn btn-green" id="btn-grade" disabled onclick="startGrading()">Confirm & Grade</button>
+        <button class="btn btn-secondary btn-sm" id="btn-ai-solve" onclick="computeAiAnswers()" style="background:#EDE9FE;border-color:#7C3AED;color:#5B21B6;font-weight:800;">🤖 Compute AI Answers</button>
         <label class="btn btn-secondary btn-sm" style="cursor:pointer;position:relative;">
           + Add more pages
           <input type="file" accept="image/jpeg,image/png,application/pdf" multiple
@@ -2886,22 +2894,54 @@ function renderReview() {
       </div>`;
     }
 
-    // Answer key cell — always shown, editable
+    // AI Computed Answer cell
+    const aiAnswer = q._ai_answer || '';
+    const aiSolving = q._ai_solving === true;
+    let aiCell = '';
+    if (aiSolving) {
+      aiCell = '<td class="ai-answer-cell"><span class="ai-spinner"></span></td>';
+    } else if (aiAnswer) {
+      aiCell = `<td class="ai-answer-cell">${escHtml(aiAnswer)}</td>`;
+    } else {
+      aiCell = '<td class="ai-answer-cell" style="color:#D1D5DB;">—</td>';
+    }
+
+    // Answer key cell — show readable text with edit button
     const qNum = Math.floor(q.question_number);
     const correctAnswer = answerKeyMap[qNum] || '';
-    const answerKeyCell = `<td>
-      <input class="ak-edit-input" value="${escAttr(correctAnswer)}" placeholder="—"
-        onchange="updateAnswerKey(${qNum}, this.value)" title="Edit answer key for Q${qNum}">
-    </td>`;
+    const isEditingAK = q._editingAK === true;
+    let answerKeyCell = '';
+    if (isEditingAK) {
+      answerKeyCell = `<td>
+        <input class="ak-edit-input" value="${escAttr(correctAnswer)}" placeholder="Enter answer"
+          id="ak-input-${qNum}" onkeydown="if(event.key==='Enter'){saveAnswerKey(${i},${qNum},this.value)}">
+        <div style="margin-top:3px;">
+          <span class="ak-edit-link" onclick="saveAnswerKey(${i},${qNum},document.getElementById('ak-input-${qNum}').value)" style="color:#2E7D32;">Save</span>
+          <span class="ak-edit-link" onclick="cancelEditAK(${i})" style="color:#991B1B;margin-left:8px;">Cancel</span>
+        </div>
+      </td>`;
+    } else if (correctAnswer) {
+      answerKeyCell = `<td>
+        <span class="ak-display">${escHtml(correctAnswer)}</span>
+        <br><span class="ak-edit-link" onclick="startEditAK(${i})">✎ Edit</span>
+      </td>`;
+    } else {
+      answerKeyCell = `<td>
+        <span style="color:#D1D5DB;font-size:.85rem;">—</span>
+        <br><span class="ak-edit-link" onclick="startEditAK(${i})">+ Add</span>
+      </td>`;
+    }
 
-    // Match cell — compare student answer with answer key
+    // Match cell — compare student answer: answer key takes precedence, then AI answer
     let matchCell = '';
     const studentAns = (q.student_answer || '').trim();
-    if (correctAnswer && studentAns) {
-      const isMatch = compareAnswers(studentAns, correctAnswer);
+    const referenceAnswer = correctAnswer || aiAnswer;  // answer key first, then AI
+    const referenceLabel = correctAnswer ? 'key' : (aiAnswer ? 'AI' : '');
+    if (referenceAnswer && studentAns) {
+      const isMatch = compareAnswers(studentAns, referenceAnswer);
       matchCell = isMatch
-        ? '<td><span class="match-correct">✓ Correct</span></td>'
-        : '<td><span class="match-incorrect">✕ Incorrect</span></td>';
+        ? `<td><span class="match-correct">✓ Correct</span><div style="font-size:.65rem;color:#9CA3AF;">vs ${referenceLabel}</div></td>`
+        : `<td><span class="match-incorrect">✕ Incorrect</span><div style="font-size:.65rem;color:#9CA3AF;">vs ${referenceLabel}</div></td>`;
     } else {
       matchCell = '<td><span class="match-unknown">—</span></td>';
     }
@@ -2926,6 +2966,7 @@ function renderReview() {
         ${q._extraction_method ? '<div style="font-size:0.7em;color:#888;margin-top:2px;">' + escHtml(q._extraction_method) + '</div>' : ''}
         <button class="quick-answer-btn" onclick="quickEditAnswer(${i})">${q.student_answer ? '✎ Edit answer' : '+ Enter answer'}</button>
       </td>
+      ${aiCell}
       ${answerKeyCell}
       ${matchCell}
       <td>${statusHtml}</td>
@@ -3074,18 +3115,95 @@ function compareAnswers(studentAns, correctAns) {
   return false;
 }
 
-// ── Answer key inline edit ──
+// ── Answer key display / edit toggle ──
+function startEditAK(idx) {
+  parsedQuestions[idx]._editingAK = true;
+  renderReview();
+}
+function cancelEditAK(idx) {
+  parsedQuestions[idx]._editingAK = false;
+  renderReview();
+}
+function saveAnswerKey(idx, qNum, value) {
+  if (value && value.trim()) {
+    answerKeyMap[qNum] = value.trim();
+  } else {
+    delete answerKeyMap[qNum];
+  }
+  parsedQuestions[idx]._editingAK = false;
+  // Save to localStorage
+  const bookKey = (bookName || 'unknown').replace(/\s+/g, '_').toLowerCase();
+  const chapKey = chapterNumber || '0';
+  const storageKey = 'wg-ak-' + bookKey + '-ch' + chapKey;
+  localStorage.setItem(storageKey, JSON.stringify(answerKeyMap));
+  renderReview();
+}
 function updateAnswerKey(qNum, value) {
   if (value && value.trim()) {
     answerKeyMap[qNum] = value.trim();
   } else {
     delete answerKeyMap[qNum];
   }
-  // Save to localStorage
   const bookKey = (bookName || 'unknown').replace(/\s+/g, '_').toLowerCase();
   const chapKey = chapterNumber || '0';
   const storageKey = 'wg-ak-' + bookKey + '-ch' + chapKey;
   localStorage.setItem(storageKey, JSON.stringify(answerKeyMap));
+  renderReview();
+}
+
+// ── Compute AI Answers (Claude solves each problem) ──
+async function computeAiAnswers() {
+  const anthropicKey = localStorage.getItem('wg-anthropic-key') || localStorage.getItem('hs-api-key');
+  if (!anthropicKey) {
+    alert('Please set your Anthropic API key in Settings first.');
+    toggleSettings();
+    return;
+  }
+
+  const btn = document.getElementById('btn-ai-solve');
+  btn.disabled = true;
+  btn.textContent = '🤖 Computing...';
+
+  const bookContext = bookName ? `Book: ${bookName}` : '';
+  const chapContext = chapterNumber ? ` | Chapter: ${chapterNumber}` : '';
+
+  // Mark all as solving
+  for (const q of parsedQuestions) { q._ai_solving = true; }
+  renderReview();
+
+  // Solve all in parallel
+  const promises = parsedQuestions.map(async (q, i) => {
+    try {
+      const exContext = parsedExamples.length > 0
+        ? '\n\nWorked examples from the same page:\n' +
+          parsedExamples.map(ex => ex.label + ': ' + ex.text + (ex.answer ? ' = ' + ex.answer : '')).join('\n')
+        : '';
+
+      const prompt = subject === 'math'
+        ? `${bookContext}${chapContext}\nProblem: ${q.problem_text}${exContext}\n\nSolve this problem step by step. Return ONLY a JSON object: {"answer": "the final answer", "steps": "brief solution steps"}`
+        : `${bookContext}${chapContext}\nPassage: ${q.problem_text}${exContext}\n\nIdentify the error and provide the correct fix. Return ONLY a JSON object: {"answer": "the correct fix", "steps": "what the error was"}`;
+
+      const result = await callClaude(anthropicKey,
+        subject === 'math'
+          ? "You are solving math problems for an elementary-age student's worksheet. Be precise. Return ONLY valid JSON, no markdown."
+          : "You are checking grammar/editing corrections. Return ONLY valid JSON, no markdown.",
+        prompt
+      );
+      q._ai_answer = result.answer || '';
+      q._ai_steps = result.steps || '';
+    } catch (err) {
+      q._ai_answer = '';
+      q._ai_error = err.message;
+    }
+    q._ai_solving = false;
+    renderReview();
+  });
+
+  await Promise.all(promises);
+  btn.textContent = '✅ AI Answers Ready';
+  btn.style.background = '#D1FAE5';
+  btn.style.color = '#065F46';
+  btn.style.borderColor = '#10B981';
   renderReview();
 }
 
@@ -3130,16 +3248,19 @@ function approveAndLog() {
   const rejected = parsedQuestions.filter(q => q._verdict === 'rejected');
   const total = parsedQuestions.length;
 
-  // Build grading results from answer key comparison (no Claude API needed)
+  // Build grading results — answer key takes precedence over AI answer
   gradingResults = parsedQuestions.map(q => {
     const qNum = Math.floor(q.question_number);
-    const correctAnswer = answerKeyMap[qNum] || '';
+    const keyAnswer = answerKeyMap[qNum] || '';
+    const aiAnswer = q._ai_answer || '';
+    const correctAnswer = keyAnswer || aiAnswer;  // key first, then AI
     const studentAns = (q.student_answer || '').trim();
     const isCorrect = correctAnswer && studentAns ? compareAnswers(studentAns, correctAnswer) : null;
 
     return {
       ...q,
       correct_answer: correctAnswer || null,
+      answer_source: keyAnswer ? 'answer_key' : (aiAnswer ? 'ai_computed' : 'none'),
       student_correct: q._verdict === 'approved' ? (isCorrect !== null ? isCorrect : true) :
                        q._verdict === 'rejected' ? false : null,
       error_type: q._verdict === 'rejected' ? 'needs_review' : null,
