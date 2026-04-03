@@ -1,0 +1,35 @@
+name: Sync Dashboard to Notion
+
+on:
+  push:
+    paths:
+      - 'notion-sync-queue.json'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Notion SDK
+        run: npm install @notionhq/client
+
+      - name: Run Notion sync
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: node scripts/notion-sync.js
+
+      - name: Clear sync queue
+        run: |
+          echo '{"syncDate":null,"activities":[],"vocab":null,"scienceSession":null,"cleared":true}' > notion-sync-queue.json
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add notion-sync-queue.json
+          git diff --cached --quiet || git commit -m "chore: clear Notion sync queue after push"
+          git push

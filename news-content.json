@@ -1,130 +1,141 @@
 {
-  "date": "2026-04-03",
+  "date": "2026-03-29",
   "stories": [
     {
-      "headline": "NASA's Europa Clipper Spacecraft Completes First Close Flyby of Jupiter's Ocean Moon",
-      "summary": "NASA's Europa Clipper mission, launched in 2024, completed its first close flyby of Europa in early 2026, scanning the moon's icy surface with nine scientific instruments to detect signs of the subsurface ocean beneath. Scientists are particularly excited about data from the mass spectrometer, which may have detected organic compounds in plumes of water vapour erupting through cracks in the ice. Europa is considered one of the most promising places in our solar system to search for extraterrestrial life because its ocean likely has liquid water, chemical energy, and heat from tidal forces — the same ingredients that sustain life in Earth's deep-sea hydrothermal vents.",
-      "bigWord": "astrobiology",
-      "bigWordDef": "The scientific study of whether life could exist elsewhere in the universe, and how it might have begun on Earth",
-      "thinkQuestion": "If scientists discovered microbial life in Europa's ocean, how do you think that discovery would change the way humans think about our place in the universe — and what responsibilities would it create?"
+      "headline": "NASA Prepares Emergency Rescue Teams for Artemis II — the First Crewed Moon Mission in 50 Years",
+      "summary": "NASA is finalising its emergency plans for Artemis II, the first mission to send astronauts around the Moon since Apollo 17 in 1972. A dedicated rescue team practises how to reach the crew within minutes if anything goes wrong on the launch pad or shortly after liftoff. The mission will carry four astronauts — including the first woman and first Canadian to fly to the Moon. Scientists are calling it a giant leap toward eventually landing humans on Mars.",
+      "bigWord": "Contingency",
+      "bigWordDef": "A contingency plan is a backup plan for when something unexpected goes wrong. NASA's rescue team exists as a contingency — just in case.",
+      "thinkQuestion": "Why do you think NASA spends months practising for emergencies that might never happen? What does that tell you about how important preparation is before doing something risky?",
+      "videoQuery": "NASA Artemis II moon mission explained 2026 astronauts"
     },
     {
-      "headline": "Gaza Ceasefire Collapses as Regional Tensions Escalate Across the Middle East",
-      "summary": "A fragile ceasefire that had paused fighting in Gaza broke down in early 2026 following a disputed incident at a humanitarian aid convoy, reigniting conflict and triggering urgent emergency sessions at the United Nations Security Council. The humanitarian situation in Gaza has been described by UN agencies as catastrophic, with hundreds of thousands of people facing acute food insecurity and medical infrastructure nearly destroyed. The collapse has complicated broader diplomatic efforts, including ongoing negotiations between Israel and several Gulf states over normalisation agreements that were meant to reshape the region's geopolitical landscape.",
-      "bigWord": "geopolitical",
-      "bigWordDef": "Related to the way geography, power, and politics interact between countries and regions on a global scale",
-      "thinkQuestion": "When international negotiations break down repeatedly over the same conflict, what structural changes to diplomacy or international law might make lasting peace agreements more durable?"
+      "headline": "India's Climate System Is 'Flashing Red', Warn Top Scientists — Hottest 11 Years Ever Recorded",
+      "summary": "The World Meteorological Organization released its annual report saying the past 11 years were the hottest in recorded history. Arctic sea ice hit a record low in March 2026, and ocean warming is now happening twice as fast as it did 20 years ago. India's own weather patterns are shifting — monsoon timing has become less predictable, and extreme heat events are happening more often. Scientists say urgent action is needed from every country.",
+      "bigWord": "Meteorological",
+      "bigWordDef": "Relating to weather and the atmosphere. Meteorologists are scientists who study weather patterns and climate — 'meteorological' is the adjective form.",
+      "thinkQuestion": "Scientists say climate change is 'flashing red' like a warning light on a dashboard. If you saw a warning light on a car and kept driving without stopping, what would happen? How is that similar to what's happening with Earth's climate?",
+      "videoQuery": "climate change 2026 explained kids Earth warming fastest ever"
     },
     {
-      "headline": "India Launches Its Largest Semiconductor Fabrication Plant in Sanand, Gujarat",
-      "summary": "Prime Minister Modi inaugurated India's first large-scale commercial semiconductor fabrication facility in Sanand, Gujarat, a joint venture between the Tata Group and Taiwan's Powerchip Semiconductor Manufacturing Corporation, marking a landmark moment in India's ambition to become a global chip-making hub. The plant is expected to produce 50,000 wafers per month initially and will manufacture chips for automotive, defence, and consumer electronics industries, reducing India's dependence on imports that currently cost the country over $50 billion annually. The project is part of India's ₹76,000-crore Production Linked Incentive scheme for semiconductors, and analysts say it could generate over 20,000 direct and indirect jobs in the region.",
-      "bigWord": "fabrication",
-      "bigWordDef": "In technology, the precise manufacturing process of building microchips layer by layer using chemicals and light on silicon wafers",
-      "thinkQuestion": "India imports nearly all its semiconductors today — what combination of education policy, industrial investment, and international partnership would you prioritise to make India genuinely self-sufficient in chip technology within 20 years?"
+      "headline": "IndiGo Launches 30+ New Flight Routes from Navi Mumbai's Brand New Airport",
+      "summary": "IndiGo, India's largest airline, began flights from the newly opened Navi Mumbai International Airport today, adding over 30 routes connecting the city to destinations including Agra, Ayodhya, Kolkata, and Goa. The new airport was built to reduce pressure on Mumbai's existing Chhatrapati Shivaji Maharaj International Airport, which handles more than 50 million passengers a year. Navi Mumbai residents previously had to travel 45–90 minutes to catch a flight.",
+      "bigWord": "Infrastructure",
+      "bigWordDef": "The basic systems and structures a city or country needs to function — like roads, airports, water supply, and power. A new airport is a piece of infrastructure.",
+      "thinkQuestion": "Building a new airport takes years and costs billions of rupees. Who do you think benefits the most from the new Navi Mumbai airport — and who paid for it? Is that fair?",
+      "videoQuery": "Navi Mumbai airport opening India new 2026"
     },
     {
-      "headline": "New IPCC Report Warns Arctic Could See Ice-Free Summers Before 2030",
-      "summary": "A supplementary assessment published by the Intergovernmental Panel on Climate Change in March 2026 found that the Arctic Ocean is on track to experience its first completely ice-free summer before the end of the decade, roughly a decade earlier than previous models predicted, due to accelerating feedback loops. When Arctic sea ice melts, the dark ocean surface absorbs far more solar energy than reflective ice did — a process called the albedo effect — which in turn warms the ocean further and speeds up more melting in a self-reinforcing cycle. The report warns that an ice-free Arctic will not only accelerate global warming but will also disrupt the jet stream, making extreme weather events like heatwaves, floods, and cold snaps more frequent and severe across the Northern Hemisphere.",
-      "bigWord": "albedo",
-      "bigWordDef": "The measure of how much sunlight a surface reflects — white ice has high albedo and reflects most light, while dark ocean water has low albedo and absorbs most light as heat",
-      "thinkQuestion": "Since the Arctic is a global commons that no single country owns, how should the international community share the responsibility — and the cost — of slowing down Arctic ice loss?"
+      "headline": "Scientists Discover the Brain Can Rewire Itself After a Stroke — Opening Doors to New Treatments",
+      "summary": "A new study published this week found that after a stroke — when blood flow to the brain is blocked — the brain can form new connections to take over the work of damaged areas. Scientists watched this process happening in real time using advanced brain scans. The discovery means doctors may one day be able to give people medicine or therapy that actively encourages this rewiring, helping stroke patients recover more of their speech and movement.",
+      "bigWord": "Neuroplasticity",
+      "bigWordDef": "The brain's ability to reorganise itself by forming new connections. 'Neuro' means brain, and 'plasticity' means the ability to change shape — so neuroplasticity means the brain can reshape itself.",
+      "thinkQuestion": "If the brain can rewire itself and adapt after damage, what does that tell us about how we learn new things? Do you think this is related to why practising a skill every day makes you better at it?",
+      "videoQuery": "neuroplasticity brain rewiring explained kids how brain heals"
     },
     {
-      "headline": "India's Manu Bhaker Wins Gold at the ISSF World Cup, Breaks Her Own World Record",
-      "summary": "Shooter Manu Bhaker produced a stunning performance at the 2026 ISSF Shooting World Cup in New Delhi, winning gold in the 10m air pistol event and breaking her own world record with a score of 244.7, electrifying the home crowd and cementing her status as one of India's greatest athletes. At just 22 years old, Bhaker has already won two Olympic bronze medals at the Paris 2024 Games and continues to push the boundaries of the sport with her extraordinary concentration and technical precision. Her victory sparked renewed excitement about India's prospects at the 2028 Los Angeles Olympics, where she is widely expected to be among the frontrunners for gold.",
-      "bigWord": "precision",
-      "bigWordDef": "The quality of being extremely accurate and exact, with very little variation from the desired outcome",
-      "thinkQuestion": "Manu Bhaker has spoken about using mental conditioning and visualisation techniques as much as physical training — what does her success tell us about the role of the mind versus the body in elite sport?"
+      "headline": "Pope Francis Leads Palm Sunday Mass at Vatican as Millions of Christians Mark Holy Week",
+      "summary": "Hundreds of thousands of Christians gathered at St. Peter's Square in Rome today as Pope Francis led the Palm Sunday Mass, marking the start of Holy Week. Palm Sunday commemorates Jesus's arrival in Jerusalem 2,000 years ago, when people waved palm branches to welcome him. Similar celebrations took place across India, including in Goa, Kerala, and Mumbai. Holy Week ends with Easter Sunday next week, the most important day in the Christian calendar.",
+      "bigWord": "Commemorate",
+      "bigWordDef": "To do something special to remember and honour an important event or person from the past. Festivals often commemorate historical or religious moments.",
+      "thinkQuestion": "Palm Sunday has been celebrated for over 2,000 years. Why do you think people continue to mark events that happened so long ago? Are there events your own family commemorates every year?",
+      "videoQuery": "Palm Sunday explained Holy Week Christianity children"
     },
     {
-      "headline": "Scientists Discover That Trees Communicate Distress Signals Through Underground Fungal Networks in Real Time",
-      "summary": "A landmark study published in the journal Nature Ecology & Evolution in March 2026 used miniaturised biosensors embedded in forest soil to confirm for the first time in real time that trees under attack by insects or drought transmit chemical warning signals to neighbouring trees through underground mycorrhizal fungal networks, prompting neighbours to pre-emptively boost their own chemical defences. Researchers at the University of British Columbia found that the warning signals travelled at measurable speeds through the fungal threads and that recipient trees responded within hours, long before any visible signs of stress appeared. The discovery has profound implications for how forest ecosystems are managed — and raises philosophical questions about whether complex, coordinated responses in plant networks constitute a rudimentary form of biological intelligence.",
-      "bigWord": "mycorrhizal",
-      "bigWordDef": "Describing the mutually beneficial relationship between fungi and plant roots, where fungi help plants absorb water and nutrients while the plant shares sugars with the fungi",
-      "thinkQuestion": "If trees can sense, communicate, and collectively respond to threats through underground networks, how should that change the ethical framework we use when making decisions about deforestation and land use?"
+      "headline": "PM Modi's Mann Ki Baat: India Must Stay United as Global Tensions Rise",
+      "summary": "Prime Minister Narendra Modi delivered his monthly Mann Ki Baat radio address today, speaking to millions of Indians. He emphasised that when the world faces conflict and uncertainty, it is more important than ever for Indians to remain united and avoid political divisions. He highlighted India's growing role as a global voice for peace and called on citizens to support each other through difficult times. The address is broadcast in 22 Indian languages and reaches over 100 million listeners.",
+      "bigWord": "Solidarity",
+      "bigWordDef": "Agreement and support among a group of people, especially during difficult times. When people show solidarity, they stand together and help each other.",
+      "thinkQuestion": "PM Modi said there is 'no place for selfish politics' when the world faces challenges. What do you think 'selfish politics' means? Can you think of an example where people working together achieved more than they would have alone?",
+      "videoQuery": "Mann Ki Baat India radio address explained Modi"
+    },
+    {
+      "headline": "March Madness Elite Eight: Arizona and Illinois Win Thrillers to Reach Final Four",
+      "summary": "Two more teams punched their tickets to the Final Four in America's famous March Madness college basketball tournament. Number-one seed Arizona beat Purdue, and third-seed Illinois defeated Iowa in dramatic games. Today, Duke faces UConn and Michigan plays Tennessee to decide the last two spots. March Madness sees 68 college teams compete in a single-elimination tournament, and upsets by underdog teams make it one of the most-watched sporting events in the world.",
+      "bigWord": "Single-elimination",
+      "bigWordDef": "A tournament format where if you lose one game, you are out of the competition entirely. There are no second chances — every match matters completely.",
+      "thinkQuestion": "In a single-elimination tournament, one loss means you're done. Do you think this is the fairest way to find the best team, or could a team have a bad day and lose even if they're actually the strongest? What format would you design?",
+      "videoQuery": "March Madness 2026 tournament explained college basketball Final Four"
     }
   ],
   "videos": [
     {
-      "title": "Europa: The Ocean Moon | National Geographic",
-      "description": "This National Geographic documentary explores Jupiter's moon Europa and its subsurface ocean, directly relevant to today's story about NASA's Europa Clipper flyby findings.",
-      "url": "https://www.youtube.com/results?search_query=Europa+ocean+moon+NASA+Europa+Clipper+National+Geographic",
-      "topic": "Space"
+      "title": "NASA's Artemis II: Sending Humans Back to the Moon",
+      "description": "A clear explainer on the Artemis programme — who the astronauts are, what the mission will do, and why NASA is returning to the Moon after 50 years.",
+      "url": "https://www.youtube.com/watch?v=_T8cn2J13-4",
+      "youtubeId": "_T8cn2J13-4",
+      "topic": "Space & Science"
     },
     {
-      "title": "What Is a Semiconductor? — How Chips Are Made",
-      "description": "Learn how semiconductors and microchips work — great background for understanding why India's new Tata semiconductor fabrication plant is such a significant milestone.",
-      "url": "https://www.youtube.com/results?search_query=how+semiconductors+work+explained+microchips",
-      "topic": "India Technology"
+      "title": "Climate Change: Why Scientists Are Alarmed",
+      "description": "Kurzgesagt explains why Earth's climate numbers are alarming — and what's actually being done to fix it.",
+      "url": "https://www.youtube.com/watch?v=LxgMdjjC2ZU",
+      "youtubeId": "LxgMdjjC2ZU",
+      "topic": "Environment & Climate"
     },
     {
-      "title": "The Arctic Ice Crisis - Why Scientists Are Alarmed",
-      "description": "Why Arctic sea ice is melting faster than expected and what the albedo feedback loop means for our planet's future.",
-      "url": "https://www.youtube.com/results?search_query=Arctic+ice+crisis+melting+explained+TED-Ed+climate",
-      "topic": "Climate"
-    },
-    {
-      "title": "How Trees Secretly Talk to Each Other",
-      "description": "Explore the Wood Wide Web — how trees communicate through underground fungal networks to share nutrients and warn each other of threats.",
-      "url": "https://www.youtube.com/results?search_query=how+trees+talk+to+each+other+wood+wide+web+BBC",
-      "topic": "Nature & Science"
+      "title": "What Is Neuroplasticity? How Your Brain Can Change Itself",
+      "description": "A simple, visual explainer on how the brain rewires itself when we learn something new — and how this discovery is helping stroke patients recover.",
+      "url": "https://www.youtube.com/watch?v=ELpfYCZa87g",
+      "youtubeId": "ELpfYCZa87g",
+      "topic": "Science & Health"
     }
   ],
   "infographic": {
-    "caption": "India's Semiconductor Ambition: From Importer to Manufacturer",
-    "fact": "India imports $50+ billion in chips annually · The new Sanand plant will produce 50,000 wafers/month · India's chip incentive scheme is worth ₹76,000 crore (~$9 billion) · Global semiconductor market is projected to reach $1 trillion by 2030 · Over 20,000 jobs expected from the Sanand facility alone",
-    "question": "If India can become a top-five semiconductor producer by 2040, how might that shift the balance of technological and economic power away from its current concentration in East Asia and the United States?"
+    "caption": "Earth's Climate — The Numbers Behind the Warning",
+    "fact": "11 consecutive hottest years on record: 2015–2025 · Arctic sea ice hit a new record LOW in March 2026: 13.76 million km² · Ocean warming now 2× faster than 1960–2005 · Extreme heat events in India: up 40% in 10 years · WMO warning level: 'FLASHING RED' — first time ever",
+    "question": "Scientists say Earth's climate is 'flashing red' like a warning light. If you could send one message to every world leader about what to do next, what would you say?"
   },
   "quiz": [
     {
-      "q": "What instrument on NASA's Europa Clipper may have detected organic compounds in plumes from Europa's surface?",
+      "q": "What is special about NASA's Artemis II mission?",
       "options": [
-        "A radar imager",
-        "A mass spectrometer",
-        "An infrared telescope",
-        "A magnetometer"
+        "It will be the first mission to land on Mars",
+        "It will be the first crewed flight around the Moon since 1972",
+        "It will carry the world's most powerful telescope to orbit",
+        "It will be the first all-robot space mission"
       ],
       "correct": 1
     },
     {
-      "q": "The albedo effect, highlighted in the new IPCC Arctic report, refers to what physical process?",
+      "q": "What does the World Meteorological Organization mean when it says Earth's climate is 'flashing red'?",
       "options": [
-        "How oceans absorb carbon dioxide from the atmosphere",
-        "How dark ocean water absorbs more solar heat than reflective ice",
-        "How melting permafrost releases methane gas",
-        "How jet streams carry warm air to polar regions"
-      ],
-      "correct": 1
-    },
-    {
-      "q": "India's new semiconductor plant in Sanand is a joint venture between which two companies?",
-      "options": [
-        "Infosys and Intel",
-        "Reliance and Samsung",
-        "Tata Group and Powerchip Semiconductor",
-        "Wipro and TSMC"
+        "The sky is turning red because of wildfires",
+        "A new red planet has been discovered near Earth",
+        "It is an emergency warning — action is urgently needed",
+        "Red is the new colour scientists use to describe normal weather"
       ],
       "correct": 2
     },
     {
-      "q": "In the study about forest communication, what is the name of the underground fungal network through which trees send chemical warning signals?",
+      "q": "What is neuroplasticity?",
       "options": [
-        "Rhizobium network",
-        "Chlorophyll pathway",
-        "Mycorrhizal network",
-        "Lignin web"
+        "A type of plastic used in brain surgery",
+        "The brain's ability to rewire and form new connections",
+        "A new drug that speeds up thinking",
+        "The part of the brain that controls memory only"
       ],
-      "correct": 3
+      "correct": 1
     },
     {
-      "q": "Manu Bhaker's world-record score of 244.7 was achieved in which shooting discipline at the 2026 ISSF World Cup?",
+      "q": "Why was the new Navi Mumbai airport built?",
       "options": [
-        "10m air pistol",
-        "25m rapid-fire pistol",
-        "50m rifle 3 positions",
-        "Trap shotgun"
+        "To replace Mumbai's old airport which was demolished",
+        "To give IndiGo its own private airport",
+        "To reduce pressure on Mumbai's existing airport which handles 50 million passengers",
+        "Because Navi Mumbai wanted to become India's capital city"
       ],
-      "correct": 0
+      "correct": 2
+    },
+    {
+      "q": "What is a 'single-elimination' tournament?",
+      "options": [
+        "A tournament where only one team is allowed to enter",
+        "A competition where losing one game means you are out",
+        "A tournament where you play every other team once",
+        "A competition with no finals — just group stages"
+      ],
+      "correct": 1
     }
   ]
 }

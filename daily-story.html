@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sarah's Daily Story</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Nunito:wght@400;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Merriweather', Georgia, serif;
+    background: linear-gradient(135deg, #fdf6e3 0%, #fff8f0 50%, #f0e6d3 100%);
+    min-height: 100vh;
+    color: #3d2c1e;
+  }
+
+  .story-container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+  }
+
+  .story-header { text-align: center; margin-bottom: 28px; }
+
+  .story-date {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 2.5px;
+    color: #a08060; margin-bottom: 6px;
+  }
+
+  .story-greeting {
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px; color: #8a7060; font-weight: 600;
+  }
+
+  /* Theme badge */
+  .theme-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 6px 16px; border-radius: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    margin-bottom: 18px;
+  }
+
+  .theme-persistence { background: #e8f0fe; color: #1a56db; }
+  .theme-gratitude { background: #fef3cd; color: #b45309; }
+  .theme-kindness { background: #fce4ec; color: #c62828; }
+  .theme-hardwork { background: #e8f5e9; color: #2e7d32; }
+  .theme-failure { background: #f3e5f5; color: #7b1fa2; }
+  .theme-generosity { background: #fff3e0; color: #e65100; }
+  .theme-courage { background: #e0f2f1; color: #00695c; }
+  .theme-humility { background: #fce4ec; color: #ad1457; }
+  .theme-empathy { background: #e1f5fe; color: #0277bd; }
+  .theme-honesty { background: #f1f8e9; color: #558b2f; }
+  .theme-responsibility { background: #ede7f6; color: #4527a0; }
+  .theme-patience { background: #e0f7fa; color: #00838f; }
+  .theme-selfbelief { background: #fff8e1; color: #f57f17; }
+
+  /* Story card */
+  .story-card {
+    background: #fffdf9;
+    border-radius: 16px;
+    box-shadow: 0 2px 20px rgba(120,80,40,0.08), 0 1px 4px rgba(120,80,40,0.05);
+    padding: 40px 44px;
+    position: relative;
+    border: 1px solid rgba(180,150,120,0.12);
+  }
+
+  .story-card::before {
+    content: '\201C'; position: absolute; top: 12px; left: 24px;
+    font-size: 80px; color: rgba(160,128,96,0.1);
+    font-family: Georgia, serif; line-height: 1;
+  }
+
+  .story-title-row {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  }
+
+  .story-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 26px; font-weight: 800;
+    color: #2c1e10; margin-bottom: 6px; line-height: 1.3; flex: 1;
+  }
+
+  .story-subtitle {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; color: #a08060;
+    font-weight: 600; font-style: italic; margin-bottom: 24px;
+  }
+
+  .story-body { font-size: 16.5px; line-height: 1.85; color: #4a3828; }
+  .story-body p { margin-bottom: 16px; text-align: justify; }
+  .story-body p:last-child { margin-bottom: 0; }
+
+  .story-divider {
+    width: 60px; height: 3px;
+    background: linear-gradient(90deg, rgba(160,128,96,0.3), rgba(160,128,96,0.6), rgba(160,128,96,0.3));
+    border-radius: 2px; margin: 28px auto;
+  }
+
+  /* Moral section */
+  .moral-section {
+    background: linear-gradient(135deg, #f7f0e6, #faf5ed);
+    border-left: 4px solid #c9a96e;
+    border-radius: 0 12px 12px 0;
+    padding: 22px 28px; margin-top: 28px;
+  }
+
+  .moral-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: #b08840; margin-bottom: 8px;
+  }
+
+  .moral-text { font-size: 17px; line-height: 1.7; color: #5a4030; font-style: italic; }
+
+  /* Reflection */
+  .reflection-section {
+    margin-top: 24px; padding: 20px 28px;
+    background: rgba(200,180,160,0.08);
+    border-radius: 12px; border: 1px dashed rgba(160,128,96,0.25);
+  }
+
+  .reflection-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: #a08060; margin-bottom: 8px;
+  }
+
+  .reflection-text { font-size: 15.5px; line-height: 1.7; color: #6a5040; margin-bottom: 14px; }
+
+  .reflection-textarea {
+    width: 100%; min-height: 110px; padding: 14px 16px;
+    border: 1.5px solid rgba(160,128,96,0.25);
+    border-radius: 10px; background: #fffdf9;
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 14.5px; line-height: 1.7; color: #4a3828;
+    resize: vertical; outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .reflection-textarea:focus { border-color: #c9a96e; box-shadow: 0 0 0 3px rgba(201,169,110,0.15); }
+  .reflection-textarea::placeholder { color: #c0b0a0; font-style: italic; }
+
+  .reflection-save-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .save-btn {
+    padding: 8px 18px; border: none; border-radius: 8px;
+    background: linear-gradient(135deg, #c9a96e, #b8944e);
+    color: white; font-family: 'Nunito', sans-serif;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s ease;
+  }
+
+  .save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  .save-status {
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px; font-weight: 600; color: #6a9e5c;
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+
+  .save-status.visible { opacity: 1; }
+
+  /* Mark as Read */
+  .read-mark-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 10px;
+    font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s ease;
+    border: 1.5px solid rgba(160,128,96,0.25);
+    background: #fffdf9; color: #8a7060;
+    flex-shrink: 0;
+  }
+
+  .read-mark-btn:hover { border-color: #c9a96e; }
+
+  .read-mark-btn.is-read {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white; border-color: transparent;
+  }
+
+  .read-mark-btn.is-read:hover { opacity: 0.9; }
+
+  /* Navigation */
+  .story-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 28px; font-family: 'Nunito', sans-serif;
+  }
+
+  .nav-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 20px; border: 1.5px solid rgba(160,128,96,0.3);
+    border-radius: 10px; background: #fffdf9; color: #7a6050;
+    font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s ease;
+  }
+
+  .nav-btn:hover { background: #f7f0e6; border-color: rgba(160,128,96,0.5); color: #5a4030; }
+  .nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .story-counter { font-size: 12px; font-weight: 600; color: #a08060; }
+
+  /* Read aloud */
+  .action-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+
+  .read-aloud-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border: none; border-radius: 8px;
+    background: linear-gradient(135deg, #c9a96e, #b8944e);
+    color: white; font-family: 'Nunito', sans-serif;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s ease;
+  }
+
+  .read-aloud-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .read-aloud-btn.playing { background: linear-gradient(135deg, #e57373, #ef5350); }
+
+  /* Streak bar */
+  .streak-bar {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    margin-bottom: 24px; padding: 12px 20px;
+    background: #fffdf9; border-radius: 12px;
+    border: 1px solid rgba(180,150,120,0.12);
+    box-shadow: 0 1px 6px rgba(120,80,40,0.05);
+  }
+
+  .streak-text {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 700; color: #8a7060;
+  }
+
+  .streak-count {
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px; font-weight: 800; color: #c9a96e;
+  }
+
+  .streak-dots { display: flex; gap: 5px; }
+
+  .streak-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #e8ddd0; transition: all 0.3s ease;
+  }
+
+  .streak-dot.filled {
+    background: linear-gradient(135deg, #c9a96e, #e6c88a);
+    box-shadow: 0 1px 4px rgba(201,169,110,0.4);
+  }
+
+  /* Progress bar */
+  .progress-section {
+    margin-bottom: 24px; padding: 14px 20px;
+    background: #fffdf9; border-radius: 12px;
+    border: 1px solid rgba(180,150,120,0.12);
+    box-shadow: 0 1px 6px rgba(120,80,40,0.05);
+  }
+
+  .progress-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+  }
+
+  .progress-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px; font-weight: 700; color: #8a7060;
+  }
+
+  .progress-count {
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px; font-weight: 700; color: #c9a96e;
+  }
+
+  .progress-track {
+    width: 100%; height: 8px; background: #ece3d7;
+    border-radius: 4px; overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, #c9a96e, #e6c88a);
+    transition: width 0.5s ease;
+  }
+
+  /* All-read banner */
+  .all-read-banner {
+    text-align: center; padding: 28px 24px;
+    background: linear-gradient(135deg, #fef9e7, #fdf2d5);
+    border-radius: 14px; margin-bottom: 24px;
+    border: 1.5px solid #e6c88a;
+  }
+
+  .all-read-banner h3 {
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px; font-weight: 800; color: #8a6d3b; margin-bottom: 8px;
+  }
+
+  .all-read-banner p {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; color: #a08060; line-height: 1.6; margin-bottom: 14px;
+  }
+
+  .generate-btn {
+    padding: 12px 28px; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #c9a96e, #a07840);
+    color: white; font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(160,120,64,0.3);
+  }
+
+  .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(160,120,64,0.4); }
+
+  /* Mini story list */
+  .story-list-toggle {
+    text-align: center; margin-bottom: 20px;
+  }
+
+  .list-toggle-btn {
+    padding: 8px 18px; border: 1.5px solid rgba(160,128,96,0.25);
+    border-radius: 10px; background: #fffdf9; color: #8a7060;
+    font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s ease;
+  }
+
+  .list-toggle-btn:hover { background: #f7f0e6; border-color: rgba(160,128,96,0.5); }
+
+  .story-list {
+    display: none; margin-bottom: 24px; padding: 16px;
+    background: #fffdf9; border-radius: 12px;
+    border: 1px solid rgba(180,150,120,0.12);
+    max-height: 350px; overflow-y: auto;
+  }
+
+  .story-list.open { display: block; }
+
+  .story-list-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: 8px;
+    cursor: pointer; transition: background 0.15s ease;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .story-list-item:hover { background: #f7f0e6; }
+  .story-list-item.active { background: #f0e6d3; }
+
+  .list-read-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    background: #ddd;
+  }
+
+  .list-read-dot.read { background: #e74c3c; }
+
+  .list-item-title { font-size: 13px; font-weight: 600; color: #4a3828; flex: 1; }
+  .list-item-theme { font-size: 10px; font-weight: 700; color: #a08060; text-transform: uppercase; letter-spacing: 1px; }
+
+  @media (max-width: 640px) {
+    .story-card { padding: 28px 22px; }
+    .story-title { font-size: 22px; }
+    .story-body { font-size: 15.5px; }
+    .story-title-row { flex-direction: column; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="story-container" id="app"></div>
+
+<script>
+const STORIES = [
+  {
+    id: 1, title: "The Stone Cutter's Dream", subtitle: "A Japanese folktale retold",
+    theme: "gratitude", themeLabel: "Gratitude",
+    body: `<p>There once lived a stone cutter named Takeo who spent his days chipping away at the great rock face of a mountain. His hands were rough and calloused, his back permanently bent from years of labor. Every morning he walked the same dusty path, ate the same simple lunch of rice and pickled vegetables, and returned home to his small wooden house as the sun dipped below the hills.</p>
+<p>One afternoon, while delivering stone to a wealthy merchant's house, Takeo glimpsed through the open gate a world he had never imagined. Silk cushions. Jade ornaments. Servants fanning their master as he reclined on a carved wooden chair. "How powerful that merchant must be," Takeo whispered. "I wish I could be like him." To his astonishment, a mysterious spirit of the mountain heard his wish, and when Takeo opened his eyes, he found himself sitting in the merchant's chair, surrounded by luxury.</p>
+<p>At first, Takeo was overjoyed. He ran his fingers over the silk, tasted fine dishes, and laughed at how easy life had become. But when summer arrived and the heat bore down on his grand house, even his servants' fans could not cool him. He looked up at the blazing sun and thought, "The sun is more powerful than any merchant. I wish I were the sun." And so the spirit transformed him into the sun.</p>
+<p>As the sun, Takeo blazed over the earth, feeling magnificent and unstoppable. But then a great cloud drifted beneath him and blocked his rays entirely. "A cloud is more powerful than the sun!" he realized. So he became a cloud. As a cloud, he poured rain and caused floods, feeling truly mighty — until he struck the side of the great mountain and could not move it. "The mountain is the most powerful of all!" he declared. And the spirit made him the mountain.</p>
+<p>Standing tall and immovable, Takeo finally felt at peace. Nothing could shake him. Nothing could push him aside. Then, one morning, he felt a sharp tap-tap-tap at his base. He looked down and saw a small figure with rough hands and a bent back, chipping away at the rock, slowly but steadily reshaping the face of the mighty mountain.</p>
+<p>It was a stone cutter.</p>
+<p>In that moment, Takeo understood. He had traveled the entire world searching for power and greatness, only to discover that the quiet, steady person he had been all along — the one who shaped mountains with nothing but patience and his own two hands — was the most powerful of all. The spirit returned him to his old life. But now, as he walked the dusty path each morning, Takeo smiled. He saw the strength in his calloused hands. He tasted the sweetness in his simple rice. He felt the richness of a life lived with purpose.</p>`,
+    moral: "True contentment doesn't come from having what others have. It comes from seeing the extraordinary value in the life you already live. The things you take for granted — your hands, your effort, your ordinary days — are often the most powerful things of all.",
+    reflection: "Think about three things in your everyday life that feel ordinary — maybe your morning routine, your family dinners, or your ability to read. Can you look at them the way Takeo finally looked at his stone cutter's life, and see how extraordinary they really are?"
+  },
+  {
+    id: 2, title: "The Girl Who Walked Through Walls", subtitle: "An original story about persistence",
+    theme: "persistence", themeLabel: "Persistence",
+    body: `<p>Meera wanted to be a pianist. Not just any pianist — she wanted to play Chopin's Ballade No. 1, the piece her grandmother used to play before arthritis stole the music from her fingers. She had heard a recording of her grandmother performing it at a concert hall in Mumbai in 1972, and the music made something bloom in her chest that she could not name.</p>
+<p>The problem was that Meera was, by all accounts, a terrible pianist. Her fingers were short and stubby. Her sense of rhythm was, as her first teacher politely put it, "still developing." After six months of lessons, she could barely play a simple scale without stumbling. Her second teacher was less polite: "Some people," he told her mother, "are simply not meant for the piano."</p>
+<p>Meera overheard this, and it stung. She went to her room and cried. She stared at the recording of her grandmother's performance — a scratchy cassette tape transferred to a CD — and pressed play. The music filled the room, and the unnamed thing bloomed in her chest again. She wiped her eyes, sat down at her small electric keyboard, and started from the very beginning. Middle C. Just one note, played cleanly.</p>
+<p>What happened over the next three years would have been invisible to anyone watching from the outside, because persistence rarely looks dramatic. It looks like a girl playing the same four bars over and over on a Tuesday evening when her friends are at the movies. It looks like a hand stretching exercise repeated two hundred times while watching television. It looks like a notebook filled with tiny observations: "F-sharp transition still rough. Try slower tempo. Left hand pinky weak — exercises on page 34."</p>
+<p>She found a new teacher, Mrs. Shankar, who didn't say she was talented. Instead, she said something Meera never forgot: "You don't need talent. You need stubbornness. Talent is what people call it when they didn't see the work." Mrs. Shankar gave her exercises that were brutally boring — finger independence drills, metronome practice at glacial tempos, sight-reading of pieces far below her level. "Build the foundation," she said, "and the house will rise by itself."</p>
+<p>There were days when Meera wanted to quit. Not dramatic, throw-the-sheet-music days, but quiet ones — mornings where the keyboard looked like an enemy, evenings where her fingers felt like wooden sticks, weeks where it seemed like she hadn't improved at all. These were the hardest moments, not because they were painful, but because they were dull. The great secret of persistence is that its worst enemy isn't failure. It's boredom. It's the ordinary, unremarkable Tuesday when nothing is wrong but nothing feels like it's moving forward either.</p>
+<p>Meera kept going. Not because she was brave, but because every time she pressed play on that crackling recording, the unnamed thing bloomed in her chest, and she simply could not let it go.</p>
+<p>On the evening of her school's annual recital, three years and four months after she first sat down at the keyboard, Meera walked onto the stage, sat at the grand piano, and played Chopin's Ballade No. 1. She did not play it perfectly. Her tempo wavered in the middle section. She missed a note in the coda. But she played it with something that made her grandmother, sitting in the front row in a wheelchair, close her eyes and weep — not because the notes were perfect, but because the music was alive.</p>
+<p>After the recital, someone asked Meera's grandmother what she thought. The old woman smiled and said, "She played it better than I ever did. Because she earned every single note."</p>`,
+    moral: "Persistence isn't about dramatic moments of courage. It's about showing up on the boring Tuesdays, doing the tedious work, and refusing to let go of the thing that makes something bloom in your chest — even when progress is invisible.",
+    reflection: "Is there something you're working on right now that feels slow or frustrating? What would it look like to keep going — not in a big, dramatic way, but just showing up again tomorrow and doing the next small thing?"
+  },
+  {
+    id: 3, title: "The Heavier Bowl", subtitle: "A story from a village in West Africa",
+    theme: "kindness", themeLabel: "Kindness",
+    body: `<p>In a small village where the Senegal River bends like an elbow, there lived two sisters named Aminata and Fatou. They were twins, born minutes apart, and yet they saw the world through very different eyes. Aminata noticed what she didn't have. Fatou noticed what she could give.</p>
+<p>Every morning, their mother prepared two bowls of millet porridge — thick, warm, and sweetened with a little honey when the bees were generous. The bowls were always equal. But Aminata would eye her sister's bowl suspiciously, certain that Fatou's portion was somehow larger, the honey somehow more golden. Fatou, meanwhile, would quietly drop a spoonful of her porridge into the bowl of whichever child in the village looked hungriest that day.</p>
+<p>One year, the rains did not come. The river shrank to a brown trickle. The millet crop withered. Their mother could only fill their bowls halfway, and sometimes not at all. In the village, people began to hoard. Doors that used to stand open were shut. Neighbors who used to share now counted every grain.</p>
+<p>Aminata counted too. She hid scraps of dried fish under her sleeping mat. She ate quickly, turning away from others so she wouldn't feel obligated to share. "There isn't enough," she told herself. "I have to look out for myself first. When I have more, then I'll be generous." It was a reasonable thought. Many people in the village had the same one.</p>
+<p>Fatou also felt the hunger — the same sharp ache in her belly, the same dizziness in the afternoon heat. But she continued to share. When old Moussa, the storyteller, was too weak to walk to the communal pot, Fatou brought him half of her small portion. When little Ousmane cried from hunger, she gave him her last dried mango. Her mother watched with worried eyes and said, "Fatou, you cannot pour from an empty cup." Fatou smiled and said, "Then I will pour from my heart instead, and hope that is enough."</p>
+<p>Something strange began to happen. The people Fatou shared with began to share with each other. Old Moussa, strengthened by Fatou's food, told stories again in the village square — and people gathered, and while they gathered, they shared what little they had. Ousmane's mother, touched that a girl had fed her son, brought Fatou's family a basket of groundnuts she had been saving. A farmer, hearing of the girl who gave away her food, left a bag of millet at her door. None of these gifts were large. But together, they formed a river — small streams flowing into each other until Fatou's family, and many families around them, had enough to survive.</p>
+<p>Aminata, behind her closed door, survived the drought too. Her hidden scraps kept her fed. But when the rains returned and the village came back to life, she noticed something that puzzled her. People greeted Fatou warmly, stopped to talk with her, invited her family to meals. Aminata, they greeted politely but briefly. She had survived the drought with a full belly and an empty world around her.</p>
+<p>Years later, as an old woman, Aminata would tell her grandchildren: "Your great-aunt Fatou taught me something it took me a lifetime to learn. I thought the goal was to protect my bowl. She knew the goal was to fill everyone's bowl — and somehow, hers was always the heaviest at the end."</p>`,
+    moral: "Kindness in difficult times isn't foolishness — it's the most practical thing in the world. When you give, you create a current of generosity that flows back to you in ways you could never predict. A single spoonful of porridge, freely given, can feed an entire village.",
+    reflection: "Think about a time when sharing felt risky — when you weren't sure you had enough (time, energy, or something else) to give. What happened? And is there someone in your life right now who might need a 'spoonful' of kindness from you?"
+  },
+  {
+    id: 4, title: "Edison's Ten Thousand Teachers", subtitle: "A true story, reimagined",
+    theme: "failure", themeLabel: "Learning from Failure",
+    body: `<p>Here is something that most people get wrong about Thomas Edison: they think the light bulb was his great triumph. It was — but not for the reason they believe. The triumph wasn't the moment the bulb finally glowed. It was the ten thousand moments before it, when everything went dark.</p>
+<p>Imagine a workshop in Menlo Park, New Jersey, in the year 1879. It smells of burnt metal and chemical compounds. The floor is littered with broken glass, scorched filaments, and notebooks filled with meticulous handwriting. Edison stands at his bench, holding yet another carbonized thread between tweezers, carefully placing it inside a glass bulb, sealing it, pumping out the air, and connecting it to a battery. The filament glows for four seconds, then crumbles to ash. His assistant, Francis Jehl, sighs and marks it in the notebook: Attempt No. 4,217. Material: cotton thread, carbonized. Result: failure.</p>
+<p>But here is the remarkable thing. Edison didn't write "failure." He wrote "result." To him, there was no such thing as failure — only information. Every thread that burned, every filament that snapped, every material that crumbled told him something specific about what didn't work and, more importantly, nudged him closer to understanding what would.</p>
+<p>The newspapers laughed at him. A reporter visited the workshop and wrote a mocking article about the hundreds of failed experiments. When the reporter asked Edison how it felt to have failed so many times, Edison looked at him with genuine confusion and said something that has echoed through history: "I have not failed. I've just found ten thousand ways that won't work."</p>
+<p>This was not bravado. Edison truly did not experience these moments as failure. He experienced them as education. Each broken filament was a teacher. Each dark bulb was a lesson. His notebooks from this period are fascinating — they read not like the journals of a frustrated man, but like those of a deeply curious one. "Interesting," he would write after a filament lasted only two seconds. "The carbonization temperature affects structural integrity. Try higher heat next time."</p>
+<p>What made Edison different from thousands of other inventors who gave up wasn't genius. It was his relationship with failure. Most people treat failure as a stop sign — a signal to turn around. Edison treated it as a mile marker — proof that he was moving forward on a long road. He understood something profound: every expert was once a beginner who refused to quit, and every breakthrough sits on the other side of a mountain of attempts that didn't work.</p>
+<p>On October 21, 1879, Edison tested a filament made of carbonized bamboo. It glowed. Not for four seconds. Not for four minutes. For over thirteen hours. His team watched in silence as the tiny light burned steadily in the glass bulb, filling the dark workshop with a warm, amber glow. Francis Jehl, who had recorded thousands of failures in his notebook, recorded one more result: "It works."</p>
+<p>But the bulb that lit up the world was not made of bamboo alone. It was made of ten thousand lessons, ten thousand moments of patience, and one man's unshakeable belief that every failure is simply a step on the road to something luminous.</p>`,
+    moral: "Failure is not the opposite of success — it is the path to it. Every mistake teaches you something that no textbook can. The question is never 'will I fail?' but rather 'when I fail, will I treat it as a stop sign or a mile marker?'",
+    reflection: "Think of something you tried recently that didn't work out. Instead of calling it a failure, can you write down what it taught you? What's the one piece of information that 'dark bulb' gave you about what to try next?"
+  },
+  {
+    id: 5, title: "The Bridge Builder of Mostar", subtitle: "A true story from Bosnia",
+    theme: "generosity", themeLabel: "Large-Heartedness",
+    body: `<p>In the city of Mostar, in Bosnia and Herzegovina, there once stood a bridge so beautiful that people wept when they first saw it. It was called the Stari Most — the Old Bridge — and it arched over the emerald waters of the Neretva River like a cat stretching in the sun. It had been built in 1566 by an architect named Mimar Hayruddin, and for over four hundred years, it connected the two halves of the city the way a handshake connects two people.</p>
+<p>On one side of the bridge lived Bosniak Muslims. On the other lived Croat Catholics. And for centuries, they walked across to visit each other, trade goods, attend each other's weddings, and drink coffee in each other's homes. The bridge was not merely stone and mortar — it was a promise that people who are different can still reach each other.</p>
+<p>Then, in 1993, war came to Mostar. The two sides of the city turned against each other, and on November 9th, Croatian forces deliberately shelled the Stari Most until it collapsed into the river. People on both sides — even soldiers — wept as they watched it fall. An old man standing on the eastern bank said, "It is not a bridge that has been destroyed. It is our ability to reach each other."</p>
+<p>The war ended, but the river remained unbridged. For years, the two halves of Mostar existed side by side but apart, like two hands that refuse to clasp. The rubble of the old bridge sat at the bottom of the Neretva, visible through the clear water, a reminder of what had been lost.</p>
+<p>Then something remarkable happened. People from around the world — engineers, architects, historians, stonemasons, and ordinary citizens — came together to rebuild the bridge. They pulled the original stones from the river. They quarried new ones from the same mountains Hayruddin had used four centuries earlier. They studied his original techniques. Hungarian divers, Turkish engineers, Italian stonemasons, and local Bosnian workers — people from countries that had their own histories of conflict — worked side by side for years.</p>
+<p>The rebuilding was painstaking. Every stone had to be cut by hand, exactly as it had been in the sixteenth century. The arch had to be perfect — not close, not approximate, but mathematically precise, because a bridge that is almost right is a bridge that falls. It took nine years. Nine years of people choosing, day after day, to build something instead of destroy something.</p>
+<p>On July 23, 2004, the Stari Most was reopened. Thousands of people packed both sides of the river. When the first person walked across — a slow, deliberate walk, as if savoring each step — the crowd erupted. People who had spent a decade as enemies embraced. The bridge had not just been rebuilt. The promise had been renewed.</p>
+<p>Today, if you visit Mostar, you will see young men diving off the bridge into the Neretva below — a tradition that is centuries old. You will see tourists from both sides of the city drinking coffee together. The bridge stands, not because stone is strong, but because the human desire to connect with each other is stronger than the human impulse to destroy.</p>`,
+    moral: "Large-heartedness means building bridges — literally and figuratively — even when the world is tearing them down. It means believing that the instinct to connect, to reach across differences, is more powerful than the instinct to divide. One bridge, rebuilt with patience and love, can heal an entire city.",
+    reflection: "Is there a 'bridge' in your life that needs rebuilding? Maybe a friendship that's gotten distant, or someone you've been avoiding? What would it look like to lay the first stone — to take the first step across?"
+  },
+  {
+    id: 6, title: "The Farmer Who Waited for Rain", subtitle: "A story from the Indian subcontinent",
+    theme: "hardwork", themeLabel: "Hard Work",
+    body: `<p>In the dry lands of Rajasthan, where the sun beats down like a hammer on an anvil, there lived a farmer named Harish. His land was two acres of cracked, stubborn earth that seemed to reject every seed he planted. His neighbors, whose fields bordered a small canal, grew wheat and mustard with relative ease. Harish's land, slightly elevated and far from water, grew dust.</p>
+<p>Every year, Harish would wait for the monsoon. He would watch the sky, pray at the temple, and hope that this year, the rains would come to his corner of the valley. Some years they did, and he would scramble to plant and harvest in the brief wet weeks. Most years, the clouds passed over his land like travelers who didn't want to stop in a poor village.</p>
+<p>One day, a traveler — an actual one, not a cloud — stopped at Harish's farm. He was an agricultural engineer from Jaipur, traveling to survey drought conditions. He looked at Harish's cracked fields and said, "Why don't you dig a well?" Harish laughed. "I'm one man with a shovel. The water table here is sixty feet deep. It would take me years."</p>
+<p>The engineer paused and said something that changed Harish's life: "Yes. It will take you years. So you should start today."</p>
+<p>Harish thought about this for a long time. That night, instead of watching the sky for rain, he picked up his shovel and began to dig. Just a small patch of earth, two feet by two feet. He dug for an hour, went to bed, and woke up to a hole that was waist deep. It looked pathetic — a tiny wound in the vast, dry earth.</p>
+<p>He dug again the next evening. And the next. His wife, Sunita, thought he had gone mad. His neighbors laughed. "Harish is digging to the center of the earth!" they joked. After a month, the hole was ten feet deep. Harish had to build a crude ladder to climb in and out. The earth at this depth was different — cooler, darker, with a faint smell of moisture. He told himself this meant something.</p>
+<p>Three months in, he hit rock. His shovel clanged against a layer of sandstone that wouldn't budge. He sat at the bottom of his thirty-foot hole and, for the first time, considered quitting. His hands were blistered, his back screamed, and the rock seemed to be the earth's way of saying: stop. But he thought about the engineer's words. He borrowed a chisel and hammer from the village blacksmith and began to chip.</p>
+<p>It took him six more weeks to break through the rock. The day he did — the day his chisel punched through the sandstone and a trickle of cool, clear water bubbled up around his feet — Harish sat in his hole and cried. Not because he was happy, though he was. He cried because he realized he had spent fifteen years looking up at the sky for water, when all along, it had been right beneath his feet, waiting for someone stubborn enough to dig.</p>
+<p>Within a year, Harish had a working well. He irrigated his two acres. He grew wheat, vegetables, and even a small mango orchard. His neighbors, the same ones who had laughed, began asking him for advice. Some asked him to help them dig their own wells. The man who had once been the poorest farmer in the valley became its most prosperous — not because the rain finally came, but because he stopped waiting for it.</p>`,
+    moral: "Hard work means choosing to dig when it's easier to pray for rain. It means trusting the process even when the hole looks tiny, the rock seems unbreakable, and everyone around you thinks you're foolish. The water is always there — it just requires someone willing to do the digging.",
+    reflection: "In your own life, are you waiting for 'rain' — waiting for something to happen to you — instead of picking up the shovel and digging? What's one thing you could start working on today, even if it feels small and slow?"
+  },
+  {
+    id: 7, title: "The Thank-You Experiment", subtitle: "An original story",
+    theme: "gratitude", themeLabel: "Gratitude",
+    body: `<p>Zara was fourteen and annoyed. Not at anything in particular — just at everything in general. Her room was too small. Her phone was too old. Her school was too boring. Her parents were too strict. She had perfected the art of the heavy sigh, deploying it at breakfast when the toast was wrong, at dinner when asked about her day, and at bedtime when told to stop scrolling.</p>
+<p>Her grandmother, Nani, was visiting from Karachi for the month. Nani was seventy-two years old, had survived two wars, raised five children in a two-room apartment, and had exactly zero patience for heavy sighs. One evening, after Zara produced a particularly theatrical sigh about the Wi-Fi being slow, Nani set down her tea and said, "I have a challenge for you. For one week, you must write down three things you are grateful for every night before bed. Not big things — small ones. If at the end of the week you still feel the way you do now, I will never bother you about it again."</p>
+<p>Zara rolled her eyes but agreed, mostly to get Nani off her back. That night, she sat on her bed with a notebook and pen and tried to think of three things. It was surprisingly hard. Her mind kept drifting to complaints. Finally, she wrote: "1. Dinner was okay. 2. My bed is comfortable. 3. I don't have school tomorrow." She closed the notebook, feeling stupid.</p>
+<p>Day two was similar. "1. The weather was nice. 2. My friend sent me a funny video. 3. Hot shower." It felt mechanical, like filling out a form. On day three, though, something shifted. She found herself noticing things during the day — small things she wouldn't have noticed before — and mentally bookmarking them for her list. The way the light came through her bedroom window in the morning and made a pattern on the wall. The sound of her father humming while cooking. The fact that her little brother drew a picture of her and slipped it under her door.</p>
+<p>By day four, the list was getting easier. And longer. "1. Mrs. Abbas told me my essay was well-written and I could tell she actually meant it. 2. The jasmine bush outside is blooming and the whole porch smells incredible. 3. Mama packed an extra cookie in my lunch, the almond one, which is my favorite and she remembered without me asking. 4. I have clean drinking water from a tap and I just realized I've never once thought about that before."</p>
+<p>That fourth entry stopped her. She stared at it. Clean water from a tap. She thought about Nani's stories of childhood, of walking to a well, of boiling water over a wood fire, of a cousin who got sick from bad water and never fully recovered. Zara had turned on a tap every day of her life without a single thought of gratitude, as if clean water was as guaranteed as gravity.</p>
+<p>By day six, Zara wasn't just writing lists. She was seeing the world differently. The things that had annoyed her hadn't changed — her room was still small, her phone still old, the Wi-Fi still temperamental. But they looked different now, because they were surrounded by things she had never paid attention to. It was like looking at a painting and suddenly noticing the background for the first time — all that sky and light she had been ignoring while staring at one small crack in the frame.</p>
+<p>On the seventh evening, Nani came to her room and asked, "So? Has anything changed?" Zara looked down at her notebook, now filled with forty-three entries of things she was grateful for. She looked at her grandmother — this woman who had lost so much and yet sat there with bright eyes and a warm smile — and the answer came not as words but as a feeling. She hugged Nani and said, simply, "Everything."</p>
+<p>She didn't stop writing after the week ended. The notebook became a habit, and the habit became a way of seeing. Twenty years later, Dr. Zara Hussain — a pediatrician who ran a free clinic in a rural village — kept a gratitude journal on her bedside table. She told her patients' parents the same thing Nani told her: "You don't find gratitude. You practice it, and then one day, it finds you."</p>`,
+    moral: "Gratitude isn't something you feel naturally — it's something you build, like a muscle. When you practice noticing the good things, especially the small ones, you don't change the world around you. You change the eyes you see it with. And that changes everything.",
+    reflection: "Try Nani's challenge tonight. Write down three things you're grateful for — they can be as small as a comfortable pillow or a kind word someone said. Tomorrow, see if you notice the world a little differently."
+  },
+  {
+    id: 8, title: "The Long Walk of Harriet Tubman", subtitle: "A true story, reimagined",
+    theme: "courage", themeLabel: "Courage & Persistence",
+    body: `<p>Imagine walking through a dark forest at night. Not a forest in a storybook, where the darkness is romantic and the moonlight silver. A real forest — full of roots that trip you, branches that scratch your face, and sounds you cannot identify. Now imagine walking through that forest not once, but nineteen times. Imagine doing it while being hunted. Imagine doing it while leading others who are terrified and exhausted, some of them children, all of them depending on you to get them through alive.</p>
+<p>This is what Harriet Tubman did. And understanding her story — truly understanding it — is one of the most important things a person can do, because it teaches you what courage and persistence really look like when they're not in a movie but in real, cold, dangerous life.</p>
+<p>Harriet was born into slavery in Maryland around 1822. Her birth name was Araminta Ross. She was put to work as a small child — checking muskrat traps at age five, serving as a house servant at six. When she was twelve, an overseer threw a heavy metal weight at another enslaved person. It struck Harriet in the head instead. The injury caused seizures, severe headaches, and episodes of sudden sleep for the rest of her life. She carried that wound — and its pain — through every single one of her rescues.</p>
+<p>In 1849, at the age of twenty-seven, Harriet escaped. She walked nearly ninety miles from Maryland to Pennsylvania, traveling by night, navigating by the North Star, hiding during the day. When she crossed the state line into freedom, she later described the moment: she looked at her hands to see if she was the same person. The sun, she said, came through the trees like gold.</p>
+<p>And then she did something that most people in her position would never have done. She went back. Despite knowing that she would be killed if caught, despite the headaches and seizures, despite having finally, finally tasted freedom — she went back into the darkness to bring others out.</p>
+<p>Over the next eleven years, Harriet made approximately nineteen trips back into slave-holding states. She led roughly seventy people to freedom, including her elderly parents. She traveled in winter, when the longer nights gave more cover. She carried a pistol — not to fight slave catchers, but to prevent terrified runaways from turning back. "You'll be free or die," she told them, because a person who turned back could be tortured into revealing the route, endangering everyone.</p>
+<p>She was never caught. She never lost a single passenger. The slaveholders put a $40,000 bounty on her head — an astronomical sum at the time — and she walked through their territory again and again, a five-foot-tall woman with a brain injury, outsmarting an entire system designed to keep people in chains.</p>
+<p>When people asked her how she found the courage, she didn't give grand speeches. She spoke simply. "I had reasoned this out in my mind," she said. "There was one of two things I had a right to: liberty or death. If I could not have one, I would have the other." This was not bravado. It was clarity. She had decided what mattered most, and once that decision was made, fear could not stop her — it could only walk beside her.</p>`,
+    moral: "Courage is not the absence of fear. It is the decision that something matters more than fear. And persistence is not about never being tired or scared — it's about getting up and walking into the dark forest one more time, because the people on the other side are counting on you.",
+    reflection: "Harriet Tubman had every reason to stay safe in freedom and never go back. What do you think made her return, again and again? Is there something in your own life that matters enough to you that you'd be willing to keep going even when it's hard and scary?"
+  },
+  {
+    id: 9, title: "The Potter's Crack", subtitle: "A Korean folktale, retold",
+    theme: "humility", themeLabel: "Humility & Imperfection",
+    body: `<p>In the mountains of Gyeonggi Province, in a small pottery village that had been making celadon for eight hundred years, there lived a young potter named Joon-ho. He was gifted — everyone said so. His bowls were smooth, his glazes luminous, his vases perfectly symmetrical. By the age of twenty, he was already selling his work in Seoul. By twenty-five, collectors were calling him the finest young potter of his generation.</p>
+<p>Joon-ho believed them. He worked tirelessly, but his tirelessness was driven not by love of the craft but by a burning desire to make the perfect pot. He envisioned it: a moon jar — the traditional Korean form, a large, round, white vessel — so flawless that it would look as though it had grown from the earth itself. He would fire it in the ancient wood-burning kiln, and it would emerge without a single blemish. Galleries would display it under glass. Museums would bid for it. He, Joon-ho, would be immortal.</p>
+<p>He worked on the moon jar for two years. He refined the clay mixture seventeen times. He practiced the form until his hands could shape it in the dark. When the day came to fire it, he loaded it into the kiln with the reverence of a priest placing an offering on an altar. He tended the fire for three days and three nights, controlling the temperature with obsessive precision.</p>
+<p>When he opened the kiln, his heart hammering, he found the jar — and it was magnificent. Round as the full moon, white as fresh snow, perfectly symmetrical. Except for one thing. There was a crack. A single, thin, hairline crack running from the rim down one side, like a river drawn by a hesitant hand. The crack was subtle — most people wouldn't notice it — but Joon-ho saw it immediately, and it shattered him.</p>
+<p>He sat on the kiln floor and stared at the jar for hours. Two years of work, ruined by a crack. He decided to smash it and start over. He lifted the jar, ready to hurl it against the wall.</p>
+<p>"Wait." The voice belonged to his grandmother, who had been making pottery in this village since before Joon-ho was born. She was eighty-one years old, and her own hands were too gnarled to throw pots anymore, but she still came to the workshop every day to feel the warmth of the kiln. "Bring it to me," she said.</p>
+<p>Joon-ho brought her the jar. She turned it slowly, running her fingers over the surface until she found the crack. She smiled. "This," she said, "is the most beautiful thing you have ever made." Joon-ho stared at her. "It's flawed," he said. "It's imperfect."</p>
+<p>"Yes," she said. "And that is why it is beautiful. A perfect pot is a machine's work. A pot with a crack is a human being's work. This crack tells the story of the fire that was too hot for one moment, of the clay that shifted, of the hands that shaped it. It is the jar's memory." She paused. "You have been trying to make something perfect. You should be trying to make something true."</p>
+<p>Joon-ho did not smash the jar. He placed it in the center of his workshop, where it sat for the next forty years. He went on to become a celebrated potter — not because he achieved perfection, but because he stopped chasing it. His later works were looser, warmer, more alive. They had the slight asymmetries and subtle marks that only handmade things possess. Collectors loved them not for their flawlessness, but for their honesty.</p>`,
+    moral: "Humility means accepting that perfection is not the goal — truth is. The things that make you imperfect — your quirks, your struggles, your 'cracks' — are not flaws to be hidden. They are the signatures of a life that is real, honest, and beautifully human.",
+    reflection: "Is there something about yourself that you think of as a flaw or a failure? What would happen if you saw it the way Joon-ho's grandmother saw the crack — not as a mistake, but as a signature, a mark of something real and lived?"
+  },
+  {
+    id: 10, title: "The Invisible Gift", subtitle: "An original story about empathy",
+    theme: "empathy", themeLabel: "Empathy",
+    body: `<p>When Priya moved to a new school in the middle of seventh grade, she became invisible. Not actually invisible — she could see her own hands, her own feet — but socially invisible, which is worse, because at least if you're actually invisible, there's something interesting about you.</p>
+<p>The school was in a suburb where everyone had known everyone else since kindergarten. Friend groups had been sealed shut years ago, like jars with their lids screwed on tight. Priya sat at the end of the lunch table, where the silence was thickest. She walked through hallways full of laughter that wasn't for her. She answered questions in class and watched her words disappear into the room like smoke, noticed by no one.</p>
+<p>She told herself it was fine. She told her mother it was fine. She ate lunch alone and called it "reading time." She walked home alone and called it "exercise." She was becoming an expert at turning loneliness into other words.</p>
+<p>Then came the day of the group project in Ms. Rivera's social studies class. The assignment was to research a culture different from your own and present it to the class. Students scrambled to form groups with their friends. When the dust settled, Priya was left standing with one other person: a boy named Marcus, who had not been picked either.</p>
+<p>Marcus was big and quiet. He wore the same gray hoodie every day, sat in the back of every class, and spoke so rarely that when he did, people looked startled, as if a piece of furniture had suddenly voiced an opinion. Priya's first thought, shamefully, was: great, I'm paired with the other invisible person.</p>
+<p>They met in the library after school to plan. Priya started talking immediately — about the project structure, the timeline, the research sources — filling the silence the way she always did, with productivity. Marcus listened. After about ten minutes, he said, quietly, "Can I show you something?"</p>
+<p>He opened his backpack and pulled out a sketchbook. Inside were drawings — dozens of them, hundreds — of the people in their school. But not the way they looked on the outside. Marcus drew what he saw underneath. There was a drawing of Jake, the class clown, shown with a mask half-falling off his face and a look of exhaustion beneath it. There was one of Sofia, the popular girl, depicted standing in a spotlight with her shadow reaching desperately toward a group of shadows that were walking away. There was one of Ms. Rivera, drawn as a tree with deep roots, her branches reaching toward small birds — her students — some of whom were flying and some of whom were falling.</p>
+<p>Priya stared at the drawings. They were raw, imperfect, and absolutely extraordinary — not because of the technique, but because of the seeing. Marcus saw people. Not their clothes, not their social status, not the masks they wore. He saw the loneliness inside the clown, the fear inside the popular girl, the care inside the teacher.</p>
+<p>Their presentation was about empathy in different cultures — but really, it was about empathy itself. Marcus displayed his drawings, and the class fell silent. Jake, the class clown, stared at his portrait for a long time and then said, quietly, "That's actually... yeah. That's actually really accurate." Sofia looked at hers and her eyes got bright with tears. Ms. Rivera put a hand over her heart.</p>
+<p>After the presentation, things didn't change dramatically — this is real life, not a movie. But small things shifted. People started saying hi to Marcus in the hallway. And Priya, for the first time, sat in the middle of the lunch table — not because someone invited her, but because she realized she had spent months waiting for an invitation when she could have been offering one to someone else.</p>`,
+    moral: "Empathy is the rarest kind of vision. It's the ability to look at another person and see not their surface, but their story. And here's the secret: the moment you start truly seeing others, you stop being invisible yourself.",
+    reflection: "Think about someone you see every day but don't really notice — maybe a quiet classmate, a sibling, or even a parent after a long day. What might be going on underneath their surface that you haven't been seeing?"
+  },
+  {
+    id: 11, title: "The Mountain That Moved One Inch", subtitle: "A parable about persistence",
+    theme: "persistence", themeLabel: "Persistence",
+    body: `<p>In the highlands of Peru, where the air is thin and the mountains touch the clouds, there is a village called Huallanca. It sits in a narrow valley, and for as long as anyone can remember, the village has had a problem: the mountain on the north side drops rocks. Not in dramatic landslides, but in a slow, constant crumbling — a few stones a week, enough to damage roofs, block the only road out, and keep the village trapped in a state of permanent anxiety.</p>
+<p>For generations, the people of Huallanca did what most people do when faced with an immovable problem. They complained about it. They prayed about it. They learned to live around it. Some families left. "You cannot fight a mountain," they said on their way out.</p>
+<p>Then, in 1987, a woman named Celeste Quispe decided to fight the mountain. Not the entire mountain — she wasn't naive. Just the unstable overhang that had been dropping rocks on the village for a century. She was a schoolteacher, not an engineer. She had no funding, no equipment, and no support from the local government.</p>
+<p>Celeste started by studying. She walked to the nearest city — a two-day journey — and visited the university library, where she read everything she could find about slope stabilization, terracing, and retaining walls. On her fourth visit, the librarian introduced her to a retired civil engineering professor named Dr. Vargas, who agreed to visit the village.</p>
+<p>Dr. Vargas confirmed a full engineering solution would cost millions. But then he said: "You don't need to move the mountain. You just need to move the loose rock, build a few terraces to catch what falls, and plant deep-rooted trees to hold the soil. It will take years. But you can do it with hands, shovels, and seeds."</p>
+<p>Celeste called a village meeting. Thirty people came. She explained the plan. Twenty-two laughed and left. Eight people stayed. Celeste looked at them and said, "Eight is enough to start."</p>
+<p>They began on a Saturday. They cleared loose rock from the overhang by hand, filling baskets and carrying them down to the valley floor. They built a small retaining wall from the cleared stones. They planted queñua trees — native, deep-rooted, stubborn — in every crevice they could find. After a month, they had cleared perhaps one percent of the unstable rock. The mountain looked exactly the same.</p>
+<p>But they came back the next Saturday. And the one after that. Gradually, people who had laughed started showing up — not because they believed, but because they saw their neighbors out there every weekend and felt moved to join. Within a year, twenty people were working. Within two years, forty. The retaining walls grew. The queñua trees took root.</p>
+<p>It took Celeste and the village twelve years to stabilize the north face. Twelve years of Saturdays. The mountain didn't move, of course — mountains don't. But the overhang stopped crumbling. The trees held the soil. The retaining walls caught what little fell. And the village that had spent a century living in fear transformed into a community that had learned the most powerful lesson there is: you do not need to move a mountain. You only need to move one inch at a time, together.</p>`,
+    moral: "Persistence isn't about the size of the task — it's about the steadiness of the effort. You don't need to solve the whole problem at once. You just need to show up on Saturday with your shovel, and trust that one inch, plus another inch, will eventually add up to something the mountain itself cannot ignore.",
+    reflection: "Is there a 'mountain' in your life — a problem that feels too big to solve? What if you didn't try to solve all of it, but just committed to clearing one small basket of rocks this week? What would that look like?"
+  },
+  {
+    id: 12, title: "The Man Who Planted Trees", subtitle: "Inspired by Jean Giono's classic tale",
+    theme: "persistence", themeLabel: "Persistence & Purpose",
+    body: `<p>In the foothills of the French Alps, in a barren, windswept region where nothing grew, there once lived a shepherd named Elzéard Bouffier. The year was 1913. The villages in the valley below had been abandoned for decades. The streams had dried up. The soil, without roots to hold it, had blown away in the wind.</p>
+<p>Elzéard was a quiet man who had lost his wife and his son to illness. Alone in the world, he had retreated to the highlands with his sheep and his silence. But unlike the landscape around him, Elzéard's inner world was not barren. He had a plan so simple and so audacious that if he had told anyone, they would have thought him mad.</p>
+<p>He was going to plant a forest.</p>
+<p>Every day, while his sheep grazed, Elzéard would walk the desolate hills with an iron rod. He would poke holes in the hard earth, and into each hole, he would drop an acorn. He carried a bag of one hundred carefully selected acorns each day — examined the night before, soaked in water, sorted for health. Of the hundred he planted, he expected perhaps ten to survive. Ten trees a day. Three thousand six hundred and fifty trees a year.</p>
+<p>At first, nothing happened. That is the cruelest truth about planting trees: the years between the planting and the forest are years of faith. You put an acorn in the ground and you see — nothing. The soil looks exactly the same the next day, the next month, the next year.</p>
+<p>Elzéard planted acorns in 1913, and in 1914, he planted more. He planted through the First World War. He planted through droughts and harsh winters. He planted when his knees ached and his back refused to straighten.</p>
+<p>After five years, a visitor might have noticed small green shoots pushing up through the gray soil. After ten years, the shoots were saplings. After twenty years, the saplings were young trees, their roots reaching deep into the earth, holding the soil that had been blowing away for decades.</p>
+<p>Then came the consequences. As the trees grew, their roots found underground water and pulled it to the surface. Dry streams began to flow again. As the streams flowed, reeds and meadow grass appeared on their banks. As the grass grew, insects returned. As the insects returned, birds came. As the birds came, they brought seeds from distant places, and new species of plants began to grow among the oaks. The ecosystem, dead for a century, was breathing again.</p>
+<p>By the 1940s — thirty years after Elzéard planted his first acorn — the barren moonscape had become a thriving forest. The abandoned villages in the valley were repopulated. Families moved in, drawn by the flowing streams and the cool shade. A government forestry commission visited and declared the forest a "natural wonder," never knowing that it had been planted, acorn by acorn, by one quiet man with an iron rod and an unshakeable purpose.</p>
+<p>Elzéard Bouffier planted trees until the very end of his life. He died peacefully in 1947, at the age of eighty-nine. He left behind no fortune, no fame — only a forest of thousands upon thousands of trees, a river that flowed again, and a valley full of people who owed their homes to a man most of them had never heard of.</p>`,
+    moral: "The most powerful form of persistence isn't loud or dramatic. It's the quiet, daily discipline of planting one hundred acorns, knowing most won't survive, and doing it again tomorrow anyway. Great things aren't built in moments of inspiration. They're built in decades of showing up.",
+    reflection: "What acorns are you planting in your life right now? Even things that seem small — a habit you're building, a skill you're practicing, a relationship you're nurturing — can grow into a forest over time. What will your forest look like in ten years?"
+  },
+  {
+    id: 13, title: "The Two Wolves and the Telescope", subtitle: "An original story about honesty",
+    theme: "honesty", themeLabel: "Honesty & Integrity",
+    body: `<p>Kavya was twelve when she broke the telescope. It was a beautiful instrument — a Celestron with a polished brass tube and lenses that could show you the rings of Saturn on a clear night. It belonged to her science teacher, Mr. Rajan, who kept it in the corner of his classroom and brought it out on special occasions.</p>
+<p>It happened on a Thursday after school. Kavya had stayed behind to work on her astronomy project, and Mr. Rajan had given her permission to use the telescope. She was adjusting the tripod when her elbow caught the tube. The telescope tipped, fell, and hit the tile floor with a sharp crack. She picked it up and saw the damage: the main lens was fractured, a web of cracks radiating from the center like a broken window.</p>
+<p>For a full minute, Kavya stood frozen, holding the telescope, her heart hammering. Mr. Rajan was in the staff room. No one had seen. The classroom door was closed. She could put the telescope back in the corner, cover the lens, and leave. By the time Mr. Rajan discovered the damage, it could have been anyone.</p>
+<p>She actually started to do it. She placed the telescope back in the corner. She positioned the lens cap over the cracked lens. She picked up her backpack. She walked to the door. And then she stopped.</p>
+<p>There is a Cherokee story about two wolves fighting inside every person — a wolf of honesty and a wolf of dishonesty — and the one that wins is the one you feed. Standing at that door, Kavya could feel both wolves. The dishonest wolf was louder: "No one saw. It's a small thing. You'll get in trouble." The honest wolf was quieter but steadier: "You know what happened. You will know what happened every time you sit in this classroom."</p>
+<p>Kavya put down her backpack, walked to the staff room, and knocked on the door. When Mr. Rajan opened it, she said, "Sir, I broke the telescope. I'm so sorry. I was adjusting the tripod and it fell."</p>
+<p>Mr. Rajan's face did something complicated. It fell — she could see the sadness — and then it settled into something she didn't expect. Not anger. Not even disappointment. He looked at her with what she could only describe as respect.</p>
+<p>He examined the damage and said, "This lens will cost about eight thousand rupees to replace. That is a lot of money." Kavya's stomach dropped. "I'll pay for it," she said, though she had no idea how.</p>
+<p>Mr. Rajan studied her for a long moment. "Kavya, I want to tell you something important. Telescopes can be repaired. Lenses can be replaced. These are things. But the thing you just did — walking into that staff room and telling the truth when no one would have known — that cannot be bought or replaced. That is the rarest and most valuable thing a person can have."</p>
+<p>Kavya spent the rest of the school year as Mr. Rajan's unofficial astronomy assistant. She learned to clean lenses, calibrate instruments, and set up observation stations. She saved her allowance and contributed to the lens repair. And every time she looked through the repaired telescope at the moon or the stars, she felt something that the dishonest wolf could never have given her: the clean, clear, unshakeable feeling of knowing that when it mattered, she had told the truth.</p>`,
+    moral: "Honesty is hardest precisely when it matters most — in the moments when no one is watching and getting away with it would be easy. But living with the truth gives you something that dishonesty never can: the ability to look at yourself without flinching.",
+    reflection: "Has there been a time when telling the truth was harder than staying silent? What happened? And looking back, are you glad you told the truth?"
+  },
+  {
+    id: 14, title: "Malala's Bus Ride", subtitle: "A true story of courage and persistence",
+    theme: "persistence", themeLabel: "Persistence & Courage",
+    body: `<p>On the morning of October 9, 2012, a fifteen-year-old girl in the Swat Valley of Pakistan boarded a school bus. This was, in itself, an act of defiance. In the region where she lived, the Taliban had banned girls from attending school. They had burned school buildings, destroyed books, and threatened families who dared to educate their daughters. But this girl — Malala Yousafzai — had been going to school anyway, every single day, for years.</p>
+<p>The story of Malala does not begin on the bus. It begins years earlier, in a household where education was a conviction. Her father, Ziauddin Yousafzai, ran a school for girls in Mingora. He passed this belief to Malala the way other parents pass on eye color or a love of music: through the daily example of a life built around a principle.</p>
+<p>When Malala was eleven, the Taliban began tightening their grip on the Swat Valley. Schools were bombed. Teachers were threatened. Girls were told to stay home. Many did. Malala did not. Instead, she began writing a blog for the BBC describing what it was like to live in a place where seeking knowledge was treated as a crime. "I have the right of education," she wrote. "I have the right to play. I have the right to sing. I have the right to speak up."</p>
+<p>As her voice grew louder, the threats grew more specific. Malala was afraid — she has said so many times, because she is honest in the way that only truly courageous people can be. She was afraid, and she went to school anyway. Fear and courage existed inside her at the same time, like two rivers flowing through the same valley.</p>
+<p>On that October morning, a masked gunman boarded the bus, asked "Who is Malala?", and shot her. The bullet entered the left side of her forehead. She was airlifted to a military hospital, then to Birmingham, England, where she underwent multiple surgeries. For days, the world held its breath.</p>
+<p>She woke up. She recovered. And then she did the thing that defines her more than any bullet ever could: she continued. On her sixteenth birthday, standing at the United Nations, she said: "The terrorists thought that they would change our aims and stop our ambitions, but nothing changed in my life except this: weakness, fear, and hopelessness died. Strength, power, and courage were born."</p>
+<p>In 2014, at seventeen, Malala became the youngest person ever to receive the Nobel Peace Prize. She used the platform to advocate for the sixty-six million girls worldwide who are denied education.</p>
+<p>What makes Malala's story so important is not the dramatic moments. It's the undramatic ones. It's the hundreds of ordinary mornings when she got dressed, picked up her schoolbooks, and walked out the door into a world that had told her to stay home. Persistence, in Malala's case, looked like a girl going to school. That's it. That's the whole revolution.</p>`,
+    moral: "The most powerful form of persistence is the quiet, daily refusal to give up what you know is right. Malala didn't need superpowers. She needed a schoolbag and the stubbornness to keep walking through the door.",
+    reflection: "Malala once said, 'One child, one teacher, one book, one pen can change the world.' Do you believe this? What's the one thing — your 'schoolbag' — that you could keep showing up for, even when it's hard?"
+  },
+  {
+    id: 15, title: "The Woodcarver's Lesson", subtitle: "A Zen story, reimagined",
+    theme: "hardwork", themeLabel: "Hard Work & Mastery",
+    body: `<p>In the court of a duke in ancient China, there stood a bell stand of such extraordinary beauty that everyone who saw it believed it was the work of spirits. The stand was carved from a single piece of wood, yet it seemed alive — its curves flowing like water, its surface smooth as silk.</p>
+<p>The carver's name was Qing, and he was an old man with unremarkable hands. When the duke summoned him and asked how he had made such a thing, the old man bowed and said, "There is no mystery, my lord. There is only preparation."</p>
+<p>Qing said: "When I am going to make a bell stand, I first calm my mind. After three days, I no longer think about congratulations or rewards. After five days, I no longer think about praise or criticism. After seven days, I forget that I have a body and four limbs. By this time, all that distracts me has faded away."</p>
+<p>"Only then do I go into the forest. I look at the trees — their shapes, their grain, the way they hold themselves in the wind. I search until I find a tree that already contains the bell stand within it. I can see it, hidden inside the wood like a bird inside an egg. When I find such a tree, the bell stand practically makes itself. All I do is bring together my skill and the nature of the wood."</p>
+<p>The duke said, "Surely it is not that simple."</p>
+<p>Qing smiled. "My lord, I have been carving wood for forty-seven years. I began as a boy, making rough toys that splintered and broke. My first master made me carve straight lines — only straight lines — for an entire year before he let me attempt a curve. My second master made me sharpen tools for six months before he let me touch wood at all. I have carved ten thousand pieces, most of them bad, many of them acceptable, a few of them good. The bell stand you admire is not the product of a week of meditation. It is the product of forty-seven years of practice."</p>
+<p>There is a word in Japanese — "shokunin" — that means something deeper than "craftsman." It describes a person who dedicates their life to mastering a single skill, not for fame or money, but for the work itself. A shokunin sharpens their knife not because someone is watching, but because a dull knife is an insult to the wood.</p>
+<p>This is what hard work really looks like. Not the glamorous, montage version. Real hard work is the first master making young Qing carve straight lines for a year. It is the sharpening of tools before you're allowed to use them. It is the ten thousand bad pieces that no one will ever see, each one teaching your hands something your mind cannot learn on its own.</p>
+<p>The bell stand in the duke's court was not made in a week, or a month, or even a year. It was made in forty-seven years. Every straight line the boy carved, every tool the apprentice sharpened, every bad piece the young man threw away — all of it was inside the bell stand, invisible but essential, like roots beneath a tree.</p>`,
+    moral: "Mastery is not a talent you're born with — it's a mountain you climb one step at a time, over years and decades. The ten thousand hours of boring, repetitive, unglamorous practice are not the price you pay for greatness. They are greatness, slowly becoming visible.",
+    reflection: "Think about something you're good at — even if it's small. How did you get good at it? Was it practice you barely noticed? What skill would you like to dedicate your 'ten thousand hours' to?"
+  },
+  // ─── NEW STORIES (16–31) ───
+  {
+    id: 16, title: "The Library of Alexandria — and the One That Replaced It", subtitle: "A true story about resilience",
+    theme: "persistence", themeLabel: "Persistence & Resilience",
+    body: `<p>The ancient Library of Alexandria was one of the greatest repositories of human knowledge ever assembled. At its height, it held hundreds of thousands of scrolls — the collected wisdom of the ancient world. Scholars traveled from across the Mediterranean to study there. It was not just a building; it was the idea that all human knowledge could be gathered in one place, for everyone.</p>
+<p>And then, over the centuries, it was destroyed. Not in one dramatic fire, as legend suggests, but in a long, slow erosion — wars, neglect, political upheaval. By the fifth century, it was gone. The scrolls were ash. The knowledge was lost. For over a thousand years, the Library of Alexandria existed only as a story about what humanity had lost.</p>
+<p>Then, in 2002, something extraordinary happened. On the exact same shore in Alexandria, Egypt, a new library opened. The Bibliotheca Alexandrina. It had taken over a decade to build, involved architects from sixty-five countries, and was funded by donations from the international community. Its main reading room is the largest in the world — 70,000 square meters, with space for eight million books.</p>
+<p>But the new library is more than a building. It's an answer to a question that the burning of the original library asked: when something precious is destroyed, do you mourn it forever, or do you rebuild? The architects designed the building as a giant disc tilted toward the sea, like a second sun rising from the Mediterranean — a deliberate symbol of knowledge re-emerging from darkness.</p>
+<p>The most moving detail is the exterior wall. It's made of Aswan granite, and carved into its surface are characters from 120 different human scripts — ancient and modern, living and dead. Hieroglyphics sit next to Hindi. Braille sits next to Cherokee. It's a wall that says: every language matters. Every way of recording thought is worth preserving.</p>
+<p>The people who built the Bibliotheca Alexandrina knew they could never recover what was lost. They could never bring back the original scrolls. But they could do something just as powerful: they could refuse to let the destruction be the end of the story. They could take the grief of loss and transform it into the energy of creation. They could say, in stone and glass and eight million books: we choose to begin again.</p>`,
+    moral: "Resilience doesn't mean pretending loss didn't happen. It means taking the broken pieces and building something new — not to replace what was lost, but to honor it by refusing to let the story end with destruction.",
+    reflection: "Have you ever lost something that felt irreplaceable — a friendship, an opportunity, something you worked hard on? What would it look like to 'rebuild' — not to get the same thing back, but to create something new from that experience?"
+  },
+  {
+    id: 17, title: "The Boy Who Harnessed the Wind", subtitle: "A true story from Malawi",
+    theme: "hardwork", themeLabel: "Hard Work & Ingenuity",
+    body: `<p>In 2001, in a small farming village in Malawi called Masitala, a fourteen-year-old boy named William Kamkwamba was forced to drop out of school. His family could not afford the $80 annual tuition fee. In a country where drought had destroyed the maize crop and families were starving, $80 might as well have been $80,000.</p>
+<p>Most boys in William's situation would have resigned themselves to working the fields. And William did work the fields. But he also did something else: he kept going to the library. The small community library near his village had a collection of donated books, many of them in English, a language William barely spoke. He went anyway. He looked at the pictures. He puzzled out the words. And one day, he found a textbook called "Using Energy" with a photograph on the cover that changed his life: a windmill.</p>
+<p>William studied that photograph the way a hungry person studies a recipe. He read every word he could understand and guessed at the rest. He learned that a windmill could generate electricity, and electricity could power a water pump, and a water pump could irrigate fields, and irrigated fields could grow food even when the rains failed. Each step was a link in a chain, and the chain connected a photograph in a book to the survival of his family.</p>
+<p>He decided to build one. He had no money, no training, no tools, and no materials. He had a library book and a stubbornness that his mother later described as "a kind of sickness — he could not stop."</p>
+<p>William began scavenging. He collected a broken bicycle from a scrapyard. He pulled a tractor fan blade from a pile of junk. He fashioned a rotor shaft from a discarded shock absorber. He melted PVC pipes over a fire and flattened them into blade shapes. When he needed a dynamo to generate electricity, he took apart an old bicycle dynamo, studied how it worked, and reassembled it.</p>
+<p>His neighbors thought he had lost his mind. They called him "misala" — crazy. Even his mother was worried. But William kept building, day after day, in the dusty yard behind his family's house. He made mistakes constantly. The blades broke. The tower swayed. The wiring short-circuited. Each failure sent him back to the library, back to the textbook, back to the diagram of that windmill on the cover.</p>
+<p>After weeks of work, William hoisted his windmill onto a rickety tower made of blue gum trees lashed together with rope. It was ugly. It was shaky. And when the wind blew, the bicycle wheel turned, the dynamo spun, and a small LED light — connected by wires to the dynamo — flickered on.</p>
+<p>William had created electricity. In a village with no power grid, no running water, and no hope of either, a fourteen-year-old boy with a library book and a pile of junk had made light.</p>
+<p>Word spread. Journalists came. Then educators. Then engineers. William was eventually invited to speak at a TED conference, where he stood before a thousand people and said, in halting English, "I tried, and I made it." The audience gave him a standing ovation. He went on to attend college, and returned to Malawi to build larger windmills that now power water pumps irrigating his village's fields.</p>`,
+    moral: "Hard work isn't just about effort — it's about resourcefulness. William didn't wait for perfect conditions. He built something extraordinary from what he had: a broken bicycle, a library book, and the refusal to accept that his situation was permanent.",
+    reflection: "What resources do you already have that you might be underestimating? A library card, internet access, a skill, a person who believes in you? What could you build with what's already in your hands?"
+  },
+  {
+    id: 18, title: "The Giving Tree's Real Lesson", subtitle: "A story about one-sided giving",
+    theme: "kindness", themeLabel: "Kindness & Boundaries",
+    body: `<p>There was a girl named Devi who was the kindest person in her class. Everyone knew this. If you forgot your lunch, Devi shared hers. If you needed help with homework, Devi stayed late. If you were sad, Devi listened. She was the person everyone turned to, the one who never said no, the one whose door was always open.</p>
+<p>At first, being kind felt wonderful. There's a warmth that comes from helping someone — a glow in your chest, a feeling of mattering. Devi loved that feeling. She chased it. She said yes to everything. She helped with projects that weren't hers. She lent money she couldn't afford to lend. She listened to problems at midnight when she had a test the next morning.</p>
+<p>But somewhere around the middle of eighth grade, the glow started to flicker. Devi noticed that the people she helped didn't always help her back. When she was sick, the classmates she had tutored didn't bring her notes. When she was sad, the friends she had consoled didn't ask what was wrong. When she needed to borrow something, the people who had borrowed from her were suddenly unavailable.</p>
+<p>She didn't say anything. Kind people don't complain, she told herself. Kind people give without expecting anything in return. She doubled down, helping more, giving more, stretching herself thinner and thinner until she felt like a rubber band about to snap.</p>
+<p>It was her aunt, Meena Maasi, who noticed. Meena Maasi was a social worker who had spent thirty years helping people in difficult situations, and she recognized the pattern immediately. One evening, she sat down with Devi and said, "Tell me something. When you're on an airplane, what do the safety instructions say about oxygen masks?"</p>
+<p>Devi blinked. "Put on your own mask before helping others."</p>
+<p>"Why do they say that?"</p>
+<p>"Because if you pass out, you can't help anyone."</p>
+<p>Meena Maasi nodded. "Devi, you are one of the kindest people I know. But you have confused kindness with self-erasure. Kindness does not mean giving until you have nothing left. It does not mean saying yes when your body is screaming no. It does not mean being available to everyone at the cost of being available to yourself."</p>
+<p>She continued: "True kindness has boundaries. A well with no walls eventually collapses. The water doesn't disappear — the structure that held it does. You are the structure, Devi. You need walls — not to keep people out, but to keep yourself standing so you can keep giving for years and decades, not just until you burn out."</p>
+<p>Devi sat with this for a long time. It felt uncomfortable, almost wrong. Wasn't saying no the opposite of kindness? But the more she thought about it, the more she realized that every time she said yes when she meant no, she wasn't being kind. She was being afraid — afraid of being disliked, afraid of not being needed, afraid that without her helpfulness, she was nothing.</p>
+<p>Slowly, Devi learned to draw gentle boundaries. She helped with homework, but not after 9 PM on school nights. She lent things, but she also asked for them back. She listened to friends, but she also said, "I'm having a hard day too — can I tell you about it?" Some people drifted away. The ones who stayed were the ones who valued Devi, not just what Devi could do for them.</p>
+<p>And here's the part no one tells you: Devi's kindness actually became more powerful after she set boundaries. Because now it was a choice, not a compulsion. Every act of generosity came from a full cup, not an empty one. She could give more because she had more to give.</p>`,
+    moral: "Kindness without boundaries is self-destruction wearing a generous mask. The most sustainable kind of kindness comes from someone who knows how to say 'not right now' so they can keep saying 'yes' to the things that truly matter.",
+    reflection: "Are there times when you say yes but mean no? What would it feel like to set one small boundary — not to be selfish, but to protect your ability to keep being kind over the long run?"
+  },
+  {
+    id: 19, title: "The Jar of Stones", subtitle: "A parable about what matters",
+    theme: "gratitude", themeLabel: "Gratitude & Priorities",
+    body: `<p>A professor of philosophy stood before her class with a large, empty glass jar. Without saying a word, she reached under the desk and pulled out a bag of large river stones — smooth, heavy, about the size of a fist. She placed them in the jar, one by one, until no more would fit. She looked at the class and asked, "Is the jar full?"</p>
+<p>The students nodded. "Yes."</p>
+<p>The professor smiled and reached under the desk again. This time she pulled out a bag of pebbles — small, round, the kind you find on a beach. She poured the pebbles into the jar, shaking it gently so they settled into the spaces between the large stones. She looked at the class again. "Is the jar full?"</p>
+<p>The students hesitated, sensing a trick. "Maybe," someone said.</p>
+<p>The professor reached under the desk a third time and brought out a bag of fine sand. She poured it into the jar, and the sand trickled into every remaining gap, filling the spaces between the pebbles and the stones. "Now?" she asked.</p>
+<p>"Now it's full," the students said.</p>
+<p>The professor then produced two cups of tea from behind the desk and poured them into the jar. The liquid seeped through the sand without overflowing. The class laughed.</p>
+<p>"Now," the professor said, "I want you to understand what this jar represents. The jar is your life. The large stones are the things that truly matter — your family, your health, your closest friendships, your education, the values you live by. If everything else were lost and only these remained, your life would still be full and meaningful."</p>
+<p>"The pebbles are the things that matter but are not essential — your hobbies, your achievements, your favorite possessions. They make life enjoyable, but they are not what give it meaning."</p>
+<p>"The sand is the small stuff — the arguments about nothing, the scrolling through social media, the worrying about what someone said, the comparison with others. It fills your time, but it doesn't fill your life."</p>
+<p>She paused. "Here is the lesson. If you put the sand in first — if you fill your life with the small, unimportant things — there will be no room for the stones. No room for the people and values that truly matter. But if you put the stones in first, the pebbles and sand will always find a way to fit around them."</p>
+<p>A student in the back raised her hand. "What about the tea?"</p>
+<p>The professor grinned. "I'm glad you asked. No matter how full your life seems, there is always room to sit down and share a cup of tea with someone you love."</p>
+<p>The class sat in silence for a moment. Not because the lesson was complicated — it wasn't. They sat in silence because each of them was thinking about their own jar. How much sand had they poured in lately? How many stones had they neglected? When was the last time they had sat down for tea?</p>`,
+    moral: "Gratitude is knowing the difference between the stones and the sand in your life — and choosing to put the stones in first. The small stuff will always find a way to fit. But if you fill your days with sand, you'll look up one day and realize there's no room for what matters.",
+    reflection: "What are the 'big stones' in your life — the things that truly matter to you? Are you putting them in first, or are you letting the 'sand' (social media, worrying, small distractions) take up all the space?"
+  },
+  {
+    id: 20, title: "The Elephant Rope", subtitle: "A story about self-belief",
+    theme: "selfbelief", themeLabel: "Self-Belief",
+    body: `<p>A man was walking through an elephant sanctuary in Thailand when he noticed something that puzzled him. The elephants — enormous, powerful creatures, each one capable of uprooting a tree — were being held in place by nothing more than a thin rope tied to one of their front legs. The rope was attached to a small wooden stake driven into the ground. Any one of these elephants could have snapped the rope with a single tug. But none of them tried.</p>
+<p>The man asked the keeper, "Why don't they break free? They're strong enough to pull down a building."</p>
+<p>The keeper smiled sadly. "When they were babies," he said, "we used the same size rope to tie them. At that age, the rope was strong enough to hold them. They pulled and pulled, and the rope didn't break. Eventually, they stopped trying. Now they're grown — strong enough to break any rope — but they still believe they can't. The rope isn't holding them. Their belief is."</p>
+<p>The man stood there for a long time, watching the elephants. He thought about how strange it was — a creature weighing several thousand kilograms, held captive by a memory. The rope was real, but it was also an illusion. The only thing keeping the elephant in place was a lesson it had learned long ago that was no longer true.</p>
+<p>We do this too. Somewhere in your past, someone or something taught you a lesson about what you can't do. Maybe a teacher said you weren't good at math. Maybe a friend said you weren't funny. Maybe you tried something once, failed, and decided that failure was permanent. That experience became your rope. You stopped pulling.</p>
+<p>But here's what the elephants don't know: you are not the same person you were when you first pulled on that rope. You are bigger, stronger, smarter, more capable than the child who first heard "you can't." The rope hasn't changed — but you have. And the only thing keeping you tied to that stake is the belief that the old lesson is still true.</p>
+<p>Consider the story of a girl named Aisha who was told in third grade that she was "not a math person." Her teacher said it casually, almost offhandedly, during a parent-teacher conference. Aisha overheard. She was eight years old, and the words tied a rope around her that lasted a decade. She avoided math. She chose her classes to minimize it. She told herself, and everyone else, "I'm just not a math person."</p>
+<p>Then, in college, she took a statistics course because it was required. The professor was patient and clear, and she began to understand things she had always assumed were beyond her. She worked harder than anyone in the class — not because she was bad at it, but because she was fighting the rope the whole time. She got an A. Then she got another A. Then she changed her major to data science.</p>
+<p>The third-grade teacher wasn't wrong about the eight-year-old Aisha. Maybe she was struggling with math that year. But the lesson expired a long time ago. The rope should have been cut years earlier. Instead, Aisha carried it with her, invisible and powerful, until she finally pulled hard enough to snap it.</p>`,
+    moral: "The beliefs that hold you back are often not your own — they were given to you by someone else, at a time when you were too young to question them. You have the power to test those old ropes. Pull on them. You might be surprised at how easily they break.",
+    reflection: "What's a 'rope' in your life — something you believe about yourself that might not be true anymore? Maybe 'I'm not creative' or 'I'm bad at sports' or 'I'm too shy.' Where did that belief come from? And what would happen if you pulled on it?"
+  },
+  {
+    id: 21, title: "The Starfish Story", subtitle: "Adapted from Loren Eiseley",
+    theme: "kindness", themeLabel: "Kindness & Impact",
+    body: `<p>An old man was walking along the beach at dawn, just after a violent storm. The tide had retreated, and the sand was covered — for as far as he could see — with thousands upon thousands of starfish. They had been hurled ashore by the waves and now lay stranded, drying in the morning sun. In a few hours, they would all be dead.</p>
+<p>The old man walked slowly among them, saddened by the sight. There were so many. The beach stretched for miles, and every inch was covered. It was, by any reasonable measure, a hopeless situation.</p>
+<p>Then he noticed a young girl in the distance, near the water's edge. She was picking up starfish, one at a time, and throwing them back into the sea. She would bend down, pick one up, walk to the water, toss it in, then walk back and pick up another. She had been doing this for some time — her footprints in the wet sand traced a path back and forth, back and forth.</p>
+<p>The old man watched her for a while, then walked over. "Young lady," he said gently, "there are thousands of starfish on this beach. You can't possibly save them all. There are too many. What you're doing — it can't make a difference."</p>
+<p>The girl listened politely. Then she bent down, picked up another starfish, and threw it into the sea. She looked at the old man and said, "It made a difference to that one."</p>
+<p>She went back to work.</p>
+<p>The old man stood there, watching. Something about her words — their simplicity, their stubborn practicality — caught in his chest. She wasn't trying to solve the whole problem. She wasn't paralyzed by the enormity of it. She had simply decided that if she could help one, she would help one. And then she would help another one. And another.</p>
+<p>After a moment, the old man bent down and picked up a starfish. It was cool and rough in his palm, its tiny legs curling. He walked to the water's edge and tossed it in. He picked up another. Then another. A couple walking their dog stopped to watch, then joined in. A family setting up their beach blankets saw the growing group and came over. By mid-morning, there were dozens of people on that beach, picking up starfish and throwing them back into the sea.</p>
+<p>They didn't save them all. They couldn't. But every single starfish that made it back to the water was one that would have died. And every person on that beach walked away knowing something that is easy to forget in a world full of enormous problems: you do not need to fix everything. You just need to fix the thing in front of you. And when you do, others will see you, and they will join.</p>`,
+    moral: "Never let the size of a problem convince you that your small action doesn't matter. You can't save every starfish on the beach. But the one you pick up — that one's entire world changes. And your example might inspire someone else to bend down and pick up another.",
+    reflection: "What's a 'starfish' in your life — a small act of kindness you could do today that might seem insignificant in the grand scheme of things, but would make a real difference to one person?"
+  },
+  {
+    id: 22, title: "The Weight of a Snowflake", subtitle: "A European fable",
+    theme: "persistence", themeLabel: "Persistence & Small Actions",
+    body: `<p>A dove sat on the branch of a fir tree, watching the snow fall. She was counting the flakes — not out of any scientific purpose, but because she was a thoughtful bird with nothing better to do on a cold winter afternoon.</p>
+<p>She had been counting for hours. The number had reached 3,741,952 when a coal tit — a small, cheerful bird with a black cap and bright eyes — landed on the branch beside her.</p>
+<p>"What are you doing?" asked the coal tit.</p>
+<p>"Counting snowflakes," said the dove.</p>
+<p>The coal tit cocked her head. "And you've found this interesting?"</p>
+<p>"I've found this instructive," said the dove. "Do you know how much a single snowflake weighs?"</p>
+<p>The coal tit thought about it. "Almost nothing. Less than nothing. A snowflake weighs practically zero."</p>
+<p>"Precisely," said the dove. "And yet." She nodded toward a great branch of the fir tree — thick as a man's arm, heavy with accumulated snow. As they watched, a single snowflake drifted down from the sky. It landed on the branch with absolute silence, with no impact, with no force whatsoever. And in that same moment, the branch broke. It cracked with a sound like a gunshot and crashed to the ground below, sending up a cloud of white powder.</p>
+<p>The coal tit stared. "The branch broke because of that one snowflake?"</p>
+<p>"No," said the dove. "The branch broke because of 3,741,953 snowflakes. But it was the last one — the one that weighed almost nothing — that made it happen."</p>
+<p>They sat in silence for a while, watching the snow continue to fall. Finally, the coal tit said, "Are we still talking about snow?"</p>
+<p>The dove smiled — or did whatever it is that doves do when they are feeling wise. "We were never talking about snow."</p>
+<p>This is the truth about persistence that nobody tells you: you almost never see the moment of breakthrough coming. Every snowflake before the last one seemed pointless. The branch looked exactly the same after snowflake number 1,000,000 as it did after number 1. Nothing appeared to be happening. And someone watching from the outside might have said, "Why bother? The snow isn't making any difference."</p>
+<p>But underneath the surface, everything was accumulating. Every flake added weight. Every repetition built pressure. And when the breakthrough came — when the branch finally broke — it looked sudden, even though it was the result of millions of individual moments, each one weighing almost nothing.</p>
+<p>This is what your practice sessions are. This is what your study hours are. This is what every small kindness, every page read, every difficult conversation, every time you show up when you don't feel like it — this is what they are. They are snowflakes. Individually, they weigh almost nothing. Together, they break branches.</p>`,
+    moral: "Never underestimate the power of small, consistent effort. Every repetition, every act of showing up, every seemingly insignificant moment is a snowflake landing on a branch. You may not see the progress. But it's accumulating. And one day, the branch will break.",
+    reflection: "What 'snowflakes' are you adding to your life right now — small daily efforts that seem insignificant? Can you trust that they're accumulating, even when you can't see the branch bending?"
+  },
+  {
+    id: 23, title: "The Restaurant of Mistaken Orders", subtitle: "A true story from Tokyo",
+    theme: "empathy", themeLabel: "Empathy & Patience",
+    body: `<p>In 2017, a restaurant opened in Tokyo with an unusual name: "The Restaurant of Mistaken Orders." The concept was simple and radical: every member of the wait staff had dementia.</p>
+<p>The idea came from a television director named Shiro Oguni, who had spent time in a care facility and noticed something that troubled him. The residents with dementia were treated with care and medical precision, but they were also quietly sidelined from the world. They were managed, not engaged. Protected, but not trusted. And in this protection, something essential was taken from them: the feeling of being useful, of contributing, of having a role in the world.</p>
+<p>Oguni wondered: what would happen if instead of hiding people's mistakes, you built an entire experience around accepting them? What if a restaurant existed where your order might come out wrong — and that was the whole point?</p>
+<p>The restaurant operated for a limited time, and the results were extraordinary. Servers took orders with genuine warmth and effort. Sometimes the food arrived exactly as requested. Sometimes it didn't. A customer who ordered a hamburger might receive a plate of dumplings. Someone who asked for coffee might get orange juice. The "error rate" was about 37 percent.</p>
+<p>And the customers loved it. Not in spite of the mistakes, but because of what the mistakes revealed: that the transaction between human beings doesn't need to be perfect to be meaningful. When a server brought the wrong dish, beaming with pride, the customer had a choice. They could be frustrated, or they could see a person — a whole, complex person with a life and a history and a brain that was changing — doing their best. Almost every customer chose the second option.</p>
+<p>Something else happened that Oguni didn't expect. The servers with dementia were transformed by the experience. They stood taller. They smiled more. They felt, many of them for the first time in years, that they were part of the world again. One server, a woman in her seventies, told a reporter: "I forgot some things today. But I didn't forget how good it feels to be needed."</p>
+<p>The restaurant wasn't really about food. It was about the question: can we create a world where imperfection is not just tolerated but welcomed? Where making mistakes doesn't disqualify you from participation? Where the response to someone getting something wrong is not frustration but patience, not correction but connection?</p>
+<p>The answer, served on a plate that might or might not be what you ordered, was yes.</p>`,
+    moral: "Empathy means making room for other people's imperfections — not just tolerating them, but seeing the whole person behind the mistake. When someone gets something wrong, you have a choice: you can react to the error, or you can respond to the human being. Choose the human being.",
+    reflection: "Think about a time when someone made a mistake that affected you. How did you react? What would it have looked like to respond with empathy instead — to see the person, not just the error?"
+  },
+  {
+    id: 24, title: "The Cracked Water Pot", subtitle: "An ancient Indian fable",
+    theme: "humility", themeLabel: "Finding Value in Imperfection",
+    body: `<p>A water bearer in India had two large pots, each hung on one end of a pole that he carried across his neck. One pot was perfect — smooth, without a single flaw, and it always delivered a full portion of water from the stream to the master's house. The other pot had a crack in it, and by the time the water bearer arrived home, it had leaked half its water along the path.</p>
+<p>For two years, this went on. Every day, the water bearer walked to the stream, filled both pots, and walked back. And every day, the perfect pot arrived full and the cracked pot arrived half-empty. The perfect pot was proud of its accomplishment. The cracked pot was ashamed of its imperfection, miserable that it could only do half of what it was made to do.</p>
+<p>One day, the cracked pot spoke to the water bearer. "I am ashamed of myself, and I want to apologize to you."</p>
+<p>The water bearer looked at the pot with kind eyes. "Why would you be ashamed?"</p>
+<p>"For these past two years, I have only been able to deliver half my load because this crack in my side causes water to leak out all the way back to your master's house. Because of my flaw, you have to do all this work and you don't get full value from your efforts."</p>
+<p>The water bearer said, "As we return to the master's house today, I want you to look at the path."</p>
+<p>As they walked the familiar route, the cracked pot noticed something it had never seen before — or rather, something it had never allowed itself to see. On its side of the path, the side where the water had been dripping for two years, there was a riot of wildflowers. Reds, purples, yellows, blues — an entire garden stretching along the dusty road, blooming in the otherwise barren landscape. On the other side — the perfect pot's side — there was only dry, brown earth.</p>
+<p>"Do you see?" said the water bearer. "I have always known about your crack, and I planted flower seeds on your side of the path. Every day, you watered them without even knowing it. For two years, I have been able to pick these flowers for the master's table. Without you being exactly the way you are, there would be no beauty in this house."</p>
+<p>The cracked pot looked at the flowers — this unexpected, unintended garden that it had created simply by being itself, crack and all — and for the first time in two years, it felt something other than shame. It felt wonder. All that time it had been focused on what it couldn't do — deliver a full pot of water — it had been doing something it never imagined: growing a garden.</p>`,
+    moral: "Your 'cracks' — the things you see as weaknesses or failures — may be watering flowers you don't even know about. The qualities that make you different from the 'perfect pot' might be the very qualities that create unexpected beauty in the world.",
+    reflection: "What's something about yourself that you see as a weakness? Is it possible that this very quality has helped someone or created something beautiful without you realizing it?"
+  },
+  {
+    id: 25, title: "The 10,000-Hour Girl", subtitle: "An original story",
+    theme: "hardwork", themeLabel: "Discipline & Dedication",
+    body: `<p>Riya's mother was a surgeon. Her father was a software architect. Her older brother had gotten into MIT at sixteen. Every wall in the house held a framed degree, a certificate, or a trophy. The family dinner table was a place where intellectual accomplishments were discussed the way other families discuss the weather.</p>
+<p>Riya was smart. But in a family of exceptional, she felt merely ordinary. She got good grades, not great ones. She played violin competently, not brilliantly. She was, in her own words, "the rough draft in a family of final copies."</p>
+<p>When Riya was thirteen, she discovered something that changed her relationship with work forever. It was an article about a psychologist named Anders Ericsson, who had studied violinists at a music academy in Berlin. Ericsson had found that the difference between good violinists and world-class ones wasn't talent. It was practice. Specifically, what he called "deliberate practice" — focused, intentional, challenging work on the specific skills you're weakest at.</p>
+<p>The good violinists had practiced about 4,000 hours by age twenty. The best violinists had practiced 10,000 hours. The difference wasn't in their genes. It was in their diaries.</p>
+<p>Riya was electrified by this idea. Not because she wanted to become a world-class violinist — she didn't particularly love violin. What electrified her was the principle: that mastery wasn't a gift you were born with. It was a decision you made, followed by years of showing up.</p>
+<p>She chose coding. Not because her father was a software architect, but because when she wrote her first program — a simple script that sorted a list of numbers — something clicked. The logic was satisfying. The problem-solving was addictive. The feeling of making something that worked from nothing but thought and syntax was, she realized, the feeling she had been looking for.</p>
+<p>Riya made a plan. She calculated that if she practiced coding for two hours a day — truly practiced, not just messing around but working on problems at the edge of her ability — she would hit 10,000 hours in about fourteen years, at age twenty-seven. It was a long time. But Ericsson's research told her something powerful: she was going to be twenty-seven anyway. The question was whether she would arrive there with 10,000 hours of mastery, or without it.</p>
+<p>She started a journal. Every day, she wrote down what she practiced, what she struggled with, and what she learned. The early entries were simple: "Learned about arrays. Still confused by loops. Practiced for 45 minutes." But as the months passed, they grew more sophisticated: "Built a sorting algorithm from scratch. Execution time too slow — need to learn about time complexity. Practiced for 2 hours."</p>
+<p>The hardest part wasn't the work. It was the invisibility. Her brother published a research paper at seventeen. Her parents celebrated. Riya was in her room, debugging a function that refused to return the right value. No one celebrated debugging. No one framed a screenshot of working code.</p>
+<p>But Riya kept going. By fifteen, she had built her first app. By sixteen, she was contributing to open-source projects. By seventeen, she had won a coding competition that her brother — brilliant as he was — couldn't have entered, because he had never put in those specific hours. At the dinner table, for the first time, Riya's accomplishments were part of the conversation.</p>
+<p>When a cousin asked her how she got so good, Riya showed them her journal. Three years of daily entries. Two thousand one hundred and ninety days. Over four thousand hours of deliberate practice. "That's how," she said. "One hour at a time."</p>`,
+    moral: "Discipline is the quiet superpower. It doesn't announce itself. It doesn't win prizes in the early stages. It sits in your room at night, working on problems nobody sees. But over time, it builds something that talent alone never can: deep, unshakeable mastery.",
+    reflection: "If you committed to practicing one thing for just 30 minutes a day, every day, for a year — that's over 180 hours. What would you choose? And where might those 180 hours take you?"
+  },
+  {
+    id: 26, title: "The Lantern and the Lighthouse", subtitle: "An original story",
+    theme: "responsibility", themeLabel: "Responsibility",
+    body: `<p>In a coastal town called Alora, there was a lighthouse that had guided ships safely to harbor for over a hundred years. Its keeper, an old man named Tomás, had tended the light every night for forty of those years. Rain or shine, healthy or sick, Tomás climbed the spiral staircase, trimmed the wick, polished the lens, and made sure the light burned bright until dawn.</p>
+<p>One evening, a young woman named Lucía came to visit the lighthouse. She was Tomás's granddaughter, back from university in the city. She was smart, ambitious, and — if she was being honest — slightly bored by the idea of a man spending his life doing the same thing every night.</p>
+<p>"Abuelo," she said, sitting on the steps as he polished the lens for the ten thousandth time, "don't you ever get tired of this? It's the same thing, every night. Climb, clean, light. Climb, clean, light. Your whole life."</p>
+<p>Tomás finished polishing before he answered. "Do you know what a lighthouse does, Lucía?"</p>
+<p>"It shines a light so ships don't crash."</p>
+<p>"Yes. But do you know what it really does?" He sat down beside her. "In 1987, there was a storm — the worst this coast has ever seen. Waves as high as this tower. Rain so heavy you couldn't see your hand in front of your face. A fishing boat with twelve men was trying to get home. They had lost their instruments. They couldn't see the coast. They were heading straight for the rocks."</p>
+<p>He paused. "I was sick that night. Fever, chills. I could barely stand. My wife — your grandmother — begged me to stay in bed. Just one night, she said. One night won't matter."</p>
+<p>"But I climbed. I lit the light. And those twelve men saw it through the rain, and they turned. They found the harbor. They went home to their families. Twelve men. Twelve families. Because I climbed the stairs when I didn't feel like it."</p>
+<p>Lucía was quiet for a long time. Then she said, "How did you know the boat was out there?"</p>
+<p>"I didn't," Tomás said. "That's the point. I didn't know. I never know, on any given night, whether a ship needs the light. That's what responsibility is, Lucía. It's not doing the important thing when you know it's important. It's doing the thing that might be important, every single time, because the one time you skip might be the one time someone is counting on you."</p>
+<p>He looked at the lens, now gleaming. "People think responsibility is a burden. They're wrong. It's a privilege. It means someone, somewhere, is trusting you with their safety. It means your actions matter even when no one is watching. Especially when no one is watching."</p>
+<p>Lucía went back to the city the next day. She became an engineer. She designed bridges and buildings. And for the rest of her career, she carried her grandfather's lesson with her: check every measurement twice. Run every safety calculation again. Not because someone is watching. Not because a collapse is likely on any given day. But because the one time you skip — the one bolt you don't check, the one calculation you assume is right — might be the one that twelve families are counting on.</p>`,
+    moral: "Responsibility means showing up for the things that matter, even when you're tired, even when you're sick, even when you don't know if anyone needs you that night. Because the one time you skip might be the one time the light was the only thing between someone and the rocks.",
+    reflection: "What's your 'lighthouse' — the responsibility you carry that someone else might be depending on, even when you don't realize it? What does it mean to show up for it even on the nights when you don't feel like climbing the stairs?"
+  },
+  {
+    id: 27, title: "The Bamboo and the Fern", subtitle: "A Chinese parable",
+    theme: "patience", themeLabel: "Patience & Trust",
+    body: `<p>A young man went to his teacher, frustrated. "I've been studying for three years," he said, "and I don't feel like I've made any progress. My classmates are advancing. They're getting opportunities. They're being noticed. I work just as hard as they do — harder, maybe — and nothing is happening for me. I'm beginning to think I'm wasting my time."</p>
+<p>The teacher said, "Walk with me." They went to the garden behind the school, where the teacher tended a small plot of plants. He pointed to a fern and a bamboo shoot, both planted at the same time.</p>
+<p>"I planted these together, four years ago," the teacher said. "In the first year, I watered both every day. The fern grew quickly — you could see it change week by week. Shoots, fronds, leaves. By the end of the first year, it was a beautiful, full plant. The bamboo, on the other hand, showed nothing. Just a tiny shoot barely breaking the soil."</p>
+<p>"In the second year, the fern continued to grow and fill out. The bamboo showed nothing. In the third year, the fern was lush and green. The bamboo showed nothing. By the fourth year, I began to wonder if the bamboo seed was defective. It had been four years. Four years of daily watering, and there was almost nothing to show for it."</p>
+<p>The teacher paused and pointed upward. Above them rose a bamboo stalk that towered thirty feet in the air, taller than the school building itself, swaying gently in the breeze.</p>
+<p>"In the fifth year," the teacher said quietly, "the bamboo grew ninety feet in six weeks."</p>
+<p>The young man stared at the towering stalk. "Ninety feet? In six weeks?"</p>
+<p>"Yes. But here is the question I want you to consider: did the bamboo really grow ninety feet in six weeks? Or did it grow ninety feet in five years?"</p>
+<p>The young man was silent.</p>
+<p>"During those four years when nothing seemed to be happening above ground," the teacher continued, "the bamboo was building its root system. Underground, invisible, it was spreading a massive network of roots — deep, wide, and strong. It was doing the work that would make the explosive growth possible. Without those four years of invisible effort, the bamboo could never have grown ninety feet. It would have toppled under its own weight."</p>
+<p>He looked at his student. "You are in your bamboo years. You are building roots. It feels like nothing is happening because you can't see roots. But everything you're learning, every skill you're developing, every struggle you're enduring — it is all going underground, making you strong enough for the growth that is coming."</p>
+<p>"The fern grew visibly from day one. And the fern is beautiful. But it will never be thirty feet tall. Only bamboo can do that. And only because it was patient enough to build its roots first."</p>`,
+    moral: "Patience means trusting the process when you can't see the results. Your 'bamboo years' — the times when nothing seems to be happening despite your best efforts — are not wasted. They are the years you are building roots. And when the growth finally comes, it will be so fast and so tall that people will think it happened overnight.",
+    reflection: "Are you in your 'bamboo years' with something right now — working hard but not seeing results? Can you trust that the roots are growing, even when the surface shows nothing?"
+  },
+  {
+    id: 28, title: "The Last Lecture", subtitle: "Inspired by Randy Pausch's true story",
+    theme: "gratitude", themeLabel: "Gratitude & Living Fully",
+    body: `<p>In September 2007, a computer science professor at Carnegie Mellon University named Randy Pausch gave a lecture. It was part of a series called "The Last Lecture," where professors were asked to imagine: if this were your last lecture, what would you say? For most professors, it was a thought experiment. For Randy Pausch, it was real. He had been diagnosed with pancreatic cancer and had three to six months to live. He was forty-six years old.</p>
+<p>The lecture hall was packed. His wife and three young children sat in the audience. Everyone expected something somber. What they got was something extraordinary: a joyful, funny, deeply moving talk about childhood dreams, gratitude, and how to live a life that matters.</p>
+<p>Randy didn't talk about dying. He talked about living. He put up a slide of himself as a child — a grinning boy with big dreams. He had wanted to experience zero gravity. He had wanted to be a Disney Imagineer. He had wanted to write an article for the World Book Encyclopedia. He had wanted to be Captain Kirk. Some of these dreams he had achieved. Some he hadn't. And that, he said, was perfectly fine.</p>
+<p>"The brick walls are there for a reason," he told the packed audience. "They're not there to keep us out. They're there to give us a chance to show how badly we want something. The brick walls are there to stop the people who don't want it badly enough."</p>
+<p>He talked about his parents — his father, a World War II veteran who never spoke about his service, and his mother, who when told by someone that Randy was "so smart," would reply, "He's not that smart — he just works hard." He was grateful for this. "She taught me that being told you're smart is the most dangerous thing in the world," he said. "Because it makes you think you don't have to try."</p>
+<p>He talked about gratitude with a directness that took people's breath away. He was grateful for his wife, for his children, for his career, for his students. He was grateful for the years he had been given, not angry about the years being taken away. "We cannot change the cards we are dealt," he said. "Just how we play the hand."</p>
+<p>The most powerful moment came near the end. Randy looked at the audience and said, quietly, "This talk isn't for you. It's for my kids." His three children were one, three, and five years old. They were too young to understand what was happening. He was making this lecture — recording it, preserving it — so that someday, when they were old enough, they could watch their father tell them everything he wanted them to know about living a good life.</p>
+<p>Randy Pausch died on July 25, 2008, at the age of forty-seven. His lecture has been viewed over twenty million times. But the people it was made for — his children, Dylan, Logan, and Chloe — will one day watch it and see something the rest of us can't: their father, looking into a camera, looking at them across the years, telling them that a good life is not a long life or an easy life. It's a grateful life. A life lived with intention, humor, and an awareness that every day is a gift you didn't have to receive.</p>`,
+    moral: "Gratitude isn't about ignoring what's hard. It's about choosing to focus on what you've been given, even when — especially when — you know it won't last forever. Every day you wake up is a day someone else didn't get. What will you do with it?",
+    reflection: "If you had to give a 'last lecture' to the people you love most, what would you want them to know? What would you be most grateful for? And here's the real question: why wait until then to tell them?"
+  },
+  {
+    id: 29, title: "The Boy Who Drew Cats", subtitle: "A Japanese folktale",
+    theme: "selfbelief", themeLabel: "Finding Your Strength",
+    body: `<p>Long ago in Japan, there was a small boy named Joji who was not good at the things boys were supposed to be good at. He was too small for farm work. He was too dreamy for trade. He forgot his chores. He wandered off during lessons. His father, a practical man who valued hard work and steady hands, didn't know what to do with him.</p>
+<p>The one thing Joji could do — the one thing he did constantly, obsessively, everywhere — was draw cats. He drew cats on the margins of his schoolwork. He drew cats in the dirt with sticks. He drew cats on the walls of the house (which did not endear him to his mother). He drew cats on scraps of paper, on the backs of receipts, on anything he could find. His cats were extraordinary — fluid, alive, each one different, each one seeming to breathe on the page.</p>
+<p>His father, hoping to channel the boy's energy, sent him to a temple to train as a priest. The old priest at the temple was kind but strict. He taught Joji to read sutras, to meditate, to sweep the temple floors. And Joji tried. He really did. But he kept drawing cats. He drew them on the temple scrolls. He drew them on the meditation screens. He drew them on the wooden walls of the study hall.</p>
+<p>One evening, the old priest sat Joji down and said something that confused the boy for years but eventually became the most important sentence of his life: "You will never be a priest. You are an artist. Leave this temple. Go out into the world. And remember this: avoid large places at night. Keep to small ones."</p>
+<p>Joji was sent away. Homeless, confused, and ashamed of being dismissed, he wandered until he came to a large, abandoned temple. It was getting dark. He remembered the priest's words — "avoid large places at night; keep to small ones" — but the temple was the only shelter he could find. He went inside.</p>
+<p>The temple was vast and empty and cold. Joji found some old screens — large, white, beautiful screens — and he did what he always did when he was scared or lonely or didn't know what else to do: he drew cats. He drew them large and fierce, with arched backs and gleaming eyes, covering every screen in the temple. Then, exhausted, he remembered the priest's advice. Instead of sleeping in the large hall, he found a small cabinet and curled up inside it.</p>
+<p>In the middle of the night, he was awakened by terrible sounds — shrieking, crashing, the sound of a great battle. He was too frightened to open the cabinet door. He pressed his hands over his ears and waited.</p>
+<p>When dawn came and silence returned, Joji opened the cabinet and stepped into the hall. On the floor lay an enormous goblin rat — a creature that had been terrorizing the region, that warriors and priests had tried and failed to kill. It was dead. And on the screens, Joji's painted cats — every single one of them — had blood on their mouths.</p>
+<p>The story says that the cats came alive in the night and killed the goblin. But the deeper truth is this: the thing that everyone told Joji was a weakness — his obsessive, uncontrollable need to draw cats — turned out to be his greatest strength. The very quality that made him a bad farmer and a bad priest made him the person who could do something that no warrior could.</p>`,
+    moral: "The thing that makes you different — the interest you can't control, the skill that doesn't seem 'useful,' the passion that others don't understand — might be the exact thing the world needs from you. Don't let anyone convince you that your cats aren't worth drawing.",
+    reflection: "What's your version of 'drawing cats' — the thing you love doing that might not seem practical or valued by others? What if that thing is not a distraction from your path, but IS your path?"
+  },
+  {
+    id: 30, title: "The Circle of Bread", subtitle: "A Middle Eastern parable",
+    theme: "generosity", themeLabel: "Generosity & Trust",
+    body: `<p>In a village on the edge of a great desert, there was a tradition. Whenever a family baked bread — and every family baked bread, because bread was life in the desert — they would bake one extra loaf and leave it on their doorstep. Any traveler, any neighbor, any stranger passing through could take it. No questions asked. No payment expected.</p>
+<p>The tradition had existed for as long as anyone could remember, and it worked because everyone participated. If you baked four loaves, you left one on the step. If you baked six, you left one. The math was simple: one family alone couldn't feed the village. But every family, each contributing one loaf, created an abundance that no single family could have achieved.</p>
+<p>Then a new family moved to the village. The father, a merchant named Hakim, was a careful man. He had grown up in a city where generosity was often exploited, where kindness was taken advantage of. When he saw the bread on the doorsteps, his first thought was not "how beautiful" but "how foolish." Anyone could take the bread — even people who didn't need it. Even people who hadn't contributed. The system, to Hakim, was inefficient and naive.</p>
+<p>So Hakim's family did not leave bread on their doorstep. They baked their four loaves and kept all four. Hakim felt clever. He had beaten the system. He had four loaves instead of three.</p>
+<p>At first, nothing changed. The other families continued their tradition. But over the weeks, a subtle shift occurred. Hakim's nearest neighbor, who had always left bread on her step, noticed that Hakim didn't. She began to feel foolish for giving when others didn't. She reduced her offering to half a loaf. The family across the road saw this and stopped leaving bread entirely. "If they're not doing it, why should we?" Within a few months, the doorsteps were bare.</p>
+<p>And then the drought came.</p>
+<p>It was a bad one — the kind that kills crops and dries wells. In the past, the village had survived droughts because of the bread tradition. Families who had flour shared with families who didn't. The doorstep loaves became a lifeline. The tradition wasn't just generosity; it was infrastructure. It was the invisible safety net that kept the village alive in hard times.</p>
+<p>Without it, families hoarded. Doors closed. The village fractured. Hakim's family had enough flour to last a few weeks. But flour without community is just powder. When his daughter got sick and needed medicine from the healer on the other side of the village, no one was willing to help carry her there. When his well ran dry, no one offered to share theirs. The connections that the bread tradition had built — the trust, the goodwill, the sense of mutual obligation — had evaporated along with the bread.</p>
+<p>It was Hakim's wife, Leila, who understood first. "We didn't just stop leaving bread," she told Hakim. "We stopped being part of the village." The next morning, Leila baked their last flour into four loaves. She kept three for the family. And she placed the fourth on the doorstep.</p>
+<p>Their neighbor saw it. She baked a loaf and left it on her step. The family across the road did the same. Within a week, the doorsteps were full again. The trust returned slowly — bread by bread, loaf by loaf — and the village survived the drought the way it always had: together.</p>`,
+    moral: "Generosity is not just a personal virtue — it's the glue that holds communities together. When one person stops contributing, the fabric starts to unravel. Your one loaf of bread seems small, but it's the thread that keeps the whole cloth from falling apart.",
+    reflection: "What's your 'loaf of bread' — the small contribution you make (or could make) to the people around you? It doesn't have to be big. It just has to be consistent. What happens when you stop? What happens when you start again?"
+  },
+  {
+    id: 31, title: "The Astronaut's Photograph", subtitle: "A true reflection",
+    theme: "gratitude", themeLabel: "Gratitude & Perspective",
+    body: `<p>Every astronaut who has looked back at Earth from space has experienced the same thing. They have a name for it: the Overview Effect. It is not an emotion exactly, and not a thought. It is more like a shift in the way the brain processes reality — a sudden, overwhelming understanding that changes everything that comes after it.</p>
+<p>Astronaut Ron Garan described it this way: he was outside the International Space Station on a spacewalk, replacing a pump, when he looked up from his work and saw the Earth. He had seen it before, through the station's windows. But this time, floating in the void, he saw it differently. He saw a thin, bright blue line curving along the planet's edge — the atmosphere. That blue line, he realized, was everything. Every breath anyone had ever taken. Every cloud, every storm, every sunset. Every sound that had ever been heard. The entirety of human history — every war, every love story, every song, every conversation — had happened within that paper-thin shell of air.</p>
+<p>"I was struck by the sobering contradiction between the beauty of our planet and the unfortunate realities of life on our planet," he wrote later. From space, there are no borders. No lines between countries. No divisions between races or religions or economic classes. There is only the Earth — small, luminous, fragile, and alive — floating in an incomprehensible darkness.</p>
+<p>The astronaut Edgar Mitchell, who walked on the moon during Apollo 14, described the feeling as "an explosion of awareness." He looked back at the Earth — a tiny blue marble suspended in black — and felt a profound connection to every living thing on it. "You develop an instant global consciousness," he said. "You look at the planet and you think: that's all of us. All of it. Everyone I've ever known, everyone who has ever lived, is on that little blue dot."</p>
+<p>What makes the Overview Effect so powerful is not just what the astronauts see, but what it does to their sense of gratitude. From Earth, we take the air for granted. We take the water for granted. We take the fact that we are alive — that we exist on the one known planet in the entire universe where humans can survive — so completely for granted that we spend our days complaining about Wi-Fi speeds and traffic jams.</p>
+<p>But from space, the improbability of our existence becomes visible. You can see it: the thin atmosphere that makes breathing possible, the water that makes life possible, the distance from the sun that makes temperature survivable. Shift any one of these by a tiny fraction and there is no Wi-Fi to complain about, because there is no one to complain.</p>
+<p>You do not have to go to space to feel this. You just have to stop, for a moment, and really look at where you are. You are on a planet hurtling through space at 67,000 miles per hour, protected by a thin shell of air, warmed by a star that is 93 million miles away, alive against all odds. The fact that you exist at all — that you can read these words, feel the air in your lungs, hear the sounds around you — is so astronomically unlikely that the correct response is not boredom or complaint. It is wonder.</p>`,
+    moral: "Gratitude begins with perspective. You are alive on a planet that is perfectly, impossibly suited to sustain you. Every breath is a gift. Every sunrise is a miracle of physics. The things you take most for granted — air, water, the ground beneath your feet — are the most extraordinary things of all.",
+    reflection: "For one minute, stop and pay attention to your breathing. Feel the air enter your lungs. That air has been recycled by trees, carried by winds, filtered by an atmosphere that exists on no other known planet. How does it feel to really notice it?"
+  }
+];
+
+// ─── STATE MANAGEMENT (in-memory, dashboard-integratable) ───
+const STATE_KEY = 'sarah_daily_story_state';
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STATE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { readStories: [], reflections: {}, currentIndex: getTodayStoryIndex() };
+}
+
+function saveState() {
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+// Fallback: use in-memory state if localStorage unavailable
+let state;
+try {
+  state = loadState();
+} catch(e) {
+  state = { readStories: [], reflections: {}, currentIndex: getTodayStoryIndex() };
+}
+
+// ─── HELPERS ───
+function getDayOfYear() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  return Math.floor((now - start) / (1000 * 60 * 60 * 24));
+}
+
+function getTodayStoryIndex() { return getDayOfYear() % STORIES.length; }
+
+let currentIndex = state.currentIndex || getTodayStoryIndex();
+let speechSynth = window.speechSynthesis;
+let speaking = false;
+let listOpen = false;
+
+function formatDate() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function getThemeClass(t) {
+  const m = { persistence:'theme-persistence', gratitude:'theme-gratitude', kindness:'theme-kindness', hardwork:'theme-hardwork', failure:'theme-failure', generosity:'theme-generosity', courage:'theme-courage', humility:'theme-humility', empathy:'theme-empathy', honesty:'theme-honesty', responsibility:'theme-responsibility', patience:'theme-patience', selfbelief:'theme-selfbelief' };
+  return m[t] || 'theme-persistence';
+}
+
+function getThemeIcon(t) {
+  const m = { persistence:'🏔️', gratitude:'🙏', kindness:'💛', hardwork:'⛏️', failure:'💡', generosity:'🌉', courage:'🦁', humility:'🏺', empathy:'👁️', honesty:'⭐', responsibility:'🏠', patience:'🌱', selfbelief:'✨' };
+  return m[t] || '📖';
+}
+
+function isRead(id) { return state.readStories.includes(id); }
+
+function toggleRead(id) {
+  if (isRead(id)) {
+    state.readStories = state.readStories.filter(x => x !== id);
+  } else {
+    state.readStories.push(id);
+  }
+  saveState(); render();
+}
+
+function getReflection(id) { return state.reflections[id] || ''; }
+
+function saveReflection(id) {
+  const el = document.getElementById('reflection-input');
+  if (el) {
+    state.reflections[id] = el.value;
+    saveState();
+    const status = document.getElementById('save-status');
+    if (status) { status.classList.add('visible'); setTimeout(() => status.classList.remove('visible'), 2000); }
+  }
+}
+
+function toggleSpeech() {
+  if (speaking) { speechSynth.cancel(); speaking = false; render(); return; }
+  const story = STORIES[currentIndex];
+  const text = story.body.replace(/<[^>]*>/g, '') + ' ' + story.moral;
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.92; u.pitch = 1;
+  u.onend = () => { speaking = false; render(); };
+  speechSynth.speak(u); speaking = true; render();
+}
+
+function navigate(dir) {
+  speechSynth.cancel(); speaking = false;
+  currentIndex = (currentIndex + dir + STORIES.length) % STORIES.length;
+  state.currentIndex = currentIndex; saveState();
+  render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToStory(idx) {
+  speechSynth.cancel(); speaking = false;
+  currentIndex = idx; state.currentIndex = currentIndex; saveState();
+  listOpen = false; render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleList() { listOpen = !listOpen; render(); }
+
+function allRead() { return state.readStories.length >= STORIES.length; }
+
+// ─── RENDER ───
+function render() {
+  const story = STORIES[currentIndex];
+  const isToday = currentIndex === getTodayStoryIndex();
+  const readCount = state.readStories.length;
+  const totalCount = STORIES.length;
+  const pct = Math.round((readCount / totalCount) * 100);
+
+  const weekDots = Array.from({length: 7}, (_, i) => {
+    const filled = i <= (getDayOfYear() % 7);
+    return `<div class="streak-dot ${filled ? 'filled' : ''}"></div>`;
+  }).join('');
+
+  const storyListHTML = STORIES.map((s, i) =>
+    `<div class="story-list-item ${i === currentIndex ? 'active' : ''}" onclick="goToStory(${i})">
+      <div class="list-read-dot ${isRead(s.id) ? 'read' : ''}"></div>
+      <span class="list-item-title">${s.title}</span>
+      <span class="list-item-theme">${s.themeLabel}</span>
+    </div>`
+  ).join('');
+
+  const allReadBanner = allRead() ? `
+    <div class="all-read-banner">
+      <h3>🎉 You've Read Every Story!</h3>
+      <p>Incredible, Sarah! You've finished all ${totalCount} stories in the collection. Every one of these morals is now part of how you see the world.</p>
+      <p>Want more stories? Ask your parent to generate a fresh batch — just tell them:</p>
+      <p style="font-style:italic; color:#6a5040;">"Sarah has read all ${totalCount} stories. Can you generate 15 more in the same style?"</p>
+      <button class="generate-btn" onclick="alert('Let your parent know you\\'re ready for more stories! They can ask Claude to generate a new set.')">🪶 Request More Stories</button>
+    </div>
+  ` : '';
+
+  app.innerHTML = `
+    <div class="story-header">
+      <div class="story-date">${formatDate()}</div>
+      <div class="story-greeting">${isToday ? "Today's story for Sarah" : "From the story collection"}</div>
+    </div>
+
+    <div class="streak-bar">
+      <span style="font-size:20px">📖</span>
+      <span class="streak-text">Reading Streak</span>
+      <div class="streak-dots">${weekDots}</div>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-header">
+        <span class="progress-label">Stories Read</span>
+        <span class="progress-count">${readCount} / ${totalCount} (${pct}%)</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width: ${pct}%"></div>
+      </div>
+    </div>
+
+    ${allReadBanner}
+
+    <div class="story-list-toggle">
+      <button class="list-toggle-btn" onclick="toggleList()">
+        ${listOpen ? '▲ Hide' : '▼ Browse'} All Stories
+      </button>
+    </div>
+
+    <div class="story-list ${listOpen ? 'open' : ''}">${storyListHTML}</div>
+
+    <div style="text-align:center">
+      <span class="theme-badge ${getThemeClass(story.theme)}">
+        ${getThemeIcon(story.theme)} ${story.themeLabel}
+      </span>
+    </div>
+
+    <div class="story-card">
+      <div class="story-title-row">
+        <h1 class="story-title">${story.title}</h1>
+        <button class="read-mark-btn ${isRead(story.id) ? 'is-read' : ''}" onclick="toggleRead(${story.id})">
+          ${isRead(story.id) ? '✓ Read' : '○ Mark Read'}
+        </button>
+      </div>
+      <div class="story-subtitle">${story.subtitle}</div>
+      <div class="story-body">${story.body}</div>
+
+      <div class="story-divider"></div>
+
+      <div class="moral-section">
+        <div class="moral-label">The Moral</div>
+        <div class="moral-text">${story.moral}</div>
+      </div>
+
+      <div class="reflection-section">
+        <div class="reflection-label">Something to Think About</div>
+        <div class="reflection-text">${story.reflection}</div>
+        <textarea
+          id="reflection-input"
+          class="reflection-textarea"
+          placeholder="Write your thoughts here, Sarah..."
+          oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px';"
+        >${getReflection(story.id)}</textarea>
+        <div class="reflection-save-row">
+          <button class="save-btn" onclick="saveReflection(${story.id})">💾 Save My Thoughts</button>
+          <span id="save-status" class="save-status">✓ Saved!</span>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="read-aloud-btn ${speaking ? 'playing' : ''}" onclick="toggleSpeech()">
+          ${speaking ? '⏹ Stop Reading' : '🔊 Read Aloud'}
+        </button>
+      </div>
+    </div>
+
+    <div class="story-nav">
+      <button class="nav-btn" onclick="navigate(-1)">← Previous</button>
+      <span class="story-counter">Story ${currentIndex + 1} of ${STORIES.length}</span>
+      <button class="nav-btn" onclick="navigate(1)">Next →</button>
+    </div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>

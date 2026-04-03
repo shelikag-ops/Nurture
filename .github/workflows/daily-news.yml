@@ -1,31 +1,58 @@
-name: Daily News Content
+name: Daily News Content Generator
 
 on:
   schedule:
-    - cron: '30 0 * * *'   # 6:00 AM IST (00:30 UTC) every day
-  workflow_dispatch:        # allows manual "Run workflow" trigger
-
-permissions:
-  contents: write           # needed for git push
+    # Runs at 6:00 AM IST = 00:30 UTC every day
+    - cron: '30 0 * * *'
+  workflow_dispatch: # allows manual trigger from GitHub Actions tab
 
 jobs:
   generate-news:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate news content via Claude
+      - name: Generate today's news content with Claude
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python3 scripts/generate-news.py
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          WEEK=$(date -u +%V)
+          YEAR=$(date -u +%Y)
 
-      - name: Commit updated news content
+          # Call Claude claude-sonnet-4-6 to generate real, current news content
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d "{
+              \"model\": \"claude-sonnet-4-6\",
+              \"max_tokens\": 4000,
+              \"messages\": [{
+                \"role\": \"user\",
+                \"content\": \"Today is $TODAY. Generate a daily news digest for a bright, curious 13-year-old girl named Sarah who lives in Bangalore, India. Select 6 real, substantive stories covering: science/space, world affairs, India news, environment/climate, sport or culture, and one surprise/interesting story. Do NOT water down the content — treat the reader as intelligent. Return ONLY valid JSON with no markdown, no commentary, matching this exact schema: {\\\"date\\\":\\\"$TODAY\\\",\\\"stories\\\":[{\\\"headline\\\":\\\"...\\\",\\\"summary\\\":\\\"2-3 sentences of what happened and why it matters\\\",\\\"bigWord\\\":\\\"one advanced vocabulary word from the story\\\",\\\"bigWordDef\\\":\\\"simple kid-friendly definition\\\",\\\"thinkQuestion\\\":\\\"a challenging open-ended critical thinking question, not yes/no\\\",\\\"videoQuery\\\":\\\"YouTube search query to find a good explainer video for this story\\\"}],\\\"videos\\\":[{\\\"title\\\":\\\"...\\\",\\\"description\\\":\\\"one sentence about what this video covers\\\",\\\"url\\\":\\\"https://www.youtube.com/results?search_query=ENCODED_QUERY\\\",\\\"topic\\\":\\\"category label e.g. Space & Science\\\"}],\\\"infographic\\\":{\\\"caption\\\":\\\"title for the infographic\\\",\\\"fact\\\":\\\"3-5 striking statistics separated by · characters\\\",\\\"question\\\":\\\"one open-ended reflection question about the data\\\"},\\\"quiz\\\":[{\\\"q\\\":\\\"...\\\",\\\"options\\\":[\\\"A\\\",\\\"B\\\",\\\"C\\\",\\\"D\\\"],\\\"correct\\\":0}]}. Include exactly 6 stories, exactly 3 curated videos (pick the 3 most visually interesting topics), and exactly 5 quiz questions.\"
+              }]
+            }")
+
+          # Extract the JSON content from Claude's response
+          echo "$RESPONSE" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          content = data['content'][0]['text']
+          # Validate it's proper JSON
+          parsed = json.loads(content)
+          print(json.dumps(parsed, indent=2, ensure_ascii=False))
+          " > news-content.json
+
+          echo "Generated news-content.json for $TODAY"
+          cat news-content.json
+
+      - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add news-content.json
-          git diff --staged --quiet || git commit -m "chore: daily news content $(date -u +%Y-%m-%d)"
+          git diff --staged --quiet || git commit -m "chore: daily news update $(date -u +%Y-%m-%d)"
           git push

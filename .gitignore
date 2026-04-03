@@ -1,0 +1,13 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Don't commit the curriculum planning docs (large markdown files)
+# Uncomment these if you want to keep them out of the repo:
+# Remaining_Subjects_Plan_2026_2027.md
+# Science_Roadmap_2026_2027.md

@@ -1440,8 +1440,7 @@
                     // Always refresh all-stories list from JSON
                     localStorage.setItem('news-all-stories-' + dateKey, JSON.stringify(data.stories));
                 }
-                // Store curated videos — accept any YouTube URL (search or watch)
-                // Always overwrite to clear stale/broken cached links
+                // Store curated videos from JSON (always refresh to clear stale links)
                 {
                     const curated = (data.videos || []).filter(v => v.url);
                     localStorage.setItem('news-videos-' + dateKey, JSON.stringify(curated));
