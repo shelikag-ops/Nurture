@@ -278,6 +278,8 @@
     .thought-card .card-title { color:rgba(255,255,255,.75); margin-bottom:12px; }
     .thought-quote { font-size:1.15rem; font-weight:700; line-height:1.5; margin-bottom:6px; }
     .thought-source { font-size:.85rem; opacity:.75; font-style:italic; }
+    .thought-meaning { margin-top:12px; background:rgba(255,255,255,.1); border-radius:12px; padding:12px 16px; font-size:.9rem; font-weight:600; line-height:1.6; opacity:.92; border-left:3px solid rgba(255,255,255,.35); }
+    .thought-meaning-label { font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; opacity:.65; margin-bottom:4px; }
     .thought-prompt-box { margin-top:14px; background:rgba(255,255,255,.15); border-radius:12px; padding:12px 16px; font-size:.95rem; font-weight:600; line-height:1.5; }
     .thought-response { margin-top:12px; }
     .thought-response .journal-prompt { color:rgba(255,255,255,.75); }
@@ -863,9 +865,9 @@
   <div class="sarah-tabs">
     <button class="sarah-tab active" onclick="switchSarahTab('good-morning')">🌅 Good Morning</button>
     <button class="sarah-tab" onclick="switchSarahTab('news')">📰 News</button>
-    <button class="sarah-tab" onclick="switchSarahTab('story')">📖 Daily Story</button>
     <button class="sarah-tab" onclick="switchSarahTab('todo')">✅ To Do</button>
     <button class="sarah-tab" onclick="switchSarahTab('spelling-bee')">🐝 Spelling Bee</button>
+    <button class="sarah-tab" onclick="switchSarahTab('wind-down')">🌙 Wind Down</button>
     <button class="sarah-tab" onclick="switchSarahTab('reports')">📊 My Reports</button>
     <button class="sarah-tab" onclick="switchSarahTab('rewards')">🏆 Rewards</button>
   </div>
@@ -891,6 +893,10 @@
     <div class="card-title">✨ Thought of the Day</div>
     <div class="thought-quote" id="thought-quote"></div>
     <div class="thought-source" id="thought-source"></div>
+    <div class="thought-meaning" id="thought-meaning">
+      <div class="thought-meaning-label">What this means</div>
+      <div id="thought-meaning-text"></div>
+    </div>
     <div class="thought-prompt-box" id="thought-prompt"></div>
     <div class="thought-response">
       <div class="journal-prompt">My reflection…</div>
@@ -905,29 +911,15 @@
     </div>
   </div>
 
-  <!-- YESTERDAY'S WINS (in Good Morning tab) -->
-  <div class="card">
-    <div class="card-title">🏆 Yesterday's Wins</div>
-    <div id="gm-wins-content"></div>
-  </div>
-
   </div><!-- end tab-good-morning -->
 
   <!-- ═══ TAB: NEWS ═══ -->
   <div id="tab-news" class="sarah-tab-content">
   <!-- NEWS TASK — auto-checks when Sarah completes news activities -->
-  <div id="news-task-container"></div>
+  <div id="news-task-container" style="display:none;"></div>
+  <iframe src="https://shelikag-ops.github.io/Nurture/News_App.html" style="width:100%;height:700px;border:none;border-radius:12px;" loading="lazy" title="Sarah's News App"></iframe>
   </div><!-- end tab-news -->
 
-  <!-- ═══ TAB: DAILY STORY ═══ -->
-  <div id="tab-story" class="sarah-tab-content">
-  <div id="daily-story-container">
-    <div class="card" style="text-align:center;padding:30px;">
-      <div style="font-size:2rem;margin-bottom:8px;">📖</div>
-      <div style="font-size:.9rem;font-weight:700;color:#9CA3AF;">Loading today's story…</div>
-    </div>
-  </div>
-  </div><!-- end tab-story -->
 
   <!-- ═══ TAB: TO DO ═══ -->
   <div id="tab-todo" class="sarah-tab-content">
@@ -959,12 +951,12 @@
         <span style="font-size:.95rem;font-weight:600;color:#2D3047;">💭 Thought of the Day</span>
       </label>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 0;">
-        <input type="checkbox" id="action-story" onchange="saveDailyAction('story',this.checked)" style="width:18px;height:18px;cursor:pointer;">
-        <span style="font-size:.95rem;font-weight:600;color:#2D3047;">📚 Story</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 0;">
         <input type="checkbox" id="action-social" onchange="saveDailyAction('social',this.checked)" style="width:18px;height:18px;cursor:pointer;">
         <span style="font-size:.95rem;font-weight:600;color:#2D3047;">💫 Social Challenge</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 0;">
+        <input type="checkbox" id="action-story" onchange="saveDailyAction('story',this.checked)" style="width:18px;height:18px;cursor:pointer;">
+        <span style="font-size:.95rem;font-weight:600;color:#2D3047;">🌙 Wind Down</span>
       </label>
     </div>
   </div>
@@ -1077,14 +1069,35 @@
   <!-- ═══ TAB: SPELLING BEE ═══ -->
   <div id="tab-spelling-bee" class="sarah-tab-content">
 
-  <!-- VOCABULARY PRACTICE CARD -->
-  <div class="card" id="vocab-practice-card">
-    <div class="card-title">🐝 Spelling Bee Practice</div>
-    <div id="vocab-bee-progress" style="margin-bottom:14px;"></div>
-    <a href="spelling-bee.html" target="_blank" class="link-btn" style="background:linear-gradient(135deg,#7C3AED,#A855F7);display:inline-block;width:100%;text-align:center;padding:14px;font-size:1rem;border-radius:12px;box-sizing:border-box;">🐝 Open Spelling Bee Practice App</a>
-  </div>
+  <!-- VOCABULARY PRACTICE — Spelling Bee embedded -->
+  <div id="vocab-bee-progress" style="display:none;"></div>
+  <iframe src="https://shelikag-ops.github.io/Nurture/spelling-bee.html" style="width:100%;height:650px;border:none;border-radius:12px;" loading="lazy" title="Spelling Bee Practice"></iframe>
 
   </div><!-- end tab-spelling-bee -->
+
+  <!-- ═══ TAB: WIND DOWN (End of Day) ═══ -->
+  <div id="tab-wind-down" class="sarah-tab-content">
+
+  <!-- Today's Wins Summary -->
+  <div class="eod-card" id="wind-down-wins" style="margin-bottom:16px;">
+    <div class="card-title" id="wind-down-title">🌟 Today's Wins</div>
+    <div id="wind-down-wins-content">
+      <div class="eod-empty-msg">Your wins will appear here as you complete tasks throughout the day! 🌟</div>
+    </div>
+  </div>
+
+  <!-- Story Time prompt -->
+  <div class="card" style="text-align:center;padding:20px 16px;margin-bottom:16px;background:linear-gradient(135deg,#EDE9FE 0%,#FCE7F3 100%);border:2px solid #C4B5FD;">
+    <div style="font-size:1.8rem;margin-bottom:6px;">📖</div>
+    <div style="font-size:1rem;font-weight:800;color:#5B21B6;">Ready for your story?</div>
+    <div style="font-size:.85rem;font-weight:600;color:#7C3AED;margin-top:4px;opacity:.85;">Great job today! Scroll down for today's values story.</div>
+  </div>
+
+  <!-- Daily Story embedded -->
+  <div id="daily-story-container" style="display:none;"></div>
+  <iframe src="daily-story.html" style="width:100%;height:700px;border:none;border-radius:12px;" loading="lazy" title="Daily Values Story"></iframe>
+
+  </div><!-- end tab-wind-down -->
 
   <!-- ═══ TAB: MY REPORTS ═══ -->
   <div id="tab-reports" class="sarah-tab-content">
@@ -1868,33 +1881,33 @@ function resetConfig() {
 //  THOUGHTS OF THE DAY (27 entries — rotate by day of year)
 // ═══════════════════════════════════════════════════════════
 const THOUGHTS = [
-  { q:"It does not matter how slowly you go as long as you do not stop.", s:"Confucius", p:"What is one thing you are working on slowly but steadily? Notice how far you have already come." },
-  { q:"In a gentle way, you can shake the world.", s:"Mahatma Gandhi", p:"You do not need to be loud to make a difference. What is one small kind thing you did recently?" },
-  { q:"I am because we are.", s:"Ubuntu philosophy", p:"Think of someone who helped you become who you are. How could you help someone else today?" },
-  { q:"When you arise in the morning, think of what a privilege it is to be alive — to breathe, to think, to enjoy, to love.", s:"Marcus Aurelius", p:"Name three things you are grateful for right now, at this exact moment." },
-  { q:"What we think, we become.", s:"Gautama Buddha", p:"If you believed you were great at this subject, what would you do differently right now? Try that." },
-  { q:"The more that you read, the more things you will know.", s:"Dr. Seuss", p:"What is the most interesting thing you have learned from a book recently?" },
-  { q:"Real generosity toward the future lies in giving all to the present.", s:"Albert Camus", p:"Can you be fully present for just the next 30 minutes? No rushing ahead — just this task." },
-  { q:"The fragrance of flowers spreads only in the direction of wind. But the goodness of a person spreads in all directions.", s:"Chanakya", p:"What is one good thing you did recently that you have not given yourself credit for?" },
-  { q:"Education is the most powerful weapon which you can use to change the world.", s:"Nelson Mandela", p:"What is one thing you learned this week that you could teach to someone else?" },
-  { q:"Strength does not come from physical capacity. It comes from an indomitable will.", s:"Mahatma Gandhi", p:"What was the hardest thing you did this week? That is exactly where your strength is growing." },
-  { q:"A ship in harbour is safe, but that is not what ships are for.", s:"John A. Shedd", p:"What is one thing that felt scary to try but you tried it anyway? How did it feel?" },
-  { q:"Service to others is the rent you pay for your room here on Earth.", s:"Muhammad Ali", p:"Seva challenge: help one person with something today without being asked. Notice how it feels." },
-  { q:"Dreams without goals are just dreams.", s:"Denzel Washington", p:"Pick one dream you have. What is the smallest step you could take toward it today?" },
-  { q:"The wisest mind has something yet to learn.", s:"George Santayana", p:"What confused you recently that you later understood? That confusion was the learning happening." },
-  { q:"You must be the change you wish to see in the world.", s:"Mahatma Gandhi", p:"What kind of world do you want to live in? What is one tiny thing you can do to build that today?" },
-  { q:"The roots of all goodness lie in the soil of appreciation for goodness.", s:"Tibetan saying", p:"Think of one person who is truly good. What makes them that way? Do you have any of that in you?" },
-  { q:"Not I, nor anyone else can travel that road for you. You must travel it by yourself.", s:"Walt Whitman", p:"What is something you figured out completely on your own? That was all you." },
-  { q:"The measure of intelligence is the ability to change.", s:"Albert Einstein", p:"Has your opinion on something changed recently because you learned something new? That is wisdom." },
-  { q:"Do to others what you would have them do to you.", s:"Confucius — The Golden Rule", p:"How did you treat someone today the way you would want to be treated?" },
-  { q:"An unexamined life is not worth living.", s:"Socrates", p:"What is one question about yourself or the world you are genuinely curious about right now?" },
-  { q:"Look up at the stars, not down at your feet.", s:"Stephen Hawking", p:"Name one thing about the universe that fills you with wonder. Why does it fascinate you?" },
-  { q:"Every child is an artist. The problem is how to remain an artist once we grow up.", s:"Pablo Picasso", p:"What did you create or invent from scratch recently? That creative spark is yours forever." },
-  { q:"Do the right thing even when no one is watching.", s:"C.S. Lewis", p:"When was the last time you did something kind when you did not have to? How did that feel?" },
-  { q:"Knowing yourself is the beginning of all wisdom.", s:"Aristotle", p:"What are you really good at that you sometimes forget to notice?" },
-  { q:"We rise by lifting others.", s:"Robert Ingersoll", p:"Seva challenge: help one person without being asked today. Notice how it feels." },
-  { q:"Name one thing you did this week that made you proud.", s:"🌟 Gratitude prompt", p:"Go on — say it out loud. You deserve to hear yourself celebrated." },
-  { q:"The only way to do great work is to love what you do.", s:"Steve Jobs", p:"Which subject do you actually enjoy the most? What is it that just clicks for you?" },
+  { q:"It does not matter how slowly you go as long as you do not stop.", s:"Confucius", m:"Confucius was a wise teacher in ancient China. He's saying that speed doesn't matter — what matters is that you keep going. Even tiny steps forward count, as long as you never give up completely.", p:"What is one thing you are working on slowly but steadily? Notice how far you have already come." },
+  { q:"In a gentle way, you can shake the world.", s:"Mahatma Gandhi", m:"Gandhi led India to independence not through fighting, but through peaceful action. This quote means you don't need to shout or be forceful to create change — quiet kindness and steady courage can be even more powerful.", p:"You do not need to be loud to make a difference. What is one small kind thing you did recently?" },
+  { q:"I am because we are.", s:"Ubuntu philosophy", m:"Ubuntu is an African philosophy that means none of us exist alone — we are shaped by our families, friends, and communities. Who you are is connected to everyone around you, and their lives are connected to yours.", p:"Think of someone who helped you become who you are. How could you help someone else today?" },
+  { q:"When you arise in the morning, think of what a privilege it is to be alive — to breathe, to think, to enjoy, to love.", s:"Marcus Aurelius", m:"Marcus Aurelius was a Roman emperor almost 2,000 years ago. Despite ruling an empire, he believed the most important thing was appreciating the simple gift of being alive each morning — something we often forget to notice.", p:"Name three things you are grateful for right now, at this exact moment." },
+  { q:"What we think, we become.", s:"Gautama Buddha", m:"The Buddha taught that our thoughts shape who we are. If you fill your mind with 'I can't do this,' you start to believe it. But if you think 'I'm learning and growing,' that becomes true instead. Your mindset builds your reality.", p:"If you believed you were great at this subject, what would you do differently right now? Try that." },
+  { q:"The more that you read, the more things you will know.", s:"Dr. Seuss", m:"Dr. Seuss wrote beloved children's books, but this line carries a deep truth: reading is like a superpower — every book opens a door to something new. The more doors you open, the bigger and more interesting your world becomes.", p:"What is the most interesting thing you have learned from a book recently?" },
+  { q:"Real generosity toward the future lies in giving all to the present.", s:"Albert Camus", m:"Camus was a French writer and thinker. He's saying that the best gift you can give your future self is to fully focus on what's in front of you right now. When you pour your attention into today, tomorrow takes care of itself.", p:"Can you be fully present for just the next 30 minutes? No rushing ahead — just this task." },
+  { q:"The fragrance of flowers spreads only in the direction of wind. But the goodness of a person spreads in all directions.", s:"Chanakya", m:"Chanakya was an ancient Indian teacher and advisor. He's comparing kindness to a flower's scent — but even better. A flower's smell only travels where the wind blows, but when you do something good, it ripples out in every direction and touches people you may never even meet.", p:"What is one good thing you did recently that you have not given yourself credit for?" },
+  { q:"Education is the most powerful weapon which you can use to change the world.", s:"Nelson Mandela", m:"Mandela spent 27 years in prison for fighting against unfair laws in South Africa. He believed that learning gives people the power to stand up for what's right and build a better world — stronger than any army.", p:"What is one thing you learned this week that you could teach to someone else?" },
+  { q:"Strength does not come from physical capacity. It comes from an indomitable will.", s:"Mahatma Gandhi", m:"'Indomitable' means something that cannot be defeated. Gandhi is saying that real strength isn't about muscles — it's about the determination inside you. When you refuse to give up on something that matters, that's the strongest thing a person can do.", p:"What was the hardest thing you did this week? That is exactly where your strength is growing." },
+  { q:"A ship in harbour is safe, but that is not what ships are for.", s:"John A. Shedd", m:"A ship could stay docked forever and never get damaged — but then it would never sail anywhere either. This quote means that staying comfortable and avoiding all risk isn't really living. You were built to explore, try things, and sometimes face storms.", p:"What is one thing that felt scary to try but you tried it anyway? How did it feel?" },
+  { q:"Service to others is the rent you pay for your room here on Earth.", s:"Muhammad Ali", m:"Muhammad Ali was one of the greatest boxers ever, but he believed his purpose was bigger than sports. He's saying that helping other people isn't optional or extra — it's the whole point of being here. It's how we earn our place in the world.", p:"Seva challenge: help one person with something today without being asked. Notice how it feels." },
+  { q:"Dreams without goals are just dreams.", s:"Denzel Washington", m:"Denzel Washington is a famous actor who worked incredibly hard to get where he is. He's saying that it's wonderful to dream big — but a dream only becomes real when you break it into steps and start working toward it, one goal at a time.", p:"Pick one dream you have. What is the smallest step you could take toward it today?" },
+  { q:"The wisest mind has something yet to learn.", s:"George Santayana", m:"Santayana was a philosopher who believed that no matter how smart you get, there's always more to discover. This is actually great news — it means learning never has to stop, and even the most brilliant people in history were still students.", p:"What confused you recently that you later understood? That confusion was the learning happening." },
+  { q:"You must be the change you wish to see in the world.", s:"Mahatma Gandhi", m:"Instead of waiting for someone else to fix things, Gandhi believed each person should start living the way they want the world to be. Want more kindness? Be kind first. Want more fairness? Be fair first. Change starts with you.", p:"What kind of world do you want to live in? What is one tiny thing you can do to build that today?" },
+  { q:"The roots of all goodness lie in the soil of appreciation for goodness.", s:"Tibetan saying", m:"This Tibetan wisdom means that being a good person starts with noticing and admiring goodness in others. When you appreciate kindness, honesty, and courage in the people around you, those same qualities start growing inside you too — like seeds in rich soil.", p:"Think of one person who is truly good. What makes them that way? Do you have any of that in you?" },
+  { q:"Not I, nor anyone else can travel that road for you. You must travel it by yourself.", s:"Walt Whitman", m:"Whitman was an American poet who celebrated individuality. He's saying that your journey through life is yours alone — no one can learn for you, grow for you, or become you. That can feel scary, but it also means everything you achieve truly belongs to you.", p:"What is something you figured out completely on your own? That was all you." },
+  { q:"The measure of intelligence is the ability to change.", s:"Albert Einstein", m:"Einstein, one of history's greatest scientists, didn't think intelligence was about knowing lots of facts. He believed the truly smart thing is being willing to change your mind when you learn something new — instead of stubbornly sticking to old ideas.", p:"Has your opinion on something changed recently because you learned something new? That is wisdom." },
+  { q:"Do to others what you would have them do to you.", s:"Confucius — The Golden Rule", m:"This idea appears in almost every culture and religion around the world, which tells you how important it is. It's a simple test: before you act, imagine you're on the receiving end. Would you want someone to treat you that way? If yes, go ahead. If not, reconsider.", p:"How did you treat someone today the way you would want to be treated?" },
+  { q:"An unexamined life is not worth living.", s:"Socrates", m:"Socrates was an ancient Greek philosopher who spent his life asking questions. He believed that going through life without ever stopping to think about why you do things, what you believe, and who you're becoming is like sleepwalking — you're alive, but not truly awake.", p:"What is one question about yourself or the world you are genuinely curious about right now?" },
+  { q:"Look up at the stars, not down at your feet.", s:"Stephen Hawking", m:"Hawking was a brilliant physicist who studied the universe despite being unable to move most of his body. He's encouraging us to stay curious and look at the big picture — to wonder about the amazing world around us instead of getting stuck worrying about small problems.", p:"Name one thing about the universe that fills you with wonder. Why does it fascinate you?" },
+  { q:"Every child is an artist. The problem is how to remain an artist once we grow up.", s:"Pablo Picasso", m:"Picasso, one of the most famous painters ever, noticed that children naturally create without fear — they draw, build, and imagine freely. As people grow up, they often stop creating because they're afraid of making mistakes. He's saying: don't lose that fearless creativity.", p:"What did you create or invent from scratch recently? That creative spark is yours forever." },
+  { q:"Do the right thing even when no one is watching.", s:"C.S. Lewis", m:"C.S. Lewis wrote The Chronicles of Narnia and thought deeply about character. This quote means that true goodness isn't about getting praise or credit — it's about who you are when nobody's looking. That's when your real character shows.", p:"When was the last time you did something kind when you did not have to? How did that feel?" },
+  { q:"Knowing yourself is the beginning of all wisdom.", s:"Aristotle", m:"Aristotle was one of the greatest thinkers in history. He believed that before you can understand the world, you need to understand yourself — your strengths, your weaknesses, what makes you happy, and what matters to you. Self-knowledge is the foundation everything else is built on.", p:"What are you really good at that you sometimes forget to notice?" },
+  { q:"We rise by lifting others.", s:"Robert Ingersoll", m:"Ingersoll was an American writer who believed that helping others doesn't take away from you — it actually lifts you up too. When you help someone learn, succeed, or feel better, you both grow. Kindness isn't a sacrifice; it's a ladder that goes both ways.", p:"Seva challenge: help one person without being asked today. Notice how it feels." },
+  { q:"Name one thing you did this week that made you proud.", s:"🌟 Gratitude prompt", m:"This isn't a famous quote — it's a reminder just for you. We often rush past our own achievements without stopping to feel proud. But recognising what you've done well isn't bragging — it's how you build confidence and remind yourself of what you're capable of.", p:"Go on — say it out loud. You deserve to hear yourself celebrated." },
+  { q:"The only way to do great work is to love what you do.", s:"Steve Jobs", m:"Steve Jobs co-founded Apple and changed how the world uses technology. He believed that passion is the secret ingredient — when you genuinely care about something, you naturally put in more effort, pay more attention, and create something special. Finding what you love is the first step.", p:"Which subject do you actually enjoy the most? What is it that just clicks for you?" },
 ];
 
 // Morning gratitude prompts — rotate by day of week
@@ -1977,37 +1990,37 @@ function updateDueLabelFromInput() {
 // qs: array of nudge questions shown as a bullet list — Sarah answers below
 const VALUES_PROMPTS = [
   { em:'🌸', label:'Gratitude in Action', qs:[
-      'Did you notice something beautiful or kind today — even something small?',
+      'Did you notice something beautiful or kind in the last 24 hours — even something small?',
       'What was it? Who or what made it happen?',
       'How did it make you feel?',
   ]},
   { em:'🤝', label:'Seva — Kindness', qs:[
-      'Did you do something kind for someone today?',
+      'Did you do something kind for someone in the last 24 hours?',
       'Did you help without being asked — or did someone help you?',
       'How? What did you do or say?',
   ]},
   { em:'🦁', label:'Courage', qs:[
-      'Did you step outside your comfort zone today, even just a little?',
+      'Did you step outside your comfort zone in the last 24 hours, even just a little?',
       'Was there something that felt scary or hard that you tried anyway?',
       'How did it feel before — and after?',
   ]},
   { em:'⚖️', label:'Dharma — Doing Right', qs:[
-      'Was there a moment today when you knew the right thing to do?',
+      'Was there a moment in the last 24 hours when you knew the right thing to do?',
       'Did you do it, even if it was hard or no one was watching?',
       'What happened? How did you feel about your choice?',
   ]},
   { em:'💛', label:'Gratitude', qs:[
-      'Name one person or thing from today that made your life better.',
+      'Name one person or thing from the last 24 hours that made your life better.',
       'Why are you grateful for them?',
       'Is there a way you could show them you noticed?',
   ]},
   { em:'🌿', label:'Fairness', qs:[
-      'Was there a moment today where you had to be fair?',
+      'Was there a moment in the last 24 hours where you had to be fair?',
       'Did you share, take turns, or give someone else a chance?',
       'How did it go? Was it easy or hard to be fair?',
   ]},
   { em:'🎯', label:'Perseverance', qs:[
-      'Was there something difficult you kept going with today?',
+      'Was there something difficult you kept going with in the last 24 hours?',
       'Did you want to quit at any point? What happened?',
       'What helped you keep going?',
   ]},
@@ -2171,6 +2184,7 @@ function render() {
   const th = THOUGHTS[doy(now) % THOUGHTS.length];
   document.getElementById("thought-quote").textContent  = `"${th.q}"`;
   document.getElementById("thought-source").textContent = `— ${th.s}`;
+  document.getElementById("thought-meaning-text").textContent = th.m;
   document.getElementById("thought-prompt").textContent = `💭 ${th.p}`;
 
   // Stats (kept for backward compat — elements may not exist in new tab layout)
@@ -2434,6 +2448,93 @@ function renderEndOfDayCard() {
   html += `<div class="eod-motivate">${motivate}</div>`;
 
   content.innerHTML = html;
+}
+
+// ── WIND DOWN TAB — Today's Wins ──
+function renderWindDownWins() {
+  const el = document.getElementById('wind-down-wins-content');
+  const titleEl = document.getElementById('wind-down-title');
+  if (!el) return;
+
+  const now = new Date();
+  const todayKey = `hs-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+
+  // Collect completed tasks
+  const tasksState = load(todayKey) || {};
+  const wins = [];
+  for (const [key, val] of Object.entries(tasksState)) {
+    if (val === true && _taskMeta[key]) wins.push(_taskMeta[key].text);
+  }
+  // Custom tasks
+  const customDoneKey = `hs-custom-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const customDoneState = load(customDoneKey) || {};
+  for (const task of (load(_customKey()) || [])) {
+    if (customDoneState[task.id] === true) wins.push(task.text);
+  }
+
+  // Time logged today
+  const timeKey = `hs-time-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const timeLog = load(timeKey) || {};
+  const totalMins = Object.entries(timeLog)
+    .filter(([k]) => !k.endsWith('__text'))
+    .reduce((sum, [, v]) => sum + (parseInt(v) || 0), 0);
+
+  // Points
+  const todayPts = Math.round(rewardsTodayTotal());
+  const streak = eodStreak();
+
+  // Dynamic title
+  const allTasks = document.querySelectorAll('.task-item');
+  const doneTasks = document.querySelectorAll('.task-item.done');
+  const allDone = allTasks.length > 0 && doneTasks.length === allTasks.length;
+
+  if (titleEl) {
+    titleEl.textContent = allDone
+      ? '🎉 What an amazing day, Sarah!'
+      : wins.length > 0
+        ? '⭐ Look at everything you did today!'
+        : '🌙 Your day is just getting started!';
+  }
+
+  let html = '';
+
+  if (wins.length === 0 && totalMins === 0) {
+    html += `<div class="eod-empty-msg">Complete tasks during the day and your biggest wins will show up here tonight! 🌟</div>`;
+  } else {
+    // Show all wins
+    for (const win of wins) {
+      const label = win.replace(/\s*—\s*\d+\s*min.*/i, '').trim();
+      html += `<div class="eod-win-row"><span class="eod-win-check">✓</span>${label}</div>`;
+    }
+  }
+
+  // Stats chips
+  const chips = [];
+  if (totalMins > 0) chips.push({ cls:'green', icon:'⏱️', val: totalMins < 60 ? `${totalMins}m` : `${Math.floor(totalMins/60)}h ${totalMins%60}m`, lbl:'studied' });
+  if (streak >= 1)   chips.push({ cls:'amber', icon:'🔥', val: streak, lbl: streak===1 ? 'day started' : 'day streak' });
+  if (todayPts > 0)  chips.push({ cls:'blue',  icon:'⭐', val: `+${todayPts}`, lbl:'pts today' });
+  if (wins.length)   chips.push({ cls:'',      icon:'✅', val: wins.length, lbl: wins.length===1 ? 'task done' : 'tasks done' });
+
+  if (chips.length) {
+    html += `<div class="eod-stats-row">`;
+    for (const c of chips) {
+      html += `<div class="eod-stat-chip ${c.cls}">${c.icon} <span>${c.val}</span><span style="font-size:.7rem;font-weight:600;color:inherit;opacity:.75;margin-left:3px;">${c.lbl}</span></div>`;
+    }
+    html += `</div>`;
+  }
+
+  // Closing encouragement
+  if (wins.length > 0) {
+    const messages = [
+      "You worked really hard today. Time to relax with a story! 📖",
+      "Every task you finish is a step forward. Enjoy your story! 🌟",
+      "You should be proud of yourself today, Sarah! 💜",
+      "What a productive day! Now let's wind down with a great story. 📚"
+    ];
+    html += `<div class="eod-motivate">${messages[now.getDate() % messages.length]}</div>`;
+  }
+
+  el.innerHTML = html;
 }
 
 function refreshBanner(done,total) {
@@ -3521,10 +3622,14 @@ function switchSarahTab(tabName) {
     (tabName === 'spelling-bee' && b.textContent.includes('Spelling')) ||
     (tabName === 'todo' && b.textContent.includes('To Do')) ||
     (tabName === 'news' && b.textContent.includes('News')) ||
+    (tabName === 'wind-down' && b.textContent.includes('Wind Down')) ||
     (tabName === 'reports' && b.textContent.includes('Reports')) ||
     (tabName === 'rewards' && b.textContent.includes('Rewards'))
   );
   if (activeBtn) activeBtn.classList.add('active');
+
+  // Render Wind Down wins when that tab is opened
+  if (tabName === 'wind-down') renderWindDownWins();
 }
 
 let _reportsMode = 'today';
