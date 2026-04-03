@@ -323,6 +323,16 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
 .ak-display { font-size:.85rem; font-weight:700; color:#2D3047; }
 .ak-edit-link { font-size:.7rem; color:#4F46E5; cursor:pointer; font-weight:700; margin-top:2px; display:inline-block; }
 .ak-edit-link:hover { text-decoration:underline; }
+.draft-item { display:flex; align-items:center; gap:12px; padding:12px 14px; background:#F9FAFB; border:1.5px solid #E5E7EB; border-radius:10px; }
+.draft-item:hover { border-color:#6366F1; }
+.draft-info { flex:1; }
+.draft-title { font-size:.88rem; font-weight:800; color:#2D3047; }
+.draft-meta { font-size:.75rem; color:#9CA3AF; font-weight:600; margin-top:2px; }
+.draft-btn { border:none; border-radius:8px; padding:6px 14px; font-family:inherit; font-size:.78rem; font-weight:800; cursor:pointer; }
+.draft-resume { background:#DBEAFE; color:#1E40AF; }
+.draft-resume:hover { background:#BFDBFE; }
+.draft-delete { background:#FEE2E2; color:#991B1B; }
+.draft-delete:hover { background:#FECACA; }
 
 .flag-badge {
   display:inline-flex;
@@ -818,6 +828,12 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
       </div>
       <div class="raw-output" id="raw-ocr"></div>
     </div>
+
+    <!-- Saved Drafts -->
+    <div class="card" id="drafts-card" style="display:none;margin-top:16px;">
+      <div class="card-title">📋 Saved Drafts</div>
+      <div id="drafts-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
   </div>
 
   <!-- ══════ SECTION 2: REVIEW ══════ -->
@@ -885,6 +901,7 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
         <button class="bulk-btn bulk-reject-all" onclick="rejectAll()">✕ Reject All</button>
         <span class="approval-count" id="approval-count"></span>
         <div style="flex:1;"></div>
+        <button class="bulk-btn" onclick="saveDraft()" style="background:#FEF3C7;color:#92400E;">💾 Save Draft</button>
         <button class="bulk-btn bulk-log-btn" id="btn-approve-log" onclick="approveAndLog()" disabled>✓ Approve & Log to Dashboard</button>
       </div>
       <div id="ak-drop-zone" style="border:2.5px dashed #C8E6C9;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;margin:10px 0;">
@@ -1031,6 +1048,7 @@ let _batchIndex  = 0;
 
 window.addEventListener('DOMContentLoaded', () => {
   loadSettings();
+  renderDraftsList();
   if (!localStorage.getItem('wg-mistral-key') || !localStorage.getItem('wg-anthropic-key')) {
     if (!localStorage.getItem('wg-mistral-key') && !localStorage.getItem('wg-anthropic-key') && !localStorage.getItem('hs-api-key')) {
       toggleSettings();
@@ -3386,6 +3404,152 @@ function approveAndLog() {
   // Render the report for reference
   renderReport();
   goTo('report');
+}
+
+// ═══════════════════════════════════════════
+//  SAVE / LOAD DRAFTS
+// ═══════════════════════════════════════════
+const DRAFTS_KEY = 'wg-drafts';
+
+function saveDraft() {
+  const drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+  const label = (bookName || 'Worksheet') + (chapterNumber ? ' Ch.' + chapterNumber : '') +
+    ' — ' + parsedQuestions.length + ' questions';
+  const approved = parsedQuestions.filter(q => q._verdict === 'approved' || q._verdict === 'edited').length;
+  const rejected = parsedQuestions.filter(q => q._verdict === 'rejected').length;
+
+  // Serializable question data (strip DOM-specific stuff)
+  const qData = parsedQuestions.map(q => ({
+    question_number: q.question_number,
+    problem_text: q.problem_text,
+    student_answer: q.student_answer,
+    page: q.page,
+    flagged: q.flagged,
+    flag_reason: q.flag_reason,
+    resolved: q.resolved,
+    _extraction_confidence: q._extraction_confidence,
+    _extraction_method: q._extraction_method,
+    _ai_answer: q._ai_answer,
+    _ai_steps: q._ai_steps,
+    _verdict: q._verdict,
+    _editedCorrectAnswer: q._editedCorrectAnswer,
+    _edited: q._edited,
+    _hasTable: q._hasTable,
+    sequence_gap: q.sequence_gap,
+    gap_note: q.gap_note,
+    low_tokens: q.low_tokens
+  }));
+
+  const draft = {
+    id: 'draft-' + Date.now(),
+    label,
+    date: new Date().toISOString(),
+    bookName,
+    chapterNumber,
+    subject,
+    answerKeyMap: { ...answerKeyMap },
+    questions: qData,
+    examples: parsedExamples,
+    approved,
+    rejected,
+    total: parsedQuestions.length
+  };
+
+  // Check if updating an existing draft for same book/chapter
+  const existingIdx = drafts.findIndex(d => d.bookName === bookName && d.chapterNumber === chapterNumber);
+  if (existingIdx >= 0) {
+    drafts[existingIdx] = draft;
+  } else {
+    drafts.unshift(draft);
+  }
+
+  // Keep max 20 drafts
+  if (drafts.length > 20) drafts.length = 20;
+  localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
+
+  // Visual feedback
+  const saveBtn = document.querySelector('.bulk-actions button[onclick="saveDraft()"]');
+  if (saveBtn) {
+    saveBtn.textContent = '✅ Draft Saved!';
+    saveBtn.style.background = '#D1FAE5';
+    saveBtn.style.color = '#065F46';
+    setTimeout(() => {
+      saveBtn.textContent = '💾 Save Draft';
+      saveBtn.style.background = '#FEF3C7';
+      saveBtn.style.color = '#92400E';
+    }, 2000);
+  }
+}
+
+function loadDraft(draftId) {
+  const drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+  const draft = drafts.find(d => d.id === draftId);
+  if (!draft) { alert('Draft not found.'); return; }
+
+  // Restore state
+  bookName = draft.bookName || '';
+  chapterNumber = draft.chapterNumber || '';
+  subject = draft.subject || 'math';
+  answerKeyMap = draft.answerKeyMap || {};
+  parsedQuestions = draft.questions || [];
+  parsedExamples = draft.examples || [];
+
+  // Restore book selector UI
+  const selBook = document.getElementById('sel-book');
+  if (selBook) {
+    for (const opt of selBook.options) {
+      if (opt.value === bookName) { selBook.value = bookName; break; }
+    }
+  }
+  const inpChapter = document.getElementById('inp-chapter');
+  if (inpChapter) inpChapter.value = chapterNumber;
+
+  // Run sanity checks and render
+  runSanityChecks(parsedQuestions);
+  renderReview();
+  goTo('review');
+}
+
+function deleteDraft(draftId) {
+  if (!confirm('Delete this draft?')) return;
+  let drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+  drafts = drafts.filter(d => d.id !== draftId);
+  localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
+  renderDraftsList();
+}
+
+function renderDraftsList() {
+  const drafts = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+  const card = document.getElementById('drafts-card');
+  const list = document.getElementById('drafts-list');
+  if (!card || !list) return;
+
+  if (drafts.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
+
+  card.style.display = 'block';
+  list.innerHTML = '';
+
+  for (const d of drafts) {
+    const dateStr = new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    const progress = d.approved + d.rejected;
+    const progressPct = d.total > 0 ? Math.round(progress / d.total * 100) : 0;
+
+    const div = document.createElement('div');
+    div.className = 'draft-item';
+    div.innerHTML = `
+      <div style="font-size:1.3rem;">📋</div>
+      <div class="draft-info">
+        <div class="draft-title">${escHtml(d.label)}</div>
+        <div class="draft-meta">${dateStr} · ${progress}/${d.total} reviewed (${progressPct}%) · ${d.approved || 0} approved, ${d.rejected || 0} rejected</div>
+      </div>
+      <button class="draft-btn draft-resume" onclick="loadDraft('${d.id}')">▶ Resume</button>
+      <button class="draft-btn draft-delete" onclick="deleteDraft('${d.id}')">✕</button>
+    `;
+    list.appendChild(div);
+  }
 }
 
 function checkAllResolved() {
