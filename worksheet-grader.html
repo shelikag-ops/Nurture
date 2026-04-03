@@ -674,11 +674,13 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
         </select>
         <input id="kl-chapter" type="text" placeholder="Ch #" style="padding:8px 10px;border-radius:8px;border:1.5px solid #D1D5DB;font-family:inherit;font-size:.85rem;font-weight:700;">
       </div>
-      <label style="display:inline-block;background:#4F46E5;color:white;border-radius:10px;padding:8px 16px;font-family:inherit;font-size:.82rem;font-weight:800;cursor:pointer;position:relative;">
-        📷 Upload Key Image(s)
-        <input type="file" accept="image/jpeg,image/png,application/pdf" multiple
+      <div id="kl-drop-zone" style="border:2.5px dashed #D1D5DB;border-radius:12px;padding:20px 16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-top:8px;">
+        <div style="font-size:1.6rem;margin-bottom:4px;">📷</div>
+        <div style="font-size:.85rem;font-weight:800;color:#4F46E5;">Drop answer key images here</div>
+        <div style="font-size:.76rem;color:#9CA3AF;margin-top:4px;">or click to browse · JPG, PNG, or PDF</div>
+        <input id="kl-file-input" type="file" accept="image/jpeg,image/png,application/pdf" multiple
           style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleKeyLibraryUpload(this.files)">
-      </label>
+      </div>
       <div id="kl-upload-status" style="font-size:.78rem;font-weight:700;color:#6B7280;margin-top:8px;min-height:18px;"></div>
     </div>
     <!-- Stored keys list -->
@@ -1261,6 +1263,18 @@ function loadAnswerKeyFromStorage() {
 function openKeyLibrary() {
   renderKeyLibrary();
   document.getElementById('keylibrary-overlay').classList.add('visible');
+  // Set up drag-and-drop on the answer key drop zone
+  const klDrop = document.getElementById('kl-drop-zone');
+  if (klDrop && !klDrop._hasDropListeners) {
+    klDrop.addEventListener('dragover', e => { e.preventDefault(); klDrop.style.borderColor = '#4F46E5'; klDrop.style.background = '#EEF2FF'; });
+    klDrop.addEventListener('dragleave', () => { klDrop.style.borderColor = '#D1D5DB'; klDrop.style.background = ''; });
+    klDrop.addEventListener('drop', e => {
+      e.preventDefault();
+      klDrop.style.borderColor = '#D1D5DB'; klDrop.style.background = '';
+      if (e.dataTransfer.files.length) handleKeyLibraryUpload(e.dataTransfer.files);
+    });
+    klDrop._hasDropListeners = true;
+  }
 }
 function closeKeyLibrary() {
   document.getElementById('keylibrary-overlay').classList.remove('visible');
