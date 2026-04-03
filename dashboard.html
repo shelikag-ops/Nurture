@@ -935,6 +935,33 @@
     <a href="https://www.ixl.com" target="_blank" class="link-btn" style="background:#0EA5E9;">📊 IXL</a>
   </div>
 
+  <!-- VOCABULARY PRACTICE CARD -->
+  <div class="card" id="vocab-practice-card">
+    <div class="card-title">🐝 Spelling Bee Practice</div>
+    <div id="vocab-bee-progress" style="margin-bottom:14px;"></div>
+    <a href="spelling-bee.html" target="_blank" class="link-btn" style="background:linear-gradient(135deg,#7C3AED,#A855F7);display:inline-block;width:100%;text-align:center;padding:14px;font-size:1rem;border-radius:12px;box-sizing:border-box;">🐝 Open Spelling Bee Practice App</a>
+  </div>
+
+  <!-- SUBMIT WORK FOR GRADING CARD -->
+  <div class="card" id="submit-work-card">
+    <div class="card-title">📤 Submit Work for Grading</div>
+    <div style="font-size:.88rem;color:#6B7280;font-weight:600;margin-bottom:14px;line-height:1.5;">Take a photo of your completed worksheet — Mama will see it on her device and grade it. 📋</div>
+    <div class="hw-add-row" style="margin-bottom:12px;">
+      <select id="sw-subject" class="hw-subject-select">
+        <option value="Math">🔢 Math</option>
+        <option value="English">📚 English</option>
+        <option value="Science">🔬 Science</option>
+        <option value="History">🏛️ History</option>
+        <option value="Chess">♟️ Chess</option>
+        <option value="Debate">💬 Debate</option>
+        <option value="Other">📌 Other</option>
+      </select>
+      <input id="sw-desc" class="hw-text-input" placeholder="What is this? e.g. SM Ch. 5 Ex. 3A" style="flex:1;">
+    </div>
+    <button onclick="openFreeSubmit()" style="width:100%;padding:14px 0;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:.02em;">📷 Take Photo &amp; Submit</button>
+    <div id="sw-recent" style="margin-top:14px;"></div>
+  </div>
+
   <!-- WORK SUBMISSION MODAL -->
   <div class="sub-overlay" id="sub-overlay">
     <div class="sub-box">
@@ -2038,6 +2065,10 @@ function render() {
   document.getElementById('values-q').innerHTML       = (vp.qs || [vp.q]).map(q => `<li>${q}</li>`).join('');
   document.getElementById('values-input').value       = jEntry.values || '';
 
+  // Submit Work card — recent submissions + vocab bee progress
+  renderRecentSubmits();
+  renderVocabBeeProgress();
+
   // VocabularyStars word log
   renderVocabWordLog();
 
@@ -2742,6 +2773,58 @@ function compressImage(file) {
   });
 }
 
+// ── Free-submit (from the Submit Work card, not tied to a specific task) ──
+function openFreeSubmit() {
+  const subject = (document.getElementById('sw-subject') || {}).value || 'Other';
+  const desc    = ((document.getElementById('sw-desc') || {}).value || '').trim() || 'General work';
+  openSubmitModal('fs-' + Date.now(), desc, subject);
+}
+
+// ── Render recent submissions in the Submit Work card ──
+function renderRecentSubmits() {
+  const el = document.getElementById('sw-recent');
+  if (!el) return;
+  const recent = loadSubs().slice(0, 3);
+  if (!recent.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div style="font-size:.75rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Recently Submitted</div>` +
+    recent.map(s => {
+      const scoreTag = s.score != null
+        ? `<span style="margin-left:auto;font-size:.8rem;font-weight:800;color:${s.score>=80?'#06D6A0':s.score>=60?'#F59E0B':'#EF4444'};">${s.score}%</span>`
+        : `<span style="margin-left:auto;font-size:.75rem;font-weight:700;color:#F59E0B;">${s.status==='assessed'?'Graded':s.status||'Pending'}</span>`;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#F8F6F0;border-radius:9px;margin-bottom:6px;font-size:.83rem;font-weight:700;color:#374151;">
+        <span>${EMOJI[s.subject]||'📌'} ${s.subject}</span>
+        <span style="color:#9CA3AF;font-weight:600;font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;">${s.taskText||''}</span>
+        ${scoreTag}
+      </div>`;
+    }).join('');
+}
+
+// ── Render spelling-bee progress pill in the vocab card ──
+function renderVocabBeeProgress() {
+  const el = document.getElementById('vocab-bee-progress');
+  if (!el) return;
+  // Spelling bee app stores progress under 'sb-progress' key
+  const prog = (() => { try { return JSON.parse(localStorage.getItem('sb-progress') || 'null'); } catch { return null; } })();
+  if (!prog) {
+    el.innerHTML = `<div style="font-size:.88rem;color:#9CA3AF;font-weight:600;">1,931 words · quiz, crossword, scramble &amp; fill-in-the-blank games</div>`;
+    return;
+  }
+  const reviewed  = prog.reviewed || 0;
+  const total     = prog.total    || 1931;
+  const pct       = Math.round(reviewed / total * 100);
+  const lastLetter = prog.lastLetter || '';
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:#374151;margin-bottom:5px;">
+      <span>${reviewed.toLocaleString()} / ${total.toLocaleString()} words reviewed</span>
+      <span style="color:#7C3AED;">${pct}%</span>
+    </div>
+    <div style="height:8px;background:#E5E7EB;border-radius:99px;overflow:hidden;margin-bottom:6px;">
+      <div style="height:8px;background:linear-gradient(90deg,#7C3AED,#A855F7);border-radius:99px;width:${pct}%;transition:width .6s;"></div>
+    </div>
+    ${lastLetter ? `<div style="font-size:.78rem;color:#6B7280;font-weight:600;">Currently on: <strong>${lastLetter}</strong> words</div>` : ''}
+  `;
+}
+
 function openSubmitModal(taskId, taskText, subject) {
   _subContext = { taskId, taskText, subject };
   _compressedImg = null;
@@ -2880,12 +2963,27 @@ async function submitWork() {
   document.getElementById('sub-preview-wrap').style.display = 'none';
   document.getElementById('sub-success').style.display      = 'block';
   updateReviewBadge();
+  renderRecentSubmits();
 
-  // Auto-open worksheet grader after 1.2s so Sarah sees the success message
-  setTimeout(() => {
-    window.open('worksheet-grader.html?from=dashboard', '_blank');
-    closeSubmitModal();
-  }, 1200);
+  const isFreeSubmit = (_subContext.taskId || '').startsWith('fs-');
+  if (isFreeSubmit) {
+    // Free submission from the card — just show success and close, don't open grader
+    const msgEl = document.querySelector('#sub-success .sub-success-msg');
+    const hintEl = document.querySelector('#sub-success div[style]');
+    if (msgEl) msgEl.textContent = 'Submitted! ✅';
+    if (hintEl) hintEl.textContent = 'Mama can now see and grade your work. 📋';
+    setTimeout(() => {
+      closeSubmitModal();
+      const descEl = document.getElementById('sw-desc');
+      if (descEl) descEl.value = '';
+    }, 2200);
+  } else {
+    // Task-based submission — auto-open worksheet grader
+    setTimeout(() => {
+      window.open('worksheet-grader.html?from=dashboard', '_blank');
+      closeSubmitModal();
+    }, 1200);
+  }
 }
 
 function retakePhoto() {
