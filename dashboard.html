@@ -1692,6 +1692,7 @@
     <div class="panel-btns">
       <button class="panel-cancel" onclick="closePanel()">Cancel</button>
       <button class="panel-reset" onclick="resetConfig()">↩ Reset to file defaults</button>
+      <button class="panel-reset" onclick="syncFromCloud()" style="background:#DBEAFE;color:#1E40AF;">☁️ Sync from Cloud</button>
       <button class="panel-save" onclick="saveConfig()">Save &amp; Refresh ✓</button>
     </div>
     </div><!-- /panel-config -->
@@ -1937,6 +1938,8 @@ function saveConfig() {
   if (extVal) save('hs-social-challenge', { extension: extVal });
   else        localStorage.removeItem('hs-social-challenge');
   closePanel();
+  // Push config to cloud so other browsers/devices can pick it up
+  cloudSyncPushAll().catch(() => {});
   location.reload();
 }
 
@@ -1945,6 +1948,17 @@ function resetConfig() {
     localStorage.removeItem(CFG_KEY);
     closePanel();
     location.reload();
+  }
+}
+
+async function syncFromCloud() {
+  if (!confirm('Pull the latest config from the cloud? This will overwrite your local settings with the cloud version.')) return;
+  const ok = await cloudSyncForcePull();
+  if (ok) {
+    alert('✅ Config synced from cloud! Reloading…');
+    location.reload();
+  } else {
+    alert('⚠️ Could not reach cloud config. Make sure the Cloudflare Worker has CONFIG_KV bound.');
   }
 }
 
@@ -3368,8 +3382,7 @@ function getApiKey() {
   return localStorage.getItem('hs-api-key') || '';
 }
 function getAnthropicEndpoint() {
-  const proxy = localStorage.getItem('hs-proxy-url') || '';
-  return proxy ? proxy.replace(/\/$/, '') : 'https://api.anthropic.com/v1/messages';
+  return _getProxyBase();
 }
 
 async function checkClarity(base64DataUrl) {
@@ -6182,9 +6195,104 @@ const NOTION_QUEUE_KEY  = 'hs-notion-queue';
 const NOTION_ACTIVITY_DB = 'a9d4bb9c-eb0c-4288-8cf5-7805a47f3139';
 const NOTION_READING_DB  = 'bf9b893a-a8f0-47a1-a91c-eb620fd0416c';
 
+// Default proxy URL so fresh browsers can bootstrap without manual config
+const DEFAULT_PROXY_URL = 'https://anthropic-proxy.shelikag.workers.dev';
+
+function _getProxyBase() {
+  const stored = (localStorage.getItem('hs-proxy-url') || '').replace(/\/$/, '');
+  return stored || DEFAULT_PROXY_URL;
+}
+
 function getNotionProxyUrl() {
-  const proxy = (localStorage.getItem('hs-proxy-url') || '').replace(/\/$/, '');
-  return proxy ? `${proxy}/notion` : null;
+  return `${_getProxyBase()}/notion`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CLOUD CONFIG SYNC  (Cloudflare Worker KV)
+//  Keeps critical localStorage keys in sync across browsers.
+//  Keys synced: hs-cfg-override, hs-rewards-cfg, hs-rewards-log,
+//               hs-rewards-catalog, hs-notion-key, hs-api-key
+// ═══════════════════════════════════════════════════════════
+const CLOUD_SYNC_KEYS = [
+  'hs-cfg-override',
+  'hs-rewards-cfg',
+  'hs-rewards-log',
+  'hs-rewards-catalog',
+  'hs-proxy-url',
+  'hs-notion-key',
+  'hs-api-key',
+  'hs-book-log',
+];
+
+// Push a single key to cloud
+async function cloudSyncPush(key) {
+  try {
+    const base = _getProxyBase();
+    const val = localStorage.getItem(key);
+    if (val === null) return;
+    await fetch(`${base}/config/${encodeURIComponent(key)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: val,
+    });
+  } catch(e) { console.warn('[CloudSync] push failed for', key, e); }
+}
+
+// Push all synced keys to cloud (called after parent saves config)
+async function cloudSyncPushAll() {
+  for (const key of CLOUD_SYNC_KEYS) {
+    await cloudSyncPush(key);
+  }
+  console.log('[CloudSync] All keys pushed to cloud');
+}
+
+// Pull all keys from cloud → merge into localStorage (cloud wins if local is empty)
+async function cloudSyncHydrate() {
+  try {
+    const base = _getProxyBase();
+    const resp = await fetch(`${base}/config-all`);
+    if (!resp.ok) { console.warn('[CloudSync] hydrate failed:', resp.status); return false; }
+    const data = await resp.json();
+    let hydrated = 0;
+    for (const [key, value] of Object.entries(data)) {
+      if (value === null || value === undefined) continue;
+      const local = localStorage.getItem(key);
+      if (!local || local === 'null' || local === '{}' || local === '[]') {
+        // Local is empty — take cloud value
+        localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+        hydrated++;
+      }
+    }
+    if (hydrated > 0) {
+      console.log(`[CloudSync] Hydrated ${hydrated} keys from cloud`);
+      return true; // caller should re-render
+    }
+    return false;
+  } catch(e) {
+    console.warn('[CloudSync] hydrate error:', e);
+    return false;
+  }
+}
+
+// Force pull — cloud overwrites local (for "sync from other device" button)
+async function cloudSyncForcePull() {
+  try {
+    const base = _getProxyBase();
+    const resp = await fetch(`${base}/config-all`);
+    if (!resp.ok) return false;
+    const data = await resp.json();
+    let count = 0;
+    for (const [key, value] of Object.entries(data)) {
+      if (value === null || value === undefined) continue;
+      localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+      count++;
+    }
+    console.log(`[CloudSync] Force-pulled ${count} keys from cloud`);
+    return true;
+  } catch(e) {
+    console.warn('[CloudSync] force pull error:', e);
+    return false;
+  }
 }
 
 async function syncEntryToNotion(entry) {
@@ -6466,16 +6574,22 @@ function periodChessTime(fromDate) {
 }
 
 // ── INIT ──
-render();
-renderPrayerCard();
-updateReviewBadge();
-renderNotifications();
-updateHoursPill();
-renderEndOfDayCard();
-renderProgressCard();
-_updateNotionSyncBadge(notionQueueRead().filter(e => !e.synced).length);
-drainNotionQueue(); // retry any unsynced entries from previous sessions
-fetchChessStats();  // async — updates progress card when done
+// Hydrate from cloud first (if local is empty), then render
+(async function _boot() {
+  const hydrated = await cloudSyncHydrate().catch(() => false);
+  if (hydrated) console.log('[Boot] Cloud config applied — rendering with synced data');
+
+  render();
+  renderPrayerCard();
+  updateReviewBadge();
+  renderNotifications();
+  updateHoursPill();
+  renderEndOfDayCard();
+  renderProgressCard();
+  _updateNotionSyncBadge(notionQueueRead().filter(e => !e.synced).length);
+  drainNotionQueue(); // retry any unsynced entries from previous sessions
+  fetchChessStats();  // async — updates progress card when done
+})();
 
 // ═══════════════════════════════════════════════════════════
 //  DEBATE PREP DOCS
