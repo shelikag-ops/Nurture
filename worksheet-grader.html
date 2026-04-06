@@ -1026,15 +1026,16 @@ function _isSyncable(key) {
       || key === 'daily_actions';
 }
 
-// Strip base64 imageData from large keys before pushing to cloud
+// Strip base64 imageData from large keys before pushing to cloud (R2 URLs pass through)
 const _IMAGE_BEARING_KEYS = ['hs-submissions', 'hs-wg-pending-sub', 'hs-wg-batch-queue'];
+function _isBase64Image(val) { return typeof val === 'string' && val.startsWith('data:image'); }
 function _cloudSafeValue(key, raw) {
   if (!_IMAGE_BEARING_KEYS.includes(key)) return raw;
   try {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
-      return JSON.stringify(parsed.map(item => item && item.imageData ? { ...item, imageData: '__cloud_stripped__' } : item));
-    } else if (parsed && typeof parsed === 'object' && parsed.imageData) {
+      return JSON.stringify(parsed.map(item => item && _isBase64Image(item.imageData) ? { ...item, imageData: '__cloud_stripped__' } : item));
+    } else if (parsed && typeof parsed === 'object' && _isBase64Image(parsed.imageData)) {
       return JSON.stringify({ ...parsed, imageData: '__cloud_stripped__' });
     }
     return raw;
@@ -1195,8 +1196,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (bookMatch) { const bi = document.getElementById('inp-book'); if (bi) bi.value = bookMatch[1].trim(); }
       }
 
-      // Load the image as an uploaded file
-      fetch(pending.imageData)
+      // Load the image as an uploaded file (works with R2 URLs and base64 data URLs)
+      if (pending.imageData === '__cloud_stripped__') {
+        alert('Image not available on this device. Please grade from the device where the photo was taken.');
+      } else fetch(pending.imageData)
         .then(r => r.blob())
         .then(blob => {
           const file = new File([blob], 'submission.jpg', { type: 'image/jpeg' });
@@ -1268,7 +1271,12 @@ function loadBatchItem(idx) {
   const chMatch = (sub.taskText||'').match(/ch(?:apter)?\s*(\d+)/i);
   if (chMatch) { const ci = document.getElementById('inp-chapter'); if (ci) ci.value = chMatch[1]; }
 
-  // Load image
+  // Load image (R2 URL, base64 data URL, or stripped placeholder)
+  if (!sub.imageData || sub.imageData === '__cloud_stripped__') {
+    alert('Image not available — it was uploaded on another device. Please grade from the original device.');
+    loadBatchItem(idx + 1);
+    return;
+  }
   fetch(sub.imageData)
     .then(r => r.blob())
     .then(blob => {

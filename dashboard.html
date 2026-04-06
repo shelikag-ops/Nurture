@@ -3492,16 +3492,20 @@ async function submitWork() {
     return; // Stop here — Sarah must retake
   }
 
-  // Image is clear — save submission
+  // Image is clear — upload to R2 for cross-device access, fall back to inline base64
   const subs = loadSubs();
   const subId = Date.now().toString();
+  let imageRef = _compressedImg; // default: keep base64 inline
+  const r2Url = await _uploadImageToR2(`sub-${subId}`, _compressedImg);
+  if (r2Url) imageRef = r2Url; // R2 succeeded — store URL instead of blob
+
   subs.unshift({
     id:             subId,
     subject:        _subContext.subject,
     taskId:         _subContext.taskId,
     taskText:       _subContext.taskText,
     dateISO:        todayISO(),
-    imageData:      _compressedImg,
+    imageData:      imageRef,
     status:         'clarity_ok',  // Real-time check passed → ready for grading
     clarityChecked: true,
     assessment:     null,          // Filled by worksheet grader or 8 PM task
@@ -3515,7 +3519,7 @@ async function submitWork() {
     subId,
     subject:  _subContext.subject,
     taskText: _subContext.taskText,
-    imageData: _compressedImg,
+    imageData: imageRef,
   }));
 
   document.getElementById('sub-upload-area').style.display  = 'none';
@@ -6253,6 +6257,31 @@ function getNotionProxyUrl() {
 }
 
 // ═══════════════════════════════════════════════════════════
+//  R2 IMAGE UPLOAD
+//  Uploads base64 images to Cloudflare R2 via the worker.
+//  Returns a permanent URL that works on any device/browser.
+// ═══════════════════════════════════════════════════════════
+async function _uploadImageToR2(imageId, base64DataUrl) {
+  const base = _getProxyBase();
+  try {
+    const resp = await fetch(`${base}/image/${encodeURIComponent(imageId)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: base64DataUrl }),
+    });
+    if (!resp.ok) {
+      console.warn('[R2] Upload failed:', resp.status);
+      return null;
+    }
+    const json = await resp.json();
+    return json.url || null;
+  } catch(e) {
+    console.warn('[R2] Upload error:', e);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 //  CLOUD CONFIG SYNC  (Cloudflare Worker KV)
 //  Auto-syncs ALL localStorage writes to the cloud.
 //  Debounced: dirty keys are batched and pushed every 3 seconds.
@@ -6270,6 +6299,10 @@ function _isSyncable(key) {
 // (base64 images are 100KB–2MB each; sendBeacon limit is ~64KB, KV gets bloated)
 const _IMAGE_BEARING_KEYS = ['hs-submissions', 'hs-wg-pending-sub', 'hs-wg-batch-queue'];
 
+function _isBase64Image(val) {
+  return typeof val === 'string' && val.startsWith('data:image');
+}
+
 function _cloudSafeValue(key, raw) {
   if (!_IMAGE_BEARING_KEYS.includes(key)) return raw;
   try {
@@ -6277,15 +6310,14 @@ function _cloudSafeValue(key, raw) {
     if (Array.isArray(parsed)) {
       // hs-submissions: array of objects with .imageData
       const stripped = parsed.map(item => {
-        if (item && item.imageData) {
-          const copy = { ...item, imageData: '__cloud_stripped__' };
-          return copy;
+        if (item && _isBase64Image(item.imageData)) {
+          return { ...item, imageData: '__cloud_stripped__' };
         }
-        return item;
+        return item; // R2 URLs pass through untouched
       });
       return JSON.stringify(stripped);
-    } else if (parsed && typeof parsed === 'object' && parsed.imageData) {
-      // hs-wg-pending-sub: single object with .imageData
+    } else if (parsed && typeof parsed === 'object' && _isBase64Image(parsed.imageData)) {
+      // hs-wg-pending-sub: single object with base64 .imageData
       return JSON.stringify({ ...parsed, imageData: '__cloud_stripped__' });
     }
     return raw;
