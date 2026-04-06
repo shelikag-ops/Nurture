@@ -1693,6 +1693,7 @@
       <button class="panel-cancel" onclick="closePanel()">Cancel</button>
       <button class="panel-reset" onclick="resetConfig()">↩ Reset to file defaults</button>
       <button class="panel-reset" onclick="syncFromCloud()" style="background:#DBEAFE;color:#1E40AF;">☁️ Sync from Cloud</button>
+      <button class="panel-reset" id="migrate-r2-btn" onclick="migrateImagesToR2()" style="background:#FEF3C7;color:#92400E;">🖼 Migrate Old Images to Cloud</button>
       <button class="panel-save" onclick="saveConfig()">Save &amp; Refresh ✓</button>
     </div>
     </div><!-- /panel-config -->
@@ -6279,6 +6280,56 @@ async function _uploadImageToR2(imageId, base64DataUrl) {
     console.warn('[R2] Upload error:', e);
     return null;
   }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MIGRATE OLD BASE64 IMAGES → R2
+//  One-time migration: scans hs-submissions and hs-notifications
+//  for inline base64 imageData, uploads each to R2, replaces
+//  with the permanent URL. Run from the device that has the images.
+// ═══════════════════════════════════════════════════════════
+async function migrateImagesToR2() {
+  const btn = document.getElementById('migrate-r2-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Migrating...'; }
+
+  let migrated = 0, failed = 0;
+
+  // ── Migrate hs-submissions ──
+  const subs = JSON.parse(localStorage.getItem('hs-submissions') || '[]');
+  for (const sub of subs) {
+    if (sub.imageData && sub.imageData.startsWith('data:image')) {
+      const url = await _uploadImageToR2(`sub-${sub.id}`, sub.imageData);
+      if (url) { sub.imageData = url; migrated++; }
+      else { failed++; }
+    }
+  }
+  if (migrated > 0) localStorage.setItem('hs-submissions', JSON.stringify(subs));
+
+  // ── Migrate hs-notifications ──
+  const notifs = JSON.parse(localStorage.getItem('hs-notifications') || '[]');
+  let nMigrated = 0;
+  for (const n of notifs) {
+    if (n.imageData && n.imageData.startsWith('data:image')) {
+      const url = await _uploadImageToR2(`notif-${n.id}`, n.imageData);
+      if (url) { n.imageData = url; nMigrated++; migrated++; }
+      else { failed++; }
+    }
+  }
+  if (nMigrated > 0) localStorage.setItem('hs-notifications', JSON.stringify(notifs));
+
+  // ── Migrate hs-wg-pending-sub ──
+  const pending = JSON.parse(localStorage.getItem('hs-wg-pending-sub') || 'null');
+  if (pending && pending.imageData && pending.imageData.startsWith('data:image')) {
+    const url = await _uploadImageToR2(`sub-${pending.subId || Date.now()}`, pending.imageData);
+    if (url) { pending.imageData = url; localStorage.setItem('hs-wg-pending-sub', JSON.stringify(pending)); migrated++; }
+    else { failed++; }
+  }
+
+  const msg = `Migration complete: ${migrated} image${migrated !== 1 ? 's' : ''} uploaded to R2` +
+    (failed > 0 ? `, ${failed} failed (will retry next time)` : '') + '.';
+  console.log('[R2 Migration]', msg);
+  if (btn) { btn.textContent = msg; setTimeout(() => { btn.disabled = false; btn.textContent = '🖼 Migrate Old Images to Cloud'; }, 5000); }
+  alert(msg);
 }
 
 // ═══════════════════════════════════════════════════════════
