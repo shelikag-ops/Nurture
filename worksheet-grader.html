@@ -1010,11 +1010,65 @@ let uploadedFiles = [];          // array of { file, dataUrl, type: 'image'|'pdf
 let allOcrData = [];             // raw OCR responses per file/page
 
 // ═══════════════════════════════════════════
+//  CLOUD CONFIG SYNC (shared with dashboard)
+// ═══════════════════════════════════════════
+const DEFAULT_PROXY_URL = 'https://anthropic-proxy.shelikag.workers.dev';
+
+function _getProxyBase() {
+  const stored = (localStorage.getItem('hs-proxy-url') || '').replace(/\/$/, '');
+  return stored || DEFAULT_PROXY_URL;
+}
+
+// Keys this app cares about (superset of dashboard shared keys + grader-specific)
+const CLOUD_SYNC_KEYS = [
+  'hs-cfg-override', 'hs-proxy-url', 'hs-notion-key', 'hs-api-key',
+  'hs-rewards-cfg', 'hs-rewards-log', 'hs-rewards-catalog', 'hs-book-log',
+  'wg-mistral-key', 'wg-anthropic-key', 'wg-threshold',
+];
+
+async function cloudSyncPush(key) {
+  try {
+    const base = _getProxyBase();
+    const val = localStorage.getItem(key);
+    if (val === null) return;
+    await fetch(`${base}/config/${encodeURIComponent(key)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: val,
+    });
+  } catch(e) { console.warn('[CloudSync] push failed for', key, e); }
+}
+
+async function cloudSyncPushAll() {
+  for (const key of CLOUD_SYNC_KEYS) await cloudSyncPush(key);
+  console.log('[CloudSync] All keys pushed to cloud');
+}
+
+async function cloudSyncHydrate() {
+  try {
+    const base = _getProxyBase();
+    const resp = await fetch(`${base}/config-all`);
+    if (!resp.ok) return false;
+    const data = await resp.json();
+    let hydrated = 0;
+    for (const [key, value] of Object.entries(data)) {
+      if (value === null || value === undefined) continue;
+      const local = localStorage.getItem(key);
+      if (!local || local === 'null' || local === '{}' || local === '[]') {
+        localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+        hydrated++;
+      }
+    }
+    if (hydrated > 0) console.log(`[CloudSync] Hydrated ${hydrated} keys from cloud`);
+    return hydrated > 0;
+  } catch(e) { console.warn('[CloudSync] hydrate error:', e); return false; }
+}
+
+// ═══════════════════════════════════════════
 //  API ENDPOINT (respects dashboard proxy)
 // ═══════════════════════════════════════════
 function getAnthropicEndpoint() {
-  const proxy = (localStorage.getItem('hs-proxy-url') || '').replace(/\/$/, '');
-  return proxy ? proxy : 'https://api.anthropic.com/v1/messages';
+  return _getProxyBase();
 }
 
 // ═══════════════════════════════════════════
@@ -1035,6 +1089,8 @@ function saveSettings() {
   if (notionKey) localStorage.setItem('hs-notion-key', notionKey);
   else localStorage.removeItem('hs-notion-key');
   localStorage.setItem('wg-threshold', document.getElementById('inp-threshold').value);
+  // Push settings to cloud for cross-browser sync
+  cloudSyncPushAll().catch(() => {});
   toggleSettings();
 }
 function toggleSettings() {
@@ -1054,7 +1110,10 @@ let _dashboardSubId = null;
 let _batchQueue  = [];   // array of subIds
 let _batchIndex  = 0;
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  // Hydrate from cloud first so API keys/proxy URL are available on fresh browsers
+  await cloudSyncHydrate().catch(() => false);
+
   loadSettings();
   renderDraftsList();
   if (!localStorage.getItem('wg-mistral-key') || !localStorage.getItem('wg-anthropic-key')) {
@@ -3429,8 +3488,7 @@ const NOTION_DRAFTS_DB = 'd648c3a5-5fb2-4cbe-be3d-58f03475280b';
 
 // ── Notion proxy helper (same pattern as dashboard) ──
 function getNotionProxyUrl() {
-  const proxy = (localStorage.getItem('hs-proxy-url') || '').replace(/\/$/, '');
-  return proxy ? `${proxy}/notion` : null;
+  return `${_getProxyBase()}/notion`;
 }
 function notionHeaders() {
   const token = localStorage.getItem('hs-notion-key') || '';
