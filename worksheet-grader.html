@@ -761,6 +761,14 @@ body { font-family:var(--font); background:var(--bg); color:#2D3047; min-height:
       <button class="btn btn-primary" onclick="saveSettings()">Save</button>
       <button class="btn btn-secondary" onclick="toggleSettings()">Cancel</button>
     </div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1.5px solid #E5E7EB;">
+      <div style="font-size:.78rem;font-weight:700;color:#6B7280;margin-bottom:8px;">Cloud Sync</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <button class="btn btn-secondary" onclick="migrateImagesToR2()" id="migrate-r2-btn" style="font-size:.75rem;background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">🖼 Migrate Images to R2</button>
+        <button class="btn btn-secondary" onclick="exportLocalStorageToFile()" style="font-size:.75rem;background:#E0E7FF;color:#3730A3;border:1px solid #C7D2FE;">📤 Export Local Data</button>
+        <button class="btn btn-secondary" onclick="importAndMigrate()" style="font-size:.75rem;background:#D1FAE5;color:#065F46;border:1px solid #A7F3D0;">📥 Import & Migrate</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1115,6 +1123,78 @@ async function cloudSyncHydrate() {
     if (hydrated > 0) console.log(`[CloudSync] Hydrated ${hydrated} keys from cloud`);
     return hydrated > 0;
   } catch(e) { console.warn('[CloudSync] hydrate error:', e); return false; }
+}
+
+// ═══════════════════════════════════════════
+//  R2 IMAGE UPLOAD + MIGRATION
+// ═══════════════════════════════════════════
+async function _uploadImageToR2(imageId, base64DataUrl) {
+  const base = _getProxyBase();
+  try {
+    const resp = await fetch(`${base}/image/${encodeURIComponent(imageId)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: base64DataUrl }),
+    });
+    if (!resp.ok) return null;
+    const json = await resp.json();
+    return json.url || null;
+  } catch(e) { return null; }
+}
+
+function exportLocalStorageToFile() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (_isSyncable(k) || k.startsWith('wg-') || k.startsWith('news-') || k.startsWith('sb-') || k.startsWith('story-response-')) {
+      data[k] = localStorage.getItem(k);
+    }
+  }
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'nurture-localstorage-export.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  alert(`Exported ${Object.keys(data).length} keys.`);
+}
+
+async function importAndMigrate() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const text = await file.text();
+    const data = JSON.parse(text);
+    let imported = 0;
+    for (const [k, v] of Object.entries(data)) {
+      const local = localStorage.getItem(k);
+      if (!local || local === 'null' || local === '[]' || local === '{}') {
+        localStorage.setItem(k, v);
+        imported++;
+      }
+    }
+    alert(`Imported ${imported} keys. Now migrating images to R2...`);
+    await migrateImagesToR2();
+  };
+  input.click();
+}
+
+async function migrateImagesToR2() {
+  const btn = document.getElementById('migrate-r2-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Migrating...'; }
+  let migrated = 0, failed = 0;
+  const subs = JSON.parse(localStorage.getItem('hs-submissions') || '[]');
+  for (const sub of subs) {
+    if (sub.imageData && sub.imageData.startsWith('data:image')) {
+      const url = await _uploadImageToR2(`sub-${sub.id}`, sub.imageData);
+      if (url) { sub.imageData = url; migrated++; } else { failed++; }
+    }
+  }
+  if (migrated > 0) localStorage.setItem('hs-submissions', JSON.stringify(subs));
+  const msg = `Migration: ${migrated} image(s) uploaded to R2` + (failed ? `, ${failed} failed` : '') + '.';
+  if (btn) { btn.textContent = msg; btn.disabled = false; }
+  alert(msg);
 }
 
 // ═══════════════════════════════════════════

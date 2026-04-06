@@ -1694,6 +1694,8 @@
       <button class="panel-reset" onclick="resetConfig()">↩ Reset to file defaults</button>
       <button class="panel-reset" onclick="syncFromCloud()" style="background:#DBEAFE;color:#1E40AF;">☁️ Sync from Cloud</button>
       <button class="panel-reset" id="migrate-r2-btn" onclick="migrateImagesToR2()" style="background:#FEF3C7;color:#92400E;">🖼 Migrate Old Images to Cloud</button>
+      <button class="panel-reset" onclick="exportLocalStorageToFile()" style="background:#E0E7FF;color:#3730A3;">📤 Export Local Data</button>
+      <button class="panel-reset" onclick="importAndMigrate()" style="background:#D1FAE5;color:#065F46;">📥 Import &amp; Migrate</button>
       <button class="panel-save" onclick="saveConfig()">Save &amp; Refresh ✓</button>
     </div>
     </div><!-- /panel-config -->
@@ -6288,6 +6290,47 @@ async function _uploadImageToR2(imageId, base64DataUrl) {
 //  for inline base64 imageData, uploads each to R2, replaces
 //  with the permanent URL. Run from the device that has the images.
 // ═══════════════════════════════════════════════════════════
+// ── Export all syncable localStorage to a JSON file (run from file:// origin to rescue old data) ──
+function exportLocalStorageToFile() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (_isSyncable(k) || k.startsWith('wg-') || k.startsWith('news-') || k.startsWith('sb-') || k.startsWith('story-response-')) {
+      data[k] = localStorage.getItem(k);
+    }
+  }
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'nurture-localstorage-export.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  alert(`Exported ${Object.keys(data).length} keys. Now open the dashboard on GitHub Pages and use "Import & Migrate" to load them.`);
+}
+
+// ── Import from exported JSON, then migrate images to R2 ──
+async function importAndMigrate() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const text = await file.text();
+    const data = JSON.parse(text);
+    let imported = 0;
+    for (const [k, v] of Object.entries(data)) {
+      // Only import if local is empty (don't overwrite newer data)
+      const local = localStorage.getItem(k);
+      if (!local || local === 'null' || local === '[]' || local === '{}') {
+        localStorage.setItem(k, v);
+        imported++;
+      }
+    }
+    alert(`Imported ${imported} keys. Now migrating images to R2...`);
+    await migrateImagesToR2();
+  };
+  input.click();
+}
+
 async function migrateImagesToR2() {
   const btn = document.getElementById('migrate-r2-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Migrating...'; }
