@@ -46,8 +46,8 @@ export default {
         return corsResponse(value, 200);
       }
 
-      // PUT /config/:key — write
-      if (request.method === 'PUT') {
+      // PUT or POST /config/:key — write (POST needed for sendBeacon on page unload)
+      if (request.method === 'PUT' || request.method === 'POST') {
         const body = await request.text();
         await env.CONFIG_KV.put(key, body);
         return corsResponse(JSON.stringify({ ok: true }), 200);

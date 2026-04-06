@@ -5189,6 +5189,7 @@ function prayerNext(save) {
 }
 
 function save_prayer(key, data) {
+  // Goes through intercepted setItem → auto-syncs to cloud
   try { localStorage.setItem(key, JSON.stringify(data)); } catch {}
 }
 
@@ -6209,45 +6210,85 @@ function getNotionProxyUrl() {
 
 // ═══════════════════════════════════════════════════════════
 //  CLOUD CONFIG SYNC  (Cloudflare Worker KV)
-//  Keeps critical localStorage keys in sync across browsers.
-//  Keys synced: hs-cfg-override, hs-rewards-cfg, hs-rewards-log,
-//               hs-rewards-catalog, hs-notion-key, hs-api-key
+//  Auto-syncs ALL localStorage writes to the cloud.
+//  Debounced: dirty keys are batched and pushed every 3 seconds.
+//  Prefixes synced: hs-, wg-, hw-, j-, daily_actions, story-response-, sb-
 // ═══════════════════════════════════════════════════════════
-const CLOUD_SYNC_KEYS = [
-  'hs-cfg-override',
-  'hs-rewards-cfg',
-  'hs-rewards-log',
-  'hs-rewards-catalog',
-  'hs-proxy-url',
-  'hs-notion-key',
-  'hs-api-key',
-  'hs-book-log',
-  // Worksheet grader keys (so saving from dashboard syncs grader config too)
-  'wg-mistral-key',
-  'wg-anthropic-key',
-  'wg-threshold',
-];
 
-// Push a single key to cloud
-async function cloudSyncPush(key) {
-  try {
-    const base = _getProxyBase();
-    const val = localStorage.getItem(key);
-    if (val === null) return;
-    await fetch(`${base}/config/${encodeURIComponent(key)}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: val,
-    });
-  } catch(e) { console.warn('[CloudSync] push failed for', key, e); }
+// Which keys should be synced to cloud?
+function _isSyncable(key) {
+  return key.startsWith('hs-') || key.startsWith('wg-') || key.startsWith('hw-')
+      || key.startsWith('j-')  || key.startsWith('sb-') || key.startsWith('story-response-')
+      || key === 'daily_actions';
 }
 
-// Push all synced keys to cloud (called after parent saves config)
-async function cloudSyncPushAll() {
-  for (const key of CLOUD_SYNC_KEYS) {
-    await cloudSyncPush(key);
+// Dirty key tracking + debounced push
+const _dirtyKeys = new Set();
+let _flushTimer = null;
+const FLUSH_DELAY = 3000; // 3 seconds
+
+function _markDirty(key) {
+  if (!_isSyncable(key)) return;
+  _dirtyKeys.add(key);
+  if (_flushTimer) clearTimeout(_flushTimer);
+  _flushTimer = setTimeout(_flushDirtyKeys, FLUSH_DELAY);
+}
+
+async function _flushDirtyKeys() {
+  if (_dirtyKeys.size === 0) return;
+  const keys = [..._dirtyKeys];
+  _dirtyKeys.clear();
+  _flushTimer = null;
+  const base = _getProxyBase();
+  for (const key of keys) {
+    try {
+      const val = localStorage.getItem(key);
+      if (val === null) continue;
+      await fetch(`${base}/config/${encodeURIComponent(key)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: val,
+      });
+    } catch(e) { console.warn('[CloudSync] push failed:', key, e); }
   }
-  console.log('[CloudSync] All keys pushed to cloud');
+  console.log(`[CloudSync] Pushed ${keys.length} keys to cloud`);
+}
+
+// Flush on page unload so nothing is lost
+window.addEventListener('beforeunload', () => {
+  if (_dirtyKeys.size === 0) return;
+  const keys = [..._dirtyKeys];
+  _dirtyKeys.clear();
+  const base = _getProxyBase();
+  // Use sendBeacon for reliable delivery during unload
+  for (const key of keys) {
+    const val = localStorage.getItem(key);
+    if (val === null) continue;
+    navigator.sendBeacon(`${base}/config/${encodeURIComponent(key)}`, val);
+  }
+});
+
+// ── Intercept ALL localStorage writes for auto-sync ──
+const _origSetItem    = localStorage.setItem.bind(localStorage);
+const _origRemoveItem = localStorage.removeItem.bind(localStorage);
+
+localStorage.setItem = function(key, value) {
+  _origSetItem(key, value);
+  _markDirty(key);
+};
+localStorage.removeItem = function(key) {
+  _origRemoveItem(key);
+  // Push a null/delete — we skip deletes for now (cloud retains last value)
+};
+
+// Legacy helper — still works, now also triggers auto-sync via intercepted setItem
+async function cloudSyncPushAll() {
+  // Force-flush everything currently in localStorage that matches sync prefixes
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (_isSyncable(key)) _dirtyKeys.add(key);
+  }
+  await _flushDirtyKeys();
 }
 
 // Pull all keys from cloud → merge into localStorage (cloud wins if local is empty)
@@ -6262,14 +6303,14 @@ async function cloudSyncHydrate() {
       if (value === null || value === undefined) continue;
       const local = localStorage.getItem(key);
       if (!local || local === 'null' || local === '{}' || local === '[]') {
-        // Local is empty — take cloud value
-        localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+        // Local is empty — take cloud value (use original to avoid re-push loop)
+        _origSetItem(key, typeof value === 'string' ? value : JSON.stringify(value));
         hydrated++;
       }
     }
     if (hydrated > 0) {
       console.log(`[CloudSync] Hydrated ${hydrated} keys from cloud`);
-      return true; // caller should re-render
+      return true;
     }
     return false;
   } catch(e) {
@@ -6288,7 +6329,7 @@ async function cloudSyncForcePull() {
     let count = 0;
     for (const [key, value] of Object.entries(data)) {
       if (value === null || value === undefined) continue;
-      localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+      _origSetItem(key, typeof value === 'string' ? value : JSON.stringify(value));
       count++;
     }
     console.log(`[CloudSync] Force-pulled ${count} keys from cloud`);

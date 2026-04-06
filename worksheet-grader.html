@@ -1011,6 +1011,7 @@ let allOcrData = [];             // raw OCR responses per file/page
 
 // ═══════════════════════════════════════════
 //  CLOUD CONFIG SYNC (shared with dashboard)
+//  Auto-syncs ALL localStorage writes to cloud via debounced KV push.
 // ═══════════════════════════════════════════
 const DEFAULT_PROXY_URL = 'https://anthropic-proxy.shelikag.workers.dev';
 
@@ -1019,29 +1020,63 @@ function _getProxyBase() {
   return stored || DEFAULT_PROXY_URL;
 }
 
-// Keys this app cares about (superset of dashboard shared keys + grader-specific)
-const CLOUD_SYNC_KEYS = [
-  'hs-cfg-override', 'hs-proxy-url', 'hs-notion-key', 'hs-api-key',
-  'hs-rewards-cfg', 'hs-rewards-log', 'hs-rewards-catalog', 'hs-book-log',
-  'wg-mistral-key', 'wg-anthropic-key', 'wg-threshold',
-];
-
-async function cloudSyncPush(key) {
-  try {
-    const base = _getProxyBase();
-    const val = localStorage.getItem(key);
-    if (val === null) return;
-    await fetch(`${base}/config/${encodeURIComponent(key)}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: val,
-    });
-  } catch(e) { console.warn('[CloudSync] push failed for', key, e); }
+function _isSyncable(key) {
+  return key.startsWith('hs-') || key.startsWith('wg-') || key.startsWith('hw-')
+      || key.startsWith('j-')  || key.startsWith('sb-') || key.startsWith('story-response-')
+      || key === 'daily_actions';
 }
 
+const _dirtyKeys = new Set();
+let _flushTimer = null;
+
+function _markDirty(key) {
+  if (!_isSyncable(key)) return;
+  _dirtyKeys.add(key);
+  if (_flushTimer) clearTimeout(_flushTimer);
+  _flushTimer = setTimeout(_flushDirtyKeys, 3000);
+}
+
+async function _flushDirtyKeys() {
+  if (_dirtyKeys.size === 0) return;
+  const keys = [..._dirtyKeys];
+  _dirtyKeys.clear();
+  _flushTimer = null;
+  const base = _getProxyBase();
+  for (const key of keys) {
+    try {
+      const val = localStorage.getItem(key);
+      if (val === null) continue;
+      await fetch(`${base}/config/${encodeURIComponent(key)}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: val,
+      });
+    } catch(e) { console.warn('[CloudSync] push failed:', key, e); }
+  }
+  console.log(`[CloudSync] Pushed ${keys.length} keys to cloud`);
+}
+
+window.addEventListener('beforeunload', () => {
+  if (_dirtyKeys.size === 0) return;
+  const keys = [..._dirtyKeys]; _dirtyKeys.clear();
+  const base = _getProxyBase();
+  for (const key of keys) {
+    const val = localStorage.getItem(key);
+    if (val === null) continue;
+    navigator.sendBeacon(`${base}/config/${encodeURIComponent(key)}`, val);
+  }
+});
+
+// Intercept localStorage writes for auto-sync
+const _origSetItem    = localStorage.setItem.bind(localStorage);
+const _origRemoveItem = localStorage.removeItem.bind(localStorage);
+localStorage.setItem = function(key, value) { _origSetItem(key, value); _markDirty(key); };
+localStorage.removeItem = function(key) { _origRemoveItem(key); };
+
 async function cloudSyncPushAll() {
-  for (const key of CLOUD_SYNC_KEYS) await cloudSyncPush(key);
-  console.log('[CloudSync] All keys pushed to cloud');
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (_isSyncable(key)) _dirtyKeys.add(key);
+  }
+  await _flushDirtyKeys();
 }
 
 async function cloudSyncHydrate() {
@@ -1055,7 +1090,7 @@ async function cloudSyncHydrate() {
       if (value === null || value === undefined) continue;
       const local = localStorage.getItem(key);
       if (!local || local === 'null' || local === '{}' || local === '[]') {
-        localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+        _origSetItem(key, typeof value === 'string' ? value : JSON.stringify(value));
         hydrated++;
       }
     }
