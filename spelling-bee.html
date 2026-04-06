@@ -3192,7 +3192,32 @@
             wordMastery: {}
         };
 
-        // ===== PERSISTENCE (Firebase / localStorage) =====
+        // ===== CLOUD SYNC (Cloudflare Worker KV) =====
+        const _PROXY = 'https://anthropic-proxy.shelikag.workers.dev';
+        const _dirty = new Set();
+        let _ft = null;
+        function _isSyncable(k) { return k.startsWith('sb-'); }
+        function _markDirty(k) { if (!_isSyncable(k)) return; _dirty.add(k); if (_ft) clearTimeout(_ft); _ft = setTimeout(_flush, 3000); }
+        async function _flush() {
+          if (!_dirty.size) return; const keys=[..._dirty]; _dirty.clear(); _ft=null;
+          for (const k of keys) { try { const v=localStorage.getItem(k); if(v===null) continue;
+            await fetch(`${_PROXY}/config/${encodeURIComponent(k)}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:v});
+          } catch(e){} } console.log(`[CloudSync:SpellingBee] Pushed ${keys.length} keys`);
+        }
+        window.addEventListener('beforeunload', () => { if(!_dirty.size) return; const keys=[..._dirty]; _dirty.clear();
+          for (const k of keys) { const v=localStorage.getItem(k); if(v===null) continue; navigator.sendBeacon(`${_PROXY}/config/${encodeURIComponent(k)}`,v); }
+        });
+        const _origSet = localStorage.setItem.bind(localStorage);
+        localStorage.setItem = function(k,v) { _origSet(k,v); _markDirty(k); };
+        async function _hydrateFromCloud() {
+          try { const r=await fetch(`${_PROXY}/config-all`); if(!r.ok) return; const d=await r.json();
+            let n=0; for (const [k,v] of Object.entries(d)) { if(!_isSyncable(k)) continue; if(v===null) continue;
+              const loc=localStorage.getItem(k); if(!loc||loc==='null') { _origSet(k, typeof v==='string'?v:JSON.stringify(v)); n++; }
+            } if(n) console.log(`[CloudSync:SpellingBee] Hydrated ${n} keys`); return n>0;
+          } catch(e){ return false; }
+        }
+
+        // ===== PERSISTENCE (Firebase / localStorage / Cloud) =====
         const SB_KEY = 'sb-progress';
 
         async function saveProgress() {
@@ -3215,18 +3240,19 @@
             const json = JSON.stringify(prog);
             if (typeof DataSync !== 'undefined' && DataSync.isReady()) {
                 await DataSync.setItem(SB_KEY, json);
-            } else {
-                try { localStorage.setItem(SB_KEY, json); } catch(e) {}
             }
+            // Always write to localStorage (intercepted → auto-syncs to cloud KV)
+            try { localStorage.setItem(SB_KEY, json); } catch(e) {}
         }
 
         async function loadProgress() {
+            // Hydrate from cloud first
+            await _hydrateFromCloud().catch(()=>false);
             let raw = null;
             if (typeof DataSync !== 'undefined' && DataSync.isReady()) {
                 raw = await DataSync.getItem(SB_KEY);
-            } else {
-                raw = localStorage.getItem(SB_KEY);
             }
+            if (!raw) raw = localStorage.getItem(SB_KEY);
             if (!raw) return;
             try {
                 const prog = JSON.parse(raw);
