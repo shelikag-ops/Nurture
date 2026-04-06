@@ -1940,7 +1940,43 @@ function saveConfig() {
   closePanel();
   // Push config to cloud so other browsers/devices can pick it up
   cloudSyncPushAll().catch(() => {});
+  // Sync weekly plan summary to Notion Activity Log
+  _syncPlanToNotion(ov).catch(() => {});
   location.reload();
+}
+
+async function _syncPlanToNotion(ov) {
+  const base = getNotionProxyUrl();
+  if (!base) return;
+  const w = ov.week || {};
+  const parts = [];
+  if (w.ba && w.ba.chapter) parts.push(`BA: ${w.ba.book || ''} ${w.ba.chapter}`);
+  if (w.sm && w.sm.chapter) parts.push(`SM: ${w.sm.chapter}${w.sm.topic ? ' — '+w.sm.topic : ''}`);
+  if (w.ixl && w.ixl.skill) parts.push(`IXL: ${w.ixl.skill}`);
+  if (w.english && w.english.program) parts.push(`ELA: ${w.english.program}${w.english.task ? ' — '+w.english.task : ''}`);
+  if (w.science && w.science.chapter) parts.push(`Science: ${w.science.chapter}`);
+  if (w.book) parts.push(`Reading: ${w.book}`);
+  if (w.debateTheme) parts.push(`Debate: ${w.debateTheme}`);
+  if (w.history && w.history.topic) parts.push(`History: ${w.history.topic}`);
+  const summary = parts.join(' | ') || 'Weekly plan updated';
+  const notionToken = localStorage.getItem('hs-notion-key') || '';
+  try {
+    await fetch(`${base}/v1/pages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(notionToken ? { 'x-notion-key': notionToken } : {}) },
+      body: JSON.stringify({
+        parent: { database_id: NOTION_ACTIVITY_DB },
+        properties: {
+          'Activity': { title: [{ text: { content: `Week ${w.num || '?'} plan updated` } }] },
+          'Subject':  { select: { name: 'General' } },
+          'Type':     { select: { name: 'Planned' } },
+          'Date':     { date: { start: new Date().toISOString().split('T')[0] } },
+          'Notes':    { rich_text: [{ text: { content: summary.slice(0, 1900) } }] },
+          'Week':     { rich_text: [{ text: { content: isoWeekStr(new Date()) } }] },
+        }
+      })
+    });
+  } catch(e) { console.warn('[Notion] Plan sync failed:', e); }
 }
 
 function resetConfig() {

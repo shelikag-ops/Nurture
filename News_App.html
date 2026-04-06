@@ -1386,10 +1386,38 @@
         const weekKey = `W${Math.ceil(today.getDate() / 7)}-${today.getFullYear()}`;
 
         // =====================
+        // Cloud Sync (Cloudflare Worker KV)
+        // =====================
+        const _PROXY = 'https://anthropic-proxy.shelikag.workers.dev';
+        function _isSyncable(k) { return k.startsWith('news-') || k.startsWith('hs-news-'); }
+        const _dirty = new Set();
+        let _ft = null;
+        function _markDirty(k) { if (!_isSyncable(k)) return; _dirty.add(k); if (_ft) clearTimeout(_ft); _ft = setTimeout(_flush, 3000); }
+        async function _flush() {
+          if (!_dirty.size) return; const keys=[..._dirty]; _dirty.clear(); _ft=null;
+          for (const k of keys) { try { const v=localStorage.getItem(k); if(v===null) continue;
+            await fetch(`${_PROXY}/config/${encodeURIComponent(k)}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:v});
+          } catch(e){} } console.log(`[CloudSync:News] Pushed ${keys.length} keys`);
+        }
+        window.addEventListener('beforeunload', () => { if(!_dirty.size) return; const keys=[..._dirty]; _dirty.clear();
+          for (const k of keys) { const v=localStorage.getItem(k); if(v===null) continue; navigator.sendBeacon(`${_PROXY}/config/${encodeURIComponent(k)}`,v); }
+        });
+        const _origSet = localStorage.setItem.bind(localStorage);
+        localStorage.setItem = function(k,v) { _origSet(k,v); _markDirty(k); };
+        async function _hydrateFromCloud() {
+          try { const r=await fetch(`${_PROXY}/config-all`); if(!r.ok) return; const d=await r.json();
+            let n=0; for (const [k,v] of Object.entries(d)) { if(!_isSyncable(k)) continue; if(v===null) continue;
+              const loc=localStorage.getItem(k); if(!loc||loc==='null') { _origSet(k, typeof v==='string'?v:JSON.stringify(v)); n++; }
+            } if(n) console.log(`[CloudSync:News] Hydrated ${n} keys`); return n>0;
+          } catch(e){ return false; }
+        }
+
+        // =====================
         // Initialize on Load
         // =====================
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await _hydrateFromCloud().catch(()=>false);
             updateDateDisplay();
             setupTabs();
             setupLockToggle();
