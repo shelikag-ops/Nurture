@@ -1026,6 +1026,21 @@ function _isSyncable(key) {
       || key === 'daily_actions';
 }
 
+// Strip base64 imageData from large keys before pushing to cloud
+const _IMAGE_BEARING_KEYS = ['hs-submissions', 'hs-wg-pending-sub', 'hs-wg-batch-queue'];
+function _cloudSafeValue(key, raw) {
+  if (!_IMAGE_BEARING_KEYS.includes(key)) return raw;
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return JSON.stringify(parsed.map(item => item && item.imageData ? { ...item, imageData: '__cloud_stripped__' } : item));
+    } else if (parsed && typeof parsed === 'object' && parsed.imageData) {
+      return JSON.stringify({ ...parsed, imageData: '__cloud_stripped__' });
+    }
+    return raw;
+  } catch(e) { return raw; }
+}
+
 const _dirtyKeys = new Set();
 let _flushTimer = null;
 
@@ -1046,8 +1061,9 @@ async function _flushDirtyKeys() {
     try {
       const val = localStorage.getItem(key);
       if (val === null) continue;
+      const safe = _cloudSafeValue(key, val);
       await fetch(`${base}/config/${encodeURIComponent(key)}`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: val,
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: safe,
       });
     } catch(e) { console.warn('[CloudSync] push failed:', key, e); }
   }
@@ -1061,7 +1077,8 @@ window.addEventListener('beforeunload', () => {
   for (const key of keys) {
     const val = localStorage.getItem(key);
     if (val === null) continue;
-    navigator.sendBeacon(`${base}/config/${encodeURIComponent(key)}`, val);
+    const safe = _cloudSafeValue(key, val);
+    navigator.sendBeacon(`${base}/config/${encodeURIComponent(key)}`, safe);
   }
 });
 

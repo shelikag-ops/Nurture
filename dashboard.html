@@ -3639,7 +3639,9 @@ function renderReviewList() {
           style="width:15px;height:15px;margin-top:2px;${canGrade?'':'opacity:.3;pointer-events:none;'}"
           ${canGrade?'':'disabled'}>
       </label>
-      <img class="review-thumb" src="${s.imageData}" alt="work" onclick="openLightbox('${s.id}')">
+      ${s.imageData && s.imageData !== '__cloud_stripped__'
+        ? `<img class="review-thumb" src="${s.imageData}" alt="work" onclick="openLightbox('${s.id}')">`
+        : `<div class="review-thumb" style="display:flex;align-items:center;justify-content:center;background:#F3F4F6;color:#9CA3AF;font-size:.7rem;text-align:center;border-radius:8px;min-height:60px;padding:4px;">Image on other device</div>`}
       <div class="review-body">
         <div class="review-subject">${EMOJI[s.subject]||'📌'} ${s.subject}</div>
         <div class="review-task">${s.taskText}</div>
@@ -3800,7 +3802,9 @@ function renderNotifications() {
   section.style.display = 'block';
   itemsEl.innerHTML = notifs.map(n => `
     <div class="notif-item" id="notif-${n.id}">
-      <img class="notif-thumb" src="${n.imageData}" alt="">
+      ${n.imageData && n.imageData !== '__cloud_stripped__'
+        ? `<img class="notif-thumb" src="${n.imageData}" alt="">`
+        : `<div class="notif-thumb" style="display:flex;align-items:center;justify-content:center;background:#F3F4F6;color:#9CA3AF;font-size:.65rem;text-align:center;border-radius:8px;min-width:48px;min-height:48px;">No img</div>`}
       <div class="notif-body">
         <div class="notif-subject">${EMOJI[n.subject]||'📌'} ${n.subject}</div>
         <div class="notif-msg">${n.message || (n.type==='redo' ? 'Please redo this and resubmit 📷' : 'Mama has reviewed your work ✅')}</div>
@@ -3830,6 +3834,10 @@ function redoFromNotif(nid, subId) {
 function openLightbox(subId) {
   const sub = loadSubs().find(s => s.id === subId);
   if (!sub) return;
+  if (!sub.imageData || sub.imageData === '__cloud_stripped__') {
+    alert('Image is only available on the device where it was uploaded.');
+    return;
+  }
   document.getElementById('lightbox-img').src = sub.imageData;
   document.getElementById('lightbox').classList.add('open');
 }
@@ -6258,6 +6266,32 @@ function _isSyncable(key) {
       || key === 'daily_actions';
 }
 
+// Keys that contain base64 imageData blobs — strip before pushing to cloud
+// (base64 images are 100KB–2MB each; sendBeacon limit is ~64KB, KV gets bloated)
+const _IMAGE_BEARING_KEYS = ['hs-submissions', 'hs-wg-pending-sub', 'hs-wg-batch-queue'];
+
+function _cloudSafeValue(key, raw) {
+  if (!_IMAGE_BEARING_KEYS.includes(key)) return raw;
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      // hs-submissions: array of objects with .imageData
+      const stripped = parsed.map(item => {
+        if (item && item.imageData) {
+          const copy = { ...item, imageData: '__cloud_stripped__' };
+          return copy;
+        }
+        return item;
+      });
+      return JSON.stringify(stripped);
+    } else if (parsed && typeof parsed === 'object' && parsed.imageData) {
+      // hs-wg-pending-sub: single object with .imageData
+      return JSON.stringify({ ...parsed, imageData: '__cloud_stripped__' });
+    }
+    return raw;
+  } catch(e) { return raw; }
+}
+
 // Dirty key tracking + debounced push
 const _dirtyKeys = new Set();
 let _flushTimer = null;
@@ -6280,10 +6314,11 @@ async function _flushDirtyKeys() {
     try {
       const val = localStorage.getItem(key);
       if (val === null) continue;
+      const safe = _cloudSafeValue(key, val);
       await fetch(`${base}/config/${encodeURIComponent(key)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: val,
+        body: safe,
       });
     } catch(e) { console.warn('[CloudSync] push failed:', key, e); }
   }
@@ -6296,11 +6331,12 @@ window.addEventListener('beforeunload', () => {
   const keys = [..._dirtyKeys];
   _dirtyKeys.clear();
   const base = _getProxyBase();
-  // Use sendBeacon for reliable delivery during unload
+  // Use sendBeacon for reliable delivery during unload (strip images — sendBeacon caps at ~64KB)
   for (const key of keys) {
     const val = localStorage.getItem(key);
     if (val === null) continue;
-    navigator.sendBeacon(`${base}/config/${encodeURIComponent(key)}`, val);
+    const safe = _cloudSafeValue(key, val);
+    navigator.sendBeacon(`${base}/config/${encodeURIComponent(key)}`, safe);
   }
 });
 
