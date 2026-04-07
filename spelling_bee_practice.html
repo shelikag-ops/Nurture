@@ -1049,8 +1049,14 @@
                     </div>
                 </div>
                 <div id="crossword-word-bank" style="margin: 20px 0; padding: 16px 20px; background: var(--bg-light, #f8f9fa); border: 2px dashed var(--border, #ccc); border-radius: 12px;">
-                    <div style="font-weight: 600; margin-bottom: 10px; color: var(--text-dark); font-size: 0.95em;">Word Bank</div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <div style="font-weight: 600; color: var(--text-dark); font-size: 0.95em;">Hints</div>
+                        <div id="crossword-hint-stage" style="font-size: 0.82em; color: var(--text-light);">No hints yet — try the clues first!</div>
+                    </div>
                     <div id="crossword-word-bank-words" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                    <div style="margin-top: 12px; text-align: center;">
+                        <button class="btn btn-secondary" id="btn-crossword-hint" style="font-size: 0.85em; padding: 6px 18px;">Show Hint: First Letter</button>
+                    </div>
                 </div>
                 <div class="center mt-20">
                     <button class="btn btn-primary" id="btn-check-crossword">Check Crossword</button>
@@ -3885,24 +3891,65 @@
         function renderCrossword() {
             renderCrosswordGrid();
             renderCrosswordClues();
-            renderCrosswordWordBank();
+            crosswordHintStage = 0;
+            renderCrosswordHints();
             const stats = document.getElementById('crossword-stats');
             const totalWords = crosswordData.across.length + crosswordData.down.length;
             stats.textContent = `This puzzle has ${totalWords} words (${crosswordData.across.length} across, ${crosswordData.down.length} down)`;
         }
 
-        function renderCrosswordWordBank() {
-            const wordsDiv = document.getElementById('crossword-word-bank-words');
-            const allWords = [...crosswordData.across, ...crosswordData.down]
-                .map(c => c.word.charAt(0).toUpperCase() + c.word.slice(1).toLowerCase());
-            // Shuffle so word order doesn't give away position
-            for (let i = allWords.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [allWords[i], allWords[j]] = [allWords[j], allWords[i]];
+        let crosswordHintStage = 0; // 0 = none, 1 = first letter, 2 = first+last, 3 = first+second+last, 4 = full words
+        let crosswordShuffledWords = [];
+
+        function buildCrosswordHintWord(word, stage) {
+            const w = word.toUpperCase();
+            const len = w.length;
+            if (stage >= 4) return w.charAt(0) + w.slice(1).toLowerCase(); // full word
+            let chars = [];
+            for (let i = 0; i < len; i++) {
+                if (i === 0 && stage >= 1) chars.push(w[i]);
+                else if (i === len - 1 && stage >= 2) chars.push(w[i]);
+                else if (i === 1 && stage >= 3) chars.push(w[i]);
+                else chars.push('_');
             }
-            wordsDiv.innerHTML = allWords.map(w =>
-                `<span style="display:inline-block; padding:4px 12px; background:var(--bg-card, #fff); border:1px solid var(--border, #ddd); border-radius:20px; font-size:0.9em; color:var(--text-dark); letter-spacing:0.3px;">${w}</span>`
-            ).join('');
+            return chars.join(' ');
+        }
+
+        function renderCrosswordHints() {
+            const wordsDiv = document.getElementById('crossword-word-bank-words');
+            const stageLabel = document.getElementById('crossword-hint-stage');
+            const btn = document.getElementById('btn-crossword-hint');
+
+            if (crosswordHintStage <= 1 && crosswordShuffledWords.length === 0) {
+                crosswordShuffledWords = [...crosswordData.across, ...crosswordData.down].map(c => c.word);
+                for (let i = crosswordShuffledWords.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [crosswordShuffledWords[i], crosswordShuffledWords[j]] = [crosswordShuffledWords[j], crosswordShuffledWords[i]];
+                }
+            }
+
+            if (crosswordHintStage === 0) {
+                wordsDiv.innerHTML = '';
+                stageLabel.textContent = 'No hints yet — try the clues first!';
+                btn.textContent = 'Show Hint: First Letter';
+            } else {
+                const labels = ['', 'First letter only', 'First & last letters', 'First, second & last letters', 'Full words revealed'];
+                stageLabel.textContent = `Stage ${crosswordHintStage}/4: ${labels[crosswordHintStage]}`;
+                wordsDiv.innerHTML = crosswordShuffledWords.map(w => {
+                    const display = buildCrosswordHintWord(w, crosswordHintStage);
+                    const isFull = crosswordHintStage >= 4;
+                    return `<span style="display:inline-block; padding:4px 12px; background:var(--bg-card, #fff); border:1px solid var(--border, #ddd); border-radius:20px; font-size:${isFull ? '0.9em' : '0.85em'}; color:var(--text-dark); letter-spacing:${isFull ? '0.3px' : '2px'}; font-family:${isFull ? 'inherit' : 'monospace'};">${display}</span>`;
+                }).join('');
+
+                const nextLabels = ['', '', 'Show More: + Last Letter', 'Show More: + Second Letter', 'Full Words'];
+                if (crosswordHintStage < 4) {
+                    btn.textContent = nextLabels[crosswordHintStage] || 'Show More';
+                } else {
+                    btn.textContent = 'All hints revealed!';
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                }
+            }
         }
 
         function renderCrosswordGrid() {
@@ -4041,10 +4088,22 @@
                 }
             };
 
+            // Hint button
+            document.getElementById('btn-crossword-hint').onclick = () => {
+                if (crosswordHintStage < 4) {
+                    crosswordHintStage++;
+                    renderCrosswordHints();
+                }
+            };
+
             // New puzzle button
             document.getElementById('btn-new-crossword').onclick = () => {
+                crosswordShuffledWords = [];
                 generateCrossword(30);
                 renderCrossword();
+                const hintBtn = document.getElementById('btn-crossword-hint');
+                hintBtn.disabled = false;
+                hintBtn.style.opacity = '1';
                 showEncouragement('Fresh crossword puzzle generated! Good luck!');
             };
 
@@ -4134,7 +4193,41 @@
                 downText += `<div class="clue-item"><strong>${c.num}.</strong> ${c.clue} <span class="letter-count">(${c.word.length})</span></div>`;
             });
 
-            // Two-page layout: page 1 = grid (big), page 2 = clues (big font)
+            // Build staged hints HTML for PDF
+            const allPdfWords = [...acrossClues, ...downClues].map(c => c.word);
+            for (let i = allPdfWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allPdfWords[i], allPdfWords[j]] = [allPdfWords[j], allPdfWords[i]];
+            }
+            function pdfHintWord(word, stage) {
+                const w = word.toUpperCase();
+                const len = w.length;
+                if (stage >= 4) return w.charAt(0) + w.slice(1).toLowerCase();
+                let chars = [];
+                for (let i = 0; i < len; i++) {
+                    if (i === 0 && stage >= 1) chars.push(w[i]);
+                    else if (i === len - 1 && stage >= 2) chars.push(w[i]);
+                    else if (i === 1 && stage >= 3) chars.push(w[i]);
+                    else chars.push('_');
+                }
+                return chars.join(' ');
+            }
+            const hintStages = [
+                { label: 'Hint Stage 1 — First Letter', stage: 1 },
+                { label: 'Hint Stage 2 — First & Last Letters', stage: 2 },
+                { label: 'Hint Stage 3 — First, Second & Last Letters', stage: 3 },
+                { label: 'Full Word Bank', stage: 4 }
+            ];
+            const hintsPageHTML = hintStages.map(h => {
+                const words = allPdfWords.map(w => {
+                    const display = pdfHintWord(w, h.stage);
+                    const isFull = h.stage >= 4;
+                    return `<span class="wb-word" style="letter-spacing:${isFull ? '0' : '2px'}; font-family:${isFull ? 'Arial, sans-serif' : 'monospace'};">${display}</span>`;
+                }).join(' ');
+                return `<div class="hint-section"><h3>${h.label}</h3><div class="hint-words">${words}</div></div>`;
+            }).join('');
+
+            // Three-page layout: page 1 = grid, page 2 = clues, page 3 = staged hints
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`<!DOCTYPE html>
 <html>
@@ -4193,6 +4286,29 @@
         }
         .actions button:hover { background: #4f46e5; }
         .actions button.secondary { background: #64748b; }
+        .hint-section {
+            margin: 18px 0;
+            padding: 12px 18px;
+            border: 2px dashed #999;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .hint-section h3 {
+            font-size: 14px;
+            margin: 0 0 8px 0;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .wb-word {
+            display: inline-block;
+            padding: 3px 10px;
+            margin: 3px 4px;
+            border: 1px solid #ccc;
+            border-radius: 14px;
+            font-size: 11px;
+            background: #fff;
+        }
     </style>
 </head>
 <body>
@@ -4222,6 +4338,13 @@
                 ${downText}
             </div>
         </div>
+    </div>
+
+    <!-- PAGE 3: Hints -->
+    <div class="page-break">
+        <h2>Hints</h2>
+        <div class="subtitle">Cut along the dotted lines and reveal one stage at a time if you get stuck!</div>
+        ${hintsPageHTML}
     </div>
 </body>
 </html>`);
