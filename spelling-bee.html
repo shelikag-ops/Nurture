@@ -3921,7 +3921,10 @@
             const btn = document.getElementById('btn-crossword-hint');
 
             if (crosswordHintStage <= 1 && crosswordShuffledWords.length === 0) {
-                crosswordShuffledWords = [...crosswordData.across, ...crosswordData.down].map(c => c.word);
+                crosswordShuffledWords = [
+                    ...crosswordData.across.map(c => ({word: c.word, num: c.num, dir: 'A'})),
+                    ...crosswordData.down.map(c => ({word: c.word, num: c.num, dir: 'D'}))
+                ];
                 for (let i = crosswordShuffledWords.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [crosswordShuffledWords[i], crosswordShuffledWords[j]] = [crosswordShuffledWords[j], crosswordShuffledWords[i]];
@@ -3935,10 +3938,12 @@
             } else {
                 const labels = ['', 'First letter only', 'First & last letters', 'First, second & last letters', 'Full words revealed'];
                 stageLabel.textContent = `Stage ${crosswordHintStage}/4: ${labels[crosswordHintStage]}`;
-                wordsDiv.innerHTML = crosswordShuffledWords.map(w => {
-                    const display = buildCrosswordHintWord(w, crosswordHintStage);
+                wordsDiv.innerHTML = crosswordShuffledWords.map(entry => {
+                    const display = buildCrosswordHintWord(entry.word, crosswordHintStage);
                     const isFull = crosswordHintStage >= 4;
-                    return `<span style="display:inline-block; padding:4px 12px; background:var(--bg-card, #fff); border:1px solid var(--border, #ddd); border-radius:20px; font-size:${isFull ? '0.9em' : '0.85em'}; color:var(--text-dark); letter-spacing:${isFull ? '0.3px' : '2px'}; font-family:${isFull ? 'inherit' : 'monospace'};">${display}</span>`;
+                    const dirLabel = entry.dir === 'A' ? 'Across' : 'Down';
+                    const tag = `${entry.num}${entry.dir}`;
+                    return `<span style="display:inline-block; padding:4px 12px; background:var(--bg-card, #fff); border:1px solid var(--border, #ddd); border-radius:20px; font-size:${isFull ? '0.9em' : '0.85em'}; color:var(--text-dark); letter-spacing:${isFull ? '0.3px' : '2px'}; font-family:${isFull ? 'inherit' : 'monospace'}; cursor:default;" title="${entry.num} ${dirLabel}"><span style="font-family:inherit; font-size:0.75em; color:var(--primary, #6366f1); font-weight:700; letter-spacing:0; margin-right:4px;">${tag}</span>${display}</span>`;
                 }).join('');
 
                 const nextLabels = ['', '', 'Show More: + Last Letter', 'Show More: + Second Letter', 'Full Words'];
@@ -4194,10 +4199,13 @@
             });
 
             // Build staged hints HTML for PDF
-            const allPdfWords = [...acrossClues, ...downClues].map(c => c.word);
-            for (let i = allPdfWords.length - 1; i > 0; i--) {
+            const allPdfEntries = [
+                ...acrossClues.map(c => ({word: c.word, num: c.num, dir: 'A'})),
+                ...downClues.map(c => ({word: c.word, num: c.num, dir: 'D'}))
+            ];
+            for (let i = allPdfEntries.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [allPdfWords[i], allPdfWords[j]] = [allPdfWords[j], allPdfWords[i]];
+                [allPdfEntries[i], allPdfEntries[j]] = [allPdfEntries[j], allPdfEntries[i]];
             }
             function pdfHintWord(word, stage) {
                 const w = word.toUpperCase();
@@ -4219,10 +4227,11 @@
                 { label: 'Full Word Bank', stage: 4 }
             ];
             const hintsPageHTML = hintStages.map(h => {
-                const words = allPdfWords.map(w => {
-                    const display = pdfHintWord(w, h.stage);
+                const words = allPdfEntries.map(entry => {
+                    const display = pdfHintWord(entry.word, h.stage);
                     const isFull = h.stage >= 4;
-                    return `<span class="wb-word" style="letter-spacing:${isFull ? '0' : '2px'}; font-family:${isFull ? 'Arial, sans-serif' : 'monospace'};">${display}</span>`;
+                    const tag = `${entry.num}${entry.dir}`;
+                    return `<span class="wb-word" style="letter-spacing:${isFull ? '0' : '2px'}; font-family:${isFull ? 'Arial, sans-serif' : 'monospace'};"><span style="font-size:0.75em; color:#6366f1; font-weight:700; letter-spacing:0; margin-right:3px;">${tag}</span>${display}</span>`;
                 }).join(' ');
                 return `<div class="hint-section"><h3>${h.label}</h3><div class="hint-words">${words}</div></div>`;
             }).join('');
