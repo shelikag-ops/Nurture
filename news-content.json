@@ -1,139 +1,128 @@
 {
-  "date": "2026-03-29",
+  "date": "2026-04-20",
   "stories": [
     {
-      "headline": "NASA Prepares Emergency Rescue Teams for Artemis II — the First Crewed Moon Mission in 50 Years",
-      "summary": "NASA is finalising its emergency plans for Artemis II, the first mission to send astronauts around the Moon since Apollo 17 in 1972. A dedicated rescue team practises how to reach the crew within minutes if anything goes wrong on the launch pad or shortly after liftoff. The mission will carry four astronauts — including the first woman and first Canadian to fly to the Moon. Scientists are calling it a giant leap toward eventually landing humans on Mars.",
-      "bigWord": "Contingency",
-      "bigWordDef": "A contingency plan is a backup plan for when something unexpected goes wrong. NASA's rescue team exists as a contingency — just in case.",
-      "thinkQuestion": "Why do you think NASA spends months practising for emergencies that might never happen? What does that tell you about how important preparation is before doing something risky?",
-      "videoQuery": "NASA Artemis II moon mission explained 2026 astronauts"
+      "headline": "NASA's Europa Clipper Sends Back First Close-Up Data from Jupiter's Icy Moon",
+      "summary": "NASA's Europa Clipper spacecraft, which has been journeying toward Jupiter since its October 2024 launch, has begun transmitting detailed magnetic field and particle data from its early flybys of Europa — a moon scientists believe harbors a vast liquid ocean beneath its frozen crust. The data is helping researchers map the thickness of the ice shell and search for chemical signatures that could indicate conditions friendly to life. This matters enormously because Europa is considered one of the top candidates in our solar system for finding extraterrestrial life, even if microbial.",
+      "bigWord": "astrobiology",
+      "bigWordDef": "The scientific study of whether life could exist elsewhere in the universe, including what conditions life needs to survive.",
+      "thinkQuestion": "If we discovered single-celled microbial life in Europa's ocean, how do you think that discovery would change the way humans think about our place in the universe — and what responsibilities would we have toward that life?",
+      "videoQuery": "NASA Europa Clipper mission Jupiter moon ocean explained"
     },
     {
-      "headline": "India's Climate System Is 'Flashing Red', Warn Top Scientists — Hottest 11 Years Ever Recorded",
-      "summary": "The World Meteorological Organization released its annual report saying the past 11 years were the hottest in recorded history. Arctic sea ice hit a record low in March 2026, and ocean warming is now happening twice as fast as it did 20 years ago. India's own weather patterns are shifting — monsoon timing has become less predictable, and extreme heat events are happening more often. Scientists say urgent action is needed from every country.",
-      "bigWord": "Meteorological",
-      "bigWordDef": "Relating to weather and the atmosphere. Meteorologists are scientists who study weather patterns and climate — 'meteorological' is the adjective form.",
-      "thinkQuestion": "Scientists say climate change is 'flashing red' like a warning light on a dashboard. If you saw a warning light on a car and kept driving without stopping, what would happen? How is that similar to what's happening with Earth's climate?",
-      "videoQuery": "climate change 2026 explained kids Earth warming fastest ever"
+      "headline": "India and Pakistan Tensions Escalate After Pahalgam Terror Attack Kills 26 Tourists",
+      "summary": "A deadly terrorist attack in the Pahalgam area of Jammu and Kashmir on April 22 killed 26 civilians, mostly tourists, triggering the worst diplomatic crisis between India and Pakistan in over a decade. India has suspended the Indus Waters Treaty, expelled Pakistani diplomats, and closed the Wagah border crossing, while Pakistan has retaliated by closing its airspace to Indian aircraft. The crisis is being watched closely by global powers because both countries are nuclear-armed, making any miscalculation potentially catastrophic for the entire region.",
+      "bigWord": "escalation",
+      "bigWordDef": "When a conflict or argument keeps getting bigger and more serious, with each side responding more strongly than the last.",
+      "thinkQuestion": "When two nuclear-armed countries are in a serious conflict, what role should the international community play — and is there a risk that outside involvement could make things worse rather than better?",
+      "videoQuery": "India Pakistan Pahalgam attack 2025 Kashmir conflict explained"
     },
     {
-      "headline": "IndiGo Launches 30+ New Flight Routes from Navi Mumbai's Brand New Airport",
-      "summary": "IndiGo, India's largest airline, began flights from the newly opened Navi Mumbai International Airport today, adding over 30 routes connecting the city to destinations including Agra, Ayodhya, Kolkata, and Goa. The new airport was built to reduce pressure on Mumbai's existing Chhatrapati Shivaji Maharaj International Airport, which handles more than 50 million passengers a year. Navi Mumbai residents previously had to travel 45–90 minutes to catch a flight.",
-      "bigWord": "Infrastructure",
-      "bigWordDef": "The basic systems and structures a city or country needs to function — like roads, airports, water supply, and power. A new airport is a piece of infrastructure.",
-      "thinkQuestion": "Building a new airport takes years and costs billions of rupees. Who do you think benefits the most from the new Navi Mumbai airport — and who paid for it? Is that fair?",
-      "videoQuery": "Navi Mumbai airport opening India new 2026"
+      "headline": "India Launches Its Largest-Ever Rooftop Solar Programme, Targeting 10 Million Homes",
+      "summary": "The Indian government announced it has crossed the milestone of enrolling 5 million households in PM Surya Ghar, its flagship free rooftop solar scheme, and has doubled its target to 10 million homes by 2027. Participating families receive subsidized solar panels that cut electricity bills to near zero and can sell surplus power back to the grid, earning extra income. For a country where summer temperatures are now regularly hitting record highs and electricity demand is surging, the programme is both a climate solution and an economic lifeline for middle-class families.",
+      "bigWord": "grid-parity",
+      "bigWordDef": "The point where solar energy costs the same or less than electricity from traditional power stations, making it just as practical to use.",
+      "thinkQuestion": "Rooftop solar gives power and income to individual families, but large solar farms can generate power for entire cities — which approach do you think India should prioritize, and why might the answer be different for rural versus urban areas?",
+      "videoQuery": "India PM Surya Ghar rooftop solar scheme how it works"
     },
     {
-      "headline": "Scientists Discover the Brain Can Rewire Itself After a Stroke — Opening Doors to New Treatments",
-      "summary": "A new study published this week found that after a stroke — when blood flow to the brain is blocked — the brain can form new connections to take over the work of damaged areas. Scientists watched this process happening in real time using advanced brain scans. The discovery means doctors may one day be able to give people medicine or therapy that actively encourages this rewiring, helping stroke patients recover more of their speech and movement.",
-      "bigWord": "Neuroplasticity",
-      "bigWordDef": "The brain's ability to reorganise itself by forming new connections. 'Neuro' means brain, and 'plasticity' means the ability to change shape — so neuroplasticity means the brain can reshape itself.",
-      "thinkQuestion": "If the brain can rewire itself and adapt after damage, what does that tell us about how we learn new things? Do you think this is related to why practising a skill every day makes you better at it?",
-      "videoQuery": "neuroplasticity brain rewiring explained kids how brain heals"
+      "headline": "Global Coral Bleaching Crisis Declared a Planetary Emergency as Fourth Mass Bleaching Event Confirmed",
+      "summary": "The US National Oceanic and Atmospheric Administration (NOAA) and the International Coral Reef Initiative have confirmed that the world is in the middle of its fourth global mass coral bleaching event, with record ocean temperatures causing corals to expel the algae that give them colour and nutrients — a process that kills them if temperatures stay high for too long. Over 80 percent of the world's reef areas have now experienced bleaching-level heat stress, including large sections of Australia's Great Barrier Reef, India's Lakshadweep reefs, and reefs across the Pacific. Coral reefs support roughly 25 percent of all marine species and provide food and coastal protection for over a billion people, making this one of the most consequential ecological emergencies of our time.",
+      "bigWord": "symbiosis",
+      "bigWordDef": "A relationship between two different living things where they both benefit from each other — like coral and the tiny algae that live inside it and feed it through sunlight.",
+      "thinkQuestion": "Coral reefs are sometimes called 'the rainforests of the sea' — if we cannot stop ocean temperatures from rising fast enough to save them, should we invest in artificial reef technology or focus entirely on cutting emissions, or both, and how would you decide how to split the resources?",
+      "videoQuery": "coral bleaching 2024 2025 global crisis explained oceans"
     },
     {
-      "headline": "Pope Francis Leads Palm Sunday Mass at Vatican as Millions of Christians Mark Holy Week",
-      "summary": "Hundreds of thousands of Christians gathered at St. Peter's Square in Rome today as Pope Francis led the Palm Sunday Mass, marking the start of Holy Week. Palm Sunday commemorates Jesus's arrival in Jerusalem 2,000 years ago, when people waved palm branches to welcome him. Similar celebrations took place across India, including in Goa, Kerala, and Mumbai. Holy Week ends with Easter Sunday next week, the most important day in the Christian calendar.",
-      "bigWord": "Commemorate",
-      "bigWordDef": "To do something special to remember and honour an important event or person from the past. Festivals often commemorate historical or religious moments.",
-      "thinkQuestion": "Palm Sunday has been celebrated for over 2,000 years. Why do you think people continue to mark events that happened so long ago? Are there events your own family commemorates every year?",
-      "videoQuery": "Palm Sunday explained Holy Week Christianity children"
+      "headline": "Carlos Alcaraz Wins the Monte-Carlo Masters, Cementing Himself as World Number One Ahead of Roland Garros",
+      "summary": "Spanish tennis star Carlos Alcaraz won the Monte-Carlo Masters clay-court title in April 2026, defeating Jannik Sinner in a thrilling three-set final that lasted nearly three hours, a result that re-established Alcaraz as the world's top-ranked player with the French Open just weeks away. The rivalry between 23-year-old Alcaraz and 24-year-old Sinner is being compared by tennis historians to the legendary Federer-Nadal era for its intensity and quality. For Indian tennis fans, the match also highlighted the rise of Sumit Nagal, who reached the quarterfinals — the deepest run by an Indian man at a Masters 1000 event in nearly two decades.",
+      "bigWord": "rivalry",
+      "bigWordDef": "An ongoing competitive relationship between two people or teams who are very evenly matched and keep pushing each other to be better.",
+      "thinkQuestion": "Sports rivalries like Alcaraz versus Sinner or Federer versus Nadal seem to make both players perform better than they might alone — what is it about competition that brings out excellence, and can you think of examples in fields outside sport where the same thing happens?",
+      "videoQuery": "Carlos Alcaraz Monte Carlo 2026 highlights Sinner"
     },
     {
-      "headline": "PM Modi's Mann Ki Baat: India Must Stay United as Global Tensions Rise",
-      "summary": "Prime Minister Narendra Modi delivered his monthly Mann Ki Baat radio address today, speaking to millions of Indians. He emphasised that when the world faces conflict and uncertainty, it is more important than ever for Indians to remain united and avoid political divisions. He highlighted India's growing role as a global voice for peace and called on citizens to support each other through difficult times. The address is broadcast in 22 Indian languages and reaches over 100 million listeners.",
-      "bigWord": "Solidarity",
-      "bigWordDef": "Agreement and support among a group of people, especially during difficult times. When people show solidarity, they stand together and help each other.",
-      "thinkQuestion": "PM Modi said there is 'no place for selfish politics' when the world faces challenges. What do you think 'selfish politics' means? Can you think of an example where people working together achieved more than they would have alone?",
-      "videoQuery": "Mann Ki Baat India radio address explained Modi"
-    },
-    {
-      "headline": "March Madness Elite Eight: Arizona and Illinois Win Thrillers to Reach Final Four",
-      "summary": "Two more teams punched their tickets to the Final Four in America's famous March Madness college basketball tournament. Number-one seed Arizona beat Purdue, and third-seed Illinois defeated Iowa in dramatic games. Today, Duke faces UConn and Michigan plays Tennessee to decide the last two spots. March Madness sees 68 college teams compete in a single-elimination tournament, and upsets by underdog teams make it one of the most-watched sporting events in the world.",
-      "bigWord": "Single-elimination",
-      "bigWordDef": "A tournament format where if you lose one game, you are out of the competition entirely. There are no second chances — every match matters completely.",
-      "thinkQuestion": "In a single-elimination tournament, one loss means you're done. Do you think this is the fairest way to find the best team, or could a team have a bad day and lose even if they're actually the strongest? What format would you design?",
-      "videoQuery": "March Madness 2026 tournament explained college basketball Final Four"
+      "headline": "Scientists Grow Functional Human Kidney Tissue Using Stem Cells for the First Time",
+      "summary": "Researchers at the Murdoch Children's Research Institute in Melbourne, Australia published findings in April 2026 showing they had successfully grown small but functional kidney organoids — miniature kidney-like structures from human stem cells — that can filter waste the way a real kidney does, a world first. While these organoids are far too small to transplant into patients yet, the breakthrough gives scientists a working model to test new drugs, study kidney diseases, and eventually work toward lab-grown kidneys for the 850 million people worldwide living with chronic kidney disease. India has one of the highest rates of chronic kidney disease in the world, partly linked to diabetes and hypertension, making this research particularly relevant for the country.",
+      "bigWord": "organoid",
+      "bigWordDef": "A tiny, simplified version of an organ grown in a laboratory from stem cells — it behaves like the real organ but is much smaller and cannot replace it yet.",
+      "thinkQuestion": "If lab-grown organs become a reality in the next 20 years, they could eliminate transplant waiting lists — but they would also raise deep ethical questions about what it means to grow human body parts in a lab. What ethical boundaries do you think scientists and governments should set around this technology?",
+      "videoQuery": "kidney organoid stem cells lab grown organ breakthrough explained"
     }
   ],
   "videos": [
     {
-      "title": "NASA's Artemis II: Sending Humans Back to the Moon",
-      "description": "A clear explainer on the Artemis programme — who the astronauts are, what the mission will do, and why NASA is returning to the Moon after 50 years.",
-      "url": "https://www.youtube.com/watch?v=_T8cn2J13-4",
-      "youtubeId": "_T8cn2J13-4",
+      "title": "NASA Europa Clipper: Hunting for Life in Jupiter's Hidden Ocean",
+      "description": "An explainer covering how Europa Clipper works, why Europa's subsurface ocean is so exciting, and what scientists hope to find beneath the ice.",
+      "url": "https://www.youtube.com/results?search_query=NASA+Europa+Clipper+mission+Jupiter+moon+ocean+explained",
       "topic": "Space & Science"
     },
     {
-      "title": "Climate Change: Why Scientists Are Alarmed",
-      "description": "Kurzgesagt explains why Earth's climate numbers are alarming — and what's actually being done to fix it.",
-      "url": "https://www.youtube.com/watch?v=LxgMdjjC2ZU",
-      "youtubeId": "LxgMdjjC2ZU",
+      "title": "The Global Coral Bleaching Crisis: What Is Killing the World's Reefs?",
+      "description": "A visually striking deep-dive into why ocean temperatures are bleaching coral reefs worldwide and what losing them would mean for marine life and human communities.",
+      "url": "https://www.youtube.com/results?search_query=coral+bleaching+2024+2025+global+crisis+explained+oceans",
       "topic": "Environment & Climate"
     },
     {
-      "title": "What Is Neuroplasticity? How Your Brain Can Change Itself",
-      "description": "A simple, visual explainer on how the brain rewires itself when we learn something new — and how this discovery is helping stroke patients recover.",
-      "url": "https://www.youtube.com/watch?v=ELpfYCZa87g",
-      "youtubeId": "ELpfYCZa87g",
+      "title": "Stem Cells to Organs: How Scientists Are Growing Human Body Parts in a Lab",
+      "description": "Covers the science of stem cells and organoids, explaining how researchers are inching toward lab-grown kidneys and other organs and why it matters for medicine.",
+      "url": "https://www.youtube.com/results?search_query=kidney+organoid+stem+cells+lab+grown+organ+breakthrough+explained",
       "topic": "Science & Health"
     }
   ],
   "infographic": {
-    "caption": "Earth's Climate — The Numbers Behind the Warning",
-    "fact": "11 consecutive hottest years on record: 2015–2025 · Arctic sea ice hit a new record LOW in March 2026: 13.76 million km² · Ocean warming now 2× faster than 1960–2005 · Extreme heat events in India: up 40% in 10 years · WMO warning level: 'FLASHING RED' — first time ever",
-    "question": "Scientists say Earth's climate is 'flashing red' like a warning light. If you could send one message to every world leader about what to do next, what would you say?"
+    "caption": "The Scale of the Global Coral Crisis — By the Numbers",
+    "fact": "Over 80% of the world's reef areas affected by bleaching heat stress in 2025–26 · Coral reefs cover less than 1% of the ocean floor but support 25% of all marine species · More than 1 billion people depend on reefs for food and coastal protection · Ocean surface temperatures in 2025 were the highest ever recorded for the fourth consecutive year · India's Lakshadweep reefs saw bleaching alerts for 11 consecutive weeks in early 2026",
+    "question": "If coral reefs disappeared within your lifetime, what would be the chain of effects — and which communities around the world, including in India, do you think would feel it first and most severely?"
   },
   "quiz": [
     {
-      "q": "What is special about NASA's Artemis II mission?",
+      "q": "What makes Europa, one of Jupiter's moons, so exciting to scientists searching for life?",
       "options": [
-        "It will be the first mission to land on Mars",
-        "It will be the first crewed flight around the Moon since 1972",
-        "It will carry the world's most powerful telescope to orbit",
-        "It will be the first all-robot space mission"
+        "A It has an atmosphere full of oxygen",
+        "B It is believed to have a liquid water ocean beneath its icy surface",
+        "C It is the closest moon to Earth",
+        "D Its surface temperature is warm enough for liquid water on top of the ice"
       ],
       "correct": 1
     },
     {
-      "q": "What does the World Meteorological Organization mean when it says Earth's climate is 'flashing red'?",
+      "q": "What does 'coral bleaching' actually mean?",
       "options": [
-        "The sky is turning red because of wildfires",
-        "A new red planet has been discovered near Earth",
-        "It is an emergency warning — action is urgently needed",
-        "Red is the new colour scientists use to describe normal weather"
-      ],
-      "correct": 2
-    },
-    {
-      "q": "What is neuroplasticity?",
-      "options": [
-        "A type of plastic used in brain surgery",
-        "The brain's ability to rewire and form new connections",
-        "A new drug that speeds up thinking",
-        "The part of the brain that controls memory only"
+        "A Coral turns white because sunlight bleaches its colour over time",
+        "B Coral expels the algae living inside it due to warm water stress, losing colour and nutrition",
+        "C Chemical pollution paints coral white",
+        "D Coral dies instantly when ocean temperatures rise"
       ],
       "correct": 1
     },
     {
-      "q": "Why was the new Navi Mumbai airport built?",
+      "q": "What is an organoid, as used in the new kidney research?",
       "options": [
-        "To replace Mumbai's old airport which was demolished",
-        "To give IndiGo its own private airport",
-        "To reduce pressure on Mumbai's existing airport which handles 50 million passengers",
-        "Because Navi Mumbai wanted to become India's capital city"
+        "A A full-sized artificial kidney ready for transplant",
+        "B A computer model simulating how a kidney works",
+        "C A tiny lab-grown structure made from stem cells that mimics an organ's function",
+        "D A robot designed to clean kidneys during surgery"
       ],
       "correct": 2
     },
     {
-      "q": "What is a 'single-elimination' tournament?",
+      "q": "Which international treaty did India suspend following the Pahalgam terror attack in Kashmir?",
       "options": [
-        "A tournament where only one team is allowed to enter",
-        "A competition where losing one game means you are out",
-        "A tournament where you play every other team once",
-        "A competition with no finals — just group stages"
+        "A The Shimla Agreement",
+        "B The Lahore Declaration",
+        "C The Indus Waters Treaty",
+        "D The Tashkent Agreement"
+      ],
+      "correct": 2
+    },
+    {
+      "q": "What does the PM Surya Ghar scheme allow participating Indian households to do beyond just reducing their own electricity bills?",
+      "options": [
+        "A Buy government bonds at discounted rates",
+        "B Sell surplus solar electricity back to the grid and earn income",
+        "C Receive free electric vehicles",
+        "D Get subsidized cooking gas connections"
       ],
       "correct": 1
     }
