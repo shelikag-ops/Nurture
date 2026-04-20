@@ -6,6 +6,9 @@ on:
     - cron: '30 0 * * *'
   workflow_dispatch: # allows manual trigger from GitHub Actions tab
 
+permissions:
+  contents: write
+
 jobs:
   generate-news:
     runs-on: ubuntu-latest
@@ -18,12 +21,14 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
+          set -euo pipefail
           TODAY=$(date -u +%Y-%m-%d)
           WEEK=$(date -u +%V)
           YEAR=$(date -u +%Y)
 
           # Call Claude claude-sonnet-4-6 to generate real, current news content
-          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+          HTTP_STATUS=$(curl -sS -o /tmp/claude_response.json -w "%{http_code}" \
+            https://api.anthropic.com/v1/messages \
             -H "x-api-key: $ANTHROPIC_API_KEY" \
             -H "anthropic-version: 2023-06-01" \
             -H "content-type: application/json" \
@@ -36,18 +41,35 @@ jobs:
               }]
             }")
 
-          # Extract the JSON content from Claude's response
-          echo "$RESPONSE" | python3 -c "
-          import sys, json
-          data = json.load(sys.stdin)
-          content = data['content'][0]['text']
-          # Validate it's proper JSON
+          echo "Anthropic API HTTP status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "❌ Anthropic API call failed. Response body:"
+            cat /tmp/claude_response.json
+            exit 1
+          fi
+
+          # Extract the JSON content from Claude's response.
+          # Tolerates ```json ... ``` fences in case the model adds them despite instructions.
+          python3 <<'PY' > news-content.json
+          import json, re, sys
+          with open('/tmp/claude_response.json') as f:
+              data = json.load(f)
+          if 'content' not in data:
+              print('❌ Unexpected API response shape:', file=sys.stderr)
+              print(json.dumps(data, indent=2), file=sys.stderr)
+              sys.exit(1)
+          content = data['content'][0]['text'].strip()
+          # Strip markdown fences if the model included them
+          m = re.search(r'```(?:json)?\s*(\{.*\})\s*```', content, re.DOTALL)
+          if m:
+              content = m.group(1)
           parsed = json.loads(content)
           print(json.dumps(parsed, indent=2, ensure_ascii=False))
-          " > news-content.json
+          PY
 
           echo "Generated news-content.json for $TODAY"
-          cat news-content.json
+          head -c 500 news-content.json
+          echo
 
       - name: Commit and push
         run: |
