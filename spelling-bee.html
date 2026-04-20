@@ -3630,6 +3630,29 @@
             });
         }
 
+        // Debounced refresh: coalesce many rapid letter clicks into a single
+        // refreshApp + saveProgress. Rapid clicks were stacking up expensive
+        // re-inits and firing multiple Firebase writes in series, which could
+        // freeze the tab long enough for Chrome to show "Page Unresponsive".
+        let _refreshTimer = null;
+        let _refreshing = false;
+        function _scheduleRefresh() {
+            if (_refreshTimer) clearTimeout(_refreshTimer);
+            _refreshTimer = setTimeout(() => {
+                _refreshTimer = null;
+                if (_refreshing) return; // prevent reentrancy
+                _refreshing = true;
+                try {
+                    saveProgress();  // fire-and-forget (async)
+                    refreshApp();
+                } catch (e) {
+                    console.warn('[SpellingBee] refresh failed:', e);
+                } finally {
+                    _refreshing = false;
+                }
+            }, 180);
+        }
+
         function handleLetterClick(letter) {
             if (letter === currentLetter) return;
             if (completedLetters.has(letter)) {
@@ -3651,8 +3674,12 @@
                 state.quizIndex = 0;
                 state.quizScore = 0;
             }
-            saveProgress(); // persist letter change
-            refreshApp();
+            // Update the letter button highlight immediately so the click feels
+            // responsive even though the full refresh is debounced.
+            document.querySelectorAll('#letter-buttons .letter-btn').forEach(b => {
+                b.classList.toggle('current', b.dataset.letter === currentLetter);
+            });
+            _scheduleRefresh();
         }
 
         function refreshApp() {
@@ -4535,7 +4562,13 @@
         }
 
         function displayScrambleWord() {
+            if (!scrambleWords || scrambleWords.length === 0) {
+                const card = document.getElementById('scramble-card');
+                if (card) card.innerHTML = '<div class="message">No words available to scramble yet. Pick a letter with completed words.</div>';
+                return;
+            }
             const word = scrambleWords[state.scrambleIndex % scrambleWords.length];
+            if (!word) return;
             const scrambled = word.word.split('').sort(() => Math.random() - 0.5).join('');
 
             document.getElementById('scramble-hint').textContent = `Hint: ${word.definition}`;
@@ -4853,6 +4886,18 @@
 
         // ===== TAB NAVIGATION =====
         document.addEventListener('DOMContentLoaded', async () => {
+            // Recovery hatch: ?reset=1 clears the local progress key so a
+            // user who wedged their state by mass-clicking letters can get
+            // back to defaults without having to dig into DevTools.
+            try {
+                if (new URLSearchParams(location.search).get('reset') === '1') {
+                    localStorage.removeItem('sb-progress');
+                    alert('Spelling Bee progress reset. Reloading…');
+                    location.replace(location.pathname);
+                    return;
+                }
+            } catch {}
+
             // Restore persisted progress before initialising UI. Wrapped in
             // try/catch so a throwing loadProgress NEVER prevents the tab
             // handlers below from being wired up — that was producing the
