@@ -3852,11 +3852,15 @@
                 }
             }
 
-            // Try multiple attempts, keep the best
+            // Try multiple attempts, keep the best.
+            // Was 40 attempts — reduced to 10 because the old loop was freezing
+            // the page (~5s blocking work) when spelling-bee.html loaded as an
+            // iframe inside the dashboard. 10 attempts still produces a good
+            // fill and keeps the worst case under ~1s.
             let bestGen = null;
             let bestCount = 0;
 
-            for (let attempt = 0; attempt < 40; attempt++) {
+            for (let attempt = 0; attempt < 10; attempt++) {
                 const gen = new CrosswordGen(30);
 
                 // Re-shuffle for this attempt
@@ -4704,6 +4708,32 @@
             setTimeout(() => msg.remove(), 2000);
         }
 
+        // Track whether the crossword has been generated yet (lazy — expensive).
+        let _crosswordGenerated = false;
+
+        // Generate + render the crossword on demand (first time the user lands on
+        // the Crossword sub-tab). Runs inside requestIdleCallback so the 40-attempt
+        // placement algorithm doesn't freeze the page (was blocking the dashboard's
+        // main thread when spelling-bee.html loaded as an iframe).
+        function ensureCrosswordGenerated() {
+            if (_crosswordGenerated) return;
+            _crosswordGenerated = true;
+            const run = () => {
+                try {
+                    generateCrossword(30);
+                    renderCrossword();
+                } catch (e) {
+                    console.warn('[SpellingBee] crossword generation failed:', e);
+                    _crosswordGenerated = false; // allow retry
+                }
+            };
+            if (typeof requestIdleCallback === 'function') {
+                requestIdleCallback(run, { timeout: 1500 });
+            } else {
+                setTimeout(run, 50);
+            }
+        }
+
         // ===== COORDINATED REVISION WORD ALLOCATION =====
         function initAllRevision() {
             // Shuffle the full revision pool
@@ -4719,16 +4749,13 @@
 
             let idx = 0;
 
-            // 1. Crossword gets ~30 words (handled by its own generator, uses crosswordPool)
-            // The crossword already uses its own pool, so we just need to track which words it used
-            generateCrossword(30);
-            const crosswordWords = new Set(
-                [...crosswordData.across, ...crosswordData.down].map(c => c.word.toUpperCase())
-            );
-            renderCrossword();
-
-            // Filter out crossword words from the unique pool
-            const remaining = unique.filter(w => !crosswordWords.has(w.word.toUpperCase()));
+            // Crossword generation is deferred (see ensureCrosswordGenerated) —
+            // the old synchronous call here was freezing the page on load. Quiz/
+            // scramble/blanks now draw from the full unique pool without excluding
+            // crossword words; a handful of overlapping words across exercises is
+            // fine and avoids coupling the freeze to the whole revision tab.
+            const remaining = unique;
+            const crosswordWords = new Set(); // kept for the log line below
 
             // 2. Quiz gets 30 unique words
             const quizWords = remaining.splice(0, 30);
@@ -4816,6 +4843,14 @@
                     if (tabName === 'progress') {
                         updateProgress();
                     }
+                    // Revision tab shows the Crossword sub-tab by default — generate
+                    // lazily the first time the user visits, not on initial load.
+                    if (tabName === 'revision') {
+                        const activeSub = document.querySelector('#revision .sub-tab-btn.active');
+                        if (!activeSub || activeSub.dataset.subtab === 'crossword') {
+                            ensureCrosswordGenerated();
+                        }
+                    }
                 });
             });
 
@@ -4827,6 +4862,7 @@
                     parent.parentElement.querySelectorAll('.sub-content').forEach(c => c.classList.remove('active'));
                     btn.classList.add('active');
                     document.getElementById(btn.dataset.subtab).classList.add('active');
+                    if (btn.dataset.subtab === 'crossword') ensureCrosswordGenerated();
                 });
             });
 
