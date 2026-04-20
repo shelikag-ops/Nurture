@@ -3255,12 +3255,37 @@
             try { localStorage.setItem(SB_KEY, json); } catch(e) {}
         }
 
+        // Wrap any async operation with a timeout. Used during load so a slow
+        // cloud/Firebase call never blocks DOMContentLoaded from finishing and
+        // wiring up the tab click handlers. If the cloud is slow, we fall back
+        // to localStorage immediately and let cloud sync catch up in the
+        // background.
+        function _withTimeout(promise, ms, label) {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) => setTimeout(
+                    () => reject(new Error(`${label} timed out after ${ms}ms`)), ms
+                ))
+            ]);
+        }
+
         async function loadProgress() {
-            // Hydrate from cloud first
-            await _hydrateFromCloud().catch(()=>false);
+            // Hydrate from cloud first — 2s cap so an unresponsive Worker never
+            // stalls the app.
+            await _withTimeout(_hydrateFromCloud(), 2000, 'cloud hydrate').catch(()=>false);
             let raw = null;
             if (typeof DataSync !== 'undefined' && DataSync.isReady()) {
-                raw = await DataSync.getItem(SB_KEY);
+                try {
+                    // Firebase Realtime DB's once('value') has no built-in timeout —
+                    // on a blocked/slow network it can hang forever, which was
+                    // leaving the rest of DOMContentLoaded unwired (every tab
+                    // click became a no-op). Cap at 2.5s and fall through to
+                    // localStorage.
+                    raw = await _withTimeout(DataSync.getItem(SB_KEY), 2500, 'firebase getItem');
+                } catch (e) {
+                    console.warn('[SpellingBee]', e.message, '— falling back to localStorage');
+                    raw = null;
+                }
             }
             if (!raw) raw = localStorage.getItem(SB_KEY);
             if (!raw) return;
@@ -4828,8 +4853,13 @@
 
         // ===== TAB NAVIGATION =====
         document.addEventListener('DOMContentLoaded', async () => {
-            // Restore persisted progress before initialising UI
-            await loadProgress();
+            // Restore persisted progress before initialising UI. Wrapped in
+            // try/catch so a throwing loadProgress NEVER prevents the tab
+            // handlers below from being wired up — that was producing the
+            // "Spelling Bee is unresponsive" symptom even after the crossword
+            // fix: everything loaded visually but nothing was clickable.
+            try { await loadProgress(); }
+            catch (e) { console.warn('[SpellingBee] loadProgress failed, continuing:', e); }
 
             // Main tabs
             document.querySelectorAll('.tab-btn').forEach(btn => {
