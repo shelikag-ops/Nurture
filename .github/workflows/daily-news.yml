@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Generate today's news content with Claude
+      - name: Generate today's news content with Claude (web-search grounded)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -25,49 +25,153 @@ jobs:
           TODAY=$(date -u +%Y-%m-%d)
           WEEK=$(date -u +%V)
           YEAR=$(date -u +%Y)
+          export TODAY WEEK YEAR
 
-          # Call Claude claude-sonnet-4-6 to generate real, current news content
+          # Build the API request body (Python handles JSON escaping safely)
+          python3 <<'PY' > /tmp/request.json
+          import json, os
+          today = os.environ['TODAY']
+
+          prompt = (
+              f"Today is {today}. You are generating a daily news digest for Sarah, "
+              f"a bright 13-year-old girl in Bangalore, India.\n\n"
+              f"CRITICAL: You MUST use the web_search tool to find REAL news articles published "
+              f"today ({today}) or in the last 24 hours. Do NOT rely on your training knowledge — "
+              f"it is outdated and you will hallucinate. Every story you include must be grounded in "
+              f"an article you found via web_search. If you cannot find real news for a category, "
+              f"pick a different substantive story rather than inventing content.\n\n"
+              f"Run at least 4-6 separate web_search calls, covering different angles: world/international "
+              f"news, India national news, Bengaluru or Karnataka regional news, science or space, climate "
+              f"or environment, and sports or culture. Prefer reputable sources: BBC, Reuters, The Hindu, "
+              f"Times of India, Indian Express, Associated Press, Al Jazeera, New York Times, Guardian, "
+              f"Nature, Scientific American.\n\n"
+              f"Pick 6 substantive stories that happened in the last ~24 hours. Avoid celebrity gossip, "
+              f"clickbait, and puff pieces. Treat Sarah as intelligent — do not water content down.\n\n"
+              f"Return ONLY a single JSON object (no markdown fences, no commentary before or after) "
+              f"matching this exact schema:\n\n"
+              "{\n"
+              f'  "date": "{today}",\n'
+              '  "stories": [\n'
+              '    {\n'
+              '      "headline": "clear, factual headline (you may rewrite for clarity but stay faithful to the article)",\n'
+              '      "summary": "2-3 sentences covering what happened and why it matters",\n'
+              '      "bigWord": "one advanced vocabulary word from the story",\n'
+              '      "bigWordDef": "simple kid-friendly definition",\n'
+              '      "thinkQuestion": "a challenging open-ended critical thinking question, not yes/no",\n'
+              '      "videoQuery": "YouTube search query for a good explainer video about this topic",\n'
+              '      "source": "full URL of the real article you grounded this story in",\n'
+              '      "sourcePublication": "name of the publication, e.g. BBC News or The Hindu"\n'
+              '    }\n'
+              '  ],\n'
+              '  "videos": [\n'
+              '    {\n'
+              '      "title": "video title",\n'
+              '      "description": "one sentence about what this video covers",\n'
+              '      "url": "https://www.youtube.com/results?search_query=ENCODED_QUERY",\n'
+              '      "topic": "category label, e.g. Space & Science"\n'
+              '    }\n'
+              '  ],\n'
+              '  "infographic": {\n'
+              '    "caption": "title for the infographic",\n'
+              '    "fact": "3-5 striking statistics separated by \u00b7 characters - stats must come from your research",\n'
+              '    "question": "one open-ended reflection question about the data"\n'
+              '  },\n'
+              '  "quiz": [\n'
+              '    {"q": "question", "options": ["A","B","C","D"], "correct": 0}\n'
+              '  ]\n'
+              "}\n\n"
+              "HARD REQUIREMENTS:\n"
+              "- EXACTLY 6 stories\n"
+              "- EXACTLY 3 curated videos (pick the 3 most visually interesting topics from your 6 stories)\n"
+              "- EXACTLY 5 quiz questions (must test comprehension of the 6 stories)\n"
+              "- Every story needs a real 'source' URL from the search results\n"
+              "- Output MUST be a single valid JSON object and nothing else"
+          )
+
+          body = {
+              "model": "claude-sonnet-4-6",
+              "max_tokens": 16000,
+              "tools": [
+                  {
+                      "type": "web_search_20250305",
+                      "name": "web_search",
+                      "max_uses": 10
+                  }
+              ],
+              "messages": [{"role": "user", "content": prompt}]
+          }
+          print(json.dumps(body))
+          PY
+
+          # Call the Anthropic API
           HTTP_STATUS=$(curl -sS -o /tmp/claude_response.json -w "%{http_code}" \
             https://api.anthropic.com/v1/messages \
             -H "x-api-key: $ANTHROPIC_API_KEY" \
             -H "anthropic-version: 2023-06-01" \
             -H "content-type: application/json" \
-            -d "{
-              \"model\": \"claude-sonnet-4-6\",
-              \"max_tokens\": 4000,
-              \"messages\": [{
-                \"role\": \"user\",
-                \"content\": \"Today is $TODAY. Generate a daily news digest for a bright, curious 13-year-old girl named Sarah who lives in Bangalore, India. Select 6 real, substantive stories covering: science/space, world affairs, India news, environment/climate, sport or culture, and one surprise/interesting story. Do NOT water down the content — treat the reader as intelligent. Return ONLY valid JSON with no markdown, no commentary, matching this exact schema: {\\\"date\\\":\\\"$TODAY\\\",\\\"stories\\\":[{\\\"headline\\\":\\\"...\\\",\\\"summary\\\":\\\"2-3 sentences of what happened and why it matters\\\",\\\"bigWord\\\":\\\"one advanced vocabulary word from the story\\\",\\\"bigWordDef\\\":\\\"simple kid-friendly definition\\\",\\\"thinkQuestion\\\":\\\"a challenging open-ended critical thinking question, not yes/no\\\",\\\"videoQuery\\\":\\\"YouTube search query to find a good explainer video for this story\\\"}],\\\"videos\\\":[{\\\"title\\\":\\\"...\\\",\\\"description\\\":\\\"one sentence about what this video covers\\\",\\\"url\\\":\\\"https://www.youtube.com/results?search_query=ENCODED_QUERY\\\",\\\"topic\\\":\\\"category label e.g. Space & Science\\\"}],\\\"infographic\\\":{\\\"caption\\\":\\\"title for the infographic\\\",\\\"fact\\\":\\\"3-5 striking statistics separated by · characters\\\",\\\"question\\\":\\\"one open-ended reflection question about the data\\\"},\\\"quiz\\\":[{\\\"q\\\":\\\"...\\\",\\\"options\\\":[\\\"A\\\",\\\"B\\\",\\\"C\\\",\\\"D\\\"],\\\"correct\\\":0}]}. Include exactly 6 stories, exactly 3 curated videos (pick the 3 most visually interesting topics), and exactly 5 quiz questions.\"
-              }]
-            }")
+            --data-binary @/tmp/request.json)
 
           echo "Anthropic API HTTP status: $HTTP_STATUS"
           if [ "$HTTP_STATUS" != "200" ]; then
-            echo "❌ Anthropic API call failed. Response body:"
+            echo "Anthropic API call failed. Response body:"
             cat /tmp/claude_response.json
             exit 1
           fi
 
-          # Extract the JSON content from Claude's response.
-          # Tolerates ```json ... ``` fences in case the model adds them despite instructions.
+          # Extract JSON from the response.
+          # With web_search, the response contains interleaved server_tool_use,
+          # web_search_tool_result, and text blocks. We concatenate text blocks
+          # and extract the JSON object from the combined text.
           python3 <<'PY' > news-content.json
           import json, re, sys
           with open('/tmp/claude_response.json') as f:
               data = json.load(f)
+
           if 'content' not in data:
-              print('❌ Unexpected API response shape:', file=sys.stderr)
-              print(json.dumps(data, indent=2), file=sys.stderr)
+              print('Unexpected API response shape:', file=sys.stderr)
+              print(json.dumps(data, indent=2)[:2000], file=sys.stderr)
               sys.exit(1)
-          content = data['content'][0]['text'].strip()
-          # Strip markdown fences if the model included them
-          m = re.search(r'```(?:json)?\s*(\{.*\})\s*```', content, re.DOTALL)
+
+          print(f"stop_reason: {data.get('stop_reason')}", file=sys.stderr)
+          tool_uses = sum(1 for b in data['content'] if b.get('type') == 'server_tool_use')
+          print(f"web_search calls: {tool_uses}", file=sys.stderr)
+
+          text_parts = [b.get('text', '') for b in data['content'] if b.get('type') == 'text']
+          combined = '\n'.join(text_parts).strip()
+
+          m = re.search(r'```(?:json)?\s*(\{.*\})\s*```', combined, re.DOTALL)
           if m:
-              content = m.group(1)
-          parsed = json.loads(content)
+              payload = m.group(1)
+          else:
+              first = combined.find('{')
+              last = combined.rfind('}')
+              if first == -1 or last == -1 or last <= first:
+                  print('No JSON object found in response text:', file=sys.stderr)
+                  print(combined[:3000], file=sys.stderr)
+                  sys.exit(1)
+              payload = combined[first:last+1]
+
+          try:
+              parsed = json.loads(payload)
+          except json.JSONDecodeError as e:
+              print(f'JSON parse failed: {e}', file=sys.stderr)
+              print('--- payload start ---', file=sys.stderr)
+              print(payload[:3000], file=sys.stderr)
+              print('--- payload end ---', file=sys.stderr)
+              sys.exit(1)
+
+          stories = parsed.get('stories', [])
+          if len(stories) != 6:
+              print(f'Warning: expected 6 stories, got {len(stories)}', file=sys.stderr)
+          missing_source = [i for i, s in enumerate(stories) if not s.get('source')]
+          if missing_source:
+              print(f'Warning: stories missing source URL: {missing_source}', file=sys.stderr)
+
           print(json.dumps(parsed, indent=2, ensure_ascii=False))
           PY
 
           echo "Generated news-content.json for $TODAY"
+          echo "First 500 chars:"
           head -c 500 news-content.json
           echo
 
@@ -76,5 +180,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add news-content.json
-          git diff --staged --quiet || git commit -m "chore: daily news update $(date -u +%Y-%m-%d)"
+          git diff --staged --quiet || git commit -m "chore: daily news update $(date -u +%Y-%m-%d) (web-search grounded)"
           git push
