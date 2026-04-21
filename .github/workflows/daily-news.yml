@@ -25,7 +25,7 @@ jobs:
       - name: Install deps
         run: pip install requests beautifulsoup4
 
-      - name: Generate today's news (web-search + primary-source + quote-verified)
+      - name: Generate today's news (web-search + primary-source + quote + recency + topic verified)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -36,12 +36,16 @@ jobs:
           export TODAY WEEK YEAR
 
           python3 <<'PY'
-          import os, sys, json, re, requests
+          import os, sys, json, re, time, requests
+          from datetime import datetime, timezone, timedelta
           from urllib.parse import urlparse
           from bs4 import BeautifulSoup
 
           TODAY = os.environ['TODAY']
+          TODAY_DT = datetime.strptime(TODAY, '%Y-%m-%d').replace(tzinfo=timezone.utc)
           API_KEY = os.environ['ANTHROPIC_API_KEY']
+
+          MAX_ARTICLE_AGE_DAYS = 3   # article must be from today or last ~3 days
 
           ALLOWED = {
               "bbc.com", "bbc.co.uk", "reuters.com", "apnews.com",
@@ -68,6 +72,18 @@ jobs:
               "any current-affairs / coaching / test-prep portal",
           ]
 
+          STOPWORDS = {
+              'the','a','an','and','or','of','to','in','on','for','with','by','at','from',
+              'as','is','are','was','were','be','been','being','it','its','this','that',
+              'these','those','which','who','whom','what','when','where','why','how',
+              'but','not','no','yes','if','than','then','so','all','any','some','can',
+              'could','will','would','should','may','might','must','have','has','had',
+              'do','does','did','over','under','about','against','between','into','through',
+              'during','before','after','above','below','up','down','out','off','says',
+              'said','new','year','years','one','two','three','first','last','also','more','most',
+              'amid','years','indian','india','government','official','officials','today','year'
+          }
+
           BROWSER_UA = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
                         'AppleWebKit/537.36 (KHTML, like Gecko) '
                         'Chrome/124.0.0.0 Safari/537.36')
@@ -82,7 +98,6 @@ jobs:
                   return False
 
           def fetch_via_jina(url, timeout=30):
-              """Jina r.jina.ai reader — clean markdown text, bypasses most bot blocks."""
               try:
                   r = requests.get(f'https://r.jina.ai/{url}', timeout=timeout,
                                    headers={'Accept': 'text/plain'})
@@ -93,7 +108,6 @@ jobs:
                   return (None, f'jina err: {str(e)[:60]}')
 
           def fetch_direct(url, timeout=15):
-              """Direct fetch + BS4 extraction as fallback."""
               try:
                   r = requests.get(url, timeout=timeout, headers={
                       'User-Agent': BROWSER_UA,
@@ -122,24 +136,22 @@ jobs:
                   return (None, f'direct err: {str(e)[:60]}')
 
           def fetch_article_text(url):
-              """Try Jina first, fall back to direct fetch. Returns (text, err_summary)."""
-              text, jina_err = fetch_via_jina(url)
+              text, jerr = fetch_via_jina(url)
               if text:
                   return (text, None)
-              text, direct_err = fetch_direct(url)
+              text, derr = fetch_direct(url)
               if text:
                   return (text, None)
-              return (None, f'{jina_err} + {direct_err}')
+              return (None, f'{jerr} + {derr}')
 
           def normalize(s):
-              s = re.sub(r'[\u2018\u2019\u201c\u201d]', "'", s)   # smart quotes
-              s = re.sub(r'[\u2013\u2014]', '-', s)                # en/em dashes
+              s = re.sub(r'[\u2018\u2019\u201c\u201d]', "'", s)
+              s = re.sub(r'[\u2013\u2014]', '-', s)
               s = re.sub(r'[^\w\s]', ' ', s)
               s = re.sub(r'\s+', ' ', s).lower().strip()
               return s
 
           def quote_matches(quote, article_text):
-              """True if quote (or a 5-consecutive-word span) appears in article_text."""
               if not quote or not article_text:
                   return False
               q = normalize(quote)
@@ -151,15 +163,77 @@ jobs:
               words = q.split()
               if len(words) < 5:
                   return False
-              # Try each 5-word span; match if any span is found in article text
-              hits = 0
               for i in range(len(words) - 4):
-                  chunk = ' '.join(words[i:i+5])
-                  if chunk in t:
-                      hits += 1
-                      if hits >= 1:
-                          return True
+                  if ' '.join(words[i:i+5]) in t:
+                      return True
               return False
+
+
+          def extract_headline_keywords(headline):
+              """Pull significant content words from headline (drop stopwords + short words)."""
+              tokens = re.findall(r"[A-Za-z][A-Za-z'\-]+", headline)
+              kws = []
+              for tok in tokens:
+                  low = tok.lower().replace("'", "")
+                  if low in STOPWORDS or len(low) < 4:
+                      continue
+                  kws.append(low)
+              return kws
+
+          def headline_matches_article(headline, article_text):
+              """Reject when headline does not actually describe this article.
+              Requires a 2-consecutive-word bigram from the headline to appear in
+              the article body, OR a strong majority of content words. Bigram match
+              is the strong signal (catches fabricated URL/headline mismatches).
+              """
+              kws = extract_headline_keywords(headline)
+              if len(kws) < 2:
+                  return (True, 'too few keywords to check')
+              t = normalize(article_text)
+              # Bigram check — consecutive pairs of content words from the headline
+              bigrams = [f"{kws[i]} {kws[i+1]}" for i in range(len(kws) - 1)]
+              bigram_hits = [bg for bg in bigrams if bg in t]
+              if bigram_hits:
+                  return (True, f"bigram ok: {bigram_hits[0]}")
+              # No bigram → require a strong majority of individual content words
+              word_hits = [k for k in kws if k in t]
+              if len(word_hits) >= max(4, (len(kws) * 2) // 3):
+                  return (True, f"{len(word_hits)}/{len(kws)} keywords matched (no bigram)")
+              return (False, f"no headline bigram found in article; only {len(word_hits)}/{len(kws)} individual words")
+
+          def article_publish_date(url, article_text):
+              """Try to extract a publish date from Jina markdown or fall back to URL path dates.
+              Returns datetime or None."""
+              # Jina reader includes 'Published Time: <ISO-or-RFC>' near the top
+              m = re.search(r'Published Time:\s*([^\n]+)', article_text)
+              if m:
+                  raw = m.group(1).strip()
+                  for fmt in ['%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S.%f%z',
+                              '%a, %d %b %Y %H:%M:%S %Z', '%a, %d %b %Y %H:%M:%S %z']:
+                      try:
+                          dt = datetime.strptime(raw, fmt)
+                          if dt.tzinfo is None:
+                              dt = dt.replace(tzinfo=timezone.utc)
+                          return dt
+                      except Exception:
+                          pass
+                  # Try fromisoformat
+                  try:
+                      dt = datetime.fromisoformat(raw.replace('Z','+00:00'))
+                      if dt.tzinfo is None:
+                          dt = dt.replace(tzinfo=timezone.utc)
+                      return dt
+                  except Exception:
+                      pass
+              # Fall back to YYYY/MM/DD in URL path
+              m = re.search(r'/(\d{4})/(\d{1,2})/(\d{1,2})/', url)
+              if m:
+                  try:
+                      return datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)),
+                                      tzinfo=timezone.utc)
+                  except Exception:
+                      pass
+              return None
 
           def validate_stories(stories):
               url_counts = {}
@@ -175,38 +249,51 @@ jobs:
                   quote = (s.get('sourceQuote') or '').strip()
 
                   if not url:
-                      failures.append({'index': i, 'headline': headline,
-                                       'url': '', 'reason': 'missing source URL'})
-                      continue
+                      failures.append({'i': i, 'headline': headline, 'url': '',
+                                       'reason': 'missing source URL'}); continue
                   if url_counts.get(url, 0) > 1:
-                      failures.append({'index': i, 'headline': headline, 'url': url,
-                                       'reason': 'duplicate URL re-used across stories'})
-                      continue
+                      failures.append({'i': i, 'headline': headline, 'url': url,
+                                       'reason': 'duplicate URL across stories'}); continue
                   if not is_allowed(url):
-                      failures.append({'index': i, 'headline': headline, 'url': url,
-                                       'reason': 'URL not on primary-source allowlist'})
-                      continue
+                      failures.append({'i': i, 'headline': headline, 'url': url,
+                                       'reason': 'URL not on primary-source allowlist'}); continue
                   if not quote or len(quote.split()) < 8:
-                      failures.append({'index': i, 'headline': headline, 'url': url,
-                                       'reason': 'missing or too-short sourceQuote'})
-                      continue
+                      failures.append({'i': i, 'headline': headline, 'url': url,
+                                       'reason': 'missing or too-short sourceQuote'}); continue
 
                   text, err = fetch_article_text(url)
                   if err:
-                      failures.append({'index': i, 'headline': headline, 'url': url,
-                                       'reason': f'could not fetch article ({err})'})
-                      continue
+                      failures.append({'i': i, 'headline': headline, 'url': url,
+                                       'reason': f'could not fetch article ({err})'}); continue
+
+                  # Recency check
+                  pub = article_publish_date(url, text)
+                  if pub:
+                      age_days = (TODAY_DT + timedelta(days=1) - pub).days
+                      if age_days > MAX_ARTICLE_AGE_DAYS:
+                          failures.append({'i': i, 'headline': headline, 'url': url,
+                                           'reason': f'article too old: published {pub.date()} ({age_days}d ago, limit {MAX_ARTICLE_AGE_DAYS}d)'})
+                          continue
+
+                  # Quote verification
                   if not quote_matches(quote, text):
-                      failures.append({'index': i, 'headline': headline, 'url': url,
-                                       'reason': 'sourceQuote not found in article body (URL likely misattributed)'})
+                      failures.append({'i': i, 'headline': headline, 'url': url,
+                                       'reason': 'sourceQuote not found in article body'}); continue
+
+                  # Headline-to-article topic alignment (catches URL misattribution)
+                  ok_topic, topic_note = headline_matches_article(headline, text)
+                  if not ok_topic:
+                      failures.append({'i': i, 'headline': headline, 'url': url,
+                                       'reason': f'headline does not match article topic ({topic_note})'})
                       continue
+
                   validated.append(s)
               return validated, failures
 
           def build_prompt(today, excluded_urls=None, previous_failures=None):
               excl_block = ''
               if excluded_urls:
-                  excl_block = ("\n\nDO NOT re-use these URLs (already used or failed verification):\n"
+                  excl_block = ("\n\nDO NOT re-use these URLs (already used or failed):\n"
                                 + '\n'.join(f'- {u}' for u in excluded_urls))
               prev_block = ''
               if previous_failures:
@@ -218,94 +305,100 @@ jobs:
                   f"a bright 13-year-old girl in Bangalore, India.\n\n"
                   f"=== MANDATORY: USE web_search ===\n"
                   f"You MUST use web_search to find REAL news articles published today ({today}) "
-                  f"or in the last 24 hours. Do NOT rely on training knowledge.\n\n"
+                  f"or within the last 2 days. Do NOT rely on training knowledge.\n\n"
                   f"=== PRIMARY SOURCES ONLY ===\n"
                   f"Each `source` URL MUST come from these ALLOWED primary news domains:\n"
                   + ', '.join(sorted(ALLOWED)) + "\n\n"
-                  f"REJECT: " + ', '.join(BANNED_EXAMPLES) + ".\n"
-                  f"If first results are aggregators, REFINE (e.g. `site:thehindu.com`).\n\n"
-                  f"=== CRITICAL: NO FABRICATION — QUOTE VERIFICATION ===\n"
-                  f"For EACH story, you MUST include a `sourceQuote`: a literal 15-25 word "
-                  f"quote copied EXACTLY from the article at `source`. The workflow will "
-                  f"PROGRAMMATICALLY VERIFY each quote against the article body — stories "
-                  f"whose quotes don't match will be DROPPED.\n\n"
-                  f"Rules:\n"
-                  f"- sourceQuote must be a verbatim continuous span from the article (not paraphrased)\n"
-                  f"- At least 15 words (we match 5-word sub-spans if the full quote has minor edits)\n"
-                  f"- Each story's `source` URL must be UNIQUE (no duplicates across your 6 stories)\n"
-                  f"- If you can't produce a verifiable quote for a story, DROP it and find another\n"
-                  f"- Prefer sites that are known to render article text (avoid ESPNcricinfo, "
-                  f"Bloomberg/WSJ/FT paywalls — content often unfetchable)\n"
+                  f"REJECT: " + ', '.join(BANNED_EXAMPLES) + ".\n\n"
+                  f"=== CRITICAL VERIFICATION RULES ===\n"
+                  f"The workflow programmatically verifies every story. Your output will be "
+                  f"DROPPED if:\n"
+                  f"- The `source` URL is not unique within the batch\n"
+                  f"- The `sourceQuote` (must be a verbatim 15-25 word span from the article) "
+                  f"is not found in the article body\n"
+                  f"- The article is older than {MAX_ARTICLE_AGE_DAYS} days\n"
+                  f"- The headline's topic doesn't match the article's content (e.g., a headline "
+                  f"about 'Rajnath Singh in Germany' attached to an article about Iran — DO NOT do this)\n\n"
+                  f"For each story, the headline + summary + URL + quote MUST all describe the "
+                  f"SAME real article. If you want to write about 3 different topics, use 3 "
+                  f"different URLs from 3 different searches. Do not mix-and-match headlines "
+                  f"with unrelated URLs.\n"
                   f"{excl_block}{prev_block}\n\n"
                   f"=== COVERAGE ===\n"
                   f"Run 5-7 web_search calls covering: world, India national, Bengaluru/Karnataka, "
-                  f"science/space, climate, sports/culture. 6 substantive stories from the last ~24 hours. "
-                  f"Treat Sarah as intelligent — no celebrity gossip, no clickbait.\n\n"
+                  f"science/space, climate, sports. 6 substantive stories from the last ~48 hours. "
+                  f"Treat Sarah as intelligent — no celebrity gossip.\n\n"
                   f"=== OUTPUT FORMAT ===\n"
                   f"Return ONLY a single JSON object (no markdown, no prose):\n\n"
                   "{\n"
                   f'  "date": "{today}",\n'
                   '  "stories": [\n'
                   '    {\n'
-                  '      "headline": "clear factual headline",\n'
+                  '      "headline": "...",\n'
                   '      "summary": "2-3 sentences",\n'
-                  '      "bigWord": "vocabulary word from the story",\n'
+                  '      "bigWord": "advanced word from article",\n'
                   '      "bigWordDef": "kid-friendly definition",\n'
-                  '      "thinkQuestion": "open-ended critical thinking question",\n'
-                  '      "videoQuery": "YouTube search query",\n'
+                  '      "thinkQuestion": "open-ended",\n'
+                  '      "videoQuery": "YouTube query",\n'
                   '      "source": "https://full-url-to-article",\n'
-                  '      "sourcePublication": "e.g. The Hindu, BBC News",\n'
+                  '      "sourcePublication": "e.g. The Hindu",\n'
                   '      "sourceQuote": "EXACT 15-25 word verbatim quote from the article"\n'
                   '    }\n'
                   '  ],\n'
                   '  "videos": [\n'
                   '    {"title":"...","description":"...","url":"https://www.youtube.com/results?search_query=...","topic":"..."}\n'
                   '  ],\n'
-                  '  "infographic": {"caption":"...","fact":"stats sep by \u00b7","question":"..."},\n'
+                  '  "infographic": {"caption":"...","fact":"stats \u00b7 sep \u00b7","question":"..."},\n'
                   '  "quiz": [{"q":"...","options":["A","B","C","D"],"correct":0}]\n'
                   "}\n\n"
-                  "HARD REQUIREMENTS: 6 stories, 3 videos, 5 quiz questions. Unique source URLs. "
-                  "Verbatim sourceQuote for each story. Single valid JSON object."
+                  "HARD REQUIREMENTS: 6 stories, 3 videos, 5 quiz questions. Unique URLs. "
+                  "Verbatim sourceQuote. Headline + URL + quote + summary all from the SAME article."
               )
 
-          def call_claude(prompt):
+          def call_claude(prompt, max_retries_429=3):
               body = {
                   "model": "claude-sonnet-4-6",
                   "max_tokens": 16000,
                   "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 15}],
                   "messages": [{"role": "user", "content": prompt}]
               }
-              r = requests.post(
-                  "https://api.anthropic.com/v1/messages",
-                  headers={
-                      "x-api-key": API_KEY,
-                      "anthropic-version": "2023-06-01",
-                      "content-type": "application/json"
-                  },
-                  json=body,
-                  timeout=300
-              )
-              if r.status_code != 200:
-                  print(f"Claude API {r.status_code}: {r.text[:800]}", file=sys.stderr)
-                  r.raise_for_status()
-              data = r.json()
-              print(f"  stop_reason: {data.get('stop_reason')}", file=sys.stderr)
-              tool_uses = sum(1 for b in data.get('content', []) if b.get('type') == 'server_tool_use')
-              print(f"  web_search calls: {tool_uses}", file=sys.stderr)
-              text_parts = [b.get('text', '') for b in data.get('content', []) if b.get('type') == 'text']
-              combined = '\n'.join(text_parts).strip()
-              m = re.search(r'```(?:json)?\s*(\{.*\})\s*```', combined, re.DOTALL)
-              if m:
-                  payload = m.group(1)
-              else:
-                  first = combined.find('{')
-                  last = combined.rfind('}')
-                  if first < 0 or last < 0:
-                      print("No JSON found in response:", file=sys.stderr)
-                      print(combined[:2000], file=sys.stderr)
-                      raise RuntimeError("no JSON object in model response")
-                  payload = combined[first:last+1]
-              return json.loads(payload)
+              last_err = None
+              for attempt in range(max_retries_429 + 1):
+                  r = requests.post(
+                      "https://api.anthropic.com/v1/messages",
+                      headers={"x-api-key": API_KEY,
+                               "anthropic-version": "2023-06-01",
+                               "content-type": "application/json"},
+                      json=body, timeout=300
+                  )
+                  if r.status_code == 429:
+                      retry_after = r.headers.get('retry-after', '60')
+                      try: retry_after = int(retry_after)
+                      except: retry_after = 60
+                      print(f"  429 rate-limited, sleeping {retry_after}s (attempt {attempt+1}/{max_retries_429+1})",
+                            file=sys.stderr)
+                      last_err = r.text[:300]
+                      time.sleep(retry_after + 5)
+                      continue
+                  if r.status_code != 200:
+                      print(f"Claude API {r.status_code}: {r.text[:800]}", file=sys.stderr)
+                      r.raise_for_status()
+                  data = r.json()
+                  print(f"  stop_reason: {data.get('stop_reason')}", file=sys.stderr)
+                  tool_uses = sum(1 for b in data.get('content', []) if b.get('type') == 'server_tool_use')
+                  print(f"  web_search calls: {tool_uses}", file=sys.stderr)
+                  text_parts = [b.get('text', '') for b in data.get('content', []) if b.get('type') == 'text']
+                  combined = '\n'.join(text_parts).strip()
+                  m = re.search(r'```(?:json)?\s*(\{.*\})\s*```', combined, re.DOTALL)
+                  if m:
+                      payload = m.group(1)
+                  else:
+                      first, last = combined.find('{'), combined.rfind('}')
+                      if first < 0 or last < 0:
+                          raise RuntimeError("no JSON object in model response")
+                      payload = combined[first:last+1]
+                  return json.loads(payload)
+              raise RuntimeError(f"429 persisted after {max_retries_429+1} attempts; last: {last_err}")
 
           # === MAIN ===
           print(f"[{TODAY}] === Attempt 1: initial generation ===", file=sys.stderr)
@@ -315,11 +408,14 @@ jobs:
           validated, failures = validate_stories(stories)
           print(f"  Validation: {len(validated)} passed, {len(failures)} failed", file=sys.stderr)
           for f in failures:
-              print(f"    FAIL [{f['index']}] {f['headline']}: {f['reason']}", file=sys.stderr)
+              print(f"    FAIL [{f['i']}] {f['headline']}: {f['reason']}", file=sys.stderr)
 
           if failures and len(validated) < 6:
               excluded = [s.get('source', '') for s in stories if s.get('source')]
-              print(f"[{TODAY}] === Attempt 2: retrying to replace failures ===", file=sys.stderr)
+              # Sleep to avoid per-minute rate limit (we just used ~14+ searches)
+              print(f"[{TODAY}] Sleeping 60s before retry to avoid rate limit...", file=sys.stderr)
+              time.sleep(60)
+              print(f"[{TODAY}] === Attempt 2: retrying ===", file=sys.stderr)
               try:
                   digest2 = call_claude(build_prompt(TODAY, excluded_urls=excluded,
                                                      previous_failures=failures))
@@ -328,14 +424,11 @@ jobs:
                   validated2, failures2 = validate_stories(stories2)
                   print(f"  Validation: {len(validated2)} passed, {len(failures2)} failed", file=sys.stderr)
                   for f in failures2:
-                      print(f"    FAIL [{f['index']}] {f['headline']}: {f['reason']}", file=sys.stderr)
-                  # Merge: original validated + retry validated (de-dup by URL)
+                      print(f"    FAIL [{f['i']}] {f['headline']}: {f['reason']}", file=sys.stderr)
                   seen = {s['source'] for s in validated}
                   for s in validated2:
                       if s.get('source') and s['source'] not in seen:
-                          validated.append(s)
-                          seen.add(s['source'])
-                  # Prefer retry's metadata (videos/infographic/quiz) if retry was more successful
+                          validated.append(s); seen.add(s['source'])
                   if len(validated2) > len(digest.get('stories', [])):
                       digest = digest2
               except Exception as e:
@@ -347,8 +440,7 @@ jobs:
               digest['quiz'] = digest['quiz'][:5]
 
           if len(validated) < 4:
-              print(f"FATAL: only {len(validated)} validated stories — not writing news-content.json",
-                    file=sys.stderr)
+              print(f"FATAL: only {len(validated)} validated — not writing", file=sys.stderr)
               sys.exit(1)
 
           print(f"[{TODAY}] === FINAL: {len(validated)} verified stories ===", file=sys.stderr)
@@ -361,7 +453,6 @@ jobs:
           PY
 
           echo "Generated news-content.json for $TODAY"
-          echo "=== First 500 chars ==="
           head -c 500 news-content.json
           echo
 
@@ -370,5 +461,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add news-content.json
-          git diff --staged --quiet || git commit -m "chore: daily news update $(date -u +%Y-%m-%d) (quote-verified)"
+          git diff --staged --quiet || git commit -m "chore: daily news update $(date -u +%Y-%m-%d) (verified: primary + quote + recency + topic)"
           git push
