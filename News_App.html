@@ -70,6 +70,79 @@
             transform: scale(0.95);
         }
 
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1.5px solid rgba(255,255,255,0.35);
+            color: rgba(255,255,255,0.85);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            padding: 0;
+            line-height: 1;
+        }
+        .refresh-btn:hover { background: rgba(255,255,255,0.22); }
+        .refresh-btn:active { transform: scale(0.95); }
+        .refresh-btn.spinning { animation: nb-spin 0.7s linear infinite; pointer-events: none; opacity: 0.7; }
+        @keyframes nb-spin { to { transform: rotate(360deg); } }
+
+        .header-buttons { display: flex; gap: 8px; align-items: center; }
+
+        .stale-banner {
+            background: #fff3cd;
+            color: #856404;
+            border: 1.5px solid #ffe69c;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .stale-banner button {
+            background: #856404;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .stale-banner button:hover { background: #6b5004; }
+
+        .refresh-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            font-family: Nunito, sans-serif;
+        }
+        .refresh-toast.show { opacity: 1; }
+        .refresh-toast.error { background: #c53030; }
+        .refresh-toast.success { background: #2f855a; }
+
         .lock-icon.unlocked {
             background: #FFD700;
             color: #764ba2;
@@ -1156,10 +1229,20 @@
                 <h1>📰 Sarah's News</h1>
                 <div class="header-date" id="headerDate"></div>
             </div>
-            <button class="lock-icon" id="lockToggle" title="Parent Mode — tap to unlock edit controls">🔒</button>
+            <div class="header-buttons">
+                <button class="refresh-btn" id="refreshNewsBtn" title="Refresh today's news from server">🔄</button>
+                <button class="lock-icon" id="lockToggle" title="Parent Mode — tap to unlock edit controls">🔒</button>
+            </div>
         </div>
 
         <a href="./dashboard.html" style="color:rgba(255,255,255,.8);font-size:.85rem;font-weight:700;text-decoration:none;display:inline-block;margin-bottom:8px;">← Dashboard</a>
+
+        <div class="stale-banner" id="staleBanner" style="display:none;">
+            <span id="staleBannerText">Showing older content.</span>
+            <button onclick="refreshNewsContent()">Refresh now</button>
+        </div>
+
+        <div class="refresh-toast" id="refreshToast"></div>
 
         <!-- Tabs -->
         <div class="tabs">
@@ -1423,8 +1506,12 @@
             setupLockToggle();
             setupRecorder();
             setupEditButtons();
+            // Wire refresh button
+            const refreshBtn = document.getElementById('refreshNewsBtn');
+            if (refreshBtn) refreshBtn.addEventListener('click', refreshNewsContent);
             // Auto-fetch news-content.json first; fall back to localStorage if offline or file missing
-            fetchDailyNews().then(() => {
+            fetchDailyNews().then((result) => {
+                updateStaleBanner(result);
                 loadStory();
                 loadVideo();
                 loadInfographic();
@@ -1435,19 +1522,25 @@
 
         // ── AUTO-FETCH FROM news-content.json ──
         // GitHub Actions commits this file daily at 6 AM IST.
+        // Returns { ok: boolean, stale: boolean, date?: string, reason?: string }
         async function fetchDailyNews() {
             try {
-                const res = await fetch('./news-content.json?t=' + Date.now(), { cache: 'no-cache' });
-                if (!res.ok) return;
+                // Double cache-bust: timestamp query + no-store + must-revalidate headers
+                const res = await fetch('./news-content.json?t=' + Date.now() + '&r=' + Math.random().toString(36).slice(2), {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+                });
+                if (!res.ok) return { ok: false, stale: false, reason: 'http_' + res.status };
                 const data = await res.json();
-                if (!data || !data.stories) return;
-                // Load content regardless of exact date match — GitHub Actions keeps the file current.
-                // Only skip if the file is genuinely stale (more than 3 days old).
-                // Only skip if file is genuinely stale (>14 days). A few days old is fine —
-                // GitHub Actions keeps it current once ANTHROPIC_API_KEY is set in repo secrets.
+                if (!data || !data.stories) return { ok: false, stale: false, reason: 'bad_shape' };
+                // Compute staleness: if data.date doesn't match today's ISO, flag it.
+                // Still load content (so user sees something), but we'll surface a banner.
+                const todayISO = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+                let stale = false;
                 if (data.date) {
                     const ageDays = Math.floor((today - new Date(data.date)) / 86400000);
-                    if (ageDays > 14) return;
+                    if (ageDays > 14) return { ok: false, stale: true, date: data.date, reason: 'too_old' };
+                    if (data.date !== todayISO) stale = true;
                 }
 
                 // getLocalStorage/setLocalStorage both add 'news-' prefix internally.
@@ -1484,8 +1577,84 @@
                     // Always refresh quiz from the latest JSON (answers stored separately, so safe to overwrite questions)
                     setLocalStorage('news-quiz-q-' + dateKey, data.quiz);
                 }
+                return { ok: true, stale, date: data.date || null };
             } catch(e) {
                 // Offline or not yet deployed — fall back to localStorage / parent edit mode
+                return { ok: false, stale: false, reason: 'network_error' };
+            }
+        }
+
+        // ── STALENESS BANNER + TOAST ──
+        function updateStaleBanner(result) {
+            const banner = document.getElementById('staleBanner');
+            const text = document.getElementById('staleBannerText');
+            if (!banner) return;
+            if (!result) { banner.style.display = 'none'; return; }
+            if (result.ok && result.stale && result.date) {
+                // Format date nicely
+                let dateLabel = result.date;
+                try {
+                    dateLabel = new Date(result.date).toLocaleDateString('en-IN', { weekday: 'long', month: 'long', day: 'numeric' });
+                } catch(e) {}
+                text.textContent = `Showing content from ${dateLabel}. Today's news may not be published yet.`;
+                banner.style.display = 'flex';
+            } else if (!result.ok && result.reason === 'network_error') {
+                text.textContent = `Couldn't reach the news server. Showing whatever's saved on this device.`;
+                banner.style.display = 'flex';
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+
+        function showToast(msg, kind) {
+            const t = document.getElementById('refreshToast');
+            if (!t) return;
+            t.textContent = msg;
+            t.className = 'refresh-toast show' + (kind ? ' ' + kind : '');
+            clearTimeout(showToast._to);
+            showToast._to = setTimeout(() => { t.className = 'refresh-toast'; }, 2500);
+        }
+
+        // ── MANUAL REFRESH ──
+        // Wipes today's content keys in localStorage (preserves user answers + questions),
+        // re-fetches news-content.json with strong cache-bust, and re-renders.
+        async function refreshNewsContent() {
+            const btn = document.getElementById('refreshNewsBtn');
+            if (btn) btn.classList.add('spinning');
+            try {
+                // Keys that hold CONTENT from the JSON (safe to delete — will be repopulated by fetch)
+                // Use _origSet/_origRemove equivalent: regular removeItem is fine, it doesn't trigger dirty push
+                const contentKeys = [
+                    'news-news-' + dateKey,                 // single-story legacy entry (setLocalStorage adds 'news-')
+                    'news-all-stories-' + dateKey,          // 3-story array
+                    'news-videos-' + dateKey,               // curated videos
+                    'news-news-infographic-' + weekKey,     // infographic of the week
+                    'news-news-quiz-q-' + dateKey           // quiz questions
+                ];
+                contentKeys.forEach(k => {
+                    try { localStorage.removeItem(k); } catch(e) {}
+                });
+                // Re-fetch with fresh cache-bust
+                const result = await fetchDailyNews();
+                updateStaleBanner(result);
+                // Re-render everything
+                loadStory();
+                loadVideo();
+                loadInfographic();
+                loadQuiz();
+                loadMyQuestions();
+
+                if (result && result.ok && !result.stale) {
+                    showToast("✓ News refreshed — today's stories loaded", 'success');
+                } else if (result && result.ok && result.stale) {
+                    showToast("Got the latest available, but it's not today's yet", 'error');
+                } else {
+                    showToast("Couldn't reach the news server — try again in a moment", 'error');
+                }
+            } catch(e) {
+                showToast("Refresh failed: " + (e.message || 'unknown error'), 'error');
+            } finally {
+                if (btn) btn.classList.remove('spinning');
             }
         }
 
