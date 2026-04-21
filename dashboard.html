@@ -1096,9 +1096,19 @@
   <!-- ═══ TAB: SPELLING BEE ═══ -->
   <div id="tab-spelling-bee" class="sarah-tab-content">
 
-  <!-- VOCABULARY PRACTICE — Spelling Bee embedded -->
+  <!-- Spelling Bee opens in its own tab now. Embedding it as a same-origin
+       iframe was freezing the dashboard: any slowness in Spelling Bee's
+       init (Firebase connect, crossword generation, etc.) blocked the
+       parent main thread because same-origin iframes share a thread. -->
   <div id="vocab-bee-progress" style="display:none;"></div>
-  <iframe src="https://shelikag-ops.github.io/Nurture/spelling-bee.html" style="width:100%;height:650px;border:none;border-radius:12px;" loading="lazy" title="Spelling Bee Practice"></iframe>
+  <div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:20px;padding:34px 28px;text-align:center;box-shadow:0 8px 32px rgba(245,158,11,.18);max-width:680px;margin:20px auto;">
+    <div style="font-size:4rem;margin-bottom:10px;line-height:1;">🐝</div>
+    <h2 style="font-size:1.6rem;font-weight:900;color:#78350f;margin-bottom:8px;">Spelling Bee Practice Hub</h2>
+    <p style="color:#92400e;font-size:.98rem;line-height:1.6;margin-bottom:20px;">Study lists, flashcards, spelling practice, quizzes, crosswords, and word scrambles — 1,931 words across A–Y. Opens in its own tab so your progress is never affected by other apps.</p>
+    <div id="vocab-bee-stats" style="display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-bottom:22px;font-size:.85rem;color:#78350f;font-weight:700;"></div>
+    <a href="spelling-bee.html" target="_blank" rel="noopener" style="display:inline-block;padding:14px 34px;background:linear-gradient(135deg,#f59e0b,#ea580c);color:white;text-decoration:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:800;letter-spacing:.03em;box-shadow:0 6px 18px rgba(234,88,12,.35);transition:transform .15s;">Open Spelling Bee 🔗</a>
+    <div style="margin-top:12px;font-size:.75rem;color:#b45309;">Tip: keep the tab open and come back to it whenever you want to practise.</div>
+  </div>
 
   </div><!-- end tab-spelling-bee -->
 
@@ -3397,6 +3407,7 @@ function renderVocabBeeProgress() {
   const prog = (() => { try { return JSON.parse(localStorage.getItem('sb-progress') || 'null'); } catch { return null; } })();
   if (!prog) {
     el.innerHTML = `<div style="font-size:.88rem;color:#9CA3AF;font-weight:600;">1,931 words · quiz, crossword, scramble &amp; fill-in-the-blank games</div>`;
+    renderSpellingBeeLauncherStats(null);
     return;
   }
   const reviewed  = prog.reviewed || 0;
@@ -3412,6 +3423,30 @@ function renderVocabBeeProgress() {
       <div style="height:8px;background:linear-gradient(90deg,#7C3AED,#A855F7);border-radius:99px;width:${pct}%;transition:width .6s;"></div>
     </div>
     ${lastLetter ? `<div style="font-size:.78rem;color:#6B7280;font-weight:600;">Currently on: <strong>${lastLetter}</strong> words</div>` : ''}
+  `;
+  renderSpellingBeeLauncherStats(prog);
+}
+
+// Populate the Spelling Bee launcher card (on the Spelling Bee tab) with
+// the current progress stats, read from the same localStorage blob the
+// Spelling Bee app writes to.
+function renderSpellingBeeLauncherStats(prog) {
+  const el = document.getElementById('vocab-bee-stats');
+  if (!el) return;
+  if (!prog) {
+    el.innerHTML = `
+      <span style="background:#fff;padding:6px 14px;border-radius:99px;">1,931 words</span>
+      <span style="background:#fff;padding:6px 14px;border-radius:99px;">6 practice modes</span>
+    `;
+    return;
+  }
+  const reviewed = prog.reviewed || 0;
+  const total    = prog.total    || 1931;
+  const pct      = Math.round(reviewed / total * 100);
+  const lastLetter = prog.lastLetter || '';
+  el.innerHTML = `
+    <span style="background:#fff;padding:6px 14px;border-radius:99px;">${reviewed.toLocaleString()} / ${total.toLocaleString()} reviewed (${pct}%)</span>
+    ${lastLetter ? `<span style="background:#fff;padding:6px 14px;border-radius:99px;">Currently on: <strong>${lastLetter}</strong></span>` : ''}
   `;
 }
 
@@ -3943,6 +3978,10 @@ function switchSarahTab(tabName) {
 
   // Render Wind Down wins when that tab is opened
   if (tabName === 'wind-down') renderWindDownWins();
+  // Refresh Spelling Bee launcher stats when that tab is opened — pulls
+  // the latest sb-progress (which may have synced from another device
+  // since last time the dashboard loaded).
+  if (tabName === 'spelling-bee') renderVocabBeeProgress();
 }
 
 let _reportsMode = 'today';
