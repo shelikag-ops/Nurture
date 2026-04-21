@@ -1703,6 +1703,26 @@
 </div>
 
 <script>
+// Recovery hatch: ?reset=all clears all homeschool localStorage keys
+// (useful when wedged state is preventing the dashboard from rendering).
+// ?reset=progress only clears Spelling Bee progress. Runs BEFORE any other
+// code so a corrupted value can't throw and block the rest of the script.
+try {
+  const _r = new URLSearchParams(location.search).get('reset');
+  if (_r === 'all') {
+    const prefixes = ['hs-', 'sb-', 'hw-', 'wg-', 'news-', 'j-'];
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && prefixes.some(p => k.startsWith(p))) localStorage.removeItem(k);
+    }
+    document.title = 'Dashboard reset — reloading';
+    location.replace(location.pathname);
+  } else if (_r === 'progress') {
+    localStorage.removeItem('sb-progress');
+    location.replace(location.pathname);
+  }
+} catch (e) { console.warn('[Dashboard] reset handler failed:', e); }
+
 // ═══════════════════════════════════════════════════════════
 //  DEFAULT CONFIG — Claude updates this block each week
 //  Shell can also override any field via the ⚙️ Parent panel

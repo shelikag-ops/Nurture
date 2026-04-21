@@ -4889,10 +4889,12 @@
             // Recovery hatch: ?reset=1 clears the local progress key so a
             // user who wedged their state by mass-clicking letters can get
             // back to defaults without having to dig into DevTools.
+            // (Using a visible status update instead of alert() because alert
+            // can block the iframe renderer when embedded in the dashboard.)
             try {
                 if (new URLSearchParams(location.search).get('reset') === '1') {
                     localStorage.removeItem('sb-progress');
-                    alert('Spelling Bee progress reset. Reloading…');
+                    document.title = 'Spelling Bee reset — reloading';
                     location.replace(location.pathname);
                     return;
                 }
