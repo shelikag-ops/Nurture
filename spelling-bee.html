@@ -4885,12 +4885,16 @@
         }
 
         // ===== TAB NAVIGATION =====
-        document.addEventListener('DOMContentLoaded', async () => {
+        // SYNCHRONOUS init so the page becomes interactive IMMEDIATELY.
+        // Previously we `await loadProgress()` first, which meant Firebase
+        // connection quirks could freeze the whole iframe (and the parent
+        // dashboard, since they share a main thread). Now event handlers are
+        // wired up first, then persistence work is kicked into the background
+        // via requestIdleCallback.
+        document.addEventListener('DOMContentLoaded', () => {
             // Recovery hatch: ?reset=1 clears the local progress key so a
             // user who wedged their state by mass-clicking letters can get
             // back to defaults without having to dig into DevTools.
-            // (Using a visible status update instead of alert() because alert
-            // can block the iframe renderer when embedded in the dashboard.)
             try {
                 if (new URLSearchParams(location.search).get('reset') === '1') {
                     localStorage.removeItem('sb-progress');
@@ -4900,15 +4904,7 @@
                 }
             } catch {}
 
-            // Restore persisted progress before initialising UI. Wrapped in
-            // try/catch so a throwing loadProgress NEVER prevents the tab
-            // handlers below from being wired up — that was producing the
-            // "Spelling Bee is unresponsive" symptom even after the crossword
-            // fix: everything loaded visually but nothing was clickable.
-            try { await loadProgress(); }
-            catch (e) { console.warn('[SpellingBee] loadProgress failed, continuing:', e); }
-
-            // Main tabs
+            // Main tabs — attach handlers FIRST so clicks always work.
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const tabName = btn.dataset.tab;
@@ -4943,23 +4939,36 @@
                 });
             });
 
-            // Build master word index and render letter selector
+            // Build master word index and render letter selector (cheap, sync)
             buildWordsByLetter();
             rebuildRevisionPool();
             renderLetterSelector();
 
-            // Update initial tab label
-            const words = getCurrentWords();
-            const todayTab = document.querySelector('[data-tab="today"]');
-            todayTab.textContent = `Today's New Words (${currentLetter}) - ${words.length} words`;
+            // Initial tab label — cheap, sync
+            try {
+                const words = getCurrentWords();
+                const todayTab = document.querySelector('[data-tab="today"]');
+                if (todayTab) todayTab.textContent = `Today's New Words (${currentLetter}) - ${words.length} words`;
+            } catch(e) { console.warn('[SpellingBee] label update failed:', e); }
 
-            // Initialize sections
-            initStudyList();
-            initFlashcards();
-            initSpellingPractice();
-            initQuiz();
-            initAllRevision();
-            initVocabChecklist();
+            // Defer the heavy-ish init work + cloud restore to idle time so the
+            // page is immediately interactive. requestIdleCallback fires once
+            // the browser is free; setTimeout is a fallback for Safari.
+            const runDeferredInit = async () => {
+                try { await loadProgress(); }
+                catch (e) { console.warn('[SpellingBee] loadProgress failed:', e); }
+                try { initStudyList(); } catch(e) { console.warn('[SpellingBee] studyList init:', e); }
+                try { initFlashcards(); } catch(e) { console.warn('[SpellingBee] flashcards init:', e); }
+                try { initSpellingPractice(); } catch(e) { console.warn('[SpellingBee] spelling init:', e); }
+                try { initQuiz(); } catch(e) { console.warn('[SpellingBee] quiz init:', e); }
+                try { initAllRevision(); } catch(e) { console.warn('[SpellingBee] revision init:', e); }
+                try { initVocabChecklist(); } catch(e) { console.warn('[SpellingBee] vocab checklist init:', e); }
+            };
+            if (typeof requestIdleCallback === 'function') {
+                requestIdleCallback(runDeferredInit, { timeout: 1500 });
+            } else {
+                setTimeout(runDeferredInit, 0);
+            }
         });
     </script>
 
