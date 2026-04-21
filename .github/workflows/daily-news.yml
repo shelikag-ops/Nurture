@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Generate today's news content with Claude (web-search grounded)
+      - name: Generate today's news content with Claude (web-search grounded, primary sources only)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -32,60 +32,109 @@ jobs:
           import json, os
           today = os.environ['TODAY']
 
+          # Allowlist of domains Claude may use as sources.
+          # Goal: primary news outlets only — no aggregators, no current-affairs
+          # quiz portals, no UGC, no Wikipedia.
+          allowed_domains = [
+              # Global wires & majors
+              "bbc.com", "bbc.co.uk", "reuters.com", "apnews.com",
+              "aljazeera.com", "nytimes.com", "theguardian.com", "guardian.co.uk",
+              "washingtonpost.com", "bloomberg.com", "ft.com", "wsj.com",
+              "cnn.com", "cnbc.com", "npr.org", "dw.com", "france24.com",
+              # India majors
+              "thehindu.com", "hindustantimes.com", "indianexpress.com",
+              "timesofindia.indiatimes.com", "indiatimes.com",
+              "ndtv.com", "livemint.com", "mint.com",
+              "business-standard.com", "economictimes.indiatimes.com",
+              "deccanherald.com", "scroll.in", "thewire.in", "theprint.in",
+              "thequint.com", "news18.com", "firstpost.com",
+              # Science & research
+              "nasa.gov", "esa.int", "nature.com", "science.org",
+              "scientificamerican.com", "newscientist.com",
+              "nationalgeographic.com", "smithsonianmag.com",
+              # Sport
+              "espncricinfo.com", "espn.com", "bbc.com/sport",
+              "reuters.com/sports", "theguardian.com/sport",
+              # Government / primary
+              "pib.gov.in", "isro.gov.in", "imd.gov.in", "who.int", "un.org",
+          ]
+
+          banned_examples = [
+              "goodreturns.in", "freejobalert.com", "jagranjosh.com",
+              "byjus.com/free-ias-prep", "testbook.com", "adda247.com",
+              "currentaffairs.adda247.com", "examupdates.in",
+              "wikipedia.org", "reddit.com", "medium.com",
+              "any '/daily-current-affairs/' aggregator",
+              "any quiz/coaching/test-prep portal",
+              "personal blogs, UGC platforms, press-release wire syndication copies"
+          ]
+
           prompt = (
               f"Today is {today}. You are generating a daily news digest for Sarah, "
               f"a bright 13-year-old girl in Bangalore, India.\n\n"
-              f"CRITICAL: You MUST use the web_search tool to find REAL news articles published "
-              f"today ({today}) or in the last 24 hours. Do NOT rely on your training knowledge — "
-              f"it is outdated and you will hallucinate. Every story you include must be grounded in "
-              f"an article you found via web_search. If you cannot find real news for a category, "
-              f"pick a different substantive story rather than inventing content.\n\n"
-              f"Run at least 4-6 separate web_search calls, covering different angles: world/international "
-              f"news, India national news, Bengaluru or Karnataka regional news, science or space, climate "
-              f"or environment, and sports or culture. Prefer reputable sources: BBC, Reuters, The Hindu, "
-              f"Times of India, Indian Express, Associated Press, Al Jazeera, New York Times, Guardian, "
-              f"Nature, Scientific American.\n\n"
-              f"Pick 6 substantive stories that happened in the last ~24 hours. Avoid celebrity gossip, "
-              f"clickbait, and puff pieces. Treat Sarah as intelligent — do not water content down.\n\n"
-              f"Return ONLY a single JSON object (no markdown fences, no commentary before or after) "
-              f"matching this exact schema:\n\n"
+              f"=== MANDATORY: USE web_search ===\n"
+              f"You MUST use the web_search tool to find REAL news articles published "
+              f"today ({today}) or within the last 24 hours. Do NOT rely on your training "
+              f"knowledge — it is outdated and you will hallucinate. Every story must be "
+              f"grounded in an article you found via web_search.\n\n"
+              f"=== PRIMARY SOURCES ONLY ===\n"
+              f"Every story's `source` URL MUST come from one of these ALLOWED domains "
+              f"(primary news outlets):\n"
+              + ", ".join(allowed_domains) + "\n\n"
+              f"REJECT these source types (examples — the principle applies broadly):\n- "
+              + "\n- ".join(banned_examples) + "\n\n"
+              f"If your first search returns only aggregators/coaching sites/quiz portals, "
+              f"REFINE YOUR SEARCH (try `site:thehindu.com`, `site:reuters.com`, etc.) "
+              f"or try a different topic. It is better to have 5 primary-sourced stories "
+              f"than 6 stories including an aggregator. But aim for 6.\n\n"
+              f"=== COVERAGE ===\n"
+              f"Run at least 5-7 web_search calls covering: world/international news, "
+              f"India national news, Bengaluru or Karnataka regional, science/space, "
+              f"climate/environment, sports or culture. You may search more if needed "
+              f"to find primary sources.\n\n"
+              f"Pick 6 substantive stories from the last ~24 hours. No celebrity gossip, "
+              f"no clickbait. Treat Sarah as intelligent.\n\n"
+              f"=== OUTPUT FORMAT ===\n"
+              f"Return ONLY a single JSON object (no markdown fences, no prose before or "
+              f"after) matching this schema:\n\n"
               "{\n"
               f'  "date": "{today}",\n'
               '  "stories": [\n'
               '    {\n'
-              '      "headline": "clear, factual headline (you may rewrite for clarity but stay faithful to the article)",\n'
+              '      "headline": "clear, factual headline (rewrite for clarity, stay faithful)",\n'
               '      "summary": "2-3 sentences covering what happened and why it matters",\n'
               '      "bigWord": "one advanced vocabulary word from the story",\n'
               '      "bigWordDef": "simple kid-friendly definition",\n'
-              '      "thinkQuestion": "a challenging open-ended critical thinking question, not yes/no",\n'
-              '      "videoQuery": "YouTube search query for a good explainer video about this topic",\n'
-              '      "source": "full URL of the real article you grounded this story in",\n'
-              '      "sourcePublication": "name of the publication, e.g. BBC News or The Hindu"\n'
+              '      "thinkQuestion": "open-ended critical thinking question (not yes/no)",\n'
+              '      "videoQuery": "YouTube search query for an explainer video",\n'
+              '      "source": "full URL of the real article (MUST be from allowed domains)",\n'
+              '      "sourcePublication": "publication name, e.g. The Hindu, BBC News, Reuters"\n'
               '    }\n'
               '  ],\n'
               '  "videos": [\n'
               '    {\n'
               '      "title": "video title",\n'
-              '      "description": "one sentence about what this video covers",\n'
+              '      "description": "one sentence",\n'
               '      "url": "https://www.youtube.com/results?search_query=ENCODED_QUERY",\n'
               '      "topic": "category label, e.g. Space & Science"\n'
               '    }\n'
               '  ],\n'
               '  "infographic": {\n'
-              '    "caption": "title for the infographic",\n'
-              '    "fact": "3-5 striking statistics separated by \u00b7 characters - stats must come from your research",\n'
-              '    "question": "one open-ended reflection question about the data"\n'
+              '    "caption": "title",\n'
+              '    "fact": "3-5 striking stats separated by \u00b7 - stats from your research",\n'
+              '    "question": "open-ended reflection question"\n'
               '  },\n'
               '  "quiz": [\n'
               '    {"q": "question", "options": ["A","B","C","D"], "correct": 0}\n'
               '  ]\n'
               "}\n\n"
               "HARD REQUIREMENTS:\n"
-              "- EXACTLY 6 stories\n"
-              "- EXACTLY 3 curated videos (pick the 3 most visually interesting topics from your 6 stories)\n"
-              "- EXACTLY 5 quiz questions (must test comprehension of the 6 stories)\n"
-              "- Every story needs a real 'source' URL from the search results\n"
-              "- Output MUST be a single valid JSON object and nothing else"
+              "- EXACTLY 6 stories (if you truly cannot find 6 primary-sourced stories, "
+              "do 5 rather than include an aggregator — but try hard to get 6)\n"
+              "- EXACTLY 3 curated videos\n"
+              "- EXACTLY 5 quiz questions testing the 6 stories\n"
+              "- Every story's `source` URL is from an allowed primary domain\n"
+              "- Output is a single valid JSON object, nothing else"
           )
 
           body = {
@@ -95,7 +144,7 @@ jobs:
                   {
                       "type": "web_search_20250305",
                       "name": "web_search",
-                      "max_uses": 10
+                      "max_uses": 15
                   }
               ],
               "messages": [{"role": "user", "content": prompt}]
@@ -118,12 +167,11 @@ jobs:
             exit 1
           fi
 
-          # Extract JSON from the response.
-          # With web_search, the response contains interleaved server_tool_use,
-          # web_search_tool_result, and text blocks. We concatenate text blocks
-          # and extract the JSON object from the combined text.
+          # Extract JSON from the response + enforce primary-source allowlist.
           python3 <<'PY' > news-content.json
           import json, re, sys
+          from urllib.parse import urlparse
+
           with open('/tmp/claude_response.json') as f:
               data = json.load(f)
 
@@ -155,17 +203,53 @@ jobs:
               parsed = json.loads(payload)
           except json.JSONDecodeError as e:
               print(f'JSON parse failed: {e}', file=sys.stderr)
-              print('--- payload start ---', file=sys.stderr)
               print(payload[:3000], file=sys.stderr)
-              print('--- payload end ---', file=sys.stderr)
               sys.exit(1)
+
+          # Post-hoc allowlist check — warn loudly but don't fail (Claude should already filter)
+          ALLOWED = {
+              "bbc.com", "bbc.co.uk", "reuters.com", "apnews.com",
+              "aljazeera.com", "nytimes.com", "theguardian.com", "guardian.co.uk",
+              "washingtonpost.com", "bloomberg.com", "ft.com", "wsj.com",
+              "cnn.com", "cnbc.com", "npr.org", "dw.com", "france24.com",
+              "thehindu.com", "hindustantimes.com", "indianexpress.com",
+              "timesofindia.indiatimes.com", "indiatimes.com",
+              "ndtv.com", "livemint.com", "mint.com",
+              "business-standard.com", "economictimes.indiatimes.com",
+              "deccanherald.com", "scroll.in", "thewire.in", "theprint.in",
+              "thequint.com", "news18.com", "firstpost.com",
+              "nasa.gov", "esa.int", "nature.com", "science.org",
+              "scientificamerican.com", "newscientist.com",
+              "nationalgeographic.com", "smithsonianmag.com",
+              "espncricinfo.com", "espn.com",
+              "pib.gov.in", "isro.gov.in", "imd.gov.in", "who.int", "un.org",
+          }
+          def is_allowed(url):
+              try:
+                  host = urlparse(url).netloc.lower()
+                  # strip leading www.
+                  if host.startswith('www.'):
+                      host = host[4:]
+                  return any(host == d or host.endswith('.' + d) for d in ALLOWED)
+              except Exception:
+                  return False
 
           stories = parsed.get('stories', [])
           if len(stories) != 6:
               print(f'Warning: expected 6 stories, got {len(stories)}', file=sys.stderr)
-          missing_source = [i for i, s in enumerate(stories) if not s.get('source')]
-          if missing_source:
-              print(f'Warning: stories missing source URL: {missing_source}', file=sys.stderr)
+          flagged = []
+          for i, s in enumerate(stories):
+              src = s.get('source', '')
+              if not src:
+                  flagged.append((i, 'NO SOURCE', s.get('headline','')[:60]))
+              elif not is_allowed(src):
+                  flagged.append((i, src, s.get('headline','')[:60]))
+          if flagged:
+              print('Stories NOT from allowed primary domains:', file=sys.stderr)
+              for i, src, hl in flagged:
+                  print(f'  [{i}] {src}  <<  {hl}', file=sys.stderr)
+          else:
+              print('All story sources are from allowed primary domains.', file=sys.stderr)
 
           print(json.dumps(parsed, indent=2, ensure_ascii=False))
           PY
@@ -180,5 +264,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add news-content.json
-          git diff --staged --quiet || git commit -m "chore: daily news update $(date -u +%Y-%m-%d) (web-search grounded)"
+          git diff --staged --quiet || git commit -m "chore: daily news update $(date -u +%Y-%m-%d) (primary-source grounded)"
           git push

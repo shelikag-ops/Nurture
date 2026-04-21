@@ -258,8 +258,24 @@
             font-size: clamp(22px, 3.5vw, 32px);
             font-weight: 800;
             color: #764ba2;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
             line-height: 1.3;
+        }
+
+        .story-source {
+            font-size: 0.85rem;
+            color: #6b5b8a;
+            font-style: italic;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+        }
+        .story-source a {
+            color: #764ba2;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .story-source a:hover {
+            color: #5a3780;
         }
 
         .story-summary {
@@ -1260,6 +1276,7 @@
             <div class="story-container">
                 <button class="edit-btn" id="editStoryBtn" title="Edit Story">✏️</button>
                 <h2 class="story-headline" id="storyHeadline">No story yet. Check back tomorrow!</h2>
+                <div class="story-source" id="storySource" style="display:none;"></div>
                 <p class="story-summary" id="storySummary"></p>
 
                 <div class="big-word-section" id="bigWordSection" style="display: none;">
@@ -1554,6 +1571,8 @@
                         headline: s.headline, summary: s.summary,
                         bigWord: s.bigWord, bigWordDef: s.bigWordDef,
                         question: s.thinkQuestion,
+                        source: s.source || '',
+                        sourcePublication: s.sourcePublication || '',
                         // Preserve any user-written answers
                         thinkAnswer: existingStory.thinkAnswer || '',
                         answered: existingStory.answered || false
@@ -1744,6 +1763,7 @@
 
         function renderSingleStory(story) {
             document.getElementById('storyHeadline').textContent = story.headline || '';
+            renderStorySource(story);
             document.getElementById('storySummary').textContent = story.summary || '';
             document.getElementById('thinkQuestion').textContent = story.question || story.thinkQuestion || 'What was your favorite part?';
             if (story.bigWord) {
@@ -1752,6 +1772,37 @@
                 document.getElementById('bigWordSection').style.display = 'block';
             }
             document.getElementById('thinkAnswer').value = story.thinkAnswer || '';
+        }
+
+        // Render the "Source: Publication" byline under the headline.
+        // Graceful fallbacks for older stories missing source/sourcePublication.
+        function renderStorySource(s) {
+            const el = document.getElementById('storySource');
+            if (!el) return;
+            const url = s.source;
+            const pub = s.sourcePublication;
+            if (!url && !pub) {
+                el.style.display = 'none';
+                el.innerHTML = '';
+                return;
+            }
+            // Derive a display label
+            let label = pub || '';
+            if (!label && url) {
+                try { label = new URL(url).hostname.replace(/^www\./, ''); } catch(e) { label = 'Source'; }
+            }
+            // Build the byline: "Source: <publication>" with publication linked if URL exists
+            let inner;
+            if (url) {
+                // Escape quotes in URL for safety
+                const safeUrl = url.replace(/"/g, '&quot;');
+                const safeLabel = label.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                inner = `Source: <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeLabel}</a>`;
+            } else {
+                inner = 'Source: ' + label.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+            el.innerHTML = inner;
+            el.style.display = 'block';
         }
 
         function renderStoryCarousel(stories) {
@@ -1773,6 +1824,7 @@
             const s = stories[_storyIndex];
             document.getElementById('story-counter').textContent = `Story ${_storyIndex + 1} of ${stories.length}`;
             document.getElementById('storyHeadline').textContent = s.headline || '';
+            renderStorySource(s);
             document.getElementById('storySummary').textContent = s.summary || '';
             document.getElementById('thinkQuestion').textContent = s.thinkQuestion || s.question || 'What was your favorite part?';
             if (s.bigWord) {
@@ -1840,13 +1892,17 @@
         }
 
         function saveStory() {
+            // Preserve source + sourcePublication from the existing story (parent editing content, not the source link)
+            const existing = getLocalStorage(`news-${dateKey}`) || {};
             const story = {
                 headline: document.getElementById('editHeadline').value || 'Untitled Story',
                 summary: document.getElementById('editSummary').value || '',
                 bigWord: document.getElementById('editBigWord').value || '',
                 bigWordDef: document.getElementById('editBigWordDef').value || '',
                 thinkQuestion: document.getElementById('editThinkQuestion').value || 'What was your favorite part?',
-                thinkAnswer: getLocalStorage(`news-${dateKey}`)?.thinkAnswer || ''
+                source: existing.source || '',
+                sourcePublication: existing.sourcePublication || '',
+                thinkAnswer: existing.thinkAnswer || ''
             };
             setLocalStorage(`news-${dateKey}`, story);
             loadStory();
