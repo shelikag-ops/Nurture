@@ -4,7 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Sarah's Learning Dashboard 🌟</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Google Fonts loaded NON-BLOCKING (print-media swap trick). If
+       fonts.googleapis.com is slow or blocked on this network the page
+       still renders immediately with a system-font fallback; Nunito is
+       applied once it finishes loading. Was blocking render entirely,
+       producing a blank page on filtered/slow networks. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap"></noscript>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     /* ── VIEW SWITCHER ── */
