@@ -34,7 +34,10 @@
   .tab-btn.active { color:var(--primary); border-bottom-color:var(--primary); background:#fff; }
 
   .panel { padding:22px 22px; min-height:340px; }
-  .panel.hidden { display:none; }
+  /* Generic .hidden hides any element (top-level panels AND subpanels).
+     Previously only `.panel.hidden` was declared, so all six revision
+     subpanels rendered stacked on top of each other. */
+  .hidden { display:none !important; }
 
   .subtabs { display:flex; gap:6px; margin-bottom:18px; flex-wrap:wrap; }
   .subtab-btn { padding:8px 14px; background:var(--bg); border:1px solid var(--border); border-radius:999px; cursor:pointer; font-weight:600; font-size:.85em; color:var(--muted); font-family:inherit; }
