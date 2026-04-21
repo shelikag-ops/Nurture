@@ -190,6 +190,7 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="revise">🔁 Revise</button>
     <button class="tab-btn" data-tab="lists">📝 New Word Lists</button>
+    <button class="tab-btn" data-tab="vocab">🎯 Vocab.com Sync</button>
     <button class="tab-btn" data-tab="progress">📊 Progress</button>
   </div>
 
@@ -282,10 +283,19 @@
 
     <div data-subpanel="blank" class="hidden">
       <div class="blank-card">
+        <div class="form-box" style="margin-bottom:14px;">
+          <label style="display:flex;justify-content:space-between;align-items:center;">
+            <span>Word bank (shuffled — contains the answers and extras)</span>
+            <span class="chip" id="rblank-bank-meta">—</span>
+          </label>
+          <div id="rblank-bank" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
         <div id="rblank-list"></div>
         <div class="btn-row">
           <button class="btn primary" id="rblank-check">Check All</button>
           <button class="btn ghost" id="rblank-new">New Set</button>
+          <button class="btn ghost" id="rblank-print">🖨️ Print Worksheet</button>
+          <button class="btn ghost" id="rblank-print-bank">🖨️ Print Word Bank</button>
         </div>
         <div id="rblank-result" style="margin-top:12px;text-align:center;font-weight:700;"></div>
       </div>
@@ -297,6 +307,8 @@
         <div>
           <button class="btn primary small" id="rxword-new">New Puzzle</button>
           <button class="btn ghost small" id="rxword-check" style="margin-left:6px;">Check</button>
+          <button class="btn ghost small" id="rxword-print" style="margin-left:6px;">🖨️ Print Puzzle</button>
+          <button class="btn ghost small" id="rxword-print-bank" style="margin-left:6px;">🖨️ Print Word Bank</button>
         </div>
       </div>
       <div class="xword-layout">
@@ -398,6 +410,47 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ VOCAB.COM SYNC ═══════════════ -->
+  <div class="panel hidden" id="panel-vocab">
+    <div class="form-box" style="margin-bottom:18px;">
+      <h3 style="margin-bottom:8px;font-size:1.05em;">🎯 Sync words that need practice from Vocab.com</h3>
+      <div class="hint" style="margin-bottom:10px;line-height:1.5;">
+        The idea: only practise the words Sarah is <strong>still working on</strong>, not the 1,929 she already mastered.
+        Every day, go to Vocab.com → <em>My Progress</em> or <em>My Words</em>, copy the words that aren't yet mastered, and paste them here.
+        Paste is flexible:
+        <ul style="margin:6px 0 0 18px;font-size:.9em;">
+          <li>One word per line (we'll look up definitions in the 1929-word master list)</li>
+          <li>Or <code>WORD: definition</code> per line if you want your own definitions</li>
+          <li>Or even just a messy copy-paste — we'll extract words up to 30 letters, A–Z only</li>
+        </ul>
+      </div>
+      <label>Paste words needing practice</label>
+      <textarea id="vocab-body" placeholder="ELOQUENT&#10;PERSEVERE&#10;METICULOUS&#10;&#10;— or —&#10;&#10;ELOQUENT: fluent or persuasive in speaking&#10;PERSEVERE: continue despite difficulty"></textarea>
+      <div class="btn-row" style="justify-content:flex-start;">
+        <button class="btn success" id="btn-vocab-sync">Update list</button>
+        <button class="btn ghost" id="btn-vocab-clear">Clear all</button>
+        <button class="btn ghost" id="btn-vocab-switch">Practise these in Revise →</button>
+      </div>
+      <div id="vocab-msg" style="font-size:.88em;color:var(--muted);margin-top:6px;"></div>
+    </div>
+
+    <div id="vocab-status" class="row-center" style="padding:14px 16px;background:var(--bg);border-radius:12px;">
+      <div>
+        <strong id="vocab-count">0</strong> words currently needing practice
+        <div style="font-size:.82em;color:var(--muted);margin-top:2px;" id="vocab-updated">Never synced</div>
+      </div>
+      <div>
+        <span class="chip" id="vocab-match-chip">0 matched master</span>
+        <span class="chip" id="vocab-fresh-chip">0 new</span>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <h3 style="font-size:.95em;margin-bottom:8px;">Currently in your Vocab.com list</h3>
+      <div id="vocab-preview" style="max-height:380px;overflow-y:auto;"></div>
     </div>
   </div>
 
@@ -581,6 +634,7 @@ function switchTab(name) {
   document.querySelectorAll('[id^="panel-"]').forEach(p => p.classList.toggle('hidden', p.id !== 'panel-' + name));
   if (name === 'revise') ensureRevisionReady();
   if (name === 'lists') renderListsTab();
+  if (name === 'vocab') renderVocabPanel();
   if (name === 'progress') renderProgress();
 }
 function switchSub(group, sub) {
@@ -739,13 +793,32 @@ function initRBlanks() {
     w => `_____ is a word meaning ${w.definition.toLowerCase()}`,
     w => `Look up _____ — it is defined as ${w.definition.toLowerCase()}`,
   ];
-  state.rblank = { sentences: picks.map((w, i) => ({ answer:w.word.toUpperCase(), text: templates[i % templates.length](w) })) };
+  // Build an expanded word bank (~3-4x the number of answers). Answers
+  // plus 3x the count in random distractor words from the rest of the pool.
+  const answers = picks.map(w => w.word.toUpperCase());
+  const answerSet = new Set(answers);
+  const distractors = shuffle(pool.slice())
+    .map(w => w.word.toUpperCase())
+    .filter(w => !answerSet.has(w))
+    .slice(0, Math.min(pool.length - picks.length, picks.length * 3));
+  const bank = shuffle([...answers, ...distractors]);
+  state.rblank = {
+    sentences: picks.map((w, i) => ({ answer:w.word.toUpperCase(), text: templates[i % templates.length](w) })),
+    bank
+  };
   renderRBlanks();
 }
 function renderRBlanks() {
   const host = document.getElementById('rblank-list');
+  const bankEl = document.getElementById('rblank-bank');
+  const bankMeta = document.getElementById('rblank-bank-meta');
   host.innerHTML = '';
-  if (!state.rblank.sentences.length) { host.innerHTML = '<div class="empty-state"><div class="emoji">✍️</div>No words available.</div>'; return; }
+  if (bankEl) bankEl.innerHTML = '';
+  if (!state.rblank.sentences.length) { host.innerHTML = '<div class="empty-state"><div class="emoji">✍️</div>No words available.</div>'; if (bankMeta) bankMeta.textContent = '—'; return; }
+  if (bankEl && state.rblank.bank) {
+    bankEl.innerHTML = state.rblank.bank.map(w => `<span class="chip" style="font-size:.88em;padding:5px 12px;background:#fff;border-color:var(--border);color:var(--text);">${escHtml(w)}</span>`).join('');
+    if (bankMeta) bankMeta.textContent = `${state.rblank.bank.length} words · ${state.rblank.sentences.length} are answers`;
+  }
   state.rblank.sentences.forEach((s, i) => {
     const d = document.createElement('div');
     d.className = 'blank-sentence';
@@ -1197,6 +1270,8 @@ function wireUp() {
   // Revision blanks
   document.getElementById('rblank-check').addEventListener('click', checkRBlanks);
   document.getElementById('rblank-new').addEventListener('click', initRBlanks);
+  document.getElementById('rblank-print').addEventListener('click', printBlanks);
+  document.getElementById('rblank-print-bank').addEventListener('click', printBlanksBank);
 
   // Crossword
   document.getElementById('rxword-new').addEventListener('click', () => { state.rxword.built = false; state.rxword.data = null; ensureCrossword(); });
@@ -1205,6 +1280,13 @@ function wireUp() {
     wrap.querySelectorAll('input').forEach(inp => { total++; const ok = (inp.value || '').toUpperCase() === inp.dataset.answer; inp.style.background = ok ? '#d1fae5' : '#fee2e2'; if (ok) right++; });
     toast(`${right} / ${total} correct`);
   });
+  document.getElementById('rxword-print').addEventListener('click', printCrossword);
+  document.getElementById('rxword-print-bank').addEventListener('click', printCrosswordBank);
+
+  // Vocab.com sync
+  document.getElementById('btn-vocab-sync').addEventListener('click', syncVocabWords);
+  document.getElementById('btn-vocab-clear').addEventListener('click', clearVocabWords);
+  document.getElementById('btn-vocab-switch').addEventListener('click', switchToVocabRevise);
 
   // Lists
   document.getElementById('btn-show-new-list').addEventListener('click', () => {
@@ -1365,6 +1447,226 @@ function checkRBlanks() {
   });
   const pct = total ? Math.round(correct / total * 100) : 0;
   document.getElementById('rblank-result').innerHTML = `You got <strong>${correct} / ${total}</strong> correct (${pct}%)`;
+}
+
+// ═══════════════════ PRINT ═══════════════════
+// Opens a minimal same-origin popup with print-friendly HTML and fires
+// window.print() once it loads. User can save as PDF or print directly.
+function openPrintWindow(title, bodyHtml) {
+  const html = `<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"><title>${escHtml(title)}</title>
+    <style>
+      @page { margin: 15mm; }
+      * { box-sizing:border-box; }
+      body { font-family:'Georgia',serif; color:#111; margin:0; padding:10px 0; }
+      h1 { font-size:22px; margin-bottom:4px; }
+      .sub { color:#555; font-size:13px; margin-bottom:18px; }
+      .clue-cols { column-count:2; column-gap:24px; font-size:13px; line-height:1.55; }
+      .clue-cols h3 { break-after: avoid; font-size:14px; margin:0 0 6px; text-transform:uppercase; letter-spacing:.05em; color:#555; }
+      .clue-cols .sec { break-inside: avoid-column; margin-bottom:14px; }
+      .clue-cols .ci { margin-bottom:3px; }
+      .clue-cols .ci b { color:#000; margin-right:4px; }
+      table.xwg { border-collapse:collapse; margin:0 auto 18px; }
+      table.xwg td { width:22px; height:22px; border:1px solid #000; text-align:center; vertical-align:middle; font-family:'Arial',sans-serif; font-weight:700; font-size:12px; padding:0; position:relative; }
+      table.xwg td.black { background:#000; }
+      table.xwg td .n { position:absolute; top:0px; left:1px; font-size:7px; font-family:'Arial',sans-serif; font-weight:normal; }
+      .bank-title { font-size:16px; margin:0 0 10px; }
+      .bank-words { column-count:4; column-gap:18px; font-family:'Arial',sans-serif; font-size:12px; line-height:1.75; }
+      .bank-words div { break-inside:avoid; }
+      .sentences { font-size:13px; line-height:2; }
+      .sentences .s { margin-bottom:10px; }
+      .sentences .s b { color:#111; margin-right:4px; }
+      .blank-line { display:inline-block; border-bottom:1.5px solid #000; min-width:140px; height:1em; }
+      @media print { body { padding:0; } .no-print { display:none; } }
+    </style></head>
+    <body>${bodyHtml}<script>window.onload = () => { setTimeout(() => window.print(), 300); };<\/script></body></html>`;
+  const w = window.open('', '_blank', 'width=800,height=1000');
+  if (!w) { toast('Pop-up blocked. Allow pop-ups for this site.', 'warn'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+}
+
+function printCrossword() {
+  const d = state.rxword.data;
+  if (!d) { toast('No crossword to print', 'warn'); return; }
+  // Number cells whose coord is the start of an across or down clue
+  const numAt = {};
+  d.across.concat(d.down).forEach(c => { const k = `${c.r},${c.c}`; if (!numAt[k]) numAt[k] = c.num; });
+  let grid = '<table class="xwg">';
+  for (let r = 0; r < d.grid.length; r++) {
+    grid += '<tr>';
+    for (let c = 0; c < d.grid[0].length; c++) {
+      if (d.grid[r][c]) {
+        const n = numAt[`${r},${c}`];
+        grid += `<td>${n ? `<span class="n">${n}</span>` : ''}</td>`;
+      } else grid += '<td class="black"></td>';
+    }
+    grid += '</tr>';
+  }
+  grid += '</table>';
+  const clues = `<div class="clue-cols">
+    <div class="sec"><h3>Across</h3>${d.across.map(c => `<div class="ci"><b>${c.num}.</b>${escHtml(c.clue)} <span style="color:#888;">(${c.word.length})</span></div>`).join('')}</div>
+    <div class="sec"><h3>Down</h3>${d.down.map(c => `<div class="ci"><b>${c.num}.</b>${escHtml(c.clue)} <span style="color:#888;">(${c.word.length})</span></div>`).join('')}</div>
+  </div>`;
+  openPrintWindow('Crossword', `<h1>Crossword Puzzle</h1><div class="sub">${d.across.length + d.down.length} words · Name: __________________ · Date: __________</div>${grid}${clues}`);
+}
+
+function printCrosswordBank() {
+  const d = state.rxword.data;
+  if (!d) { toast('No crossword to print', 'warn'); return; }
+  const answers = [...d.across, ...d.down].map(c => c.word.toUpperCase());
+  const answerSet = new Set(answers);
+  const pool = revisionPool();
+  // 2-3x expanded bank: answers + ~2x distractors
+  const target = Math.min(answers.length * 3, pool.length);
+  const distractors = shuffle(pool.slice())
+    .map(w => w.word.toUpperCase())
+    .filter(w => !answerSet.has(w) && /^[A-Z]+$/.test(w))
+    .slice(0, Math.max(0, target - answers.length));
+  const bank = shuffle([...answers, ...distractors]).sort();
+  const body = `<h1>Crossword — Word Bank</h1>
+    <div class="sub">${bank.length} words · ${answers.length} are answers · Use this page while solving the crossword</div>
+    <div class="bank-words">${bank.map(w => `<div>${escHtml(w)}</div>`).join('')}</div>`;
+  openPrintWindow('Crossword Word Bank', body);
+}
+
+function printBlanks() {
+  if (!state.rblank.sentences.length) { toast('Nothing to print', 'warn'); return; }
+  const body = `<h1>Fill in the Blank</h1>
+    <div class="sub">Name: __________________ · Date: __________</div>
+    <div class="sentences">${state.rblank.sentences.map((s, i) =>
+      `<div class="s"><b>${i + 1}.</b>${escHtml(s.text).replace('_____', '<span class="blank-line"></span>')}</div>`
+    ).join('')}</div>`;
+  openPrintWindow('Fill in the Blank', body);
+}
+
+function printBlanksBank() {
+  if (!state.rblank.sentences.length) { toast('Nothing to print', 'warn'); return; }
+  // Expand bank to 3-4x. Start from whatever is already on screen, then top up.
+  const answers = state.rblank.sentences.map(s => s.answer);
+  const answerSet = new Set(answers);
+  const existing = new Set(state.rblank.bank || []);
+  const pool = revisionPool();
+  const target = Math.min(answers.length * 4, pool.length);
+  const extras = shuffle(pool.slice())
+    .map(w => w.word.toUpperCase())
+    .filter(w => !existing.has(w) && !answerSet.has(w) && /^[A-Z]+$/.test(w))
+    .slice(0, Math.max(0, target - existing.size));
+  const bank = [...existing, ...extras].sort();
+  const body = `<h1>Fill in the Blank — Word Bank</h1>
+    <div class="sub">${bank.length} words · ${answers.length} are answers · Use with the worksheet</div>
+    <div class="bank-words">${bank.map(w => `<div>${escHtml(w)}</div>`).join('')}</div>`;
+  openPrintWindow('Fill in the Blank — Word Bank', body);
+}
+
+// ═══════════════════ VOCAB.COM SYNC ═══════════════════
+const VOCAB_LIST_ID = 'vocab-com-practice';
+
+function getVocabList() {
+  return state.lists.find(l => l.id === VOCAB_LIST_ID);
+}
+
+// Parse pasted input — accepts many formats. Returns { words: [{word, definition}], stats }
+function parseVocabPaste(text) {
+  if (!text.trim()) return { words: [], stats: { matched:0, fresh:0 } };
+  const masterMap = {};
+  state.masterWords.forEach(w => { masterMap[w.word.toUpperCase()] = w.definition; });
+  const seen = new Set();
+  const words = [];
+  let matched = 0, fresh = 0;
+
+  const lines = text.split(/\r?\n/);
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+    let word = null, def = null;
+    const m = line.match(/^([A-Za-z][A-Za-z\-']*)\s*(?:[:\-–\t]\s*(.+))?$/);
+    if (m) { word = m[1].toUpperCase(); def = (m[2] || '').trim() || null; }
+    else {
+      // Try extracting any uppercase-like words from the line
+      const toks = line.match(/\b[A-Za-z][A-Za-z\-']{2,29}\b/g) || [];
+      for (const t of toks) { word = t.toUpperCase(); break; }
+    }
+    if (!word || word.length < 2 || word.length > 30 || seen.has(word)) continue;
+    seen.add(word);
+    if (!def) {
+      def = masterMap[word] || null;
+      if (def) matched++; else fresh++;
+    } else fresh++;
+    words.push({ word, definition: def || '(definition not yet set — edit in Lists tab)' });
+  }
+  return { words, stats: { matched, fresh } };
+}
+
+function syncVocabWords() {
+  const text = document.getElementById('vocab-body').value;
+  const msg = document.getElementById('vocab-msg');
+  const { words, stats } = parseVocabPaste(text);
+  if (!words.length) {
+    msg.textContent = '⚠️ No words detected. Paste one per line or "WORD: definition" format.';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+  // Replace (not append) the vocab.com list
+  let list = getVocabList();
+  if (!list) {
+    list = { id: VOCAB_LIST_ID, name: 'Vocab.com — Needs Practice', createdAt: Date.now(), words, promoted: true, isVocab: true, updatedAt: Date.now() };
+    state.lists.unshift(list);
+  } else {
+    list.words = words; list.promoted = true; list.updatedAt = Date.now(); list.isVocab = true;
+  }
+  saveStorage();
+  msg.textContent = `✓ Synced ${words.length} words (${stats.matched} matched master definitions, ${stats.fresh} new).`;
+  msg.style.color = 'var(--success)';
+  renderVocabPanel();
+  toast(`Synced ${words.length} words from Vocab.com`);
+}
+
+function clearVocabWords() {
+  if (!confirm('Clear all Vocab.com synced words? The list can be rebuilt by pasting again.')) return;
+  state.lists = state.lists.filter(l => l.id !== VOCAB_LIST_ID);
+  saveStorage();
+  document.getElementById('vocab-body').value = '';
+  renderVocabPanel();
+  toast('Cleared', 'warn');
+}
+
+function renderVocabPanel() {
+  const L = getVocabList();
+  document.getElementById('vocab-count').textContent = L ? L.words.length : 0;
+  document.getElementById('vocab-updated').textContent = L ? `Last updated ${new Date(L.updatedAt || L.createdAt).toLocaleString()}` : 'Never synced';
+  const host = document.getElementById('vocab-preview');
+  if (!L || !L.words.length) {
+    host.innerHTML = '<div class="empty-state"><div class="emoji">📭</div>No Vocab.com words yet. Paste some above.</div>';
+    document.getElementById('vocab-match-chip').textContent = '0 matched master';
+    document.getElementById('vocab-fresh-chip').textContent = '0 new';
+    return;
+  }
+  const masterSet = new Set(state.masterWords.map(w => w.word.toUpperCase()));
+  let matched = 0, fresh = 0;
+  host.innerHTML = L.words.map(w => {
+    const inMaster = masterSet.has(w.word.toUpperCase());
+    if (inMaster) matched++; else fresh++;
+    const isM = isMastered(w.word);
+    return `<div class="word-card${isM ? ' mastered' : ''}" style="margin-bottom:6px;">
+      <div class="word-row"><span class="word-title">${escHtml(w.word)}</span>
+        ${inMaster ? '<span class="chip" style="font-size:.72em;">master</span>' : '<span class="chip" style="font-size:.72em;background:#fef3c7;border-color:#fcd34d;color:#92400e;">new</span>'}
+        ${isM ? '<span style="color:var(--success);font-size:.82em;">✓ mastered</span>' : ''}
+        <button class="icon-btn" data-say="${encodeURIComponent(w.word)}">🔊</button>
+      </div>
+      <div class="word-def">${escHtml(w.definition)}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('vocab-match-chip').textContent = `${matched} matched master`;
+  document.getElementById('vocab-fresh-chip').textContent = `${fresh} new`;
+  // Speak button
+  host.querySelectorAll('[data-say]').forEach(b => b.addEventListener('click', () => speak(decodeURIComponent(b.dataset.say))));
+}
+
+function switchToVocabRevise() {
+  const L = getVocabList();
+  if (!L || !L.words.length) { toast('Sync some Vocab.com words first', 'warn'); return; }
+  state.sourceFilter = VOCAB_LIST_ID;
+  switchTab('revise');
 }
 
 // ═══════════════════ BOOTSTRAP ═══════════════════
