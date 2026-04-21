@@ -2,129 +2,141 @@
   "date": "2026-04-21",
   "stories": [
     {
-      "headline": "NASA's Europa Clipper Sends Back First Close-Up Data from Jupiter's Icy Moon",
-      "summary": "NASA's Europa Clipper spacecraft, launched in late 2024, has completed its first close flyby of Europa and transmitted stunning data suggesting pockets of liquid water closer to the moon's surface than scientists previously believed. The findings, announced this week, dramatically raise the probability that Europa could harbour microbial life in the subsurface ocean beneath its frozen crust. This is one of the most significant astrobiology results in decades and could reshape how humanity thinks about life beyond Earth.",
-      "bigWord": "Astrobiology",
-      "bigWordDef": "The scientific study of whether life could exist, or has existed, somewhere other than Earth — combining astronomy, biology, and chemistry.",
-      "thinkQuestion": "If scientists confirmed microbial life in Europa's ocean, how do you think that discovery would change the way humans think about our place in the universe — and would it make you feel less alone or more nervous?",
-      "videoQuery": "Europa Clipper Jupiter moon flyby results 2025 2026 explained"
+      "headline": "US-Iran Ceasefire on the Brink as Nuclear Talks Stall and Strait of Hormuz Remains Disrupted",
+      "summary": "President Trump said a ceasefire with Iran expires Wednesday evening and called an extension 'highly unlikely,' while Iran reimposed strict limits on shipping through the Strait of Hormuz after the US seized an Iranian cargo vessel. US officials, including Vice President JD Vance, were travelling to Islamabad, Pakistan, for a second round of peace talks, but Iran signalled it might not attend. The standoff has rattled global oil markets and threatens to escalate into renewed military conflict.",
+      "bigWord": "Ceasefire",
+      "bigWordDef": "A formal agreement between fighting sides to stop shooting or attacking each other for a period of time — basically a temporary pause in a war.",
+      "thinkQuestion": "When two countries disagree about the terms of a peace deal, what kinds of compromises might make an agreement possible, and who should have the power to decide?",
+      "videoQuery": "Strait of Hormuz explained why it matters global oil",
+      "source": "https://www.cnn.com/2026/04/21/world/live-news/iran-war-us-trump-israel",
+      "sourcePublication": "CNN"
     },
     {
-      "headline": "India Signs Historic Climate Finance Deal at UN Spring Dialogue in Geneva",
-      "summary": "India secured a landmark agreement at the UN Climate Finance Dialogue in Geneva this week, under which developed nations committed to channelling $40 billion specifically toward India's green-energy transition by 2030, covering solar microgrids, green hydrogen infrastructure, and climate-resilient agriculture. The deal is seen as a model for how the Global South can negotiate on equal footing with wealthier nations and is a direct outcome of India's aggressive diplomacy since COP30. For a country still expanding electricity access to rural communities while cutting carbon emissions, this funding could be transformative.",
-      "bigWord": "Climate Finance",
-      "bigWordDef": "Money that rich countries or international institutions provide to help poorer countries reduce their greenhouse gas emissions and adapt to the effects of climate change.",
-      "thinkQuestion": "Rich countries caused most of the historical carbon emissions that drive climate change, yet developing countries often suffer the worst consequences — is it fair for developed nations to attach conditions to climate finance, and who should decide what counts as 'fair'?",
-      "videoQuery": "India climate finance deal green energy transition explained 2026"
+      "headline": "NASA Unveils Fully Assembled Nancy Grace Roman Space Telescope Ahead of 2026 Launch",
+      "summary": "NASA held a media event at Goddard Space Flight Center on April 21 to reveal the completed Nancy Grace Roman Space Telescope, named after NASA's first chief astronomer. The observatory is expected to have a field of view at least 100 times larger than the Hubble Space Telescope and could measure light from a billion galaxies over its lifetime. It is also designed to directly image planets around nearby stars, a crucial step in the search for life beyond Earth, with launch expected as early as September 2026.",
+      "bigWord": "Coronagraph",
+      "bigWordDef": "A special instrument on a telescope that blocks out the blinding light of a star so scientists can see faint planets orbiting around it — like holding up your thumb to block the Sun.",
+      "thinkQuestion": "The Roman telescope can observe a billion galaxies — how might scientists even begin to make sense of that much data, and what role could artificial intelligence play?",
+      "videoQuery": "Nancy Grace Roman Space Telescope explained NASA",
+      "source": "https://www.nasa.gov/news-release/nasa-to-unveil-complete-roman-telescope-host-media-briefing/",
+      "sourcePublication": "NASA"
     },
     {
-      "headline": "Bengaluru Metro Phase 3 Breaks Ground, Promising to Link Outer Ring Road Tech Corridor",
-      "summary": "The Bangalore Metro Rail Corporation officially broke ground on Phase 3 this week, a 44-kilometre network that will directly connect the Outer Ring Road technology corridor — home to companies like Infosys, Wipro, and dozens of startups — to the city centre and the airport line. Traffic congestion in Bengaluru costs the city an estimated ₹20,000 crore per year in lost productivity, and the new metro is projected to shift 800,000 car trips daily onto public transit by 2031. For residents of areas like Sarjapur, Marathahalli, and Whitefield, this is the biggest infrastructure news in a generation.",
-      "bigWord": "Infrastructure",
-      "bigWordDef": "The large-scale basic physical systems that a city or country needs to function — like roads, bridges, water pipes, electricity grids, and public transport networks.",
-      "thinkQuestion": "Cities like Bengaluru are growing faster than their infrastructure can keep up — should city planners prioritise expanding existing crowded areas or deliberately build new, planned satellite cities to absorb growth, and what are the trade-offs?",
-      "videoQuery": "Bengaluru Bangalore Metro Phase 3 Outer Ring Road tech corridor explained"
+      "headline": "Tilak Varma Scores Maiden IPL Century in 45 Balls, Powers Mumbai Indians to 99-Run Win Over Gujarat Titans",
+      "summary": "In IPL 2026 Match 30 at the Narendra Modi Stadium in Ahmedabad, 23-year-old Tilak Varma smashed an unbeaten 101 off just 45 balls — equalling Sanath Jayasuriya's record for the joint-fastest century in Mumbai Indians history — as MI posted 199/5 and then bowled Gujarat out for a mere 100. Varma, batting at number five when MI were struggling at 46/3, scored 82 of his runs in the final six overs with surgical precision, and also became MI's youngest-ever centurion. The win moved Mumbai Indians up to seventh on the points table with two wins from six matches.",
+      "bigWord": "Resilience",
+      "bigWordDef": "The ability to recover quickly from a tough situation — like bouncing back after your team is losing badly and turning it into a victory.",
+      "thinkQuestion": "Tilak Varma scored just 19 runs off his first 22 balls before exploding for 82 in the final 23 — what does this tell us about reading a match situation versus always playing aggressively from ball one?",
+      "videoQuery": "Tilak Varma IPL century 2026 highlights",
+      "source": "https://www.aninews.in/news/sports/cricket/first-100-will-always-be-special-tilak-varma-on-maiden-ipl-hundred20260421065423/",
+      "sourcePublication": "ANI News"
     },
     {
-      "headline": "Great Barrier Reef Records Worst Coral Bleaching Event in Recorded History",
-      "summary": "Australian marine scientists confirmed this week that the Great Barrier Reef has experienced its sixth — and most severe — mass coral bleaching event, with aerial and underwater surveys showing that roughly 73 percent of surveyed reefs show moderate-to-severe bleaching following record-high ocean temperatures in early 2026. Coral bleaching happens when water gets too warm and corals expel the colourful algae living in their tissue, turning white and becoming vulnerable to death. Scientists warn that without rapid cuts to global emissions, the window to save large portions of the reef is closing within this decade.",
-      "bigWord": "Bleaching",
-      "bigWordDef": "In coral reefs, bleaching is when corals turn white and weaken because unusually warm ocean water stresses them into expelling the tiny algae they depend on for food and colour.",
-      "thinkQuestion": "The Great Barrier Reef is a natural wonder that took thousands of years to form and is now being damaged in just a few decades — if you were advising the Australian government, what combination of local protection measures and global climate action would you push for, knowing that local action alone cannot stop ocean warming?",
-      "videoQuery": "Great Barrier Reef coral bleaching 2026 explained causes impact"
+      "headline": "Karnataka Reels Under Heatwave as IMD Issues Alerts; Bengaluru Touches 36°C",
+      "summary": "Karnataka is experiencing its peak temperatures of the year, with the India Meteorological Department forecasting that some coastal and Kalyana Karnataka districts could see temperatures close to 45°C. Bengaluru itself is seeing a maximum of around 36°C, about 2–3 degrees above normal, and the IMD warns the broad warming trend will continue even as isolated thunderstorms and hailstorms are expected in some districts this week. Meteorologists note that April has already been hotter than usual and temperatures could climb further in May.",
+      "bigWord": "Heatwave",
+      "bigWordDef": "A prolonged stretch of unusually hot weather that is significantly warmer than normal for a region — it can be dangerous for people, animals, and crops.",
+      "thinkQuestion": "As cities like Bengaluru get hotter every year, what kinds of urban design changes — from trees to road surfaces to building materials — could help cool them down?",
+      "videoQuery": "Urban heat island effect India cities explained",
+      "source": "https://www.goodreturns.in/news/bengaluru-weather-today-karnataka-districts-to-see-rains-get-relief-from-rising-temperature-1503657.html",
+      "sourcePublication": "Goodreturns"
     },
     {
-      "headline": "Indian Chess Prodigy Wins FIDE Grand Prix at 16, Youngest Ever",
-      "summary": "A 16-year-old Indian chess prodigy from Chennai, competing on the international FIDE Grand Prix circuit, became this week the youngest player in history to win a Grand Prix event, defeating former world-championship contenders in a dramatic final round with a calculated endgame that commentators called 'near computer-perfect.' India has now produced three of the world's top-ten ranked chess players under the age of 20, a concentration of young talent that analysts attribute to a thriving grassroots chess culture, school programmes, and the inspirational legacy of Viswanathan Anand. The win sparks fresh debate about whether India will produce the next World Chess Champion.",
-      "bigWord": "Endgame",
-      "bigWordDef": "In chess, the endgame is the final phase of the match when most pieces have been captured and players use careful, precise strategy with fewer pieces to force a win or draw.",
-      "thinkQuestion": "Chess success in India has been linked to structured school programmes and inspiring role models — can you think of another skill or field where the same formula (early structured practice plus a national hero to look up to) has transformed a country's performance, and what does that tell us about how talent is made?",
-      "videoQuery": "India chess prodigy FIDE Grand Prix youngest winner 2026 chess explained"
+      "headline": "India's Defence Minister Rajnath Singh Visits Germany to Strengthen Strategic Defence Partnership",
+      "summary": "India's Defence Minister Rajnath Singh arrived in Berlin on April 21 for a three-day official visit aimed at deepening the strategic defence partnership between India and Germany. During the trip, the two sides are expected to sign a Defence Industrial Cooperation Roadmap and an agreement on joint training for United Nations peacekeeping operations. High-level visits like this are part of India's broader effort to diversify its defence ties beyond traditional partners.",
+      "bigWord": "Bilateral",
+      "bigWordDef": "Something that involves exactly two parties or countries — like a conversation or deal between India and Germany specifically.",
+      "thinkQuestion": "Why might India want to build strong defence ties with European countries like Germany in addition to its existing relationships with Russia and the United States?",
+      "videoQuery": "India Germany defence partnership explained",
+      "source": "https://www.freejobalert.com/articles/daily-current-affairs-21-april-2026-10161",
+      "sourcePublication": "FreeJobAlert / Current Affairs"
     },
     {
-      "headline": "Scientists Grow a Tiny Working Kidney in a Lab — A Step Toward Ending Transplant Waiting Lists",
-      "summary": "Researchers at a joint US-UK bioengineering lab announced this week they had successfully grown a miniature but functionally active kidney organoid — about the size of a marble — that filtered waste products and responded to hormones almost identically to a real human kidney when tested in an animal model. The breakthrough uses a combination of stem cells and a biodegradable scaffold to mimic the kidney's complex internal architecture, and while a full transplantable organ is still years away, scientists say this is the clearest proof of concept yet that lab-grown replacement organs are achievable. Globally, over two million people are waiting for a kidney transplant, and tens of thousands die each year before one becomes available.",
-      "bigWord": "Organoid",
-      "bigWordDef": "A tiny, simplified version of an organ grown in a laboratory from stem cells, designed to mimic how a real organ works so scientists can study it or eventually use it for medicine.",
-      "thinkQuestion": "If lab-grown organs become widely available, they could save millions of lives — but they might also raise difficult questions about who gets access first, how they are priced, and whether wealthy patients will always get priority. How should society decide who receives a life-saving technology when there is not enough for everyone?",
-      "videoQuery": "lab grown kidney organoid stem cell transplant breakthrough explained 2026"
+      "headline": "Lyrid Meteor Shower Peaks Tonight: How to Spot the Annual Light Show from India",
+      "summary": "The Lyrid meteor shower, one of the oldest known meteor showers, peaks on the night of April 21–22, 2026, produced by debris left behind by Comet Thatcher burning up in Earth's atmosphere. NASA advises skywatchers to look east from around 10 p.m. towards the constellation Lyra, near the bright star Vega. The shower offers an excellent opportunity for amateur astronomers across India, including in Bengaluru, to observe shooting stars — even with the naked eye away from bright city lights.",
+      "bigWord": "Meteoroid",
+      "bigWordDef": "A small chunk of rock or dust in space; when it enters Earth's atmosphere and burns up due to friction, we call it a 'meteor' — or a shooting star.",
+      "thinkQuestion": "Meteor showers happen every year at the same time because Earth passes through the same trail of comet debris — what does this regularity tell us about the predictable nature of our solar system?",
+      "videoQuery": "Lyrid meteor shower 2026 how to watch explained",
+      "source": "https://science.nasa.gov/solar-system/whats-up-april-2026-skywatching-tips-from-nasa/",
+      "sourcePublication": "NASA Science"
     }
   ],
   "videos": [
     {
-      "title": "Europa Clipper: Hunting for Life in Jupiter's Ocean Moon",
-      "description": "An explainer on how the Europa Clipper spacecraft works and why scientists believe Europa's subsurface ocean is one of the most promising places in the solar system to find extraterrestrial life.",
-      "url": "https://www.youtube.com/results?search_query=Europa+Clipper+Jupiter+moon+flyby+results+explained",
+      "title": "NASA's Roman Space Telescope Explained",
+      "description": "An explainer on what the Nancy Grace Roman Space Telescope will study, how it compares to Hubble, and why it could revolutionise our understanding of dark energy and exoplanets.",
+      "url": "https://www.youtube.com/results?search_query=Nancy+Grace+Roman+Space+Telescope+explained+NASA",
       "topic": "Space & Science"
     },
     {
-      "title": "Great Barrier Reef Bleaching Crisis: What Is Coral Bleaching and Can the Reef Survive?",
-      "description": "A visually stunning deep-dive into how coral bleaching works, what record ocean temperatures are doing to the world's largest coral ecosystem, and what scientists and governments are trying to do about it.",
-      "url": "https://www.youtube.com/results?search_query=Great+Barrier+Reef+coral+bleaching+2026+explained+causes+impact",
-      "topic": "Environment & Climate"
+      "title": "Lyrid Meteor Shower 2026: How to Watch",
+      "description": "A guide to watching the annual Lyrid meteor shower, explaining how meteor showers form from comet debris and the best ways to observe them from India.",
+      "url": "https://www.youtube.com/results?search_query=Lyrid+meteor+shower+2026+how+to+watch+India",
+      "topic": "Astronomy & Skywatching"
     },
     {
-      "title": "Lab-Grown Organs: How Scientists Are Building Kidneys From Stem Cells",
-      "description": "A clear visual explanation of what organoids are, how stem cells can be coaxed to form kidney tissue on a scaffold, and what it would mean for the millions of patients worldwide waiting for an organ transplant.",
-      "url": "https://www.youtube.com/results?search_query=lab+grown+kidney+organoid+stem+cell+transplant+breakthrough+explained",
-      "topic": "Science & Medicine"
+      "title": "Tilak Varma IPL Century Highlights 2026",
+      "description": "Match highlights of Tilak Varma's stunning maiden IPL hundred in 45 balls for Mumbai Indians against Gujarat Titans, equalling a Sanath Jayasuriya record.",
+      "url": "https://www.youtube.com/results?search_query=Tilak+Varma+IPL+century+2026+highlights+Mumbai+Indians",
+      "topic": "Cricket & Sports"
     }
   ],
   "infographic": {
-    "caption": "The Global Organ Transplant Crisis — By the Numbers",
-    "fact": "2 million+ people currently on transplant waiting lists worldwide · 1 person dies every 10 minutes waiting for an organ in the US alone · India performs only ~15,000 kidney transplants per year against an estimated need of 200,000 · A lab-grown organ could cost 80% less than a traditional transplant once scaled · Stem cell research has grown 340% in funding over the past decade",
-    "question": "Given that hundreds of thousands of people die each year simply because there are not enough donor organs, should organ donation be made automatic (opt-out) for all adults unless they specifically say no — and what values or concerns would shape your answer?"
+    "caption": "NASA's Roman Space Telescope: A New Eye on the Universe",
+    "fact": "Field of view 100× larger than Hubble · Can observe up to 1 billion galaxies in its lifetime · Fewer than 12 single points of failure vs Hubble's 300+ · Launch expected as early as September 2026 · Named after Nancy Grace Roman, NASA's first chief astronomer",
+    "question": "If a telescope can photograph a billion galaxies, what questions about the universe would you most want it to answer — and why?"
   },
   "quiz": [
     {
-      "q": "What does NASA's Europa Clipper mission primarily hope to find evidence of on Jupiter's moon Europa?",
+      "q": "Why is the Strait of Hormuz so important to the world economy?",
       "options": [
-        "Ancient volcanic rock formations",
-        "Liquid water and possibly microbial life beneath the ice",
-        "A breathable oxygen atmosphere",
-        "Land surfaces suitable for a future human base"
+        "A) It is the only route for passenger ships between Asia and Europe",
+        "B) It is a critical chokepoint for global oil and shipping traffic",
+        "C) It is the location of the world's largest underwater internet cables",
+        "D) It forms the border between India and Pakistan"
       ],
       "correct": 1
     },
     {
-      "q": "What is 'coral bleaching' and what causes it?",
+      "q": "What record did Tilak Varma equal with his IPL century against Gujarat Titans?",
       "options": [
-        "Corals turning blue due to acidic ocean water",
-        "Corals losing their colour and weakening when warm water makes them expel their food-producing algae",
-        "Corals being physically scrubbed clean by stronger ocean currents",
-        "Corals dying instantly when touched by pollution"
+        "A) The highest individual score in IPL history",
+        "B) The most sixes in a single IPL innings",
+        "C) The joint-fastest century in Mumbai Indians history, set by Sanath Jayasuriya",
+        "D) The fastest century ever scored in T20 cricket worldwide"
+      ],
+      "correct": 2
+    },
+    {
+      "q": "What is the Nancy Grace Roman Space Telescope primarily designed to study?",
+      "options": [
+        "A) The surface of Mars and Jupiter's moons",
+        "B) Dark energy, exoplanets, and wide-field astrophysics with a view 100× larger than Hubble",
+        "C) Asteroids approaching Earth for planetary defence",
+        "D) The Sun's solar flares and space weather"
       ],
       "correct": 1
     },
     {
-      "q": "Why is Bengaluru's Metro Phase 3 considered particularly important for the city's economy?",
+      "q": "The Lyrid meteor shower, peaking on April 21–22, is caused by debris from which object?",
       "options": [
-        "It will connect Bengaluru to Chennai for the first time by rail",
-        "It will directly link the Outer Ring Road technology corridor, reducing the massive cost of traffic congestion",
-        "It will replace all auto-rickshaws in the city with electric taxis",
-        "It will be the first metro in India to run entirely on solar power"
+        "A) Asteroid Apophis",
+        "B) Comet Halley",
+        "C) Comet Thatcher",
+        "D) Comet Pan-STARRS"
       ],
-      "correct": 1
+      "correct": 2
     },
     {
-      "q": "In biology, what is an 'organoid'?",
+      "q": "Why did India's Defence Minister Rajnath Singh travel to Germany on April 21, 2026?",
       "options": [
-        "A robotic organ implanted with electronics to assist the human body",
-        "A miniature organ-like structure grown from stem cells in a laboratory to mimic real organ function",
-        "A synthetic chemical compound designed to replace organ tissue",
-        "An organ donated from a genetically modified animal"
+        "A) To attend a NATO summit as an observer",
+        "B) To sign a trade agreement on car manufacturing",
+        "C) To strengthen the strategic defence partnership and sign a Defence Industrial Cooperation Roadmap",
+        "D) To participate in a United Nations General Assembly session held in Berlin"
       ],
-      "correct": 1
-    },
-    {
-      "q": "India's young chess players succeeding internationally is often linked to which combination of factors?",
-      "options": [
-        "Government mandating chess as a school subject in all states since 2010",
-        "A strong grassroots chess culture, school programmes, and the inspiring legacy of Viswanathan Anand",
-        "India having the highest number of chess grandmasters over age 40 in the world",
-        "Exclusively online training programmes funded by large technology companies"
-      ],
-      "correct": 1
+      "correct": 2
     }
   ]
 }
