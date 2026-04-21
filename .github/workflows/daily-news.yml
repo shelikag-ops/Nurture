@@ -28,6 +28,7 @@ jobs:
       - name: Generate today's news (web-search + primary-source + quote + recency + topic verified)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
           set -euo pipefail
           TODAY=$(date -u +%Y-%m-%d)
@@ -143,6 +144,95 @@ jobs:
               if text:
                   return (text, None)
               return (None, f'{jerr} + {derr}')
+
+          # ─── YouTube Data API video resolution ─────────────────────────────
+          # Given Claude's search query, pick the top age-appropriate YouTube
+          # result and return real metadata (videoId, title, channel, thumbnail).
+          # If YOUTUBE_API_KEY is not set, returns None (caller keeps fallback).
+          def resolve_video_from_query(query):
+              yt_key = os.environ.get('YOUTUBE_API_KEY', '').strip()
+              if not yt_key:
+                  return None
+              try:
+                  r = requests.get(
+                      'https://www.googleapis.com/youtube/v3/search',
+                      params={
+                          'key': yt_key,
+                          'q': query,
+                          'part': 'snippet',
+                          'type': 'video',
+                          'maxResults': 3,
+                          'safeSearch': 'strict',
+                          'videoEmbeddable': 'true',
+                          'order': 'relevance',
+                          'relevanceLanguage': 'en',
+                      }, timeout=15)
+                  if r.status_code != 200:
+                      print(f"  YT API HTTP {r.status_code}: {r.text[:200]}", file=sys.stderr)
+                      return None
+                  items = r.json().get('items', [])
+                  if not items:
+                      return None
+                  top = items[0]
+                  vid = top.get('id', {}).get('videoId')
+                  sn = top.get('snippet', {})
+                  if not vid:
+                      return None
+                  thumbs = sn.get('thumbnails', {})
+                  thumb_url = (thumbs.get('high') or thumbs.get('medium') or thumbs.get('default') or {}).get('url', '')
+                  return {
+                      'videoId': vid,
+                      'title': sn.get('title', ''),
+                      'channelTitle': sn.get('channelTitle', ''),
+                      'url': f'https://www.youtube.com/watch?v={vid}',
+                      'thumbnail': thumb_url,
+                      'publishedAt': sn.get('publishedAt', ''),
+                  }
+              except Exception as e:
+                  print(f"  YT API error for query {query!r}: {e}", file=sys.stderr)
+                  return None
+
+          def resolve_videos(digest):
+              '''Replace Claude's search-query URLs with real YouTube videos.
+              Preserves Claude's topic + description as editorial context.'''
+              yt_key = os.environ.get('YOUTUBE_API_KEY', '').strip()
+              if not yt_key:
+                  print('  [videos] YOUTUBE_API_KEY not set — keeping search-query URLs', file=sys.stderr)
+                  return
+              videos = digest.get('videos', [])
+              resolved = []
+              for i, v in enumerate(videos):
+                  # Extract the search query: prefer explicit query, else parse from URL
+                  raw_url = v.get('url', '')
+                  q = v.get('searchQuery') or ''
+                  if not q and 'search_query=' in raw_url:
+                      from urllib.parse import parse_qs, urlparse as _up
+                      q = parse_qs(_up(raw_url).query).get('search_query', [''])[0]
+                  if not q:
+                      # Fall back to the video's declared title as the query
+                      q = v.get('title', '')
+                  if not q:
+                      print(f'  [videos] #{i} has no usable query — keeping as-is', file=sys.stderr)
+                      resolved.append(v); continue
+                  real = resolve_video_from_query(q)
+                  if not real:
+                      print(f'  [videos] #{i} could not resolve query {q!r} — keeping as-is', file=sys.stderr)
+                      resolved.append(v); continue
+                  # Merge: real video metadata + Claude's editorial context
+                  merged = {
+                      'videoId': real['videoId'],
+                      'title': real['title'],             # REAL YouTube title
+                      'channelTitle': real['channelTitle'],
+                      'url': real['url'],                 # watch?v= URL, thumbnails will render
+                      'thumbnail': real['thumbnail'],
+                      'publishedAt': real['publishedAt'],
+                      'description': v.get('description', ''),  # Claude's editorial context
+                      'topic': v.get('topic', ''),
+                      'searchQuery': q,
+                  }
+                  print(f'  [videos] #{i} [{merged["channelTitle"]}] {merged["title"][:70]}', file=sys.stderr)
+                  resolved.append(merged)
+              digest['videos'] = resolved
 
           def normalize(s):
               s = re.sub(r'[\u2018\u2019\u201c\u201d]', "'", s)
@@ -438,6 +528,10 @@ jobs:
           digest['stories'] = validated
           if 'quiz' in digest and isinstance(digest['quiz'], list):
               digest['quiz'] = digest['quiz'][:5]
+
+          # Resolve search-query video URLs to real YouTube videos (if key present)
+          print(f"[{TODAY}] === Resolving videos via YouTube API ===", file=sys.stderr)
+          resolve_videos(digest)
 
           if len(validated) < 4:
               print(f"FATAL: only {len(validated)} validated — not writing", file=sys.stderr)

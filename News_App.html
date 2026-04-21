@@ -504,6 +504,20 @@
             line-height: 1.6;
         }
 
+        .video-card-channel {
+            font-size: 12px;
+            font-weight: 600;
+            color: #764ba2;
+            margin-bottom: 6px;
+        }
+
+        .video-card-searchhint {
+            font-size: 11px;
+            color: #888;
+            font-style: italic;
+            margin-top: 6px;
+        }
+
         .video-card-arrow {
             flex-shrink: 0;
             font-size: 18px;
@@ -1923,11 +1937,20 @@
 
             if (videos && videos.length) {
                 list.innerHTML = videos.map(v => {
-                    // Extract video ID for thumbnail — works for watch?v= URLs
-                    const ytId = v.youtubeId || (v.url.match(/[?&]v=([a-zA-Z0-9_-]{11})/)||[])[1] || '';
-                    const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
+                    // Prefer explicit videoId; fall back to parsing watch?v= URL
+                    const ytId = v.videoId || v.youtubeId || (v.url && v.url.match(/[?&]v=([a-zA-Z0-9_-]{11})/)||[])[1] || '';
+                    // Use thumbnail from API if present, else derive from videoId, else empty
+                    const thumb = v.thumbnail || (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '');
                     const thumbHtml = thumb
                         ? `<img src="${thumb}" alt="" onerror="this.style.display='none'">`
+                        : '';
+                    // Show channel under title if we have it (means it came from YouTube API)
+                    const channelHtml = v.channelTitle
+                        ? `<div class="video-card-channel">${v.channelTitle}</div>`
+                        : '';
+                    // If no videoId (still search-query URL), add a subtle hint so Sarah knows
+                    const searchHint = (!ytId && v.url && v.url.includes('search_query='))
+                        ? `<div class="video-card-searchhint">(Opens YouTube search — pick the best result)</div>`
                         : '';
                     return `
                     <a href="${v.url}" target="_blank" rel="noopener" class="video-card">
@@ -1938,7 +1961,9 @@
                         <div class="video-card-body">
                             <div class="video-card-topic">${v.topic || 'Watch & Learn'}</div>
                             <div class="video-card-title">${v.title}</div>
+                            ${channelHtml}
                             <div class="video-card-desc">${v.description}</div>
+                            ${searchHint}
                         </div>
                         <div class="video-card-arrow">↗</div>
                     </a>`;
