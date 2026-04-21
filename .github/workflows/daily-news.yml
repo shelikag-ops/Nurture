@@ -479,15 +479,34 @@ jobs:
                   print(f"  web_search calls: {tool_uses}", file=sys.stderr)
                   text_parts = [b.get('text', '') for b in data.get('content', []) if b.get('type') == 'text']
                   combined = '\n'.join(text_parts).strip()
-                  m = re.search(r'```(?:json)?\s*(\{.*\})\s*```', combined, re.DOTALL)
+                  # Extract JSON robustly: raw_decode finds the FIRST valid JSON
+                  # object and tolerates trailing text (commentary, second
+                  # object, etc.) which caused 'Extra data' errors previously.
+                  m = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', combined, re.DOTALL)
                   if m:
-                      payload = m.group(1)
-                  else:
-                      first, last = combined.find('{'), combined.rfind('}')
-                      if first < 0 or last < 0:
-                          raise RuntimeError("no JSON object in model response")
-                      payload = combined[first:last+1]
-                  return json.loads(payload)
+                      try:
+                          return json.loads(m.group(1))
+                      except json.JSONDecodeError:
+                          pass  # fall through to raw_decode
+                  start = combined.find('{')
+                  if start < 0:
+                      raise RuntimeError("no JSON object in model response")
+                  try:
+                      obj, _end = json.JSONDecoder().raw_decode(combined[start:])
+                      return obj
+                  except json.JSONDecodeError as e:
+                      # Try scanning forward for additional '{' openings in case
+                      # the first one was inside prose or a tool-result snippet
+                      for i in range(start + 1, len(combined)):
+                          if combined[i] == '{':
+                              try:
+                                  obj, _ = json.JSONDecoder().raw_decode(combined[i:])
+                                  return obj
+                              except json.JSONDecodeError:
+                                  continue
+                      print("Failed to decode JSON. Combined preview:", file=sys.stderr)
+                      print(combined[:3000], file=sys.stderr)
+                      raise RuntimeError(f"no parseable JSON object: {e}")
               raise RuntimeError(f"429 persisted after {max_retries_429+1} attempts; last: {last_err}")
 
           # === MAIN ===
