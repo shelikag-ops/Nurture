@@ -759,8 +759,15 @@ function renderRBlanks() {
 class XwordGen {
   constructor(size=25) { this.size=size; this.grid=Array.from({length:size},()=>Array(size).fill(null)); this.placed=[]; }
   cell(r,c) { return (r>=0 && r<this.size && c>=0 && c<this.size) ? this.grid[r][c] : null; }
+  inBounds(r, c) { return r >= 0 && r < this.size && c >= 0 && c < this.size; }
   canPlace(word,r,c,dir) {
     const dr=dir==='A'?0:1, dc=dir==='A'?1:0, pr=dir==='A'?1:0, pc=dir==='A'?0:1;
+    // Hard bounds check — the word itself must fit on the grid.
+    // (Without this, cell() returns null for out-of-bounds and canPlace
+    // would accept the placement, then place() crashes writing past the
+    // grid edge.)
+    if (!this.inBounds(r, c)) return 0;
+    if (!this.inBounds(r + dr * (word.length - 1), c + dc * (word.length - 1))) return 0;
     if (this.cell(r-dr, c-dc) != null) return 0;
     if (this.cell(r+dr*word.length, c+dc*word.length) != null) return 0;
     let score=0;
