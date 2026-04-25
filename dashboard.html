@@ -877,6 +877,7 @@
     <button class="sarah-tab" onclick="switchSarahTab('spelling-bee')">🐝 Spelling Bee</button>
     <button class="sarah-tab" onclick="switchSarahTab('wind-down')">🌙 Wind Down</button>
     <button class="sarah-tab" onclick="switchSarahTab('reports')">📊 My Reports</button>
+    <button class="sarah-tab" onclick="switchSarahTab('overall')">🎯 Overall</button>
     <button class="sarah-tab" onclick="switchSarahTab('rewards')">🏆 Rewards</button>
   </div>
 
@@ -1140,21 +1141,24 @@
   <div id="tab-reports" class="sarah-tab-content">
 
   <!-- Toggle button for Today / This Week -->
-  <div style="margin-bottom:16px;">
+  <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
     <div style="display:flex;background:#F3F4F6;border-radius:10px;padding:3px;gap:2px;width:fit-content;">
       <button id="reports-toggle-today" onclick="reportToggleMode('today')" style="padding:6px 16px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;background:#1e1b4b;color:white;">📊 Today</button>
       <button id="reports-toggle-week" onclick="reportToggleMode('week')" style="padding:6px 16px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;background:transparent;color:#6B7280;">📈 This Week</button>
     </div>
+    <div id="reports-last-sync" style="font-size:.72rem;font-weight:700;color:#9CA3AF;"></div>
   </div>
 
   <!-- DYNAMIC PROGRESS STATS (populated by JS) -->
   <div id="reports-progress-content"></div>
 
-  <!-- CURRICULUM PROGRESS (overall — always shown) -->
-  <div style="margin-top:8px;">
-    <div style="font-size:.85rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📚 Overall Curriculum Progress</div>
-    <div id="progress-card-container"></div>
-  </div>
+  </div><!-- end tab-reports -->
+
+  <!-- ═══ TAB: OVERALL (long-term curriculum + badges) ═══ -->
+  <div id="tab-overall" class="sarah-tab-content">
+
+  <div style="font-size:.85rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">🎯 Long-Term Curriculum Plan</div>
+  <div id="progress-card-container"></div>
 
   <!-- VOCAB BAR -->
   <div class="card">
@@ -1192,7 +1196,7 @@
     </div>
   </div>
 
-  </div><!-- end tab-reports -->
+  </div><!-- end tab-overall -->
 
   <!-- ═══ TAB: REWARDS ═══ -->
   <div id="tab-rewards" class="sarah-tab-content">
@@ -1382,6 +1386,15 @@
       <a id="pv-corrections-link" href="" target="_blank" class="pv-link-btn" style="background:#E0F7FA;color:#1B9AAA;">📊 Full Corrections Dashboard</a>
       <a id="pv-report-link" href="" target="_blank" class="pv-link-btn" style="background:#EDE9FE;color:#7C3AED;">📋 Weekly Report</a>
     </div>
+  </div>
+
+  <!-- ═══ Subject-by-subject report (rich, scraper-powered) ═══ -->
+  <div class="pv-card" style="margin-bottom:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+      <div class="pv-title" style="margin-bottom:0;">📊 Subject-by-Subject Report</div>
+      <div id="pv-subject-last-sync" style="font-size:.72rem;font-weight:700;color:#9CA3AF;"></div>
+    </div>
+    <div id="pv-subject-report"></div>
   </div>
 
   <!-- NSF + vocab quick status -->
@@ -3972,6 +3985,7 @@ function switchSarahTab(tabName) {
     (tabName === 'news' && b.textContent.includes('News')) ||
     (tabName === 'wind-down' && b.textContent.includes('Wind Down')) ||
     (tabName === 'reports' && b.textContent.includes('Reports')) ||
+    (tabName === 'overall' && b.textContent.includes('Overall')) ||
     (tabName === 'rewards' && b.textContent.includes('Rewards'))
   );
   if (activeBtn) activeBtn.classList.add('active');
@@ -3982,6 +3996,13 @@ function switchSarahTab(tabName) {
   // the latest sb-progress (which may have synced from another device
   // since last time the dashboard loaded).
   if (tabName === 'spelling-bee') renderVocabBeeProgress();
+  // Re-render Overall tab content when opened (long-term curriculum view)
+  if (tabName === 'overall') {
+    renderProgressCard();
+    if (typeof renderOverallTab === 'function') renderOverallTab();
+  }
+  // Re-render Reports tab when opened
+  if (tabName === 'reports') renderReportsProgress();
 }
 
 let _reportsMode = 'today';
@@ -4056,10 +4077,112 @@ function _getWeekDays() {
   return days;
 }
 
+// ───────────────────────────────────────────────
+//  Helpers for the rich per-subject report card
+// ───────────────────────────────────────────────
+
+// Convert a Lichess/ChessKid puzzle rating into a plain-English description
+// for parents who don't play chess.
+function _chessLevelDescription(rating) {
+  if (!rating || isNaN(rating)) return '';
+  const r = parseInt(rating);
+  if (r < 800)  return 'Beginner — learning piece movement and 1-move ideas.';
+  if (r < 1000) return 'Late beginner — spotting forks, pins and basic mates.';
+  if (r < 1200) return 'Solid beginner — solving 2–3 move tactics reliably.';
+  if (r < 1400) return 'Intermediate — handling 3–4 move tactics and basic strategy.';
+  if (r < 1600) return 'Strong intermediate — multi-move combinations, real planning.';
+  if (r < 1800) return 'Club-strength — tournament-ready tactics and endgames.';
+  return 'Advanced — performing well above her age level.';
+}
+
+// Read today's lichess delta (puzzle rating change + win rate)
+function _lichessTodayInfo(plat) {
+  // Newer scrape format uses lichessToday; older uses lichessDaily.
+  const today = plat.lichessToday || plat.lichessDaily || {};
+  const yest  = plat.lichessYesterday || {};
+  const games = today.totalGames ?? today.gamesPlayed ?? 0;
+  const wins  = today.totalWins ?? null;
+  const winRate = games > 0 && wins != null ? Math.round(wins / games * 100) : null;
+  const puzzles = today.puzzles || {};
+  const puzzlesSolved = today.puzzlesSolved ?? ((puzzles.win || 0) + (puzzles.loss || 0));
+  let puzzleDelta = null;
+  if (puzzles.ratingBefore != null && puzzles.ratingAfter != null) {
+    puzzleDelta = puzzles.ratingAfter - puzzles.ratingBefore;
+  } else if (yest.puzzles?.ratingAfter != null && plat.lichess?.puzzleRating != null) {
+    puzzleDelta = plat.lichess.puzzleRating - yest.puzzles.ratingAfter;
+  }
+  return { games, wins, winRate, puzzlesSolved, puzzleDelta,
+           ratingAfter: puzzles.ratingAfter ?? plat.lichess?.puzzleRating ?? null,
+           ratingBefore: puzzles.ratingBefore ?? null,
+           date: today.date || today.lastUpdated || null };
+}
+
+// Compute today's vocab.com delta from history (mastered count and improved count)
+function _vocabComTodayInfo(plat) {
+  const vc = plat.vocabCom || {};
+  const hist = JSON.parse(localStorage.getItem('hs-vocab-history') || '[]');
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const today = hist.find(h => h.date === todayStr) || hist[hist.length - 1] || null;
+  const yest  = hist.length >= 2 ? hist[hist.length - 2] : null;
+  const newlyMasteredToday = (today && yest && today.mastered != null && yest.mastered != null)
+    ? Math.max(0, today.mastered - yest.mastered) : null;
+  return {
+    totalUnique: vc.totalUniqueWords ?? today?.totalUniqueWords ?? null,
+    mastered:    vc.mastered ?? today?.mastered ?? null,
+    improvedToday: vc.wordsImprovedToday ?? today?.improvedToday ?? null,
+    newlyMasteredToday,
+    distribution: vc.distribution || today?.distribution || null,
+    lastSync: vc.lastSyncDate || null
+  };
+}
+
+// Compute weekly vocab.com aggregates (improved/mastered) over last 7 days
+function _vocabComWeekInfo() {
+  const hist = JSON.parse(localStorage.getItem('hs-vocab-history') || '[]');
+  if (hist.length === 0) return { improved: 0, masteredGain: 0, days: 0 };
+  const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const wk = hist.filter(h => new Date(h.date).getTime() > cutoff);
+  const improved = wk.reduce((s, h) => s + (h.improvedToday || 0), 0);
+  const first = wk[0], last = wk[wk.length - 1];
+  const masteredGain = (last && first && last.mastered != null && first.mastered != null)
+    ? Math.max(0, last.mastered - first.mastered) : 0;
+  return { improved, masteredGain, days: wk.length, latest: last };
+}
+
+// Render a row of small "stat chips" inside a card.
+// Always shows every chip — including zeros — so the parent can see the full
+// structure of what's being captured even before any sync data lands.
+function _statChips(items) {
+  return items.map(i => {
+    const v = (i.value == null || i.value === '') ? '0' : i.value;
+    return `<div style="text-align:center;background:${i.bg};border-radius:10px;padding:10px 6px;min-width:0;">
+      <div style="font-size:1.05rem;font-weight:900;color:${i.fg};line-height:1.1;">${v}</div>
+      <div style="font-size:.68rem;font-weight:700;color:${i.fg};opacity:.8;margin-top:2px;">${i.label}</div>
+    </div>`;
+  }).join('');
+}
+
+// "Focus quality" interpretation given chess minutes today
+function _chessFocusBlurb(mins, games, puzzles) {
+  if (!mins && !games && !puzzles) return '';
+  if (mins >= 30 && (games > 0 || puzzles >= 5)) return '✨ Focused chess time — playing AND learning.';
+  if (mins >= 20 && puzzles >= 3) return '🧩 Solid puzzle session — practicing tactics.';
+  if (games >= 3 && mins >= 15) return '🎮 Active play session — running games on the clock.';
+  if (mins >= 15) return '👍 Decent stretch on the board.';
+  if (games > 0 || puzzles > 0) return '⚡ Light session — quick clicks rather than focused practice.';
+  return '';
+}
+
 function renderReportsProgress() {
-  const el = document.getElementById('reports-progress-content');
+  _renderRichSubjectReport('reports-progress-content', _reportsMode, { syncIndicatorId: 'reports-last-sync' });
+}
+
+// Renders the rich per-subject report card into any target element.
+// Used by Sarah's "📊 My Reports" tab AND the parent view's subject summary card.
+function _renderRichSubjectReport(targetId, mode, opts) {
+  opts = opts || {};
+  const el = document.getElementById(targetId);
   if (!el) return;
-  const mode = _reportsMode;
 
   let totalMins = 0, bySubject = {}, tasksDone = 0, tasksTotal = 0, vocabWords = 0, actionsDone = 0, actionsTotal = 0;
 
@@ -4086,35 +4209,41 @@ function renderReportsProgress() {
     });
   }
 
-  // Include Spelling Bee vocab if available
-  const sbProg = load('sb-progress') || {};
-  const sbReviewed = sbProg.reviewed || 0;
-  vocabWords = Math.max(vocabWords, sbReviewed);
-
   const fmtMins = m => m < 60 ? `${m}m` : `${Math.floor(m/60)}h ${m%60}m`;
-  const label = mode === 'today' ? "Today's" : "This Week's";
+  const periodLabel = mode === 'today' ? "Today" : "This Week";
+  const periodLower = mode === 'today' ? "today" : "this week";
 
   // Pull platform stats from sync
   const plat = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
   const cfg = typeof getActiveCFG === 'function' ? getActiveCFG() : {};
-  const ba = plat.beastAcademy || {};
-  const ixlCfg = cfg.week?.ixl || {};
+  const w   = cfg.week || {};
+  const baP = plat.beastAcademy || {};
+  const ixlP = plat.ixl || {};
+  const vsP  = plat.vocabularyStars || {};
+  const li   = plat.lichess || {};
+  const ck   = plat.chesskid || {};
 
-  // Pull chess daily stats
-  const chessPlat = plat.lichessDaily || {};
-  const chessPlatCK = plat.chesskidDaily || {};
-  const li = plat.lichess || {};
-  const ck = plat.chesskid || {};
-  const chessTimeMins = bySubject['Chess'] || 0;
-  const chessGamesToday = (chessPlat.gamesPlayed || 0) + (chessPlatCK.gamesPlayed || 0);
-  const chessPuzzlesToday = chessPlat.puzzlesSolved || 0;
+  // Last-sync indicator
+  const syncEl = opts.syncIndicatorId ? document.getElementById(opts.syncIndicatorId) : null;
+  if (syncEl) {
+    if (plat.lastSync) {
+      const d = new Date(plat.lastSync);
+      const now = new Date();
+      const ageMin = Math.round((now - d) / 60000);
+      const fresh = ageMin < 60 ? `${ageMin}m ago`
+                  : ageMin < 1440 ? `${Math.round(ageMin/60)}h ago`
+                  : `${Math.round(ageMin/1440)}d ago`;
+      syncEl.innerHTML = `🔄 last sync · ${fresh}`;
+    } else {
+      syncEl.innerHTML = `🔄 awaiting first sync`;
+    }
+  }
 
-  // Task completion percentage for honest assessment
   const taskPct = tasksTotal > 0 ? Math.round(tasksDone / tasksTotal * 100) : 0;
 
-  // Stat cards at top — one row for overview
-  let html = `<div style="font-size:.85rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 ${label} Progress</div>`;
-  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
+  // ═══ Top overview row ═══
+  let html = `<div style="font-size:.85rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 ${periodLabel}'s Report Card</div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
     <div class="stat-card">
       <div class="stat-emoji">✅</div>
       <div class="stat-value" style="color:${taskPct>=80?'#06D6A0':taskPct>=50?'#F59E0B':'#EF4444'}">${tasksDone}/${tasksTotal || '—'}</div>
@@ -4132,96 +4261,286 @@ function renderReportsProgress() {
     </div>
   </div>`;
 
-  // ── Beast Academy card (single card: chapters + questions) ──
+  // ═══ 📝 Vocabulary (Vocab.com + VocabularyStars) ═══
+  const vcInfo  = _vocabComTodayInfo(plat);
+  const vcWeek  = _vocabComWeekInfo();
+  const vocabTimeMins = bySubject['Vocabulary'] || 0;
+  const vocabComTimeStr = w.vocabComTime || (vocabTimeMins > 0 ? fmtMins(vocabTimeMins) : '');
+  let vocabChips = [];
+  if (mode === 'today') {
+    vocabChips = [
+      { value: vocabComTimeStr || (vocabTimeMins > 0 ? fmtMins(vocabTimeMins) : '0m'), label: 'time on vocab', bg:'#FEF3C7', fg:'#92400E' },
+      { value: vcInfo.improvedToday ?? w.vocabRevised ?? 0, label: 'words practiced', bg:'#EFF6FF', fg:'#1E40AF' },
+      { value: vcInfo.newlyMasteredToday ?? w.vocabNew ?? 0, label: 'new mastered', bg:'#F0FDF4', fg:'#065F46' },
+      { value: vcInfo.mastered ?? w.vocabMastered ?? 0, label: 'total mastered', bg:'#F5F3FF', fg:'#5B21B6' },
+    ];
+  } else {
+    vocabChips = [
+      { value: vocabTimeMins > 0 ? fmtMins(vocabTimeMins) : (w.vocabComTime || '0m'), label: 'time this week', bg:'#FEF3C7', fg:'#92400E' },
+      { value: vcWeek.improved || w.vocabRevised || 0, label: 'words practiced', bg:'#EFF6FF', fg:'#1E40AF' },
+      { value: vcWeek.masteredGain || w.vocabNew || 0, label: 'new mastered', bg:'#F0FDF4', fg:'#065F46' },
+      { value: vcInfo.mastered ?? w.vocabMastered ?? 0, label: 'total mastered', bg:'#F5F3FF', fg:'#5B21B6' },
+    ];
+  }
+  let vocabExtra = '';
+  if (vcInfo.distribution) {
+    const d = vcInfo.distribution;
+    const segs = [
+      { k:'0-25',   c:'#FCA5A5', label:'just learning' },
+      { k:'25-50',  c:'#FCD34D', label:'getting there' },
+      { k:'50-75',  c:'#86EFAC', label:'almost there' },
+      { k:'75-100', c:'#34D399', label:'nearly mastered' },
+    ];
+    const total = segs.reduce((s,x) => s + (d[x.k] || 0), 0);
+    if (total > 0) {
+      const bar = segs.map(x => {
+        const pct = Math.round((d[x.k] || 0) / total * 100);
+        return `<div title="${d[x.k]||0} words ${x.label}" style="background:${x.c};width:${pct}%;height:100%;"></div>`;
+      }).join('');
+      const legend = segs.map(x => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:.65rem;color:#6B7280;font-weight:700;"><span style="display:inline-block;width:8px;height:8px;background:${x.c};border-radius:2px;"></span>${d[x.k]||0} ${x.label}</span>`).join(' · ');
+      vocabExtra = `<div style="margin-top:10px;">
+        <div style="font-size:.7rem;font-weight:700;color:#6B7280;margin-bottom:4px;">📊 Mastery distribution across ${total} words on vocab.com:</div>
+        <div style="display:flex;height:10px;border-radius:6px;overflow:hidden;background:#F3F4F6;">${bar}</div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;">${legend}</div>
+      </div>`;
+    }
+  }
+  if (vsP.totalWords || vsP.level) {
+    vocabExtra += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+      ${vsP.totalWords ? `<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">VocabularyStars · ${vsP.totalWords.toLocaleString()} words</span>` : ''}
+      ${vsP.level ? `<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">${vsP.level}</span>` : ''}
+    </div>`;
+  } else if (!vocabExtra) {
+    vocabExtra = `<div style="font-size:.7rem;color:#9CA3AF;font-weight:600;margin-top:8px;">📊 Mastery distribution + VocabularyStars data populate from the daily scrape.</div>`;
+  }
   html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.2rem;">🐉</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Beast Academy</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div style="text-align:center;background:#FEF3C7;border-radius:10px;padding:10px 6px;">
-        <div style="font-size:1.3rem;font-weight:900;color:#D97706;">${cfg.week?.ba?.weeklyChapters ?? 0}</div>
-        <div style="font-size:.72rem;font-weight:700;color:#92400E;">chapters this week</div>
-      </div>
-      <div style="text-align:center;background:#FEF3C7;border-radius:10px;padding:10px 6px;">
-        <div style="font-size:1.3rem;font-weight:900;color:#D97706;">${cfg.week?.ba?.weeklyQuestions ?? 0}</div>
-        <div style="font-size:.72rem;font-weight:700;color:#92400E;">questions attempted</div>
-      </div>
-    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.2rem;">📝</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Vocabulary</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${_statChips(vocabChips)}</div>
+    ${vocabExtra}
   </div>`;
 
-  // ── IXL card (single card: time, attempted, correct, skills) ──
+  // ═══ 🐉 Beast Academy ═══
+  const baChapsDone = baP.chaptersComplete ?? w.ba?.chaptersDone ?? 0;
+  const baChapsTotal = baP.totalChapters ?? w.ba?.chaptersTotal ?? 12;
+  const baBook = baP.currentBook || w.ba?.book || '';
+  const baChap = baP.currentChapter || w.ba?.chapter || '';
+  const baWk = baP.weekSummary || {};
+  const mathTime = bySubject['Math'] || 0;
+  const baTodayMins = baP.todayMinutes ?? 0;
+  let baChips = [];
+  if (mode === 'today') {
+    baChips = [
+      { value: baTodayMins > 0 ? fmtMins(baTodayMins) : (mathTime > 0 ? fmtMins(mathTime) : '0m'), label: 'time today', bg:'#FEF3C7', fg:'#92400E' },
+      { value: (baP.recentLessons?.length) || w.ba?.weeklyChapters || 0, label: 'lessons today', bg:'#FEF3C7', fg:'#92400E' },
+      { value: baWk.newStars ?? 0, label: '⭐ stars earned', bg:'#FEF3C7', fg:'#D97706' },
+      { value: baWk.trophies ?? 0, label: '🏆 trophies', bg:'#FEF3C7', fg:'#D97706' },
+    ];
+  } else {
+    baChips = [
+      { value: baWk.totalMinutes > 0 ? fmtMins(baWk.totalMinutes) : (mathTime > 0 ? fmtMins(mathTime) : '0m'), label: 'time this week', bg:'#FEF3C7', fg:'#92400E' },
+      { value: w.ba?.weeklyChapters || 0, label: 'chapters worked', bg:'#FEF3C7', fg:'#92400E' },
+      { value: baWk.newStars ?? 0, label: '⭐ stars earned', bg:'#FEF3C7', fg:'#D97706' },
+      { value: baWk.trophies ?? 0, label: '🏆 trophies', bg:'#FEF3C7', fg:'#D97706' },
+    ];
+  }
+  let baExtra = '';
+  if (baWk.played != null || baWk.read != null || baWk.watched != null) {
+    const total = (baWk.played || 0) + (baWk.read || 0) + (baWk.watched || 0);
+    if (total > 0) {
+      const seg = (mins, c) => `<div style="background:${c};width:${Math.round((mins||0)/total*100)}%;height:100%;"></div>`;
+      baExtra += `<div style="margin-top:10px;">
+        <div style="font-size:.7rem;font-weight:700;color:#6B7280;margin-bottom:4px;">How she spent ${fmtMins(total)} on BA this week:</div>
+        <div style="display:flex;height:10px;border-radius:6px;overflow:hidden;background:#F3F4F6;">
+          ${seg(baWk.played, '#F59E0B')}${seg(baWk.read, '#3B82F6')}${seg(baWk.watched, '#A78BFA')}
+        </div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:8px;font-size:.7rem;font-weight:700;color:#6B7280;">
+          <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:8px;height:8px;background:#F59E0B;border-radius:2px;"></span>played ${fmtMins(baWk.played||0)}</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:8px;height:8px;background:#3B82F6;border-radius:2px;"></span>read ${fmtMins(baWk.read||0)}</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:8px;height:8px;background:#A78BFA;border-radius:2px;"></span>watched ${fmtMins(baWk.watched||0)}</span>
+        </div>
+      </div>`;
+    }
+  }
+  if (Array.isArray(baP.recentLessons) && baP.recentLessons.length) {
+    baExtra += `<div style="margin-top:10px;">
+      <div style="font-size:.7rem;font-weight:700;color:#6B7280;margin-bottom:4px;">📚 Most recent lessons (${mode === 'today' ? 'today' : 'this week'}):</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${baP.recentLessons.slice(0, 6).map(l => `<span class="pv-tag" style="background:#FEF3C7;color:#92400E;font-size:.72rem;">${l}</span>`).join('')}
+      </div>
+    </div>`;
+  }
+  baExtra += `<div style="margin-top:10px;font-size:.78rem;color:#6B7280;font-weight:700;">
+    ${baBook ? `📘 Book ${baBook} · ` : '📘 Book — · '}${baChap ? `Currently in <strong style="color:#D97706;">${baChap}</strong> · ` : 'Chapter — · '}${baChapsDone}/${baChapsTotal} chapters in this book complete
+  </div>`;
+  if (!Array.isArray(baP.recentLessons) || !baP.recentLessons.length) {
+    baExtra += `<div style="font-size:.7rem;color:#9CA3AF;font-weight:600;margin-top:6px;">📚 Recent lessons populate from the BA daily scrape (10 AM + 5 PM).</div>`;
+  }
   html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.2rem;">📊</span><span style="font-size:.85rem;font-weight:800;color:#374151;">IXL</span></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-      <div style="text-align:center;background:#EFF6FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#1D4ED8;">${ixlCfg.time || '0h'}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#1E40AF;">time</div>
-      </div>
-      <div style="text-align:center;background:#EFF6FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#1D4ED8;">${ixlCfg.questionsAttempted ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#1E40AF;">attempted</div>
-      </div>
-      <div style="text-align:center;background:#F0FDF4;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#059669;">${ixlCfg.questionsCorrect ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#065F46;">correct</div>
-      </div>
-      <div style="text-align:center;background:#F5F3FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#7C3AED;">${ixlCfg.skillsWorkedOn ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#5B21B6;">skills</div>
-      </div>
-    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.2rem;">🐉</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Beast Academy</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${_statChips(baChips)}</div>
+    ${baExtra}
   </div>`;
 
-  // ── Vocabulary card (single card: new words, revised, vocab.com time, mastered) ──
-  const vocW = cfg.week || {};
+  // ═══ 📊 IXL ═══
+  const ixlCfg = w.ixl || {};
+  const ixlTimeStr = ixlCfg.time || ixlP.timeLast30d || (mathTime > 0 ? fmtMins(mathTime) : '0m');
+  const ixlAttempted = ixlCfg.questionsAttempted ?? ixlP.questionsLast30d ?? 0;
+  const ixlCorrect   = ixlCfg.questionsCorrect ?? 0;
+  const ixlSkillsW   = ixlCfg.skillsWorkedOn ?? ixlP.skillsProgressed ?? 0;
+  const ixlAccuracy  = ixlAttempted > 0 ? Math.round(ixlCorrect / ixlAttempted * 100) : null;
+  const ixlChips = [
+    { value: ixlTimeStr || '0m', label: 'time', bg:'#EFF6FF', fg:'#1E40AF' },
+    { value: ixlAttempted, label: 'attempted', bg:'#EFF6FF', fg:'#1E40AF' },
+    { value: ixlAccuracy != null ? ixlAccuracy + '%' : ixlCorrect, label: ixlAccuracy != null ? 'accuracy' : 'correct', bg:'#F0FDF4', fg:'#065F46' },
+    { value: ixlSkillsW, label: 'skills worked', bg:'#F5F3FF', fg:'#5B21B6' },
+  ];
+  let ixlExtra = '';
+  // Skills list — prefer scraped skillsList, fall back to cfg.skill description
+  const ixlSkillsList = ixlP.skillsList || ixlCfg.skillsList || (ixlCfg.skill ? [ixlCfg.skill] : []);
+  if (Array.isArray(ixlSkillsList) && ixlSkillsList.length) {
+    ixlExtra += `<div style="margin-top:10px;">
+      <div style="font-size:.7rem;font-weight:700;color:#6B7280;margin-bottom:4px;">📚 Skills she's working on:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${ixlSkillsList.slice(0, 8).map(s => `<span class="pv-tag" style="background:#EEF2FF;color:#4338CA;font-size:.72rem;">${s}</span>`).join('')}
+      </div>
+    </div>`;
+  } else if (ixlCfg.skill || ixlP.lastSkill) {
+    ixlExtra += `<div style="margin-top:10px;font-size:.78rem;color:#6B7280;font-weight:700;">
+      Most recent: <strong style="color:#4338CA;">${ixlP.lastSkill || ixlCfg.skill}</strong>${ixlP.smartScore ? ` · SmartScore ${ixlP.smartScore}` : ''}
+    </div>`;
+  }
+  if (ixlP.skillsMastered) {
+    ixlExtra += `<div style="margin-top:6px;font-size:.78rem;color:#6B7280;font-weight:700;">
+      🏅 ${ixlP.skillsMastered} skills mastered overall
+    </div>`;
+  }
+  if (!ixlExtra) {
+    ixlExtra = `<div style="font-size:.74rem;color:#9CA3AF;font-weight:600;margin-top:8px;">📚 No IXL skill list captured ${periodLower} yet — populated by the daily scrape.</div>`;
+  }
   html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.2rem;">📝</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Vocabulary</span></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-      <div style="text-align:center;background:#F0FDF4;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#059669;">${vocW.vocabNew ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#065F46;">new words</div>
-      </div>
-      <div style="text-align:center;background:#EFF6FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#1D4ED8;">${vocW.vocabRevised ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#1E40AF;">revised</div>
-      </div>
-      <div style="text-align:center;background:#FEF3C7;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#D97706;">${vocW.vocabComTime || '0m'}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#92400E;">vocab.com</div>
-      </div>
-      <div style="text-align:center;background:#F5F3FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#7C3AED;">${vocW.vocabMastered ?? 0}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#5B21B6;">mastered</div>
-      </div>
-    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.2rem;">📊</span><span style="font-size:.85rem;font-weight:800;color:#374151;">IXL</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${_statChips(ixlChips)}</div>
+    ${ixlExtra}
   </div>`;
 
-  // ── Chess card (time spent, games played, puzzles solved) ──
+  // ═══ 🔬 Science ═══
+  const sciTime = bySubject['Science'] || 0;
+  const sciCh = w.science?.chapter || '';
+  const sciPart = w.science?.part || '';
+  // Quizzes attempted — pulled from chat-derived state if populated by user
+  const sciQuizzes = w.science?.quizzes || w.science?.recentQuizzes || [];
+  let sciExtra = '';
+  if (sciCh || sciPart) {
+    sciExtra += `<div style="font-size:.78rem;color:#6B7280;font-weight:700;margin-bottom:6px;">
+      📖 Working on: <strong style="color:#10B981;">${sciCh}${sciPart ? ' — ' + sciPart : ''}</strong>
+    </div>`;
+  }
+  if (Array.isArray(sciQuizzes) && sciQuizzes.length) {
+    sciExtra += `<div style="margin-top:8px;">
+      <div style="font-size:.7rem;font-weight:700;color:#6B7280;margin-bottom:4px;">📝 Chapter quiz attempts:</div>
+      ${sciQuizzes.slice(0, 5).map(q => {
+        if (typeof q === 'string') return `<div style="font-size:.78rem;color:#374151;font-weight:700;padding:6px 10px;background:#ECFDF5;border-radius:8px;margin-bottom:4px;">${q}</div>`;
+        const score = q.score != null ? `${q.score}%` : '';
+        const date = q.date ? ` <span style="color:#9CA3AF;font-weight:600;">· ${q.date}</span>` : '';
+        return `<div style="font-size:.78rem;color:#374151;font-weight:700;padding:6px 10px;background:#ECFDF5;border-radius:8px;margin-bottom:4px;display:flex;justify-content:space-between;gap:8px;">
+          <span>${q.title || q.chapter || 'Quiz'}${date}</span>
+          <span style="color:${(q.score||0)>=80?'#059669':(q.score||0)>=60?'#D97706':'#EF4444'};">${score}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+  // Always render the Science card — even when empty, so the parent can see
+  // exactly what fields are being captured by the scraper.
+  if (!sciExtra) {
+    sciExtra = `<div style="font-size:.74rem;color:#9CA3AF;font-weight:600;margin-top:8px;">📖 No science chapter or quiz data captured ${periodLower} yet.</div>`;
+  }
   html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.2rem;">♟️</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Chess</span></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-      <div style="text-align:center;background:#F3F4F6;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#374151;">${chessTimeMins > 0 ? fmtMins(chessTimeMins) : (chessPlat.timeSpent || '0m')}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#6B7280;">time spent</div>
-      </div>
-      <div style="text-align:center;background:#F3F4F6;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#374151;">${chessGamesToday}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#6B7280;">games played</div>
-      </div>
-      <div style="text-align:center;background:#F5F3FF;border-radius:10px;padding:10px 4px;">
-        <div style="font-size:1.1rem;font-weight:900;color:#7C3AED;">${chessPuzzlesToday}</div>
-        <div style="font-size:.68rem;font-weight:700;color:#5B21B6;">puzzles solved</div>
-      </div>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
-      ${ck.rapid?`<span class="pv-tag" style="background:#22C55E22;color:#15803D;">CK Rapid ${ck.rapid}</span>`:''}
-      ${li.classical?`<span class="pv-tag" style="background:#1e1b4b22;color:#1e1b4b;">Lichess ${li.classical}</span>`:''}
-      ${li.puzzleRating?`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">Puzzle rating ${li.puzzleRating}</span>`:''}
-    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.2rem;">🔬</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Science</span></div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">${_statChips([
+      { value: sciTime > 0 ? fmtMins(sciTime) : '0m', label: 'time ' + periodLower, bg:'#ECFDF5', fg:'#065F46' },
+      { value: (Array.isArray(sciQuizzes) ? sciQuizzes.length : 0), label: 'quizzes attempted', bg:'#ECFDF5', fg:'#065F46' },
+    ])}</div>
+    ${sciExtra}
   </div>`;
 
-  // Time by subject breakdown
+  // ═══ ♟️ Chess (layman parlance) ═══
+  const chessTimeMins = bySubject['Chess'] || 0;
+  const liToday = _lichessTodayInfo(plat);
+  const ckDaily = plat.chesskidDaily || {};
+  const totalGamesToday = (liToday.games || 0) + (ckDaily.gamesPlayed || 0);
+  const totalPuzzlesToday = (liToday.puzzlesSolved || 0) + (ckDaily.puzzlesSolved || 0);
+  const focusBlurb = _chessFocusBlurb(chessTimeMins, totalGamesToday, totalPuzzlesToday);
+  const winRate = liToday.winRate;
+  const puzzleDelta = liToday.puzzleDelta;
+  const puzzleRating = liToday.ratingAfter || li.puzzleRating;
+  const chessChips = [
+    { value: chessTimeMins > 0 ? fmtMins(chessTimeMins) : '0m', label: 'time ' + periodLower, bg:'#F3F4F6', fg:'#374151' },
+    { value: totalGamesToday || 0, label: 'games played', bg:'#F3F4F6', fg:'#374151' },
+    { value: totalPuzzlesToday || 0, label: 'puzzles solved', bg:'#F5F3FF', fg:'#5B21B6' },
+    { value: winRate != null ? `${winRate}%` : '—', label: 'win rate', bg:'#F0FDF4', fg:'#065F46' },
+  ];
+  let chessExtra = '';
+  if (focusBlurb) {
+    chessExtra += `<div style="margin-top:10px;background:#F9FAFB;border-radius:8px;padding:8px 10px;font-size:.78rem;color:#374151;font-weight:700;">${focusBlurb}</div>`;
+  }
+  if (puzzleDelta != null && puzzleRating != null) {
+    const sign = puzzleDelta > 0 ? '↑' : puzzleDelta < 0 ? '↓' : '→';
+    const color = puzzleDelta > 0 ? '#059669' : puzzleDelta < 0 ? '#EF4444' : '#6B7280';
+    const wordy = puzzleDelta > 0
+      ? `Her puzzle rating went <strong style="color:${color};">up ${puzzleDelta} points</strong> ${periodLower} — that's a level-up.`
+      : puzzleDelta < 0
+      ? `Her puzzle rating dipped <strong style="color:${color};">${Math.abs(puzzleDelta)} points</strong> ${periodLower} — totally normal, harder puzzles came up.`
+      : `Her puzzle rating held steady ${periodLower}.`;
+    chessExtra += `<div style="margin-top:8px;font-size:.78rem;color:#374151;font-weight:600;line-height:1.5;">
+      🧩 ${wordy} Now at <strong>${puzzleRating}</strong> ${sign} ${puzzleDelta > 0 ? '+' : ''}${puzzleDelta}.
+    </div>`;
+  }
+  if (puzzleRating) {
+    const desc = _chessLevelDescription(puzzleRating);
+    if (desc) {
+      chessExtra += `<div style="margin-top:6px;font-size:.74rem;color:#6B7280;font-weight:600;line-height:1.5;">
+        💡 What ${puzzleRating} means: <em>${desc}</em>
+      </div>`;
+    }
+  }
+  if (winRate != null && totalGamesToday > 0) {
+    const verdict = winRate >= 60 ? '— a winning day! 🎉'
+                  : winRate >= 40 ? '— a balanced day, win some/lose some.'
+                  : '— a tough day; losses are how she learns.';
+    chessExtra += `<div style="margin-top:6px;font-size:.74rem;color:#6B7280;font-weight:600;line-height:1.5;">
+      🎮 Played ${totalGamesToday} game${totalGamesToday!==1?'s':''}, won ${liToday.wins || 0} ${verdict}
+    </div>`;
+  }
+  // Lifetime ratings
+  const lifetimeChips = [];
+  if (ck.rapid)        lifetimeChips.push(`<span class="pv-tag" style="background:#22C55E22;color:#15803D;">CK Rapid ${ck.rapid}</span>`);
+  if (li.classical)    lifetimeChips.push(`<span class="pv-tag" style="background:#1e1b4b22;color:#1e1b4b;">Lichess ${li.classical}</span>`);
+  if (li.puzzleRating) lifetimeChips.push(`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">Puzzle ${li.puzzleRating}</span>`);
+  if (lifetimeChips.length) {
+    chessExtra += `<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">${lifetimeChips.join('')}</div>`;
+  }
+  html += `<div class="card" style="padding:14px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.2rem;">♟️</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Chess <span style="font-size:.7rem;font-weight:600;color:#9CA3AF;">— in plain English</span></span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${_statChips(chessChips)}</div>
+    ${chessExtra}
+  </div>`;
+
+  // ═══ 📖 Reading (always shown) ═══
+  const readingTime = bySubject['Reading'] || 0;
+  html += `<div class="card" style="padding:14px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.2rem;">📖</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Reading</span></div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">${_statChips([
+      { value: readingTime > 0 ? fmtMins(readingTime) : '0m', label: 'time ' + periodLower, bg:'#FCE7F3', fg:'#9D174D' },
+      { value: cfg.booksRead ?? 0, label: 'books finished', bg:'#FCE7F3', fg:'#9D174D' },
+    ])}</div>
+    <div style="margin-top:8px;font-size:.78rem;color:#374151;font-weight:700;">📚 ${(w.book || 'No book set this week').replace(/\(.*\)/, '').trim()}</div>
+    ${w.bookNote ? `<div style="margin-top:4px;font-size:.72rem;color:#6B7280;font-weight:600;">${w.bookNote}</div>` : ''}
+  </div>`;
+
+  // ═══ ⏱ Time by Subject (kept) ═══
   const subjectEntries = Object.entries(bySubject).sort((a,b) => b[1] - a[1]);
   if (subjectEntries.length > 0) {
-    html += `<div class="card" style="margin-bottom:16px;">
+    html += `<div class="card" style="margin-bottom:14px;">
       <div class="card-title">⏱️ Time by Subject</div>`;
     const maxMins = Math.max(...subjectEntries.map(e => e[1]), 1);
     subjectEntries.forEach(([sub, mins]) => {
@@ -4238,30 +4557,37 @@ function renderReportsProgress() {
     });
     html += `</div>`;
   } else {
-    html += `<div class="card" style="margin-bottom:16px;text-align:center;padding:20px;">
+    html += `<div class="card" style="margin-bottom:14px;text-align:center;padding:20px;">
       <div style="font-size:1.8rem;margin-bottom:8px;">📊</div>
-      <div style="font-size:.9rem;font-weight:700;color:#9CA3AF;">No time logged ${mode === 'today' ? 'today' : 'this week'} yet.</div>
+      <div style="font-size:.9rem;font-weight:700;color:#9CA3AF;">No timer logs ${periodLower} yet.</div>
       <div style="font-size:.82rem;font-weight:600;color:#D1D5DB;margin-top:4px;">Start a timer on any task to see your progress here!</div>
     </div>`;
   }
 
-  // EOD summary — honest assessment
-  const eodTaskPct = tasksTotal > 0 ? Math.round(tasksDone / tasksTotal * 100) : 0;
-  const eodTitle = eodTaskPct >= 80
-    ? `🌟 Great work${mode === 'today' ? ' today' : ' this week'}, Sarah!`
-    : eodTaskPct >= 50
-    ? `👍 Good progress${mode === 'today' ? ' today' : ' this week'} — keep going!`
-    : eodTaskPct > 0
-    ? `⚠️ ${tasksDone}/${tasksTotal} tasks done — we need to catch up!`
-    : `📋 No tasks completed ${mode === 'today' ? 'today' : 'this week'} yet.`;
-  html += `<div class="eod-card" id="eod-card" style="margin-bottom:16px;">
-    <div class="card-title">${eodTitle}</div>
-    <div id="eod-content"></div>
-  </div>`;
+  // ═══ EOD card (kept — Sarah view only) ═══
+  if (!opts.skipEOD) {
+    const eodTaskPct = tasksTotal > 0 ? Math.round(tasksDone / tasksTotal * 100) : 0;
+    const eodTitle = eodTaskPct >= 80
+      ? `🌟 Great work ${periodLower}, Sarah!`
+      : eodTaskPct >= 50
+      ? `👍 Good progress ${periodLower} — keep going!`
+      : eodTaskPct > 0
+      ? `⚠️ ${tasksDone}/${tasksTotal} tasks done — we need to catch up!`
+      : `📋 No tasks completed ${periodLower} yet.`;
+    html += `<div class="eod-card" id="eod-card" style="margin-bottom:16px;">
+      <div class="card-title">${eodTitle}</div>
+      <div id="eod-content"></div>
+    </div>`;
+  }
 
   el.innerHTML = html;
-  renderEndOfDayCard();
+  if (!opts.skipEOD) renderEndOfDayCard();
 }
+
+// Stub used by switchSarahTab — currently the Overall tab content is rendered
+// via renderProgressCard() (curriculum card) and the static vocab bar/badges
+// updated during the main render cycle. Reserved for future enrichment.
+function renderOverallTab() { /* reserved */ }
 
 // ═══════════════════════════════════════════════════════════
 //  DAILY STORY TAB — loads from news-content.json
@@ -4403,6 +4729,15 @@ function renderParentView() {
   const rangeDays = range.days;
   const dayKey  = d => `hs-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
   const isDaily = range.isDaily;
+
+  // ── Render the rich per-subject report (mirrors Sarah's view) ──
+  // Daily mode → 'today'; Weekly mode → 'week'. EOD card skipped (Sarah-only).
+  if (typeof _renderRichSubjectReport === 'function') {
+    _renderRichSubjectReport('pv-subject-report', isDaily ? 'today' : 'week', {
+      syncIndicatorId: 'pv-subject-last-sync',
+      skipEOD: true
+    });
+  }
 
   // Update range label and card titles
   const rl = document.getElementById('pv-range-label');
