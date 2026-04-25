@@ -4184,34 +4184,28 @@ function _renderRichSubjectReport(targetId, mode, opts) {
   const el = document.getElementById(targetId);
   if (!el) return;
 
-  let totalMins = 0, bySubject = {}, tasksDone = 0, tasksTotal = 0, vocabWords = 0, actionsDone = 0, actionsTotal = 0;
+  // Resolve the date range: caller can supply explicit days (parent view does
+  // this for its selected week/day), otherwise we derive it from mode.
+  const rangeDays = opts.rangeDays && opts.rangeDays.length
+    ? opts.rangeDays
+    : (mode === 'today' ? [new Date()] : _getWeekDays());
+  const isSingleDay = rangeDays.length === 1;
 
-  if (mode === 'today') {
-    const now = new Date();
-    const t = _getTimeForDate(now);
-    totalMins = t.total; bySubject = t.bySubject;
-    const tk = _getTasksForDate(now);
-    tasksDone = tk.done; tasksTotal = tk.total;
-    vocabWords = _getVocabWordsForDate(now);
-    const da = _getDailyActionsForDate(now);
-    actionsDone = da.done; actionsTotal = da.total;
-  } else {
-    const days = _getWeekDays();
-    days.forEach(d => {
-      const t = _getTimeForDate(d);
-      totalMins += t.total;
-      for (const [s, m] of Object.entries(t.bySubject)) bySubject[s] = (bySubject[s] || 0) + m;
-      const tk = _getTasksForDate(d);
-      tasksDone += tk.done; tasksTotal += tk.total;
-      vocabWords += _getVocabWordsForDate(d);
-      const da = _getDailyActionsForDate(d);
-      actionsDone += da.done; actionsTotal += da.total;
-    });
-  }
+  let totalMins = 0, bySubject = {}, tasksDone = 0, tasksTotal = 0, vocabWords = 0, actionsDone = 0, actionsTotal = 0;
+  rangeDays.forEach(d => {
+    const t = _getTimeForDate(d);
+    totalMins += t.total;
+    for (const [s, m] of Object.entries(t.bySubject)) bySubject[s] = (bySubject[s] || 0) + m;
+    const tk = _getTasksForDate(d);
+    tasksDone += tk.done; tasksTotal += tk.total;
+    vocabWords += _getVocabWordsForDate(d);
+    const da = _getDailyActionsForDate(d);
+    actionsDone += da.done; actionsTotal += da.total;
+  });
 
   const fmtMins = m => m < 60 ? `${m}m` : `${Math.floor(m/60)}h ${m%60}m`;
-  const periodLabel = mode === 'today' ? "Today" : "This Week";
-  const periodLower = mode === 'today' ? "today" : "this week";
+  const periodLabel = isSingleDay ? "Today" : "This Week";
+  const periodLower = isSingleDay ? "today" : "this week";
 
   // Pull platform stats from sync
   const plat = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
@@ -4261,28 +4255,163 @@ function _renderRichSubjectReport(targetId, mode, opts) {
     </div>
   </div>`;
 
-  // ═══ 📝 Vocabulary (Vocab.com + VocabularyStars) ═══
+  // ═══ 📚 Academic Platforms (compact table — Vocab.com, VocabularyStars, BA, IXL) ═══
+  // Build per-platform metric cells, then collect "highlights" (recent
+  // lessons, skill list, mastery distribution) below the table.
   const vcInfo  = _vocabComTodayInfo(plat);
   const vcWeek  = _vocabComWeekInfo();
   const vocabTimeMins = bySubject['Vocabulary'] || 0;
-  const vocabComTimeStr = w.vocabComTime || (vocabTimeMins > 0 ? fmtMins(vocabTimeMins) : '');
-  let vocabChips = [];
-  if (mode === 'today') {
-    vocabChips = [
-      { value: vocabComTimeStr || (vocabTimeMins > 0 ? fmtMins(vocabTimeMins) : '0m'), label: 'time on vocab', bg:'#FEF3C7', fg:'#92400E' },
-      { value: vcInfo.improvedToday ?? w.vocabRevised ?? 0, label: 'words practiced', bg:'#EFF6FF', fg:'#1E40AF' },
-      { value: vcInfo.newlyMasteredToday ?? w.vocabNew ?? 0, label: 'new mastered', bg:'#F0FDF4', fg:'#065F46' },
-      { value: vcInfo.mastered ?? w.vocabMastered ?? 0, label: 'total mastered', bg:'#F5F3FF', fg:'#5B21B6' },
-    ];
-  } else {
-    vocabChips = [
-      { value: vocabTimeMins > 0 ? fmtMins(vocabTimeMins) : (w.vocabComTime || '0m'), label: 'time this week', bg:'#FEF3C7', fg:'#92400E' },
-      { value: vcWeek.improved || w.vocabRevised || 0, label: 'words practiced', bg:'#EFF6FF', fg:'#1E40AF' },
-      { value: vcWeek.masteredGain || w.vocabNew || 0, label: 'new mastered', bg:'#F0FDF4', fg:'#065F46' },
-      { value: vcInfo.mastered ?? w.vocabMastered ?? 0, label: 'total mastered', bg:'#F5F3FF', fg:'#5B21B6' },
-    ];
+  const vocabComTimeStr = w.vocabComTime || (vocabTimeMins > 0 ? fmtMins(vocabTimeMins) : '0m');
+  const vcMastered = vcInfo.mastered ?? w.vocabMastered ?? 0;
+  const vcTotalUnique = vcInfo.totalUnique ?? 0;
+
+  const baChapsDone = baP.chaptersComplete ?? w.ba?.chaptersDone ?? 0;
+  const baChapsTotal = baP.totalChapters ?? w.ba?.chaptersTotal ?? 12;
+  const baBook = baP.currentBook || w.ba?.book || '';
+  const baChap = baP.currentChapter || w.ba?.chapter || '';
+  const baWk = baP.weekSummary || {};
+  const mathTime = bySubject['Math'] || 0;
+  const baTodayMins = baP.todayMinutes ?? 0;
+  const baTime = isSingleDay
+    ? (baTodayMins > 0 ? fmtMins(baTodayMins) : (mathTime > 0 ? fmtMins(mathTime) : '0m'))
+    : (baWk.totalMinutes > 0 ? fmtMins(baWk.totalMinutes) : (mathTime > 0 ? fmtMins(mathTime) : '0m'));
+  const baActivity = isSingleDay
+    ? `${(baP.recentLessons?.length) || 0} lessons`
+    : `${w.ba?.weeklyChapters || 0} chapters`;
+  const baStars = baWk.newStars ?? 0;
+  const baTrophies = baWk.trophies ?? 0;
+
+  const ixlCfg = w.ixl || {};
+  const ixlTimeStr = ixlCfg.time || ixlP.timeLast30d || (mathTime > 0 ? fmtMins(mathTime) : '0m');
+  const ixlAttempted = ixlCfg.questionsAttempted ?? ixlP.questionsLast30d ?? 0;
+  const ixlCorrect   = ixlCfg.questionsCorrect ?? 0;
+  const ixlSkillsW   = ixlCfg.skillsWorkedOn ?? ixlP.skillsProgressed ?? 0;
+  const ixlAccuracy  = ixlAttempted > 0 ? Math.round(ixlCorrect / ixlAttempted * 100) : null;
+
+  // Helper: a cell that gracefully shows "0" or "—" instead of being empty
+  const cell = v => (v == null || v === '' || v === undefined) ? '<span style="color:#D1D5DB;">—</span>' : v;
+
+  // Each row: emoji + name | time | activity | mastery/score | status
+  const rows = [
+    {
+      emoji: '📝', name: 'Vocab.com',
+      time: vocabComTimeStr,
+      activity: isSingleDay
+        ? `${vcInfo.improvedToday ?? w.vocabRevised ?? 0} practiced`
+        : `${vcWeek.improved || w.vocabRevised || 0} practiced`,
+      mastery: isSingleDay
+        ? `+${vcInfo.newlyMasteredToday ?? w.vocabNew ?? 0} mastered`
+        : `+${vcWeek.masteredGain || w.vocabNew || 0} mastered`,
+      status: vcTotalUnique ? `${vcMastered}/${vcTotalUnique} total` : `${vcMastered} mastered`
+    },
+    {
+      emoji: '⭐', name: 'VocabularyStars',
+      time: '—',
+      activity: vsP.wordsToday ? `${vsP.wordsToday} words today` : (vsP.totalWords ? `${vsP.totalWords.toLocaleString()} lifetime` : '—'),
+      mastery: vsP.accuracy ? `${vsP.accuracy}% accuracy` : '—',
+      status: vsP.level || '—'
+    },
+    {
+      emoji: '🐉', name: 'Beast Academy',
+      time: baTime,
+      activity: baActivity,
+      mastery: `⭐ ${baStars} · 🏆 ${baTrophies}`,
+      status: `${baChapsDone}/${baChapsTotal} chapters`
+    },
+    {
+      emoji: '📊', name: 'IXL',
+      time: ixlTimeStr,
+      activity: `${ixlAttempted} attempted`,
+      mastery: ixlAccuracy != null ? `${ixlAccuracy}% accuracy` : `${ixlCorrect} correct`,
+      status: `${ixlSkillsW} skills worked`
+    },
+  ];
+
+  let platformHTML = `<div class="card" style="padding:14px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
+      <span style="font-size:.85rem;font-weight:800;color:#374151;">📚 Academic Platforms</span>
+      <span style="font-size:.7rem;font-weight:700;color:#9CA3AF;">${periodLabel}</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-family:'Nunito',sans-serif;">
+        <thead>
+          <tr style="font-size:.66rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.04em;">
+            <th style="text-align:left;padding:6px 6px 6px 0;">Platform</th>
+            <th style="text-align:right;padding:6px 8px;">Time</th>
+            <th style="text-align:right;padding:6px 8px;">Activity</th>
+            <th style="text-align:right;padding:6px 8px;">Mastery</th>
+            <th style="text-align:right;padding:6px 0 6px 8px;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((r, i) => `
+            <tr style="border-top:1px solid #F3F4F6;font-size:.78rem;color:#374151;">
+              <td style="padding:8px 6px 8px 0;font-weight:800;white-space:nowrap;">${r.emoji} ${r.name}</td>
+              <td style="padding:8px;text-align:right;font-weight:700;color:#1F2937;">${cell(r.time)}</td>
+              <td style="padding:8px;text-align:right;color:#4B5563;">${cell(r.activity)}</td>
+              <td style="padding:8px;text-align:right;color:#4B5563;">${cell(r.mastery)}</td>
+              <td style="padding:8px 0 8px 8px;text-align:right;color:#6B7280;font-weight:600;">${cell(r.status)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  // ── Highlights row underneath the table (BA chapter, recent lessons, IXL skill list, vocab distribution) ──
+  const highlights = [];
+
+  // BA: book + chapter currently being worked
+  if (baBook || baChap) {
+    highlights.push(`<div style="font-size:.74rem;color:#6B7280;font-weight:700;line-height:1.45;">
+      🐉 BA · ${baBook ? `Book ${baBook} ·` : ''} ${baChap ? `<strong style="color:#D97706;">${baChap}</strong>` : '—'}
+    </div>`);
   }
-  let vocabExtra = '';
+
+  // BA: recent lessons (compact pill list)
+  if (Array.isArray(baP.recentLessons) && baP.recentLessons.length) {
+    highlights.push(`<div style="margin-top:6px;">
+      <div style="font-size:.66rem;color:#9CA3AF;font-weight:700;margin-bottom:3px;">Recent BA lessons</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;">
+        ${baP.recentLessons.slice(0, 5).map(l => `<span style="background:#FEF3C7;color:#92400E;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px;">${l}</span>`).join('')}
+      </div>
+    </div>`);
+  }
+
+  // BA: how she spent her time (played/read/watched stacked bar)
+  if (baWk.played != null || baWk.read != null || baWk.watched != null) {
+    const total = (baWk.played || 0) + (baWk.read || 0) + (baWk.watched || 0);
+    if (total > 0) {
+      const seg = (mins, c) => `<div style="background:${c};width:${Math.round((mins||0)/total*100)}%;height:100%;"></div>`;
+      highlights.push(`<div style="margin-top:6px;">
+        <div style="font-size:.66rem;color:#9CA3AF;font-weight:700;margin-bottom:3px;">BA time split this week (${fmtMins(total)})</div>
+        <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:#F3F4F6;">
+          ${seg(baWk.played, '#F59E0B')}${seg(baWk.read, '#3B82F6')}${seg(baWk.watched, '#A78BFA')}
+        </div>
+        <div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:6px;font-size:.65rem;color:#6B7280;font-weight:700;">
+          <span><span style="display:inline-block;width:6px;height:6px;background:#F59E0B;border-radius:2px;margin-right:3px;"></span>played ${fmtMins(baWk.played||0)}</span>
+          <span><span style="display:inline-block;width:6px;height:6px;background:#3B82F6;border-radius:2px;margin-right:3px;"></span>read ${fmtMins(baWk.read||0)}</span>
+          <span><span style="display:inline-block;width:6px;height:6px;background:#A78BFA;border-radius:2px;margin-right:3px;"></span>watched ${fmtMins(baWk.watched||0)}</span>
+        </div>
+      </div>`);
+    }
+  }
+
+  // IXL: skills worked-on list
+  const ixlSkillsList = ixlP.skillsList || ixlCfg.skillsList || (ixlCfg.skill ? [ixlCfg.skill] : []);
+  if (Array.isArray(ixlSkillsList) && ixlSkillsList.length) {
+    highlights.push(`<div style="margin-top:6px;">
+      <div style="font-size:.66rem;color:#9CA3AF;font-weight:700;margin-bottom:3px;">IXL skills she's working on</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;">
+        ${ixlSkillsList.slice(0, 6).map(s => `<span style="background:#EEF2FF;color:#4338CA;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px;">${s}</span>`).join('')}
+      </div>
+    </div>`);
+  } else if (ixlP.lastSkill || ixlCfg.skill) {
+    highlights.push(`<div style="margin-top:6px;font-size:.74rem;color:#6B7280;font-weight:700;">
+      📊 IXL · most recent: <strong style="color:#4338CA;">${ixlP.lastSkill || ixlCfg.skill}</strong>${ixlP.smartScore ? ` · SmartScore ${ixlP.smartScore}` : ''}
+    </div>`);
+  }
+
+  // Vocab.com: mastery distribution stacked bar
   if (vcInfo.distribution) {
     const d = vcInfo.distribution;
     const segs = [
@@ -4297,131 +4426,24 @@ function _renderRichSubjectReport(targetId, mode, opts) {
         const pct = Math.round((d[x.k] || 0) / total * 100);
         return `<div title="${d[x.k]||0} words ${x.label}" style="background:${x.c};width:${pct}%;height:100%;"></div>`;
       }).join('');
-      const legend = segs.map(x => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:.65rem;color:#6B7280;font-weight:700;"><span style="display:inline-block;width:8px;height:8px;background:${x.c};border-radius:2px;"></span>${d[x.k]||0} ${x.label}</span>`).join(' · ');
-      vocabExtra = `<div style="margin-top:10px;">
-        <div style="font-size:.7rem;font-weight:700;color:#6B7280;margin-bottom:4px;">📊 Mastery distribution across ${total} words on vocab.com:</div>
-        <div style="display:flex;height:10px;border-radius:6px;overflow:hidden;background:#F3F4F6;">${bar}</div>
-        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;">${legend}</div>
-      </div>`;
+      const legend = segs.map(x => `<span style="font-size:.62rem;color:#6B7280;font-weight:700;"><span style="display:inline-block;width:6px;height:6px;background:${x.c};border-radius:2px;margin-right:3px;"></span>${d[x.k]||0} ${x.label}</span>`).join(' · ');
+      highlights.push(`<div style="margin-top:6px;">
+        <div style="font-size:.66rem;color:#9CA3AF;font-weight:700;margin-bottom:3px;">Vocab.com mastery (${total} words)</div>
+        <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:#F3F4F6;">${bar}</div>
+        <div style="margin-top:3px;">${legend}</div>
+      </div>`);
     }
   }
-  if (vsP.totalWords || vsP.level) {
-    vocabExtra += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
-      ${vsP.totalWords ? `<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">VocabularyStars · ${vsP.totalWords.toLocaleString()} words</span>` : ''}
-      ${vsP.level ? `<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">${vsP.level}</span>` : ''}
-    </div>`;
-  } else if (!vocabExtra) {
-    vocabExtra = `<div style="font-size:.7rem;color:#9CA3AF;font-weight:600;margin-top:8px;">📊 Mastery distribution + VocabularyStars data populate from the daily scrape.</div>`;
-  }
-  html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.2rem;">📝</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Vocabulary</span></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${_statChips(vocabChips)}</div>
-    ${vocabExtra}
-  </div>`;
 
-  // ═══ 🐉 Beast Academy ═══
-  const baChapsDone = baP.chaptersComplete ?? w.ba?.chaptersDone ?? 0;
-  const baChapsTotal = baP.totalChapters ?? w.ba?.chaptersTotal ?? 12;
-  const baBook = baP.currentBook || w.ba?.book || '';
-  const baChap = baP.currentChapter || w.ba?.chapter || '';
-  const baWk = baP.weekSummary || {};
-  const mathTime = bySubject['Math'] || 0;
-  const baTodayMins = baP.todayMinutes ?? 0;
-  let baChips = [];
-  if (mode === 'today') {
-    baChips = [
-      { value: baTodayMins > 0 ? fmtMins(baTodayMins) : (mathTime > 0 ? fmtMins(mathTime) : '0m'), label: 'time today', bg:'#FEF3C7', fg:'#92400E' },
-      { value: (baP.recentLessons?.length) || w.ba?.weeklyChapters || 0, label: 'lessons today', bg:'#FEF3C7', fg:'#92400E' },
-      { value: baWk.newStars ?? 0, label: '⭐ stars earned', bg:'#FEF3C7', fg:'#D97706' },
-      { value: baWk.trophies ?? 0, label: '🏆 trophies', bg:'#FEF3C7', fg:'#D97706' },
-    ];
-  } else {
-    baChips = [
-      { value: baWk.totalMinutes > 0 ? fmtMins(baWk.totalMinutes) : (mathTime > 0 ? fmtMins(mathTime) : '0m'), label: 'time this week', bg:'#FEF3C7', fg:'#92400E' },
-      { value: w.ba?.weeklyChapters || 0, label: 'chapters worked', bg:'#FEF3C7', fg:'#92400E' },
-      { value: baWk.newStars ?? 0, label: '⭐ stars earned', bg:'#FEF3C7', fg:'#D97706' },
-      { value: baWk.trophies ?? 0, label: '🏆 trophies', bg:'#FEF3C7', fg:'#D97706' },
-    ];
+  // Quiet hint when nothing has been scraped yet
+  if (highlights.length === 0) {
+    highlights.push(`<div style="font-size:.7rem;color:#9CA3AF;font-weight:600;">📡 Detail rows (recent lessons, skills, mastery distribution) populate from the 10 AM + 5 PM scrape.</div>`);
   }
-  let baExtra = '';
-  if (baWk.played != null || baWk.read != null || baWk.watched != null) {
-    const total = (baWk.played || 0) + (baWk.read || 0) + (baWk.watched || 0);
-    if (total > 0) {
-      const seg = (mins, c) => `<div style="background:${c};width:${Math.round((mins||0)/total*100)}%;height:100%;"></div>`;
-      baExtra += `<div style="margin-top:10px;">
-        <div style="font-size:.7rem;font-weight:700;color:#6B7280;margin-bottom:4px;">How she spent ${fmtMins(total)} on BA this week:</div>
-        <div style="display:flex;height:10px;border-radius:6px;overflow:hidden;background:#F3F4F6;">
-          ${seg(baWk.played, '#F59E0B')}${seg(baWk.read, '#3B82F6')}${seg(baWk.watched, '#A78BFA')}
-        </div>
-        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:8px;font-size:.7rem;font-weight:700;color:#6B7280;">
-          <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:8px;height:8px;background:#F59E0B;border-radius:2px;"></span>played ${fmtMins(baWk.played||0)}</span>
-          <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:8px;height:8px;background:#3B82F6;border-radius:2px;"></span>read ${fmtMins(baWk.read||0)}</span>
-          <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:8px;height:8px;background:#A78BFA;border-radius:2px;"></span>watched ${fmtMins(baWk.watched||0)}</span>
-        </div>
-      </div>`;
-    }
-  }
-  if (Array.isArray(baP.recentLessons) && baP.recentLessons.length) {
-    baExtra += `<div style="margin-top:10px;">
-      <div style="font-size:.7rem;font-weight:700;color:#6B7280;margin-bottom:4px;">📚 Most recent lessons (${mode === 'today' ? 'today' : 'this week'}):</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;">
-        ${baP.recentLessons.slice(0, 6).map(l => `<span class="pv-tag" style="background:#FEF3C7;color:#92400E;font-size:.72rem;">${l}</span>`).join('')}
-      </div>
-    </div>`;
-  }
-  baExtra += `<div style="margin-top:10px;font-size:.78rem;color:#6B7280;font-weight:700;">
-    ${baBook ? `📘 Book ${baBook} · ` : '📘 Book — · '}${baChap ? `Currently in <strong style="color:#D97706;">${baChap}</strong> · ` : 'Chapter — · '}${baChapsDone}/${baChapsTotal} chapters in this book complete
-  </div>`;
-  if (!Array.isArray(baP.recentLessons) || !baP.recentLessons.length) {
-    baExtra += `<div style="font-size:.7rem;color:#9CA3AF;font-weight:600;margin-top:6px;">📚 Recent lessons populate from the BA daily scrape (10 AM + 5 PM).</div>`;
-  }
-  html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.2rem;">🐉</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Beast Academy</span></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${_statChips(baChips)}</div>
-    ${baExtra}
-  </div>`;
 
-  // ═══ 📊 IXL ═══
-  const ixlCfg = w.ixl || {};
-  const ixlTimeStr = ixlCfg.time || ixlP.timeLast30d || (mathTime > 0 ? fmtMins(mathTime) : '0m');
-  const ixlAttempted = ixlCfg.questionsAttempted ?? ixlP.questionsLast30d ?? 0;
-  const ixlCorrect   = ixlCfg.questionsCorrect ?? 0;
-  const ixlSkillsW   = ixlCfg.skillsWorkedOn ?? ixlP.skillsProgressed ?? 0;
-  const ixlAccuracy  = ixlAttempted > 0 ? Math.round(ixlCorrect / ixlAttempted * 100) : null;
-  const ixlChips = [
-    { value: ixlTimeStr || '0m', label: 'time', bg:'#EFF6FF', fg:'#1E40AF' },
-    { value: ixlAttempted, label: 'attempted', bg:'#EFF6FF', fg:'#1E40AF' },
-    { value: ixlAccuracy != null ? ixlAccuracy + '%' : ixlCorrect, label: ixlAccuracy != null ? 'accuracy' : 'correct', bg:'#F0FDF4', fg:'#065F46' },
-    { value: ixlSkillsW, label: 'skills worked', bg:'#F5F3FF', fg:'#5B21B6' },
-  ];
-  let ixlExtra = '';
-  // Skills list — prefer scraped skillsList, fall back to cfg.skill description
-  const ixlSkillsList = ixlP.skillsList || ixlCfg.skillsList || (ixlCfg.skill ? [ixlCfg.skill] : []);
-  if (Array.isArray(ixlSkillsList) && ixlSkillsList.length) {
-    ixlExtra += `<div style="margin-top:10px;">
-      <div style="font-size:.7rem;font-weight:700;color:#6B7280;margin-bottom:4px;">📚 Skills she's working on:</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;">
-        ${ixlSkillsList.slice(0, 8).map(s => `<span class="pv-tag" style="background:#EEF2FF;color:#4338CA;font-size:.72rem;">${s}</span>`).join('')}
-      </div>
-    </div>`;
-  } else if (ixlCfg.skill || ixlP.lastSkill) {
-    ixlExtra += `<div style="margin-top:10px;font-size:.78rem;color:#6B7280;font-weight:700;">
-      Most recent: <strong style="color:#4338CA;">${ixlP.lastSkill || ixlCfg.skill}</strong>${ixlP.smartScore ? ` · SmartScore ${ixlP.smartScore}` : ''}
-    </div>`;
-  }
-  if (ixlP.skillsMastered) {
-    ixlExtra += `<div style="margin-top:6px;font-size:.78rem;color:#6B7280;font-weight:700;">
-      🏅 ${ixlP.skillsMastered} skills mastered overall
-    </div>`;
-  }
-  if (!ixlExtra) {
-    ixlExtra = `<div style="font-size:.74rem;color:#9CA3AF;font-weight:600;margin-top:8px;">📚 No IXL skill list captured ${periodLower} yet — populated by the daily scrape.</div>`;
-  }
-  html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.2rem;">📊</span><span style="font-size:.85rem;font-weight:800;color:#374151;">IXL</span></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${_statChips(ixlChips)}</div>
-    ${ixlExtra}
-  </div>`;
+  platformHTML += `<div style="margin-top:12px;padding-top:10px;border-top:1px dashed #E5E7EB;">
+    ${highlights.join('')}
+  </div></div>`;
+  html += platformHTML;
 
   // ═══ 🔬 Science ═══
   const sciTime = bySubject['Science'] || 0;
@@ -4730,16 +4752,8 @@ function renderParentView() {
   const dayKey  = d => `hs-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
   const isDaily = range.isDaily;
 
-  // ── Render the rich per-subject report (mirrors Sarah's view) ──
-  // Daily mode → 'today'; Weekly mode → 'week'. EOD card skipped (Sarah-only).
-  if (typeof _renderRichSubjectReport === 'function') {
-    _renderRichSubjectReport('pv-subject-report', isDaily ? 'today' : 'week', {
-      syncIndicatorId: 'pv-subject-last-sync',
-      skipEOD: true
-    });
-  }
-
-  // Update range label and card titles
+  // Update range label FIRST so it never gets stuck on "Loading…" even if
+  // any later render block throws.
   const rl = document.getElementById('pv-range-label');
   if (rl) rl.textContent = range.label;
   const wt = document.getElementById('pv-wins-title');
@@ -5143,6 +5157,25 @@ function renderParentView() {
 
   // ════════ Day Summary card ════════
   renderParentDaySummary();
+
+  // ════════ Subject-by-subject report (mirrors Sarah's view) ════════
+  // Wrapped in try/catch so any data anomaly never blocks other parent-view
+  // sections. Passes the parent's currently-selected date range so the report
+  // honors the navigation arrows (prev/next week, prev/next day).
+  try {
+    if (typeof _renderRichSubjectReport === 'function') {
+      _renderRichSubjectReport('pv-subject-report', isDaily ? 'today' : 'week', {
+        syncIndicatorId: 'pv-subject-last-sync',
+        skipEOD: true,
+        rangeDays: rangeDays,
+        rangeLabel: range.label
+      });
+    }
+  } catch (e) {
+    console.warn('[ParentView] subject report failed:', e);
+    const el = document.getElementById('pv-subject-report');
+    if (el) el.innerHTML = `<div style="color:#9CA3AF;font-size:.85rem;padding:8px 0;">Subject report could not render: ${e.message}</div>`;
+  }
 
   // ════════ Wire links ════════
   const base = window.location.href.split('?')[0].split('#')[0].replace(/dashboard\.html$/,'');
