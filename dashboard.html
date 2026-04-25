@@ -2313,6 +2313,20 @@ function jKey(off=0)  { const d=new Date();d.setDate(d.getDate()+off);return `j-
 function load(k)      { try{const v=JSON.parse(localStorage.getItem(k));return v!==null&&v!==undefined?v:null;}catch{return null;} }
 function save(k,v)    { try{localStorage.setItem(k,JSON.stringify(v));}catch{} }
 
+// Safe JSON.parse for localStorage values. Returns the fallback if the key
+// is missing OR contains malformed JSON (which can happen if a sync wrote a
+// bad value). Without this, a single bad key (e.g. hs-platform-stats) would
+// throw inside render() and leave the entire dashboard blank.
+function safeParse(key, fallback) {
+  const raw = localStorage.getItem(key);
+  if (raw == null || raw === '') return fallback;
+  try { const v = JSON.parse(raw); return v == null ? fallback : v; }
+  catch (e) {
+    console.warn('[safeParse] corrupted', key, '— ignoring. Value started with:', raw.slice(0, 40));
+    return fallback;
+  }
+}
+
 // ═══════════════════════════════════════════════════════════
 //  JOURNAL SAVE
 // ═══════════════════════════════════════════════════════════
@@ -2496,7 +2510,7 @@ function render() {
   refreshBanner(done, total);
   restoreTimerDisplays();
   renderEndOfDayCard();
-  renderProgressCard();
+  try { renderProgressCard(); } catch (e) { console.warn('[render] progress card failed:', e); }
 
   // Wins
   renderWins(dayKey(-1), (dow+6)%7, PLAN, ACFG);
@@ -2538,8 +2552,13 @@ function render() {
   renderRewardsBreakdown();
   renderRewardsStreaks();
 
-  // Reports tab — live progress
-  renderReportsProgress();
+  // Reports tab — live progress (wrapped so any data anomaly never blanks the dashboard)
+  try { renderReportsProgress(); }
+  catch (e) {
+    console.warn('[render] reports tab failed:', e);
+    const _rep = document.getElementById('reports-progress-content');
+    if (_rep) _rep.innerHTML = `<div class="card" style="padding:14px;color:#9CA3AF;font-size:.85rem;">⚠️ Reports temporarily unavailable: ${e.message}. Try refreshing the page or running <code>?reset=all</code> at the end of the URL.</div>`;
+  }
 
   // Daily Story tab
   renderDailyStory();
@@ -4120,7 +4139,7 @@ function _lichessTodayInfo(plat) {
 // Compute today's vocab.com delta from history (mastered count and improved count)
 function _vocabComTodayInfo(plat) {
   const vc = plat.vocabCom || {};
-  const hist = JSON.parse(localStorage.getItem('hs-vocab-history') || '[]');
+  const hist = safeParse('hs-vocab-history', []);
   const todayStr = new Date().toISOString().slice(0, 10);
   const today = hist.find(h => h.date === todayStr) || hist[hist.length - 1] || null;
   const yest  = hist.length >= 2 ? hist[hist.length - 2] : null;
@@ -4138,7 +4157,7 @@ function _vocabComTodayInfo(plat) {
 
 // Compute weekly vocab.com aggregates (improved/mastered) over last 7 days
 function _vocabComWeekInfo() {
-  const hist = JSON.parse(localStorage.getItem('hs-vocab-history') || '[]');
+  const hist = safeParse('hs-vocab-history', []);
   if (hist.length === 0) return { improved: 0, masteredGain: 0, days: 0 };
   const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const wk = hist.filter(h => new Date(h.date).getTime() > cutoff);
@@ -4208,7 +4227,7 @@ function _renderRichSubjectReport(targetId, mode, opts) {
   const periodLower = isSingleDay ? "today" : "this week";
 
   // Pull platform stats from sync
-  const plat = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
+  const plat = safeParse('hs-platform-stats', {});
   const cfg = typeof getActiveCFG === 'function' ? getActiveCFG() : {};
   const w   = cfg.week || {};
   const baP = plat.beastAcademy || {};
@@ -4973,7 +4992,7 @@ function renderParentView() {
   // ════════ CHESS / PLATFORM STATS ════════
   const chessEl = document.getElementById('pv-chess');
   if (chessEl) {
-    const plat = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
+    const plat = safeParse('hs-platform-stats', {});
     const li   = plat.lichess  || {};
     const ck   = plat.chesskid || {};
     const ixl  = plat.ixl    || {};
@@ -6510,7 +6529,7 @@ function renderProgressCard() {
   if (!el) return;
   const cfg  = getActiveCFG();
   const w    = cfg.week;
-  const plat = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
+  const plat = safeParse('hs-platform-stats', {});
   const mode = _reportsMode; // 'today' or 'week'
   const fmtM = m => m < 60 ? `${m}m` : `${Math.floor(m/60)}h ${m%60}m`;
 
@@ -7118,7 +7137,7 @@ function _updateNotionSyncBadge(count) {
 // ═══════════════════════════════════════════════════════════
 async function fetchChessStats() {
   const today = todayISO();
-  const plat  = JSON.parse(localStorage.getItem('hs-platform-stats') || '{}');
+  const plat  = safeParse('hs-platform-stats', {});
 
   // Only re-fetch if already done today for both platforms
   const lichessDone   = plat.lichess?.lastUpdated   === today;
