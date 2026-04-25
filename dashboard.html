@@ -1753,6 +1753,22 @@ try {
   }
 } catch (e) { console.warn('[Dashboard] reset handler failed:', e); }
 
+// ── Self-healing migration: hs-vocab-words must be an array (Sarah's word log).
+// Some older scraper versions wrote a {word: mastery%} object map here, which
+// breaks renderVocabWordLog and _getVocabWordsForDate. If we detect that
+// shape, move it sideways into hs-vocab-mastery-map and reset the log to [].
+try {
+  const _raw = localStorage.getItem('hs-vocab-words');
+  if (_raw) {
+    const _v = JSON.parse(_raw);
+    if (_v && typeof _v === 'object' && !Array.isArray(_v)) {
+      localStorage.setItem('hs-vocab-mastery-map', _raw);
+      localStorage.setItem('hs-vocab-words', '[]');
+      console.warn('[Dashboard] migrated hs-vocab-words object map → hs-vocab-mastery-map; reset word log to []');
+    }
+  }
+} catch (e) { /* ignore — safeParse handles it later anyway */ }
+
 // ═══════════════════════════════════════════════════════════
 //  DEFAULT CONFIG — Claude updates this block each week
 //  Shell can also override any field via the ⚙️ Parent panel
@@ -3223,7 +3239,8 @@ function logVocabWord() {
   const input = document.getElementById('vocab-word-input');
   const word = (input.value || '').trim();
   if (!word) return;
-  const words = load(VOCAB_WORDS_KEY) || [];
+  const _raw = load(VOCAB_WORDS_KEY);
+  const words = Array.isArray(_raw) ? _raw : []; // recover if a scraper clobbered the array
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
   words.unshift({ word, date: dateStr, ts: Date.now() });
@@ -3235,7 +3252,8 @@ function logVocabWord() {
 }
 
 function deleteVocabWord(ts) {
-  const words = (load(VOCAB_WORDS_KEY) || []).filter(w => w.ts !== ts);
+  const _raw = load(VOCAB_WORDS_KEY);
+  const words = (Array.isArray(_raw) ? _raw : []).filter(w => w && w.ts !== ts);
   save(VOCAB_WORDS_KEY, words);
   renderVocabWordLog();
   render();
@@ -3244,7 +3262,10 @@ function deleteVocabWord(ts) {
 function renderVocabWordLog() {
   const el = document.getElementById('vocab-word-log');
   if (!el) return;
-  const words = load(VOCAB_WORDS_KEY) || [];
+  const raw = load(VOCAB_WORDS_KEY);
+  // Defensive: if a scraper accidentally clobbered this with an object map,
+  // treat it as empty rather than crash.
+  const words = Array.isArray(raw) ? raw : [];
   if (!words.length) {
     el.innerHTML = '<div style="font-size:.85rem;color:#9CA3AF;font-weight:600;text-align:center;padding:6px 0;">No words logged yet — type one above!</div>';
     return;
@@ -4070,8 +4091,13 @@ function _getTasksForDate(d) {
 
 function _getVocabWordsForDate(d) {
   const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-  const words = load('hs-vocab-words') || [];
-  return words.filter(w => w.date === dateStr).length;
+  // hs-vocab-words can legitimately be either an array (Sarah's manual word log)
+  // or — historically — an object map (some scraper versions wrote a
+  // {word: mastery%} map here). Be defensive about both shapes so this
+  // function can never throw and blank the Reports tab.
+  const raw = load('hs-vocab-words');
+  const words = Array.isArray(raw) ? raw : [];
+  return words.filter(w => w && w.date === dateStr).length;
 }
 
 function _getDailyActionsForDate(d) {
