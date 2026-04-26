@@ -4337,7 +4337,10 @@ function _renderRichSubjectReport(targetId, mode, opts) {
   const ixlP = plat.ixl || {};
   const vsP  = plat.vocabularyStars || {};
   const li   = plat.lichess || {};
-  const ck   = plat.chesskid || {};
+  // The scraper writes ChessKid as `chessKid` (camelCase) but the live-fetch
+  // path historically wrote `chesskid` (lowercase). Read both — camelCase wins
+  // when present since that's the scraper's canonical field.
+  const ck   = plat.chessKid || plat.chesskid || {};
 
   // Last-sync indicator
   const syncEl = opts.syncIndicatorId ? document.getElementById(opts.syncIndicatorId) : null;
@@ -4428,8 +4431,29 @@ function _renderRichSubjectReport(targetId, mode, opts) {
   const baTrophies = baWk.trophies ?? 0;
 
   const ixlCfg = w.ixl || {};
-  const ixlTimeStr = ixlCfg.time || ixlP.timeLast30d || (mathTime > 0 ? fmtMins(mathTime) : '0m');
-  const ixlAttempted = ixlCfg.questionsAttempted ?? ixlP.questionsLast30d ?? 0;
+  // IXL period preference order (first match wins):
+  //   1. Period-specific scrape data (ixl.timeToday / ixl.timeThisWeek)
+  //   2. Parent-supplied weekly value (ixlCfg.time)
+  //   3. Local timer logs (mathTime)
+  //   4. 30-day rolling fallback — labelled "(30d)" so it never pretends to be weekly
+  const mathTimeStr = mathTime > 0 ? fmtMins(mathTime) : null;
+  let ixlTimeStr;
+  let ixlTimeIs30Day = false;
+  const ixlPeriodTime = isSingleDay ? ixlP.timeToday : ixlP.timeThisWeek;
+  if (ixlPeriodTime) {
+    ixlTimeStr = ixlPeriodTime;
+  } else if (ixlCfg.time) {
+    ixlTimeStr = ixlCfg.time;
+  } else if (mathTimeStr) {
+    ixlTimeStr = mathTimeStr;
+  } else if (ixlP.timeLast30d) {
+    ixlTimeStr = `${ixlP.timeLast30d} (30d)`;
+    ixlTimeIs30Day = true;
+  } else {
+    ixlTimeStr = '—';
+  }
+  const ixlPeriodQuestions = isSingleDay ? ixlP.questionsToday : ixlP.questionsThisWeek;
+  const ixlAttempted = ixlPeriodQuestions ?? ixlCfg.questionsAttempted ?? ixlP.questionsLast30d ?? 0;
   const ixlCorrect   = ixlCfg.questionsCorrect ?? 0;
   const ixlSkillsW   = ixlCfg.skillsWorkedOn ?? ixlP.skillsProgressed ?? 0;
   const ixlAccuracy  = ixlAttempted > 0 ? Math.round(ixlCorrect / ixlAttempted * 100) : null;
@@ -4444,10 +4468,18 @@ function _renderRichSubjectReport(targetId, mode, opts) {
   const liPuzzleDelta = liToday.puzzleDelta;
   const liPuzzleRating = liToday.ratingAfter ?? li.puzzleRating ?? null;
   const liClassical = li.classical || li.rating || null;
-  const ckGames = ckDaily.gamesPlayed || 0;
-  const ckPuzzles = ckDaily.puzzlesSolved || 0;
+  // ChessKid: scraper exposes lifetime totals only — gamesPlayed, puzzlesSolved,
+  // lessonsCompleted, level, stars, rating. No reliable per-day data yet, so
+  // we show lifetime activity counts with a "(lifetime)" hint.
+  const ckGamesLife = ck.gamesPlayed ?? 0;
+  const ckPuzzlesLife = ck.puzzlesSolved ?? 0;
+  const ckLessonsLife = ck.lessonsCompleted ?? 0;
+  const ckGames = ckDaily.gamesPlayed ?? null;          // null = no per-day data
+  const ckPuzzles = ckDaily.puzzlesSolved ?? null;
   const ckRapid = ck.rapid || ck.rating || null;
   const ckPuzzleRating = ck.puzzleRating || null;
+  const ckLevel = ck.level ?? null;
+  const ckStars = ck.stars ?? null;
 
   // Helper: a cell that gracefully shows "0" or "—" instead of being empty
   const cell = v => (v == null || v === '' || v === undefined) ? '<span style="color:#D1D5DB;">—</span>' : v;
@@ -4494,9 +4526,17 @@ function _renderRichSubjectReport(targetId, mode, opts) {
     {
       emoji: '♟️', name: 'ChessKid',
       time: '—',
-      activity: (ckGames || ckPuzzles) ? `${ckGames} games · ${ckPuzzles} puzzles` : '—',
-      mastery: ckPuzzleRating ? `Puzzle ${ckPuzzleRating}` : '—',
-      status: ckRapid ? `Rapid ${ckRapid}` : '—'
+      // Prefer per-day activity if scrape captured it; else fall back to
+      // lifetime totals labelled clearly so the parent isn't confused.
+      activity: (ckGames != null || ckPuzzles != null)
+        ? `${ckGames || 0} games · ${ckPuzzles || 0} puzzles`
+        : (ckGamesLife || ckPuzzlesLife || ckLessonsLife)
+          ? `${ckGamesLife} games · ${ckPuzzlesLife} puzzles · ${ckLessonsLife} lessons (lifetime)`
+          : '—',
+      mastery: ckLevel || ckStars
+        ? `${ckLevel ? `Lvl ${ckLevel}` : ''}${ckLevel && ckStars ? ' · ' : ''}${ckStars ? `${ckStars} ⭐` : ''}`
+        : (ckPuzzleRating ? `Puzzle ${ckPuzzleRating}` : '—'),
+      status: ckRapid ? `Rating ${ckRapid}` : '—'
     },
   ];
 
@@ -4588,6 +4628,13 @@ function _renderRichSubjectReport(targetId, mode, opts) {
     </div>`);
   }
 
+  // IXL: be honest when we're showing a 30-day stat instead of period-specific
+  if (ixlTimeIs30Day) {
+    highlights.push(`<div style="margin-top:4px;font-size:.7rem;color:#9CA3AF;font-weight:600;">
+      ⚠️ IXL time shows the rolling 30-day total — the scraper doesn't yet capture per-day or per-week IXL minutes. Numbers may overstate ${periodLower}'s activity.
+    </div>`);
+  }
+
   // Vocab.com: mastery distribution stacked bar
   if (vcInfo.distribution) {
     const d = vcInfo.distribution;
@@ -4610,6 +4657,22 @@ function _renderRichSubjectReport(targetId, mode, opts) {
         <div style="margin-top:3px;">${legend}</div>
       </div>`);
     }
+  }
+
+  // ── Chess rating glossary (always shown when chess data is present) ──
+  if (liClassical || liPuzzleRating || ckRapid || ckLevel) {
+    const glossaryItems = [];
+    if (liClassical)    glossaryItems.push(`<strong>Classical ${liClassical}</strong> — long-game rating (30+ min/game)`);
+    if (li.rapid)       glossaryItems.push(`<strong>Rapid ${li.rapid}</strong> — medium-game rating (10–15 min)`);
+    if (liPuzzleRating) glossaryItems.push(`<strong>Puzzle ${liPuzzleRating}</strong> — Lichess puzzle-solving rating`);
+    if (ckRapid)        glossaryItems.push(`<strong>ChessKid ${ckRapid}</strong> — her ChessKid playing rating`);
+    if (ckLevel)        glossaryItems.push(`<strong>Lvl ${ckLevel}</strong> — ChessKid platform level (progress through their curriculum)`);
+    highlights.push(`<div style="margin-top:10px;padding-top:8px;border-top:1px dotted #E5E7EB;">
+      <div style="font-size:.66rem;color:#9CA3AF;font-weight:700;margin-bottom:4px;">♟️ What the chess numbers mean</div>
+      <div style="font-size:.72rem;color:#374151;font-weight:600;line-height:1.6;">
+        ${glossaryItems.map(g => `• ${g}`).join('<br>')}
+      </div>
+    </div>`);
   }
 
   // ── Chess narrative (layman mom summary) ──
