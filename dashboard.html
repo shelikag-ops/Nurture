@@ -4207,6 +4207,83 @@ function _statChips(items) {
   }).join('');
 }
 
+// Sum BA per-day minutes from hs-ba-activity-{year}-{month} keys for the
+// given range of dates. The daily scraper writes these keys, so we get a
+// real per-day breakdown even when timer logs are empty.
+function _baMinutesForRange(rangeDays) {
+  let total = 0;
+  rangeDays.forEach(d => {
+    const key = `hs-ba-activity-${d.getFullYear()}-${d.getMonth() + 1}`;
+    const data = safeParse(key, {});
+    const mins = parseInt(data[d.getDate()]) || 0;
+    total += mins;
+  });
+  return total;
+}
+
+// Parse "3.11: Between" → { book: '3', chapter: '11', lesson: 'Between' }
+// Falls back to nulls if the format isn't recognized.
+function _parseLessonName(name) {
+  const m = (name || '').match(/^(\d+)\.(\d+):\s*(.*)$/);
+  if (!m) return { book: null, chapter: null, lesson: name || null };
+  return { book: m[1], chapter: m[2], lesson: m[3] };
+}
+
+// "Layman mom" chess narrative — picks 1–2 achievements, misses, and growth
+// areas from the period's activity. Returns an array of { kind, text } items.
+function _chessNarrative(plat, mode, isSingleDay, chessTimeMins) {
+  const li = plat.lichess || {};
+  const ck = plat.chesskid || {};
+  const liToday = _lichessTodayInfo(plat);
+  const ckDaily = plat.chesskidDaily || {};
+  const totalGames = (liToday.games || 0) + (ckDaily.gamesPlayed || 0);
+  const totalPuzzles = (liToday.puzzlesSolved || 0) + (ckDaily.puzzlesSolved || 0);
+  const wins = liToday.wins ?? 0;
+  const winRate = liToday.winRate;
+  const puzzleDelta = liToday.puzzleDelta;
+  const ratingNow = liToday.ratingAfter ?? li.puzzleRating;
+
+  const out = [];
+
+  // Achievements
+  if (puzzleDelta != null && puzzleDelta > 0) {
+    out.push({ kind: 'achievement', text: `🎉 Puzzle rating climbed <strong>+${puzzleDelta}</strong> ${isSingleDay ? 'today' : 'this week'} — solid practice!` });
+  }
+  if (winRate != null && winRate >= 60 && totalGames >= 2) {
+    out.push({ kind: 'achievement', text: `🏆 Won ${wins} of ${totalGames} games (<strong>${winRate}%</strong>) — a winning streak.` });
+  }
+  if (chessTimeMins >= 30) {
+    out.push({ kind: 'achievement', text: `🔥 Logged <strong>${chessTimeMins} min</strong> of focused chess time.` });
+  }
+  if (totalPuzzles >= 5) {
+    out.push({ kind: 'achievement', text: `🧩 Cracked <strong>${totalPuzzles}</strong> puzzles — sharp tactics work.` });
+  }
+
+  // Misses
+  if (puzzleDelta != null && puzzleDelta < -5) {
+    out.push({ kind: 'miss', text: `📉 Puzzle rating dipped ${Math.abs(puzzleDelta)} points — harder puzzles came up. Totally normal.` });
+  }
+  if (winRate != null && winRate < 30 && totalGames >= 3) {
+    out.push({ kind: 'miss', text: `😣 Tough day on the board — won only ${wins} of ${totalGames}. Losses are how she learns.` });
+  }
+  if (totalGames > 5 && chessTimeMins > 0 && chessTimeMins < 15) {
+    out.push({ kind: 'miss', text: `⚡ Played fast — ${totalGames} games in only ${chessTimeMins} min. Quick clicks rather than thinking time.` });
+  }
+
+  // Growth areas (always show one if we can compute it)
+  if (ratingNow) {
+    out.push({ kind: 'growth', text: `📈 Rating now <strong>${ratingNow}</strong> — ${_chessLevelDescription(ratingNow)}` });
+  }
+  if (totalPuzzles === 0 && totalGames > 0) {
+    out.push({ kind: 'growth', text: `🌱 Growth area: try 5–10 puzzles before each play session — sharpens tactics fast.` });
+  }
+  if (totalGames === 0 && totalPuzzles > 0) {
+    out.push({ kind: 'growth', text: `🌱 Growth area: balance puzzles with rated games to apply what she's learning.` });
+  }
+
+  return out;
+}
+
 // "Focus quality" interpretation given chess minutes today
 function _chessFocusBlurb(mins, games, puzzles) {
   if (!mins && !games && !puzzles) return '';
@@ -4300,29 +4377,53 @@ function _renderRichSubjectReport(targetId, mode, opts) {
     </div>
   </div>`;
 
-  // ═══ 📚 Academic Platforms (compact table — Vocab.com, VocabularyStars, BA, IXL) ═══
-  // Build per-platform metric cells, then collect "highlights" (recent
-  // lessons, skill list, mastery distribution) below the table.
+  // ═══ 📚 Academic Platforms (compact table) ═══
+  // Rows: Vocab.com, Beast Academy, IXL, Lichess, ChessKid.
+  // VocabularyStars removed (low signal). Chess platforms added so the
+  // table is the at-a-glance summary; the layman chess narrative lives
+  // in the highlights row below the table.
   const vcInfo  = _vocabComTodayInfo(plat);
   const vcWeek  = _vocabComWeekInfo();
   const vocabTimeMins = bySubject['Vocabulary'] || 0;
-  const vocabComTimeStr = w.vocabComTime || (vocabTimeMins > 0 ? fmtMins(vocabTimeMins) : '0m');
+  const vocabComTimeStr = vocabTimeMins > 0 ? fmtMins(vocabTimeMins)
+                       : (w.vocabComTime || '—');
+
   const vcMastered = vcInfo.mastered ?? w.vocabMastered ?? 0;
   const vcTotalUnique = vcInfo.totalUnique ?? 0;
 
+  // ── Beast Academy: prefer the freshest signal we have for current chapter ──
+  // Scraper sometimes leaves chaptersComplete pointing at an older book even
+  // after Sarah moves on. recentLessons[0] is the truest "last activity".
+  const baBookCfg = baP.currentBook || w.ba?.book || '';
+  const baChapCfg = baP.currentChapter || w.ba?.chapter || '';
+  const recentLessons = Array.isArray(baP.recentLessons) ? baP.recentLessons : [];
+  const latestParsed = recentLessons.length ? _parseLessonName(recentLessons[0]) : null;
+  // What to show as "current": prefer parsed-from-recentLessons, else cfg
+  const baCurrent = latestParsed && latestParsed.chapter
+    ? `${latestParsed.book}.${latestParsed.chapter}: ${latestParsed.lesson || ''}`.trim()
+    : (baChapCfg || '—');
+  // Distinct books seen in recentLessons (ordered, e.g. ["3", "4"])
+  const baBooksSeen = [...new Set(recentLessons
+    .map(_parseLessonName)
+    .map(p => p.book)
+    .filter(Boolean))];
   const baChapsDone = baP.chaptersComplete ?? w.ba?.chaptersDone ?? 0;
   const baChapsTotal = baP.totalChapters ?? w.ba?.chaptersTotal ?? 12;
-  const baBook = baP.currentBook || w.ba?.book || '';
-  const baChap = baP.currentChapter || w.ba?.chapter || '';
+  const baLifetimeStars = baP.stars ?? null;
+  const baLifetimeHours = baP.totalTime || baP.totalHours || null;
   const baWk = baP.weekSummary || {};
   const mathTime = bySubject['Math'] || 0;
+  // ⏱ Sum per-day BA minutes from the scraped activity log — works for any
+  // range and survives even when no timer was used.
+  const baRangeMins = _baMinutesForRange(rangeDays);
   const baTodayMins = baP.todayMinutes ?? 0;
-  const baTime = isSingleDay
-    ? (baTodayMins > 0 ? fmtMins(baTodayMins) : (mathTime > 0 ? fmtMins(mathTime) : '0m'))
-    : (baWk.totalMinutes > 0 ? fmtMins(baWk.totalMinutes) : (mathTime > 0 ? fmtMins(mathTime) : '0m'));
+  const baTime = baRangeMins > 0 ? fmtMins(baRangeMins)
+              : (isSingleDay && baTodayMins > 0 ? fmtMins(baTodayMins)
+              : (!isSingleDay && baWk.totalMinutes > 0 ? fmtMins(baWk.totalMinutes)
+              : (mathTime > 0 ? fmtMins(mathTime) : '0m')));
   const baActivity = isSingleDay
-    ? `${(baP.recentLessons?.length) || 0} lessons`
-    : `${w.ba?.weeklyChapters || 0} chapters`;
+    ? `${(recentLessons.length) || 0} lessons`
+    : `${w.ba?.weeklyChapters || 0} chapters · ${recentLessons.length || 0} lessons`;
   const baStars = baWk.newStars ?? 0;
   const baTrophies = baWk.trophies ?? 0;
 
@@ -4333,10 +4434,24 @@ function _renderRichSubjectReport(targetId, mode, opts) {
   const ixlSkillsW   = ixlCfg.skillsWorkedOn ?? ixlP.skillsProgressed ?? 0;
   const ixlAccuracy  = ixlAttempted > 0 ? Math.round(ixlCorrect / ixlAttempted * 100) : null;
 
+  // ── Chess (Lichess + ChessKid) ──
+  const liToday = _lichessTodayInfo(plat);
+  const ckDaily = plat.chesskidDaily || {};
+  const chessTimeMins = bySubject['Chess'] || 0;
+  const liGames = liToday.games || 0;
+  const liPuzzles = liToday.puzzlesSolved || 0;
+  const liWinRate = liToday.winRate;
+  const liPuzzleDelta = liToday.puzzleDelta;
+  const liPuzzleRating = liToday.ratingAfter ?? li.puzzleRating ?? null;
+  const liClassical = li.classical || li.rating || null;
+  const ckGames = ckDaily.gamesPlayed || 0;
+  const ckPuzzles = ckDaily.puzzlesSolved || 0;
+  const ckRapid = ck.rapid || ck.rating || null;
+  const ckPuzzleRating = ck.puzzleRating || null;
+
   // Helper: a cell that gracefully shows "0" or "—" instead of being empty
   const cell = v => (v == null || v === '' || v === undefined) ? '<span style="color:#D1D5DB;">—</span>' : v;
 
-  // Each row: emoji + name | time | activity | mastery/score | status
   const rows = [
     {
       emoji: '📝', name: 'Vocab.com',
@@ -4350,18 +4465,15 @@ function _renderRichSubjectReport(targetId, mode, opts) {
       status: vcTotalUnique ? `${vcMastered}/${vcTotalUnique} total` : `${vcMastered} mastered`
     },
     {
-      emoji: '⭐', name: 'VocabularyStars',
-      time: '—',
-      activity: vsP.wordsToday ? `${vsP.wordsToday} words today` : (vsP.totalWords ? `${vsP.totalWords.toLocaleString()} lifetime` : '—'),
-      mastery: vsP.accuracy ? `${vsP.accuracy}% accuracy` : '—',
-      status: vsP.level || '—'
-    },
-    {
       emoji: '🐉', name: 'Beast Academy',
       time: baTime,
       activity: baActivity,
-      mastery: `⭐ ${baStars} · 🏆 ${baTrophies}`,
-      status: `${baChapsDone}/${baChapsTotal} chapters`
+      mastery: baLifetimeStars
+        ? `${baLifetimeStars.toLocaleString()} ⭐ lifetime · +${baStars} this wk`
+        : `⭐ ${baStars} · 🏆 ${baTrophies}`,
+      status: latestParsed && latestParsed.book && latestParsed.chapter
+        ? `Book ${latestParsed.book} · Ch ${latestParsed.chapter}`
+        : (baBookCfg ? `Book ${baBookCfg} · ${baChapsDone}/${baChapsTotal}` : `${baChapsDone}/${baChapsTotal}`)
     },
     {
       emoji: '📊', name: 'IXL',
@@ -4369,6 +4481,22 @@ function _renderRichSubjectReport(targetId, mode, opts) {
       activity: `${ixlAttempted} attempted`,
       mastery: ixlAccuracy != null ? `${ixlAccuracy}% accuracy` : `${ixlCorrect} correct`,
       status: `${ixlSkillsW} skills worked`
+    },
+    {
+      emoji: '⚡', name: 'Lichess',
+      time: chessTimeMins > 0 ? fmtMins(chessTimeMins) : '—',
+      activity: (liGames || liPuzzles) ? `${liGames} games · ${liPuzzles} puzzles` : '—',
+      mastery: liPuzzleDelta != null
+        ? `Puzzle ${liPuzzleDelta > 0 ? '↑+' : ''}${liPuzzleDelta}${liPuzzleRating ? ' → ' + liPuzzleRating : ''}`
+        : (liPuzzleRating ? `Puzzle ${liPuzzleRating}` : '—'),
+      status: liClassical ? `Classical ${liClassical}` : '—'
+    },
+    {
+      emoji: '♟️', name: 'ChessKid',
+      time: '—',
+      activity: (ckGames || ckPuzzles) ? `${ckGames} games · ${ckPuzzles} puzzles` : '—',
+      mastery: ckPuzzleRating ? `Puzzle ${ckPuzzleRating}` : '—',
+      status: ckRapid ? `Rapid ${ckRapid}` : '—'
     },
   ];
 
@@ -4402,22 +4530,26 @@ function _renderRichSubjectReport(targetId, mode, opts) {
       </table>
     </div>`;
 
-  // ── Highlights row underneath the table (BA chapter, recent lessons, IXL skill list, vocab distribution) ──
+  // ── Highlights row underneath the table (BA progression, recent lessons, IXL skill list, vocab distribution, chess narrative) ──
   const highlights = [];
 
-  // BA: book + chapter currently being worked
-  if (baBook || baChap) {
-    highlights.push(`<div style="font-size:.74rem;color:#6B7280;font-weight:700;line-height:1.45;">
-      🐉 BA · ${baBook ? `Book ${baBook} ·` : ''} ${baChap ? `<strong style="color:#D97706;">${baChap}</strong>` : '—'}
+  // BA: latest activity (parsed from recentLessons[0]) + books seen
+  if (baCurrent !== '—' || baBooksSeen.length || baChapCfg) {
+    const booksSeenStr = baBooksSeen.length
+      ? `Books touched recently: ${baBooksSeen.map(b => `<span style="background:#FEF3C7;color:#92400E;padding:1px 8px;border-radius:99px;font-weight:800;">Book ${b}</span>`).join(' ')}`
+      : '';
+    highlights.push(`<div style="font-size:.74rem;color:#6B7280;font-weight:700;line-height:1.5;">
+      🐉 BA · Latest: <strong style="color:#D97706;">${baCurrent}</strong>${baLifetimeStars ? ` · <span style="color:#92400E;">${baLifetimeStars.toLocaleString()} ⭐ lifetime</span>` : ''}${baLifetimeHours ? ` · ${baLifetimeHours} on platform` : ''}
+      ${booksSeenStr ? `<div style="margin-top:4px;font-weight:700;">${booksSeenStr}</div>` : ''}
     </div>`);
   }
 
   // BA: recent lessons (compact pill list)
-  if (Array.isArray(baP.recentLessons) && baP.recentLessons.length) {
+  if (recentLessons.length) {
     highlights.push(`<div style="margin-top:6px;">
       <div style="font-size:.66rem;color:#9CA3AF;font-weight:700;margin-bottom:3px;">Recent BA lessons</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px;">
-        ${baP.recentLessons.slice(0, 5).map(l => `<span style="background:#FEF3C7;color:#92400E;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px;">${l}</span>`).join('')}
+        ${recentLessons.slice(0, 6).map(l => `<span style="background:#FEF3C7;color:#92400E;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px;">${l}</span>`).join('')}
       </div>
     </div>`);
   }
@@ -4480,9 +4612,31 @@ function _renderRichSubjectReport(targetId, mode, opts) {
     }
   }
 
+  // ── Chess narrative (layman mom summary) ──
+  const chessItems = _chessNarrative(plat, mode, isSingleDay, chessTimeMins);
+  if (chessItems.length) {
+    const groupColor = { achievement: '#06D6A0', miss: '#EF4444', growth: '#6366F1' };
+    const groupBg    = { achievement: '#D1FAE5', miss: '#FEE2E2', growth: '#E0E7FF' };
+    const groupLabel = { achievement: 'Achievements', miss: 'Misses', growth: 'Growth areas' };
+    // Group items by kind
+    const grouped = chessItems.reduce((acc, it) => {
+      (acc[it.kind] = acc[it.kind] || []).push(it.text);
+      return acc;
+    }, {});
+    const sections = ['achievement', 'miss', 'growth'].filter(k => grouped[k]).map(k => `
+      <div style="margin-top:6px;">
+        <div style="font-size:.62rem;color:${groupColor[k]};font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">${groupLabel[k]}</div>
+        ${grouped[k].map(t => `<div style="background:${groupBg[k]};color:#111827;font-size:.74rem;font-weight:600;padding:6px 10px;border-radius:8px;margin-bottom:3px;line-height:1.45;">${t}</div>`).join('')}
+      </div>`).join('');
+    highlights.push(`<div style="margin-top:10px;padding-top:8px;border-top:1px dotted #E5E7EB;">
+      <div style="font-size:.66rem;color:#9CA3AF;font-weight:700;margin-bottom:3px;">♟️ Chess — in plain English</div>
+      ${sections}
+    </div>`);
+  }
+
   // Quiet hint when nothing has been scraped yet
   if (highlights.length === 0) {
-    highlights.push(`<div style="font-size:.7rem;color:#9CA3AF;font-weight:600;">📡 Detail rows (recent lessons, skills, mastery distribution) populate from the 10 AM + 5 PM scrape.</div>`);
+    highlights.push(`<div style="font-size:.7rem;color:#9CA3AF;font-weight:600;">📡 Detail rows (recent lessons, skills, mastery distribution, chess narrative) populate from the 10 AM + 5 PM scrape.</div>`);
   }
 
   platformHTML += `<div style="margin-top:12px;padding-top:10px;border-top:1px dashed #E5E7EB;">
@@ -4530,67 +4684,9 @@ function _renderRichSubjectReport(targetId, mode, opts) {
     ${sciExtra}
   </div>`;
 
-  // ═══ ♟️ Chess (layman parlance) ═══
-  const chessTimeMins = bySubject['Chess'] || 0;
-  const liToday = _lichessTodayInfo(plat);
-  const ckDaily = plat.chesskidDaily || {};
-  const totalGamesToday = (liToday.games || 0) + (ckDaily.gamesPlayed || 0);
-  const totalPuzzlesToday = (liToday.puzzlesSolved || 0) + (ckDaily.puzzlesSolved || 0);
-  const focusBlurb = _chessFocusBlurb(chessTimeMins, totalGamesToday, totalPuzzlesToday);
-  const winRate = liToday.winRate;
-  const puzzleDelta = liToday.puzzleDelta;
-  const puzzleRating = liToday.ratingAfter || li.puzzleRating;
-  const chessChips = [
-    { value: chessTimeMins > 0 ? fmtMins(chessTimeMins) : '0m', label: 'time ' + periodLower, bg:'#F3F4F6', fg:'#374151' },
-    { value: totalGamesToday || 0, label: 'games played', bg:'#F3F4F6', fg:'#374151' },
-    { value: totalPuzzlesToday || 0, label: 'puzzles solved', bg:'#F5F3FF', fg:'#5B21B6' },
-    { value: winRate != null ? `${winRate}%` : '—', label: 'win rate', bg:'#F0FDF4', fg:'#065F46' },
-  ];
-  let chessExtra = '';
-  if (focusBlurb) {
-    chessExtra += `<div style="margin-top:10px;background:#F9FAFB;border-radius:8px;padding:8px 10px;font-size:.78rem;color:#374151;font-weight:700;">${focusBlurb}</div>`;
-  }
-  if (puzzleDelta != null && puzzleRating != null) {
-    const sign = puzzleDelta > 0 ? '↑' : puzzleDelta < 0 ? '↓' : '→';
-    const color = puzzleDelta > 0 ? '#059669' : puzzleDelta < 0 ? '#EF4444' : '#6B7280';
-    const wordy = puzzleDelta > 0
-      ? `Her puzzle rating went <strong style="color:${color};">up ${puzzleDelta} points</strong> ${periodLower} — that's a level-up.`
-      : puzzleDelta < 0
-      ? `Her puzzle rating dipped <strong style="color:${color};">${Math.abs(puzzleDelta)} points</strong> ${periodLower} — totally normal, harder puzzles came up.`
-      : `Her puzzle rating held steady ${periodLower}.`;
-    chessExtra += `<div style="margin-top:8px;font-size:.78rem;color:#374151;font-weight:600;line-height:1.5;">
-      🧩 ${wordy} Now at <strong>${puzzleRating}</strong> ${sign} ${puzzleDelta > 0 ? '+' : ''}${puzzleDelta}.
-    </div>`;
-  }
-  if (puzzleRating) {
-    const desc = _chessLevelDescription(puzzleRating);
-    if (desc) {
-      chessExtra += `<div style="margin-top:6px;font-size:.74rem;color:#6B7280;font-weight:600;line-height:1.5;">
-        💡 What ${puzzleRating} means: <em>${desc}</em>
-      </div>`;
-    }
-  }
-  if (winRate != null && totalGamesToday > 0) {
-    const verdict = winRate >= 60 ? '— a winning day! 🎉'
-                  : winRate >= 40 ? '— a balanced day, win some/lose some.'
-                  : '— a tough day; losses are how she learns.';
-    chessExtra += `<div style="margin-top:6px;font-size:.74rem;color:#6B7280;font-weight:600;line-height:1.5;">
-      🎮 Played ${totalGamesToday} game${totalGamesToday!==1?'s':''}, won ${liToday.wins || 0} ${verdict}
-    </div>`;
-  }
-  // Lifetime ratings
-  const lifetimeChips = [];
-  if (ck.rapid)        lifetimeChips.push(`<span class="pv-tag" style="background:#22C55E22;color:#15803D;">CK Rapid ${ck.rapid}</span>`);
-  if (li.classical)    lifetimeChips.push(`<span class="pv-tag" style="background:#1e1b4b22;color:#1e1b4b;">Lichess ${li.classical}</span>`);
-  if (li.puzzleRating) lifetimeChips.push(`<span class="pv-tag" style="background:#8B5CF622;color:#7C3AED;">Puzzle ${li.puzzleRating}</span>`);
-  if (lifetimeChips.length) {
-    chessExtra += `<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">${lifetimeChips.join('')}</div>`;
-  }
-  html += `<div class="card" style="padding:14px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:1.2rem;">♟️</span><span style="font-size:.85rem;font-weight:800;color:#374151;">Chess <span style="font-size:.7rem;font-weight:600;color:#9CA3AF;">— in plain English</span></span></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${_statChips(chessChips)}</div>
-    ${chessExtra}
-  </div>`;
+  // (♟️ Chess card removed — Lichess and ChessKid are now rows in the
+  // Academic Platforms table above, with the layman narrative shown in the
+  // highlights row below it.)
 
   // ═══ 📖 Reading (always shown) ═══
   const readingTime = bySubject['Reading'] || 0;
