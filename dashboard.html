@@ -4597,11 +4597,11 @@ function _renderRichSubjectReport(targetId, mode, opts) {
   // BA: per-day activity for the selected period (when activityByDate is present)
   // This is what surfaces "Friday: 4.1 Angle Addition (10m), BA4.4 Counting (20m), BA5.2 Integers (4m)"
   // exactly as it appears on beastacademy.com → Activity tab.
-  const baActivity = baP.activityByDate;
-  if (baActivity && typeof baActivity === 'object') {
+  const baActivityByDate = baP.activityByDate;
+  if (baActivityByDate && typeof baActivityByDate === 'object') {
     const rangeISOs = rangeDays.map(d => d.toISOString().slice(0, 10));
     const rowsForRange = rangeISOs
-      .map(iso => ({ iso, data: baActivity[iso] }))
+      .map(iso => ({ iso, data: baActivityByDate[iso] }))
       .filter(r => r.data && (r.data.lessonsPlayed?.length || r.data.chaptersRead?.length))
       .reverse(); // most-recent first
     if (rowsForRange.length) {
