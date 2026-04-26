@@ -4207,6 +4207,205 @@ function _statChips(items) {
   }).join('');
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+//  Intelligent Analysis & Recommendations engine
+//  Reads scraped platform data + CFG and emits prioritised, evidence-backed
+//  action items. Runs every render — completely client-side, no API calls.
+//  Each recommendation: { priority: 1-3, category, headline, why, action }
+//    priority 1 = high (red),  2 = medium (amber),  3 = low/positive (green)
+// ─────────────────────────────────────────────────────────────────────────
+function _generateRecommendations(plat, cfg, rangeDays) {
+  const recs = [];
+  const w = (cfg && cfg.week) || {};
+  const baP = plat.beastAcademy || {};
+  const ixlP = plat.ixl || {};
+  const vcP = plat.vocabCom || {};
+  const li = plat.lichess || {};
+  const ck = plat.chessKid || plat.chesskid || {};
+  const baAct = baP.activityByDate || {};
+
+  // Helper: sum BA minutes across a date range
+  const sumBA = (days) => days.reduce((s, d) => s + (_baMinutesForRange([d]) || 0), 0);
+  const weekDays = rangeDays || _getWeekDays();
+  const weekMinsBA = _baMinutesForRange(weekDays);
+
+  // ── Beast Academy: spread vs focus ──
+  if (baP.activityByDate) {
+    const allChapters = new Set();
+    for (const d of weekDays) {
+      const iso = d.toISOString().slice(0, 10);
+      const day = baAct[iso];
+      if (!day) continue;
+      for (const l of (day.lessonsPlayed || [])) allChapters.add((l.name.match(/^(\d+\.\d+|BA\d+\.\d+)/) || [])[1] || l.name);
+      for (const c of (day.chaptersRead || [])) allChapters.add((c.name.match(/^(\d+\.\d+|BA\d+\.\d+)/) || [])[1] || c.name);
+    }
+    const distinctCount = allChapters.size;
+    if (distinctCount >= 6) {
+      recs.push({
+        priority: 2, category: '🐉 Beast Academy',
+        headline: `She's juggling ${distinctCount} different BA chapters this week`,
+        why: `Touched: ${[...allChapters].slice(0, 6).join(', ')}${distinctCount > 6 ? '…' : ''}. Spreading thin can slow real mastery.`,
+        action: `Pick 1–2 chapters as the "primary" focus for this week — finish lessons in those before starting new ones.`
+      });
+    }
+
+    // Lessons started but never finished (played a few minutes once, never returned)
+    const playedOnce = {};
+    for (const d of weekDays) {
+      const iso = d.toISOString().slice(0, 10);
+      const day = baAct[iso];
+      if (!day) continue;
+      for (const l of (day.lessonsPlayed || [])) {
+        playedOnce[l.name] = playedOnce[l.name] || { mins: 0, days: 0 };
+        playedOnce[l.name].mins += l.mins;
+        playedOnce[l.name].days += 1;
+      }
+    }
+    const stalledLesson = Object.entries(playedOnce).find(([n, v]) => v.days >= 2 && v.mins < 25);
+    if (stalledLesson) {
+      recs.push({
+        priority: 2, category: '🐉 Beast Academy',
+        headline: `"${stalledLesson[0]}" started ${stalledLesson[1].days} times but only ${stalledLesson[1].mins} min total`,
+        why: `Returning to the same lesson without finishing usually means it's a sticking point.`,
+        action: `Sit with her for one focused 20-min block on this lesson and watch where she gets stuck.`
+      });
+    }
+  } else if (!baP.lastSyncDate) {
+    recs.push({
+      priority: 1, category: '🐉 Beast Academy',
+      headline: `BA progress data hasn't synced yet`,
+      why: `The 10 AM / 5 PM scraper either hasn't run or BA isn't logged in.`,
+      action: `Open beastacademy.com once in Chrome to refresh the session, then trigger "Run now" on the daily-progress-to-morning scheduled task.`
+    });
+  }
+
+  if (weekMinsBA > 0 && weekMinsBA < 60) {
+    recs.push({
+      priority: 1, category: '🐉 Beast Academy',
+      headline: `Only ${weekMinsBA} min of BA this week`,
+      why: `Below the typical 90+ min/week target for steady progression.`,
+      action: `Block 20 min/day BA time Mon–Fri to rebuild rhythm.`
+    });
+  } else if (weekMinsBA >= 180) {
+    recs.push({
+      priority: 3, category: '🐉 Beast Academy',
+      headline: `Strong week on BA — ${Math.floor(weekMinsBA/60)}h ${weekMinsBA%60}m logged`,
+      why: `Consistent BA practice is the strongest predictor of long-term math fluency.`,
+      action: `Celebrate it. Pick one chapter she's loving and add a stretch problem from AoPS Alcumus.`
+    });
+  }
+
+  // ── Vocab.com mastery distribution ──
+  if (vcP.distribution) {
+    const d = vcP.distribution;
+    const total = (d['0-25']||0) + (d['25-50']||0) + (d['50-75']||0) + (d['75-100']||0);
+    const earlyStage = (d['0-25']||0) + (d['25-50']||0);
+    if (total > 0 && earlyStage / total > 0.7) {
+      recs.push({
+        priority: 2, category: '📝 Vocab.com',
+        headline: `${Math.round(earlyStage/total*100)}% of her vocab list is still in the early stages`,
+        why: `${earlyStage.toLocaleString()} of ${total.toLocaleString()} words have <50% mastery. Bulk practice helps shift these.`,
+        action: `Use the Spelling Bee app's "Vocab.com — Needs Practice" list for 15 min daily — it's auto-loaded with these words.`
+      });
+    }
+    if ((d['75-100']||0) > 100) {
+      recs.push({
+        priority: 3, category: '📝 Vocab.com',
+        headline: `${d['75-100']} words in the "nearly mastered" bucket`,
+        why: `These will tip into mastery with a single review pass.`,
+        action: `Quick 10-min review session on these would push 30+ to 100% mastery.`
+      });
+    }
+  }
+
+  // Vocab.com daily improved count
+  if (vcP.wordsImprovedToday != null && vcP.wordsImprovedToday >= 50) {
+    recs.push({
+      priority: 3, category: '📝 Vocab.com',
+      headline: `Strong vocab session today — ${vcP.wordsImprovedToday} words improved`,
+      why: `Daily vocab practice compounds fast.`,
+      action: `Keep this rhythm — same time tomorrow.`
+    });
+  }
+
+  // ── IXL ──
+  const ixlTime30 = ixlP.timeLast30d || '';
+  const ixlMinsMatch = ixlTime30.match(/(\d+)/);
+  const ixlMins30 = ixlMinsMatch ? parseInt(ixlMinsMatch[1]) : 0;
+  if (ixlMins30 > 0 && ixlMins30 < 60) {
+    recs.push({
+      priority: 1, category: '📊 IXL',
+      headline: `Only ${ixlTime30} on IXL in the last 30 days`,
+      why: `IXL Diagnostic is built for short daily bursts — 15 min/day = 7+ hours/month of targeted skill-building.`,
+      action: `Set a 15-min IXL block right after BA time each day. Pick 1 skill at a time.`
+    });
+  }
+  if (ixlP.lastSkill && /^A\.\s*Numbers to \d/.test(ixlP.lastSkill)) {
+    recs.push({
+      priority: 2, category: '📊 IXL',
+      headline: `Last IXL skill is a kindergarten-level placeholder ("${ixlP.lastSkill}")`,
+      why: `Either she explored IXL once at this level, or the scraper grabbed a default. Real practice should be at her grade.`,
+      action: `Open IXL Grade 3 → Math, pick a topic that matches what she's doing in BA, and start her there.`
+    });
+  }
+
+  // ── Chess ──
+  const liToday = _lichessTodayInfo(plat);
+  const puzzleRating = liToday.ratingAfter || li.puzzleRating;
+  if (puzzleRating && liToday.puzzleDelta != null && liToday.puzzleDelta < -10) {
+    recs.push({
+      priority: 2, category: '♟️ Chess',
+      headline: `Puzzle rating dropped ${Math.abs(liToday.puzzleDelta)} points`,
+      why: `Now at ${puzzleRating}. Tough puzzles came up; nothing to worry about, but a bounce-back session helps.`,
+      action: `5–10 puzzles tomorrow morning. Easier difficulty if she's frustrated; same difficulty if she's eager.`
+    });
+  }
+  if (li.gamesPlayed && weekDays.length === 7) {
+    // Approximate: are games being played at all this week?
+    const liDailyGames = (plat.lichessDaily?.gamesPlayed || 0) + (plat.lichessToday?.totalGames || 0);
+    if (liDailyGames === 0 && (plat.chesskidDaily?.gamesPlayed || 0) === 0) {
+      // No games this period — but lifetime is non-zero
+      recs.push({
+        priority: 2, category: '♟️ Chess',
+        headline: `No rated games this week`,
+        why: `Puzzles sharpen tactics, but rated games teach strategy and time management.`,
+        action: `Schedule one 15-min Lichess Rapid game (10+0 or 15+10) this week.`
+      });
+    }
+  }
+
+  // ── Reading ──
+  if (cfg.booksRead != null && cfg.booksRead === 0 && w.book) {
+    recs.push({
+      priority: 2, category: '📖 Reading',
+      headline: `New book "${(w.book||'').replace(/\(.*\)/, '').trim()}" not yet finished`,
+      why: `Reading momentum drops fast when a book sits unfinished. ${w.bookNote || ''}`,
+      action: `Block 20 min of read-aloud or quiet-read time each evening this week.`
+    });
+  }
+
+  // ── Cross-subject: streaks & balance ──
+  // Count subjects with >0 minutes this week (timer-based)
+  const subjectsThisWeek = new Set();
+  for (const d of weekDays) {
+    const t = _getTimeForDate(d);
+    for (const [s, m] of Object.entries(t.bySubject || {})) if (m > 0) subjectsThisWeek.add(s);
+  }
+  if (weekMinsBA > 0) subjectsThisWeek.add('Math');
+  if (subjectsThisWeek.size <= 2) {
+    recs.push({
+      priority: 2, category: '⚖️ Balance',
+      headline: `Only ${subjectsThisWeek.size} subject${subjectsThisWeek.size === 1 ? '' : 's'} active this week`,
+      why: `A balanced homeschool week typically touches ≥4 subjects. Active: ${[...subjectsThisWeek].join(', ') || 'none'}.`,
+      action: `Add at least 30 min each of Science and English/Vocabulary to this week's plan.`
+    });
+  }
+
+  // Sort: priority 1 first, then 2, then 3
+  recs.sort((a, b) => a.priority - b.priority);
+  return recs;
+}
+
 // Sum BA per-day minutes from hs-ba-activity-{year}-{month} keys for the
 // given range of dates. The daily scraper writes these keys, so we get a
 // real per-day breakdown even when timer logs are empty.
@@ -4360,8 +4559,40 @@ function _renderRichSubjectReport(targetId, mode, opts) {
 
   const taskPct = tasksTotal > 0 ? Math.round(tasksDone / tasksTotal * 100) : 0;
 
+  // ═══ 🤖 Analysis & Recommendations (top of report) ═══
+  let html = '';
+  if (!opts.skipRecommendations) {
+    const recs = _generateRecommendations(plat, cfg, rangeDays);
+    if (recs.length) {
+      const priColor = { 1: '#EF4444', 2: '#F59E0B', 3: '#10B981' };
+      const priBg    = { 1: '#FEE2E2', 2: '#FEF3C7', 3: '#D1FAE5' };
+      const priLabel = { 1: 'High',    2: 'Medium',  3: 'Win' };
+      html += `<div class="card" style="padding:14px;margin-bottom:14px;background:linear-gradient(135deg,#F9FAFB,#FFFFFF);">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
+          <span style="font-size:.85rem;font-weight:800;color:#374151;">🤖 Analysis & Recommendations</span>
+          <span style="font-size:.7rem;font-weight:700;color:#9CA3AF;">${recs.length} item${recs.length===1?'':'s'} · ${periodLabel}</span>
+        </div>
+        ${recs.slice(0, 6).map(r => `
+          <div style="display:flex;align-items:start;gap:10px;padding:10px;background:#FFFFFF;border:1px solid ${priColor[r.priority]}33;border-left:3px solid ${priColor[r.priority]};border-radius:8px;margin-bottom:8px;">
+            <div style="background:${priBg[r.priority]};color:${priColor[r.priority]};font-size:.62rem;font-weight:900;padding:2px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;margin-top:2px;">${priLabel[r.priority]}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:.78rem;font-weight:800;color:#111827;line-height:1.4;">${r.category} · ${r.headline}</div>
+              <div style="font-size:.72rem;font-weight:600;color:#6B7280;line-height:1.5;margin-top:3px;">${r.why}</div>
+              <div style="font-size:.74rem;font-weight:700;color:#1E3A8A;line-height:1.5;margin-top:6px;background:#EFF6FF;padding:6px 10px;border-radius:6px;">→ ${r.action}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>`;
+    } else {
+      html += `<div class="card" style="padding:14px;margin-bottom:14px;background:linear-gradient(135deg,#ECFDF5,#FFFFFF);">
+        <div style="font-size:.85rem;font-weight:800;color:#065F46;margin-bottom:4px;">🤖 Analysis & Recommendations</div>
+        <div style="font-size:.78rem;font-weight:600;color:#047857;line-height:1.5;">All clear — no urgent action items detected for ${periodLower}. Steady wins.</div>
+      </div>`;
+    }
+  }
+
   // ═══ Top overview row ═══
-  let html = `<div style="font-size:.85rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 ${periodLabel}'s Report Card</div>`;
+  html += `<div style="font-size:.85rem;font-weight:800;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 ${periodLabel}'s Report Card</div>`;
   html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
     <div class="stat-card">
       <div class="stat-emoji">✅</div>
